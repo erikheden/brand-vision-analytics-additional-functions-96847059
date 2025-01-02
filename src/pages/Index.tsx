@@ -1,7 +1,6 @@
 import { useState } from "react";
 import SelectionPanel from "@/components/SelectionPanel";
 import ChartSection from "@/components/ChartSection";
-import ChatSection from "@/components/ChatSection";
 
 const Index = () => {
   const [selectedCountry, setSelectedCountry] = useState<string>("");
@@ -30,11 +29,6 @@ const Index = () => {
           />
           
           <ChartSection
-            selectedCountry={selectedCountry}
-            selectedBrands={selectedBrands}
-          />
-
-          <ChatSection
             selectedCountry={selectedCountry}
             selectedBrands={selectedBrands}
           />
