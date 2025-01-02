@@ -17,7 +17,7 @@ serve(async (req) => {
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     // Fetch relevant data
@@ -33,6 +33,8 @@ serve(async (req) => {
     const dataContext = rankingData.map(item => 
       `${item.Brand} had a sustainability score of ${item.Score} in ${item.Year}`
     ).join('. ');
+
+    console.log('Sending request to OpenAI with context:', dataContext);
 
     // Call OpenAI API
     const response = await fetch('https://api.openai.com/v1/chat/completions', {

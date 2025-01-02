@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ChatSectionProps {
   selectedCountry: string;
@@ -38,24 +39,19 @@ const ChatSection = ({ selectedCountry, selectedBrands }: ChatSectionProps) => {
     setMessage("");
 
     try {
-      const response = await fetch('/functions/v1/chat-with-rankings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('chat-with-rankings', {
+        body: {
           country: selectedCountry,
           brands: selectedBrands,
           message,
-        }),
+        },
       });
 
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
+      if (error) throw error;
 
       setChatHistory(prev => [...prev, { role: 'assistant', content: data.response }]);
     } catch (error) {
+      console.error('Chat error:', error);
       toast({
         title: "Error sending message",
         description: error.message,
