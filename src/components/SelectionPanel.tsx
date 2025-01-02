@@ -15,6 +15,14 @@ interface SelectionPanelProps {
   setSelectedBrands: (brands: string[]) => void;
 }
 
+const countryMapping: { [key: string]: string } = {
+  'Se': 'Sweden',
+  'No': 'Norway',
+  'Dk': 'Denmark',
+  'Fi': 'Finland',
+  'Nl': 'The Netherlands'
+};
+
 const SelectionPanel = ({
   selectedCountry,
   setSelectedCountry,
@@ -58,6 +66,10 @@ const SelectionPanel = ({
     setSelectedBrands([]);
   };
 
+  const getFullCountryName = (code: string) => {
+    return countryMapping[code] || code;
+  };
+
   return (
     <Card className="p-6">
       <div className="space-y-6">
@@ -65,12 +77,14 @@ const SelectionPanel = ({
           <Label>Select Country</Label>
           <Select value={selectedCountry} onValueChange={setSelectedCountry}>
             <SelectTrigger>
-              <SelectValue placeholder="Choose a country" />
+              <SelectValue placeholder="Choose a country">
+                {selectedCountry ? getFullCountryName(selectedCountry) : "Choose a country"}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {countries.map((country) => (
                 <SelectItem key={country} value={country}>
-                  {country}
+                  {getFullCountryName(country)}
                 </SelectItem>
               ))}
             </SelectContent>
