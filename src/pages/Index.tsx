@@ -12,19 +12,18 @@ const Index = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         <h1 className="text-4xl font-bold">Sustainable Brand Index Rankings</h1>
         
-        <div className="grid gap-8 md:grid-cols-2">
-          <div className="space-y-8">
-            <SelectionPanel
-              selectedCountry={selectedCountry}
-              setSelectedCountry={setSelectedCountry}
-              selectedBrands={selectedBrands}
-              setSelectedBrands={setSelectedBrands}
-            />
-            <ChartSection
-              selectedCountry={selectedCountry}
-              selectedBrands={selectedBrands}
-            />
-          </div>
+        <div className="space-y-8">
+          <SelectionPanel
+            selectedCountry={selectedCountry}
+            setSelectedCountry={setSelectedCountry}
+            selectedBrands={selectedBrands}
+            setSelectedBrands={setSelectedBrands}
+          />
+          
+          <ChartSection
+            selectedCountry={selectedCountry}
+            selectedBrands={selectedBrands}
+          />
 
           <ChatSection
             selectedCountry={selectedCountry}
