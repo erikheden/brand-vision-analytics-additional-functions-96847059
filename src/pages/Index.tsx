@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 
@@ -18,11 +18,14 @@ const Index = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("NEW SBI Ranking Scores 2011-2024")
-        .select("Country")
-        .distinct();
+        .select('Country')
+        .eq('Country', 'Country');
       
       if (error) throw error;
-      return data.map(item => item.Country).filter(Boolean);
+      
+      // Get unique countries using Set
+      const uniqueCountries = [...new Set(data.map(item => item.Country))].filter(Boolean);
+      return uniqueCountries;
     }
   });
 
@@ -33,12 +36,14 @@ const Index = () => {
       if (!selectedCountry) return [];
       const { data, error } = await supabase
         .from("NEW SBI Ranking Scores 2011-2024")
-        .select("Brand")
-        .eq("Country", selectedCountry)
-        .distinct();
+        .select('Brand')
+        .eq('Country', selectedCountry);
       
       if (error) throw error;
-      return data.map(item => item.Brand).filter(Boolean);
+      
+      // Get unique brands using Set
+      const uniqueBrands = [...new Set(data.map(item => item.Brand))].filter(Boolean);
+      return uniqueBrands;
     },
     enabled: !!selectedCountry
   });
@@ -89,6 +94,17 @@ const Index = () => {
   const brandColors = Object.fromEntries(
     selectedBrands.map(brand => [brand, getRandomColor()])
   );
+
+  // Chart configuration
+  const chartConfig = {
+    ...selectedBrands.reduce((acc, brand) => ({
+      ...acc,
+      [brand]: {
+        label: brand,
+        color: brandColors[brand]
+      }
+    }), {})
+  };
 
   return (
     <div className="min-h-screen p-8 bg-background">
@@ -142,7 +158,7 @@ const Index = () => {
 
           <Card className="p-6">
             {chartData.length > 0 ? (
-              <ChartContainer className="h-[400px]">
+              <ChartContainer config={chartConfig} className="h-[400px]">
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="year" />
