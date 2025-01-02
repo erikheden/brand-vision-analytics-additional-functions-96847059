@@ -41,45 +41,55 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
     return acc;
   }, []).sort((a, b) => a.year - b.year);
 
-  const getRandomColor = () => {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  };
+  const brandColors = [
+    '#b7c895',
+    '#dadada',
+    '#f0d2b0',
+    '#bce2f3',
+    '#7c9457',
+    '#dd8c57',
+    '#6ec0dc',
+    '#1d1d1b',
+    '#34502b',
+    '#09657b'
+  ];
 
-  const brandColors = Object.fromEntries(
-    selectedBrands.map(brand => [brand, getRandomColor()])
-  );
-
-  const chartConfig = {
-    ...selectedBrands.reduce((acc, brand) => ({
-      ...acc,
-      [brand]: {
+  const chartConfig = Object.fromEntries(
+    selectedBrands.map((brand, index) => [
+      brand,
+      {
         label: brand,
-        color: brandColors[brand]
+        color: brandColors[index % brandColors.length]
       }
-    }), {})
-  };
+    ])
+  );
 
   return (
     <Card className="p-6">
       {chartData.length > 0 ? (
-        <ChartContainer config={chartConfig} className="h-[400px]">
-          <LineChart data={chartData}>
+        <ChartContainer config={chartConfig} className="h-[500px] w-full">
+          <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="year" />
-            <YAxis />
+            <XAxis 
+              dataKey="year" 
+              style={{ fontFamily: 'Forma DJR Display' }}
+            />
+            <YAxis
+              style={{ fontFamily: 'Forma DJR Display' }}
+            />
             <ChartTooltip content={<ChartTooltipContent />} />
-            <Legend />
-            {selectedBrands.map((brand) => (
+            <Legend 
+              wrapperStyle={{ 
+                fontFamily: 'Forma DJR Display',
+                paddingTop: '20px'
+              }}
+            />
+            {selectedBrands.map((brand, index) => (
               <Line
                 key={brand}
                 type="monotone"
                 dataKey={brand}
-                stroke={brandColors[brand]}
+                stroke={brandColors[index % brandColors.length]}
                 strokeWidth={2}
                 dot={{ r: 4 }}
               />
@@ -87,7 +97,7 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
           </LineChart>
         </ChartContainer>
       ) : (
-        <div className="h-[400px] flex items-center justify-center text-muted-foreground">
+        <div className="h-[500px] flex items-center justify-center text-muted-foreground" style={{ fontFamily: 'Forma DJR Display' }}>
           {selectedCountry
             ? "Select brands to view their rankings"
             : "Select a country to get started"}
