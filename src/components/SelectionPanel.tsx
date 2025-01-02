@@ -25,11 +25,11 @@ const SelectionPanel = ({
       const { data, error } = await supabase
         .from("NEW SBI Ranking Scores 2011-2024")
         .select('Country')
-        .eq('Country', 'Country');
+        .not('Country', 'is', null);
       
       if (error) throw error;
       
-      const uniqueCountries = [...new Set(data.map(item => item.Country))].filter(Boolean);
+      const uniqueCountries = [...new Set(data.map(item => item.Country))].sort();
       return uniqueCountries;
     }
   });
@@ -41,11 +41,12 @@ const SelectionPanel = ({
       const { data, error } = await supabase
         .from("NEW SBI Ranking Scores 2011-2024")
         .select('Brand')
-        .eq('Country', selectedCountry);
+        .eq('Country', selectedCountry)
+        .not('Brand', 'is', null);
       
       if (error) throw error;
       
-      const uniqueBrands = [...new Set(data.map(item => item.Brand))].filter(Boolean);
+      const uniqueBrands = [...new Set(data.map(item => item.Brand))].sort();
       return uniqueBrands;
     },
     enabled: !!selectedCountry
