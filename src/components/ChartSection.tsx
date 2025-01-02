@@ -92,6 +92,7 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
                 stroke={brandColors[index % brandColors.length]}
                 strokeWidth={2}
                 dot={{ r: 4 }}
+                connectNulls={false}
               />
             ))}
           </LineChart>
