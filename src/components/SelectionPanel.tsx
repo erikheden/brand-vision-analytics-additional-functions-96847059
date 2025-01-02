@@ -5,6 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface SelectionPanelProps {
   selectedCountry: string;
@@ -52,6 +54,10 @@ const SelectionPanel = ({
     enabled: !!selectedCountry
   });
 
+  const handleClearBrands = () => {
+    setSelectedBrands([]);
+  };
+
   return (
     <Card className="p-6">
       <div className="space-y-6">
@@ -73,8 +79,21 @@ const SelectionPanel = ({
 
         {selectedCountry && (
           <div className="space-y-2">
-            <Label>Select Brands</Label>
-            <div className="grid gap-2 max-h-[300px] overflow-y-auto">
+            <div className="flex justify-between items-center">
+              <Label>Select Brands</Label>
+              {selectedBrands.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClearBrands}
+                  className="text-sm"
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Clear all
+                </Button>
+              )}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 max-h-[300px] overflow-y-auto">
               {brands.map((brand) => (
                 <div key={brand} className="flex items-center space-x-2">
                   <Checkbox
@@ -88,7 +107,7 @@ const SelectionPanel = ({
                       }
                     }}
                   />
-                  <Label htmlFor={brand}>{brand}</Label>
+                  <Label htmlFor={brand} className="truncate">{brand}</Label>
                 </div>
               ))}
             </div>
