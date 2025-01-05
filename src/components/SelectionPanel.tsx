@@ -60,7 +60,7 @@ const SelectionPanel = ({
       if (!selectedCountry) return [];
       let query = supabase
         .from("NEW SBI Ranking Scores 2011-2024")
-        .select('Brand')
+        .select('Brand, industry')
         .eq('Country', selectedCountry)
         .not('Brand', 'is', null);
       
@@ -72,7 +72,7 @@ const SelectionPanel = ({
       if (error) throw error;
       
       const uniqueBrands = [...new Set(data.map(item => item.Brand))].sort();
-      return uniqueBrands;
+      return data;
     },
     enabled: !!selectedCountry
   });
@@ -91,22 +91,34 @@ const SelectionPanel = ({
 
   const handleIndustryToggle = (industry: string) => {
     setSelectedIndustries(prev => {
-      const newIndustries = prev.includes(industry)
+      const isSelected = prev.includes(industry);
+      const newIndustries = isSelected
         ? prev.filter(i => i !== industry)
         : [...prev, industry];
       
-      // Clear selected brands that are no longer visible due to industry filter
-      if (newIndustries.length > 0) {
+      // Get all brands for the selected industry
+      const industryBrands = brands
+        .filter(item => item.industry === industry)
+        .map(item => item.Brand);
+      
+      // Update selected brands based on industry selection
+      if (isSelected) {
+        // Remove brands from this industry
         setSelectedBrands(current => 
-          current.filter(brand => 
-            brands.includes(brand)
-          )
+          current.filter(brand => !industryBrands.includes(brand))
         );
+      } else {
+        // Add all brands from this industry
+        const newBrands = new Set([...selectedBrands, ...industryBrands]);
+        setSelectedBrands(Array.from(newBrands));
       }
       
       return newIndustries;
     });
   };
+
+  // Get unique brand names from the brands data
+  const uniqueBrandNames = [...new Set(brands.map(item => item.Brand))].sort();
 
   return (
     <Card className="p-6">
@@ -129,7 +141,7 @@ const SelectionPanel = ({
               onIndustryToggle={handleIndustryToggle}
             />
             <BrandSelection
-              brands={brands}
+              brands={uniqueBrandNames}
               selectedBrands={selectedBrands}
               onBrandToggle={handleBrandToggle}
               onClearBrands={handleClearBrands}
