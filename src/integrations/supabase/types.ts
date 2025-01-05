@@ -6,16 +6,6 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-// Define the BrandData type based on the NEW SBI Ranking Scores table structure
-export type BrandData = {
-  Brand: string | null;
-  Country: string | null;
-  industry: string | null;
-  Year: number | null;
-  Score: number | null;
-  "Row ID": number;
-}
-
 export type Database = {
   public: {
     Tables: {
@@ -137,10 +127,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-      Row: infer R
-    }
-    ? R
-    : never
+        Row: infer R
+      }
+      ? R
+      : never
     : never
 
 export type TablesInsert<

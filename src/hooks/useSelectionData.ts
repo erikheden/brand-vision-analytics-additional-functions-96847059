@@ -41,7 +41,7 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
       if (!selectedCountry) return [];
       let query = supabase
         .from("NEW SBI Ranking Scores 2011-2024")
-        .select('Brand, industry')
+        .select('Brand, industry, Country, Year, Score, "Row ID"')
         .eq('Country', selectedCountry)
         .not('Brand', 'is', null);
       
