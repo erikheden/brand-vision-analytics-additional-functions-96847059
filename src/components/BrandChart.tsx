@@ -12,35 +12,39 @@ interface BrandChartProps {
 const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: BrandChartProps) => {
   const brandColors = getBrandColors();
 
-  // Custom tooltip formatter with improved type safety and error handling
-  const tooltipFormatter = (value: any, name: string, props: any) => {
+  // Custom tooltip formatter with color coding and proper sorting
+  const tooltipFormatter = (value: number, name: string, props: any) => {
     try {
-      // Ensure we have valid props and payload
-      if (!props?.payload || !Array.isArray(props.payload) || props.payload.length === 0) {
+      if (!props?.payload?.[0]?.payload) {
         return [value, name];
       }
 
-      // Create a copy of the payload array and sort it
-      const sortedPayload = [...props.payload].sort((a, b) => {
-        // Ensure we're dealing with valid payload items
-        if (!a || !b) return 0;
-        
-        const scoreA = typeof a.value === 'number' ? a.value : 0;
-        const scoreB = typeof b.value === 'number' ? b.value : 0;
-        return scoreB - scoreA;
-      });
+      // Get all brand values for the current year
+      const yearData = props.payload[0].payload;
       
-      // Find the index of the current item in the sorted array
-      const currentIndex = sortedPayload.findIndex(item => item?.name === name);
+      // Create array of brand-value pairs for sorting
+      const brandValues = selectedBrands.map((brand, index) => ({
+        brand,
+        value: yearData[brand] || 0,
+        color: brandColors[index % brandColors.length]
+      }));
+
+      // Sort brands by value in descending order
+      const sortedBrands = brandValues.sort((a, b) => b.value - a.value);
       
-      // Return the value with the sorted order
+      // Find position of current brand in sorted list
+      const currentBrandIndex = sortedBrands.findIndex(item => item.brand === name);
+      
+      // Return formatted value with color and position information
       return [
-        value, 
-        name, 
-        { ...props, payload: sortedPayload, dataKey: currentIndex >= 0 ? currentIndex : undefined }
+        value,
+        name,
+        {
+          color: brandColors[selectedBrands.indexOf(name) % brandColors.length],
+          position: currentBrandIndex
+        }
       ];
     } catch (error) {
-      // Fallback to original values if any error occurs
       console.error('Error in tooltip formatter:', error);
       return [value, name];
     }
@@ -62,6 +66,12 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: Brand
         <ChartTooltip 
           content={<ChartTooltipContent />}
           formatter={tooltipFormatter}
+          wrapperStyle={{ 
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            padding: '8px'
+          }}
         />
         <Legend 
           wrapperStyle={{ 
