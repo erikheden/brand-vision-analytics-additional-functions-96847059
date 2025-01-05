@@ -20,10 +20,14 @@ const IndustryTags = ({ industries, selectedIndustries, onIndustryToggle }: Indu
         {industries.map((industry) => (
           <Button
             key={industry}
-            variant={selectedIndustries.includes(industry) ? "secondary" : "outline"}
+            variant="outline"
             size="sm"
             onClick={() => onIndustryToggle(industry)}
-            className="text-sm"
+            className={`text-sm ${
+              selectedIndustries.includes(industry)
+                ? "bg-industry-selected hover:bg-industry-selected/90"
+                : ""
+            }`}
           >
             {industry}
           </Button>
