@@ -34,7 +34,7 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
     };
   }, { earliest: Infinity, latest: -Infinity });
 
-  // Only create data points for years where we have actual data
+  // Process data to only include points where we have actual scores
   const chartData = scores.reduce((acc: any[], score) => {
     const year = score.Year;
     const existingYear = acc.find(item => item.year === year);
@@ -42,13 +42,10 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
     if (existingYear) {
       existingYear[score.Brand] = score.Score;
     } else {
-      const dataPoint = { year };
-      selectedBrands.forEach(brand => {
-        if (brand === score.Brand) {
-          dataPoint[brand] = score.Score;
-        }
-      });
-      acc.push(dataPoint);
+      const newDataPoint = { year };
+      // Only add score for the current brand
+      newDataPoint[score.Brand] = score.Score;
+      acc.push(newDataPoint);
     }
     return acc;
   }, []).sort((a, b) => a.year - b.year);
