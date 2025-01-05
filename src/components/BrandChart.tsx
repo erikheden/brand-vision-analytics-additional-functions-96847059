@@ -14,11 +14,15 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: Brand
 
   // Custom tooltip formatter to sort by score
   const tooltipFormatter = (value: any, name: string, props: any) => {
-    const payload = props.payload;
-    // Sort the payload items by score in descending order
-    const sortedPayload = [...payload].sort((a, b) => {
-      const scoreA = a.value || 0;
-      const scoreB = b.value || 0;
+    // Check if payload exists and is an array
+    if (!props?.payload || !Array.isArray(props.payload)) {
+      return [value, name, props];
+    }
+
+    // Create a copy of the payload array and sort it
+    const sortedPayload = [...props.payload].sort((a, b) => {
+      const scoreA = typeof a.value === 'number' ? a.value : 0;
+      const scoreB = typeof b.value === 'number' ? b.value : 0;
       return scoreB - scoreA;
     });
     
