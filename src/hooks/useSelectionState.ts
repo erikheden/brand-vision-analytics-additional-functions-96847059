@@ -16,7 +16,8 @@ export const useSelectionState = (
       // Get all brands for the selected industry
       const industryBrands = brands
         .filter(item => item.industry === industry)
-        .map(item => item.Brand);
+        .map(item => item.Brand)
+        .filter((brand): brand is string => brand !== null);
       
       // Update selected brands based on industry selection
       if (isSelected) {
