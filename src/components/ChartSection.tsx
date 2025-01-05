@@ -26,11 +26,15 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
     enabled: !!selectedCountry && selectedBrands.length > 0
   });
 
-  // Find the earliest year among selected brands
-  const earliestYear = scores.reduce((earliest, score) => {
-    return Math.min(earliest, score.Year);
-  }, Infinity);
+  // Find the earliest and latest years with actual data
+  const yearRange = scores.reduce((range, score) => {
+    return {
+      earliest: Math.min(range.earliest, score.Year),
+      latest: Math.max(range.latest, score.Year)
+    };
+  }, { earliest: Infinity, latest: -Infinity });
 
+  // Only create data points for years where we have actual data
   const chartData = scores.reduce((acc: any[], score) => {
     const year = score.Year;
     const existingYear = acc.find(item => item.year === year);
@@ -38,10 +42,13 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
     if (existingYear) {
       existingYear[score.Brand] = score.Score;
     } else {
-      acc.push({
-        year,
-        [score.Brand]: score.Score
+      const dataPoint = { year };
+      selectedBrands.forEach(brand => {
+        if (brand === score.Brand) {
+          dataPoint[brand] = score.Score;
+        }
       });
+      acc.push(dataPoint);
     }
     return acc;
   }, []).sort((a, b) => a.year - b.year);
@@ -77,7 +84,7 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="year" 
-              domain={[earliestYear, 2024]}
+              domain={[yearRange.earliest, yearRange.latest]}
               style={{ fontFamily: 'Forma DJR Display' }}
             />
             <YAxis
