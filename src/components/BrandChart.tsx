@@ -12,25 +12,38 @@ interface BrandChartProps {
 const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: BrandChartProps) => {
   const brandColors = getBrandColors();
 
-  // Custom tooltip formatter to sort by score
+  // Custom tooltip formatter with improved type safety and error handling
   const tooltipFormatter = (value: any, name: string, props: any) => {
-    // Check if payload exists and is an array
-    if (!props?.payload || !Array.isArray(props.payload)) {
-      return [value, name, props];
-    }
+    try {
+      // Ensure we have valid props and payload
+      if (!props?.payload || !Array.isArray(props.payload) || props.payload.length === 0) {
+        return [value, name];
+      }
 
-    // Create a copy of the payload array and sort it
-    const sortedPayload = [...props.payload].sort((a, b) => {
-      const scoreA = typeof a.value === 'number' ? a.value : 0;
-      const scoreB = typeof b.value === 'number' ? b.value : 0;
-      return scoreB - scoreA;
-    });
-    
-    // Find the index of the current item in the sorted array
-    const currentIndex = sortedPayload.findIndex(item => item.name === name);
-    
-    // Return the value with the sorted order
-    return [value, name, { ...props, payload: sortedPayload, dataKey: currentIndex }];
+      // Create a copy of the payload array and sort it
+      const sortedPayload = [...props.payload].sort((a, b) => {
+        // Ensure we're dealing with valid payload items
+        if (!a || !b) return 0;
+        
+        const scoreA = typeof a.value === 'number' ? a.value : 0;
+        const scoreB = typeof b.value === 'number' ? b.value : 0;
+        return scoreB - scoreA;
+      });
+      
+      // Find the index of the current item in the sorted array
+      const currentIndex = sortedPayload.findIndex(item => item?.name === name);
+      
+      // Return the value with the sorted order
+      return [
+        value, 
+        name, 
+        { ...props, payload: sortedPayload, dataKey: currentIndex >= 0 ? currentIndex : undefined }
+      ];
+    } catch (error) {
+      // Fallback to original values if any error occurs
+      console.error('Error in tooltip formatter:', error);
+      return [value, name];
+    }
   };
 
   return (
