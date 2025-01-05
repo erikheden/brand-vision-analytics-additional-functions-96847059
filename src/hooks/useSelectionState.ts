@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrandData } from "@/integrations/supabase/types";
+import { BrandData } from "@/types/brand";
 
 export const useSelectionState = (
   setSelectedBrands: React.Dispatch<React.SetStateAction<string[]>>
@@ -7,8 +7,8 @@ export const useSelectionState = (
   const [selectedIndustry, setSelectedIndustry] = useState<string>("");
 
   const handleIndustryToggle = (industry: string, brands: BrandData[]) => {
-    // If clicking the same industry, deselect it
     if (selectedIndustry === industry) {
+      // If clicking the same industry, deselect it and clear brands
       setSelectedIndustry("");
       setSelectedBrands([]);
     } else {
@@ -21,7 +21,7 @@ export const useSelectionState = (
         .map(item => item.Brand)
         .filter((brand): brand is string => brand !== null);
       
-      // Update selected brands
+      // Update selected brands with unique values
       setSelectedBrands([...new Set(industryBrands)]);
     }
   };

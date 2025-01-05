@@ -22,10 +22,11 @@ const SelectionPanel = ({
     useSelectionState(setSelectedBrands);
   
   const { countries, industries, brands } = 
-    useSelectionData(selectedCountry, [selectedIndustry]);
+    useSelectionData(selectedCountry, [selectedIndustry].filter(Boolean));
 
   const handleClearBrands = () => {
     setSelectedBrands([]);
+    setSelectedIndustry("");
   };
 
   const handleBrandToggle = (brand: string, checked: boolean) => {
