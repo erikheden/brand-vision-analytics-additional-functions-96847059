@@ -12,6 +12,23 @@ interface BrandChartProps {
 const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: BrandChartProps) => {
   const brandColors = getBrandColors();
 
+  // Custom tooltip formatter to sort by score
+  const tooltipFormatter = (value: any, name: string, props: any) => {
+    const payload = props.payload;
+    // Sort the payload items by score in descending order
+    const sortedPayload = [...payload].sort((a, b) => {
+      const scoreA = a.value || 0;
+      const scoreB = b.value || 0;
+      return scoreB - scoreA;
+    });
+    
+    // Find the index of the current item in the sorted array
+    const currentIndex = sortedPayload.findIndex(item => item.name === name);
+    
+    // Return the value with the sorted order
+    return [value, name, { ...props, payload: sortedPayload, dataKey: currentIndex }];
+  };
+
   return (
     <ChartContainer config={chartConfig} className="h-[500px] w-full">
       <LineChart 
@@ -25,7 +42,10 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: Brand
           style={{ fontFamily: 'Forma DJR Display' }}
         />
         <YAxis style={{ fontFamily: 'Forma DJR Display' }} />
-        <ChartTooltip content={<ChartTooltipContent />} />
+        <ChartTooltip 
+          content={<ChartTooltipContent />}
+          formatter={tooltipFormatter}
+        />
         <Legend 
           wrapperStyle={{ 
             fontFamily: 'Forma DJR Display',
