@@ -22,20 +22,20 @@ const BrandSelection = ({
   
   // Reorganize brands into column-first order
   const reorganizeBrandsIntoColumns = (brands: string[]) => {
+    const sortedBrands = [...brands].sort();
     const result: string[] = new Array(brands.length);
-    let index = 0;
+    const itemsPerColumn = Math.ceil(sortedBrands.length / numColumns);
     
-    for (let col = 0; col < numColumns; col++) {
-      for (let row = 0; row < numRows; row++) {
-        const originalIndex = row * numColumns + col;
-        if (originalIndex < brands.length) {
-          result[index] = brands[originalIndex];
-          index++;
-        }
-      }
+    for (let i = 0; i < sortedBrands.length; i++) {
+      // Calculate position in the grid
+      const column = Math.floor(i / itemsPerColumn);
+      const row = i % itemsPerColumn;
+      const newIndex = row * numColumns + column;
+      
+      result[newIndex] = sortedBrands[i];
     }
     
-    return result;
+    return result.filter(brand => brand !== undefined);
   };
 
   const columnOrderedBrands = reorganizeBrandsIntoColumns(brands);
