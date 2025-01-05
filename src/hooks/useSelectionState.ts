@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { BrandData } from "@/integrations/supabase/types";
 
 export const useSelectionState = (
-  setSelectedBrands: (brands: string[]) => void
+  setSelectedBrands: React.Dispatch<React.SetStateAction<string[]>>
 ) => {
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
 
-  const handleIndustryToggle = (industry: string, brands: any[]) => {
+  const handleIndustryToggle = (industry: string, brands: BrandData[]) => {
     setSelectedIndustries(prev => {
       const isSelected = prev.includes(industry);
       const newIndustries = isSelected
@@ -26,8 +27,8 @@ export const useSelectionState = (
       } else {
         // Add all brands from this industry
         setSelectedBrands(current => {
-          const newBrands = new Set([...current, ...industryBrands]);
-          return Array.from(newBrands);
+          const newBrands = [...new Set([...current, ...industryBrands])];
+          return newBrands;
         });
       }
       
