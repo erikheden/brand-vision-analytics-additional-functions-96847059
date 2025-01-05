@@ -4,14 +4,16 @@ import { BrandData } from "@/integrations/supabase/types";
 export const useSelectionState = (
   setSelectedBrands: React.Dispatch<React.SetStateAction<string[]>>
 ) => {
-  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+  const [selectedIndustry, setSelectedIndustry] = useState<string>("");
 
   const handleIndustryToggle = (industry: string, brands: BrandData[]) => {
-    setSelectedIndustries(prev => {
-      const isSelected = prev.includes(industry);
-      const newIndustries = isSelected
-        ? prev.filter(i => i !== industry)
-        : [...prev, industry];
+    // If clicking the same industry, deselect it
+    if (selectedIndustry === industry) {
+      setSelectedIndustry("");
+      setSelectedBrands([]);
+    } else {
+      // Select new industry and update brands
+      setSelectedIndustry(industry);
       
       // Get all brands for the selected industry
       const industryBrands = brands
@@ -19,27 +21,14 @@ export const useSelectionState = (
         .map(item => item.Brand)
         .filter((brand): brand is string => brand !== null);
       
-      // Update selected brands based on industry selection
-      if (isSelected) {
-        // Remove brands from this industry
-        setSelectedBrands(current => 
-          current.filter(brand => !industryBrands.includes(brand))
-        );
-      } else {
-        // Add all brands from this industry
-        setSelectedBrands(current => {
-          const newBrands = [...new Set([...current, ...industryBrands])];
-          return newBrands;
-        });
-      }
-      
-      return newIndustries;
-    });
+      // Update selected brands
+      setSelectedBrands([...new Set(industryBrands)]);
+    }
   };
 
   return {
-    selectedIndustries,
-    setSelectedIndustries,
+    selectedIndustry,
+    setSelectedIndustry,
     handleIndustryToggle
   };
 };

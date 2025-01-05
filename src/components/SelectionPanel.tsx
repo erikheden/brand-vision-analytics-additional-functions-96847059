@@ -18,11 +18,11 @@ const SelectionPanel = ({
   selectedBrands,
   setSelectedBrands,
 }: SelectionPanelProps) => {
-  const { selectedIndustries, setSelectedIndustries, handleIndustryToggle } = 
+  const { selectedIndustry, setSelectedIndustry, handleIndustryToggle } = 
     useSelectionState(setSelectedBrands);
   
   const { countries, industries, brands } = 
-    useSelectionData(selectedCountry, selectedIndustries);
+    useSelectionData(selectedCountry, [selectedIndustry]);
 
   const handleClearBrands = () => {
     setSelectedBrands([]);
@@ -48,7 +48,7 @@ const SelectionPanel = ({
           onCountryChange={(country) => {
             setSelectedCountry(country);
             setSelectedBrands([]);
-            setSelectedIndustries([]);
+            setSelectedIndustry("");
           }}
         />
 
@@ -56,7 +56,7 @@ const SelectionPanel = ({
           <>
             <IndustryTags
               industries={industries}
-              selectedIndustries={selectedIndustries}
+              selectedIndustry={selectedIndustry}
               onIndustryToggle={(industry) => handleIndustryToggle(industry, brands)}
             />
             <BrandSelection

@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 
 interface IndustryTagsProps {
   industries: string[];
-  selectedIndustries: string[];
+  selectedIndustry: string;
   onIndustryToggle: (industry: string) => void;
 }
 
-const IndustryTags = ({ industries, selectedIndustries, onIndustryToggle }: IndustryTagsProps) => {
+const IndustryTags = ({ industries, selectedIndustry, onIndustryToggle }: IndustryTagsProps) => {
   if (!industries.length) return null;
 
   return (
@@ -24,7 +24,7 @@ const IndustryTags = ({ industries, selectedIndustries, onIndustryToggle }: Indu
             size="sm"
             onClick={() => onIndustryToggle(industry)}
             className={`text-sm ${
-              selectedIndustries.includes(industry)
+              selectedIndustry === industry
                 ? "bg-industry-selected hover:bg-industry-selected/90"
                 : ""
             }`}
