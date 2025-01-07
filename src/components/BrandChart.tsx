@@ -67,7 +67,7 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: Brand
     tooltip: {
       shared: true,
       useHTML: true,
-      formatter: function(this: Highcharts.TooltipFormatterContextObject) {
+      formatter: function(this: any) {
         if (!this.points) return '';
         
         const sortedPoints = [...this.points].sort((a, b) => 
