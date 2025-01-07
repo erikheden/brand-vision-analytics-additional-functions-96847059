@@ -13,6 +13,11 @@ const Index = () => {
           <h1 className="text-4xl md:text-5xl text-white font-['bely-display'] font-normal">
             Ranking Database 2011-2024
           </h1>
+          <img 
+            src="/lovable-uploads/8732b50b-f85b-48ca-91ac-748d8819f66c.png" 
+            alt="SB Index Logo" 
+            className="h-16 md:h-20 w-auto"
+          />
         </div>
       </div>
       <div className="max-w-[1400px] mx-auto px-6 py-8 space-y-8">
