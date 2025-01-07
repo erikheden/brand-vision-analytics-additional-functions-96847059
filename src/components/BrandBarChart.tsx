@@ -10,7 +10,7 @@ interface BrandBarChartProps {
 }
 
 const FONT_FAMILY = 'Forma DJR Display';
-const BAR_COLOR = '#9b87f5'; // Using the Primary Purple from the color palette
+const BAR_COLOR = '#b7c895'; // Soft sage green color
 
 const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
