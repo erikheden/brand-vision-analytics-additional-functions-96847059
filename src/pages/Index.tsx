@@ -8,9 +8,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="w-full bg-[#4A6741]">
+      <div className="w-full bg-[#8B9F75]">
         <img 
-          src="/lovable-uploads/34ced083-6a8b-48a1-b716-385fd7ab80f5.png" 
+          src="/lovable-uploads/b56cd013-14d8-427b-b33f-22c1f700aca8.png" 
           alt="Ranking Database 2011-2024" 
           className="w-full max-w-[1400px] mx-auto h-auto"
         />
