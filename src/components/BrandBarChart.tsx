@@ -1,10 +1,15 @@
+import React from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
 import { createChartOptions } from '@/utils/chartConfigs';
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
-import React from 'react';
+
+// Import the exporting module
+import HighchartsExporting from 'highcharts/modules/exporting';
+// Initialize exporting module
+HighchartsExporting(Highcharts);
 
 interface BrandBarChartProps {
   chartData: any[];
@@ -72,12 +77,15 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChart
       column: {
         borderRadius: 5
       }
+    },
+    exporting: {
+      enabled: true
     }
   };
 
   const handleExport = () => {
     if (chartRef.current?.chart) {
-      chartRef.current.chart.exportChartLocal({
+      chartRef.current.chart.exportChart({
         type: 'image/png',
         filename: 'brand-comparison-2024'
       });
@@ -85,19 +93,21 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChart
   };
 
   return (
-    <ChartContainer config={chartConfig} className="h-[500px] w-full">
-      <div className="flex justify-end mb-4">
-        <Button variant="outline" size="sm" onClick={handleExport}>
-          <Download className="h-4 w-4 mr-2" />
-          Export as PNG
-        </Button>
-      </div>
-      <HighchartsReact
-        highcharts={Highcharts}
-        options={options}
-        ref={chartRef}
-      />
-    </ChartContainer>
+    <div className="h-[500px] w-full">
+      <ChartContainer config={chartConfig}>
+        <div className="flex justify-end mb-4">
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export as PNG
+          </Button>
+        </div>
+        <HighchartsReact
+          highcharts={Highcharts}
+          options={options}
+          ref={chartRef}
+        />
+      </ChartContainer>
+    </div>
   );
 };
 
