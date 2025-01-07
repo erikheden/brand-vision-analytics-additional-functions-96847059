@@ -8,6 +8,10 @@ interface ChartDataPoint {
   [key: string]: number;
 }
 
+interface YearGroup {
+  [key: number]: ChartDataPoint;
+}
+
 export const calculateYearRange = (scores: any[]): YearRange => {
   const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
   
@@ -24,7 +28,7 @@ export const calculateYearRange = (scores: any[]): YearRange => {
 export const processChartData = (scores: any[]): ChartDataPoint[] => {
   const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
   
-  const yearGroups = validScores.reduce((acc: { [key: number]: any }, score) => {
+  const yearGroups: YearGroup = validScores.reduce((acc: YearGroup, score) => {
     const year = score.Year;
     if (!acc[year]) {
       acc[year] = { year };
@@ -33,7 +37,7 @@ export const processChartData = (scores: any[]): ChartDataPoint[] => {
     return acc;
   }, {});
 
-  return Object.values(yearGroups).sort((a: any, b: any) => a.year - b.year);
+  return Object.values(yearGroups) as ChartDataPoint[];
 };
 
 export const getBrandColors = () => [
