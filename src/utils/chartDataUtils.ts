@@ -9,28 +9,31 @@ interface ChartDataPoint {
 }
 
 export const calculateYearRange = (scores: any[]): YearRange => {
-  return scores.reduce((range, score) => {
-    return {
-      earliest: Math.min(range.earliest, score.Year),
-      latest: Math.max(range.latest, score.Year)
-    };
-  }, { earliest: Infinity, latest: -Infinity });
+  const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
+  
+  if (validScores.length === 0) {
+    return { earliest: new Date().getFullYear(), latest: new Date().getFullYear() };
+  }
+
+  return validScores.reduce((range, score) => ({
+    earliest: Math.min(range.earliest, score.Year),
+    latest: Math.max(range.latest, score.Year)
+  }), { earliest: Infinity, latest: -Infinity });
 };
 
 export const processChartData = (scores: any[]): ChartDataPoint[] => {
-  return scores.reduce((acc: ChartDataPoint[], score) => {
+  const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
+  
+  const yearGroups = validScores.reduce((acc: { [key: number]: any }, score) => {
     const year = score.Year;
-    const existingYear = acc.find(item => item.year === year);
-    
-    if (existingYear) {
-      existingYear[score.Brand] = score.Score;
-    } else {
-      const newDataPoint = { year } as ChartDataPoint;
-      newDataPoint[score.Brand] = score.Score;
-      acc.push(newDataPoint);
+    if (!acc[year]) {
+      acc[year] = { year };
     }
+    acc[year][score.Brand] = score.Score;
     return acc;
-  }, []).sort((a, b) => a.year - b.year);
+  }, {});
+
+  return Object.values(yearGroups).sort((a: any, b: any) => a.year - b.year);
 };
 
 export const getBrandColors = () => [

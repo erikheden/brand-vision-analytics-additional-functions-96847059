@@ -10,7 +10,9 @@ export const createSeriesConfig = (
   return selectedBrands.map((brand, index) => ({
     type: 'line',
     name: brand,
-    data: chartData.map(point => [point.year, point[brand] || null]),
+    data: chartData
+      .map(point => [point.year, point[brand]])
+      .filter(([_, value]) => value !== null && value !== 0 && value !== undefined),
     color: brandColors[index % brandColors.length],
     marker: {
       symbol: 'circle',

@@ -24,6 +24,12 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: Brand
       ...baseOptions.xAxis,
       min: yearRange.earliest,
       max: yearRange.latest,
+      allowDecimals: false,
+      labels: {
+        style: {
+          fontFamily: FONT_FAMILY
+        }
+      }
     },
     tooltip: {
       shared: true,
