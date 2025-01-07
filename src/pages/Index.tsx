@@ -8,18 +8,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="w-full bg-[#4A6741]">
+        <img 
+          src="/lovable-uploads/0af20dcf-910a-487b-a219-b6db63fe20f7.png" 
+          alt="Ranking Database 2011-2024" 
+          className="w-full max-w-[1400px] mx-auto h-auto"
+        />
+      </div>
       <div className="max-w-[1400px] mx-auto px-6 py-8 space-y-8">
-        <div className="flex justify-between items-start">
-          <h1 className="text-4xl font-bold" style={{ fontFamily: 'Forma DJR Display' }}>
-            Sustainable Brand Index Rankings
-          </h1>
-          <img 
-            src="/lovable-uploads/f129e07e-0768-435f-bbeb-9031a3217f84.png" 
-            alt="Sustainable Brand Index Logo" 
-            className="h-16 object-contain"
-          />
-        </div>
-        
         <div className="space-y-8">
           <SelectionPanel
             selectedCountry={selectedCountry}
