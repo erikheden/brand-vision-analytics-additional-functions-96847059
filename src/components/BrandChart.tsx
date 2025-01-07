@@ -1,7 +1,9 @@
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
-import { getBrandColors } from "@/utils/chartDataUtils";
+import { createChartOptions } from '@/utils/chartConfigs';
+import { createSeriesConfig } from '@/utils/seriesConfigs';
+import { createTooltipFormatter } from './ChartTooltip';
 
 interface BrandChartProps {
   chartData: any[];
@@ -10,108 +12,25 @@ interface BrandChartProps {
   chartConfig: any;
 }
 
-const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: BrandChartProps) => {
-  const brandColors = getBrandColors();
+const FONT_FAMILY = 'Forma DJR Display';
 
-  // Transform data for Highcharts format
-  const series: Highcharts.SeriesOptionsType[] = selectedBrands.map((brand, index) => ({
-    type: 'line',
-    name: brand,
-    data: chartData.map(point => [point.year, point[brand] || null]),
-    color: brandColors[index % brandColors.length],
-    marker: {
-      symbol: 'circle',
-      radius: 4
-    },
-    lineWidth: 2
-  }));
+const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: BrandChartProps) => {
+  const baseOptions = createChartOptions(FONT_FAMILY);
+  const series = createSeriesConfig(selectedBrands, chartData);
 
   const options: Highcharts.Options = {
-    chart: {
-      type: 'line',
-      style: {
-        fontFamily: 'Forma DJR Display'
-      },
-      backgroundColor: 'transparent'
-    },
-    title: {
-      text: undefined
-    },
+    ...baseOptions,
     xAxis: {
-      type: 'linear',
+      ...baseOptions.xAxis,
       min: yearRange.earliest,
       max: yearRange.latest,
-      title: {
-        text: undefined
-      },
-      labels: {
-        style: {
-          fontFamily: 'Forma DJR Display'
-        }
-      },
-      gridLineWidth: 1,
-      gridLineDashStyle: 'Dot'
-    },
-    yAxis: {
-      title: {
-        text: undefined
-      },
-      labels: {
-        style: {
-          fontFamily: 'Forma DJR Display'
-        }
-      },
-      gridLineWidth: 1,
-      gridLineDashStyle: 'Dot'
     },
     tooltip: {
       shared: true,
       useHTML: true,
-      formatter: function(this: any) {
-        if (!this.points) return '';
-        
-        const sortedPoints = [...this.points].sort((a, b) => 
-          (b.y ?? 0) - (a.y ?? 0)
-        );
-
-        const pointsHtml = sortedPoints.map(point => {
-          const color = point.series.color;
-          return `
-            <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
-              <div style="width: 10px; height: 10px; background-color: ${color}; border-radius: 50%;"></div>
-              <span style="color: #666;">${point.series.name}:</span>
-              <span style="font-weight: bold;">${point.y?.toFixed(2)}</span>
-            </div>
-          `;
-        }).join('');
-
-        return `
-          <div style="font-family: 'Forma DJR Display'; padding: 8px;">
-            <div style="font-weight: bold; margin-bottom: 8px;">${this.x}</div>
-            ${pointsHtml}
-          </div>
-        `;
-      }
+      formatter: createTooltipFormatter(FONT_FAMILY)
     },
-    legend: {
-      itemStyle: {
-        fontFamily: 'Forma DJR Display'
-      }
-    },
-    series: series,
-    credits: {
-      enabled: false
-    },
-    plotOptions: {
-      line: {
-        connectNulls: true
-      },
-      series: {
-        animation: {
-          duration: 1000
-        }
-      }
-    }
+    series
   };
 
   return (
