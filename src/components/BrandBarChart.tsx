@@ -10,6 +10,7 @@ interface BrandBarChartProps {
 }
 
 const FONT_FAMILY = 'Forma DJR Display';
+const BAR_COLOR = '#9b87f5'; // Using the Primary Purple from the color palette
 
 const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
@@ -23,11 +24,11 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChart
       return scoreA - scoreB;
     });
 
-  // Create sorted series data
+  // Create sorted series data with consistent color
   const seriesData = selectedBrands.map(brand => ({
     name: brand,
     y: latestData[0]?.[brand] || 0,
-    color: chartConfig[brand]?.color
+    color: BAR_COLOR // Use the same color for all bars
   })).sort((a, b) => a.y - b.y);
 
   const options: Highcharts.Options = {
