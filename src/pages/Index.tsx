@@ -10,7 +10,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <div className="w-full bg-[#4A6741]">
         <img 
-          src="/lovable-uploads/0af20dcf-910a-487b-a219-b6db63fe20f7.png" 
+          src="/lovable-uploads/34ced083-6a8b-48a1-b716-385fd7ab80f5.png" 
           alt="Ranking Database 2011-2024" 
           className="w-full max-w-[1400px] mx-auto h-auto"
         />
