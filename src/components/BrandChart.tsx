@@ -14,7 +14,8 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: Brand
   const brandColors = getBrandColors();
 
   // Transform data for Highcharts format
-  const series = selectedBrands.map((brand, index) => ({
+  const series: Highcharts.SeriesOptionsType[] = selectedBrands.map((brand, index) => ({
+    type: 'line',
     name: brand,
     data: chartData.map(point => [point.year, point[brand] || null]),
     color: brandColors[index % brandColors.length],
@@ -66,7 +67,7 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: Brand
     tooltip: {
       shared: true,
       useHTML: true,
-      formatter: function() {
+      formatter: function(this: Highcharts.TooltipFormatterContextObject) {
         if (!this.points) return '';
         
         const sortedPoints = [...this.points].sort((a, b) => 
