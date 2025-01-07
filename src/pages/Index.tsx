@@ -11,7 +11,6 @@ const Index = () => {
       <div className="w-full bg-[#8B9F75] py-6">
         <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
           <h1 className="text-4xl md:text-5xl text-white font-['bely-display'] font-normal">
-            Ranking Database 2011-2024
           </h1>
           <img 
             src="/lovable-uploads/8732b50b-f85b-48ca-91ac-748d8819f66c.png" 
