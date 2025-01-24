@@ -9,6 +9,75 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      "Awareness_Attitude_2019-2024": {
+        Row: {
+          awareness_level: number | null
+          brand: string | null
+          brand_attitude: number | null
+          brand_id: number | null
+          country: string | null
+          industry: string | null
+          industry_id: number | null
+          row_id: number
+          year: number | null
+        }
+        Insert: {
+          awareness_level?: number | null
+          brand?: string | null
+          brand_attitude?: number | null
+          brand_id?: number | null
+          country?: string | null
+          industry?: string | null
+          industry_id?: number | null
+          row_id: number
+          year?: number | null
+        }
+        Update: {
+          awareness_level?: number | null
+          brand?: string | null
+          brand_attitude?: number | null
+          brand_id?: number | null
+          country?: string | null
+          industry?: string | null
+          industry_id?: number | null
+          row_id?: number
+          year?: number | null
+        }
+        Relationships: []
+      }
+      General_brand_attitude: {
+        Row: {
+          brand: string | null
+          brand_attitude: number | null
+          brand_id: number | null
+          country: string | null
+          industry: string | null
+          industry_id: number | null
+          row_id: number
+          year: number | null
+        }
+        Insert: {
+          brand?: string | null
+          brand_attitude?: number | null
+          brand_id?: number | null
+          country?: string | null
+          industry?: string | null
+          industry_id?: number | null
+          row_id: number
+          year?: number | null
+        }
+        Update: {
+          brand?: string | null
+          brand_attitude?: number | null
+          brand_id?: number | null
+          country?: string | null
+          industry?: string | null
+          industry_id?: number | null
+          row_id?: number
+          year?: number | null
+        }
+        Relationships: []
+      }
       General_brand_awareness: {
         Row: {
           Awareness_level: number | null
@@ -39,6 +108,42 @@ export type Database = {
           Industry_id?: number | null
           Row_id?: number
           Year?: number | null
+        }
+        Relationships: []
+      }
+      "Merged Brand Awareness Attitude 2019-2024": {
+        Row: {
+          brand: string | null
+          brand_attitude: number | null
+          brand_awareness: number | null
+          brand_id: number | null
+          country: string | null
+          industry: string | null
+          industry_id: number | null
+          row_id: number
+          year: number | null
+        }
+        Insert: {
+          brand?: string | null
+          brand_attitude?: number | null
+          brand_awareness?: number | null
+          brand_id?: number | null
+          country?: string | null
+          industry?: string | null
+          industry_id?: number | null
+          row_id: number
+          year?: number | null
+        }
+        Update: {
+          brand?: string | null
+          brand_attitude?: number | null
+          brand_awareness?: number | null
+          brand_id?: number | null
+          country?: string | null
+          industry?: string | null
+          industry_id?: number | null
+          row_id?: number
+          year?: number | null
         }
         Relationships: []
       }
