@@ -24,7 +24,7 @@ export const createChartOptions = (fontFamily: string): Partial<Highcharts.Optio
     },
     gridLineWidth: 1,
     gridLineDashStyle: 'Dot',
-    gridLineColor: 'rgba(255, 255, 255, 0.1)',
+    gridLineColor: 'rgba(255, 255, 255, 0.2)', // Increased opacity for better visibility
     lineColor: '#ffffff'
   },
   yAxis: {
@@ -39,7 +39,7 @@ export const createChartOptions = (fontFamily: string): Partial<Highcharts.Optio
     },
     gridLineWidth: 1,
     gridLineDashStyle: 'Dot',
-    gridLineColor: 'rgba(255, 255, 255, 0.1)'
+    gridLineColor: 'rgba(255, 255, 255, 0.2)' // Increased opacity for better visibility
   },
   legend: {
     itemStyle: {
