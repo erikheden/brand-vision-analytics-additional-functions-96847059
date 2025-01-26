@@ -15,7 +15,7 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
   
   if (scores.length === 0) {
     return (
-      <Card className="p-6">
+      <Card className="p-6 bg-[#34502b] text-white rounded-xl shadow-lg">
         <EmptyChartState selectedCountry={selectedCountry} />
       </Card>
     );
@@ -27,7 +27,7 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
 
   return (
     <div className="space-y-6">
-      <Card className="p-6">
+      <Card className="p-6 bg-[#34502b] text-white rounded-xl shadow-lg">
         <BrandChart
           chartData={chartData}
           selectedBrands={selectedBrands}
@@ -36,7 +36,7 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
         />
       </Card>
       
-      <Card className="p-6">
+      <Card className="p-6 bg-[#34502b] text-white rounded-xl shadow-lg">
         <BrandBarChart
           chartData={chartData}
           selectedBrands={selectedBrands}

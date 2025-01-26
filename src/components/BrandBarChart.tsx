@@ -10,37 +10,39 @@ interface BrandBarChartProps {
 }
 
 const FONT_FAMILY = 'Forma DJR Display';
-const BAR_COLOR = '#b7c895'; // Soft sage green color
+const BAR_COLOR = '#C5D1B0'; // Lighter sage green to contrast with dark background
 
 const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
   
-  // Filter and sort data for 2024
   const latestData = chartData
     .filter(point => point.year === 2024)
     .sort((a, b) => {
       const scoreA = selectedBrands.map(brand => a[brand]).find(score => score !== undefined) || 0;
       const scoreB = selectedBrands.map(brand => b[brand]).find(score => score !== undefined) || 0;
-      return scoreB - scoreA; // Changed to sort descending for vertical bars
+      return scoreB - scoreA;
     });
 
-  // Create sorted series data with consistent color
   const seriesData = selectedBrands.map(brand => ({
     name: brand,
     y: latestData[0]?.[brand] || 0,
-    color: BAR_COLOR // Use the same color for all bars
-  })).sort((a, b) => b.y - a.y); // Changed to sort descending for vertical bars
+    color: BAR_COLOR
+  })).sort((a, b) => b.y - a.y);
 
   const options: Highcharts.Options = {
     ...baseOptions,
     chart: {
       ...baseOptions.chart,
       type: 'column',
-      inverted: false // Set to false for vertical bars
+      backgroundColor: 'transparent',
+      style: {
+        fontFamily: FONT_FAMILY,
+      }
     },
     title: {
       text: '2024 Brand Scores Comparison',
       style: {
+        color: '#ffffff',
         fontFamily: FONT_FAMILY
       }
     },
@@ -48,16 +50,33 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChart
       type: 'category',
       labels: {
         style: {
+          color: '#ffffff',
           fontFamily: FONT_FAMILY
         }
-      }
+      },
+      lineColor: '#ffffff',
+      gridLineColor: 'rgba(255, 255, 255, 0.1)'
     },
     yAxis: {
       title: {
         text: 'Score',
         style: {
+          color: '#ffffff',
           fontFamily: FONT_FAMILY
         }
+      },
+      labels: {
+        style: {
+          color: '#ffffff',
+          fontFamily: FONT_FAMILY
+        }
+      },
+      gridLineColor: 'rgba(255, 255, 255, 0.1)'
+    },
+    legend: {
+      itemStyle: {
+        color: '#ffffff',
+        fontFamily: FONT_FAMILY
       }
     },
     series: [{
@@ -73,7 +92,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChart
   };
 
   return (
-    <ChartContainer config={chartConfig} className="h-[500px] w-full">
+    <ChartContainer config={chartConfig} className="h-[400px] w-full">
       <div>
         <HighchartsReact
           highcharts={Highcharts}

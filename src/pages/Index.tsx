@@ -7,7 +7,7 @@ const Index = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#C5D1B0]">
       <div className="w-full bg-[#34502b] py-6">
         <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
           <h1 className="text-4xl md:text-5xl text-white font-['bely-display'] font-normal">
@@ -20,7 +20,7 @@ const Index = () => {
         </div>
       </div>
       <div className="max-w-[1400px] mx-auto px-6 py-8 space-y-8">
-        <div className="space-y-8">
+        <div className="space-y-6">
           <SelectionPanel
             selectedCountry={selectedCountry}
             setSelectedCountry={setSelectedCountry}
