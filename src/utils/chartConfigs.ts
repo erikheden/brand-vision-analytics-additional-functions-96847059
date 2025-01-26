@@ -18,11 +18,14 @@ export const createChartOptions = (fontFamily: string): Partial<Highcharts.Optio
     },
     labels: {
       style: {
+        color: '#ffffff',
         fontFamily
       }
     },
     gridLineWidth: 1,
-    gridLineDashStyle: 'Dot'
+    gridLineDashStyle: 'Dot',
+    gridLineColor: 'rgba(255, 255, 255, 0.1)',
+    lineColor: '#ffffff'
   },
   yAxis: {
     title: {
@@ -30,14 +33,17 @@ export const createChartOptions = (fontFamily: string): Partial<Highcharts.Optio
     },
     labels: {
       style: {
+        color: '#ffffff',
         fontFamily
       }
     },
     gridLineWidth: 1,
-    gridLineDashStyle: 'Dot'
+    gridLineDashStyle: 'Dot',
+    gridLineColor: 'rgba(255, 255, 255, 0.1)'
   },
   legend: {
     itemStyle: {
+      color: '#ffffff',
       fontFamily
     }
   },
