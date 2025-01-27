@@ -1,64 +1,60 @@
-import Highcharts from 'highcharts';
+import { FONT_FAMILY } from './constants';
 
-export const createChartOptions = (fontFamily: string): Partial<Highcharts.Options> => ({
+export const createChartOptions = (fontFamily: string = FONT_FAMILY) => ({
   chart: {
-    type: 'line',
     style: {
-      fontFamily
+      fontFamily,
     },
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
+  },
+  credits: {
+    enabled: false,
   },
   title: {
-    text: undefined
+    style: {
+      color: '#ffffff',
+      fontFamily,
+    }
   },
+  tooltip: {
+    style: {
+      fontFamily,
+    }
+  }
+});
+
+export const createBarChartOptions = (fontFamily: string = FONT_FAMILY) => ({
+  ...createChartOptions(fontFamily),
   xAxis: {
-    type: 'linear',
-    title: {
-      text: undefined
-    },
+    type: 'category',
     labels: {
       style: {
         color: '#ffffff',
-        fontFamily
+        fontFamily,
       }
     },
-    gridLineWidth: 1,
-    gridLineDashStyle: 'Dot',
-    gridLineColor: 'rgba(255, 255, 255, 0.2)',
     lineColor: '#ffffff',
-    tickColor: '#ffffff'
+    gridLineColor: 'rgba(255, 255, 255, 0.1)'
   },
   yAxis: {
     title: {
-      text: undefined
+      text: 'Score',
+      style: {
+        color: '#ffffff',
+        fontFamily,
+      }
     },
     labels: {
       style: {
         color: '#ffffff',
-        fontFamily
+        fontFamily,
       }
     },
-    gridLineWidth: 1,
-    gridLineDashStyle: 'Dot',
-    gridLineColor: 'rgba(255, 255, 255, 0.2)'
-  },
-  legend: {
-    itemStyle: {
-      color: '#ffffff',
-      fontFamily
-    }
-  },
-  credits: {
-    enabled: false
+    gridLineColor: 'rgba(255, 255, 255, 0.1)'
   },
   plotOptions: {
-    line: {
-      connectNulls: true
-    },
-    series: {
-      animation: {
-        duration: 1000
-      }
+    column: {
+      borderRadius: 5
     }
   }
 });

@@ -1,7 +1,8 @@
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
-import { createChartOptions } from '@/utils/chartConfigs';
+import { createBarChartOptions } from '@/utils/chartConfigs';
+import { BAR_COLOR, FONT_FAMILY } from '@/utils/constants';
 
 interface BrandBarChartProps {
   chartData: any[];
@@ -9,11 +10,8 @@ interface BrandBarChartProps {
   chartConfig: any;
 }
 
-const FONT_FAMILY = 'Forma DJR Display';
-const BAR_COLOR = '#C5D1B0'; // Lighter sage green to contrast with dark background
-
 const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChartProps) => {
-  const baseOptions = createChartOptions(FONT_FAMILY);
+  const baseOptions = createBarChartOptions(FONT_FAMILY);
   
   const latestData = chartData
     .filter(point => point.year === 2024)
@@ -34,10 +32,6 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChart
     chart: {
       ...baseOptions.chart,
       type: 'column',
-      backgroundColor: 'transparent',
-      style: {
-        fontFamily: FONT_FAMILY,
-      }
     },
     title: {
       text: '2024 Brand Scores Comparison',
@@ -46,46 +40,14 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChart
         fontFamily: FONT_FAMILY
       }
     },
-    xAxis: {
-      type: 'category',
-      labels: {
-        style: {
-          color: '#ffffff',
-          fontFamily: FONT_FAMILY
-        }
-      },
-      lineColor: '#ffffff',
-      gridLineColor: 'rgba(255, 255, 255, 0.1)'
-    },
-    yAxis: {
-      title: {
-        text: 'Score',
-        style: {
-          color: '#ffffff',
-          fontFamily: FONT_FAMILY
-        }
-      },
-      labels: {
-        style: {
-          color: '#ffffff',
-          fontFamily: FONT_FAMILY
-        }
-      },
-      gridLineColor: 'rgba(255, 255, 255, 0.1)'
-    },
     legend: {
-      enabled: false // Disable the legend
+      enabled: false
     },
     series: [{
       name: 'Score',
       data: seriesData,
       type: 'column'
-    }],
-    plotOptions: {
-      column: {
-        borderRadius: 5
-      }
-    }
+    }]
   };
 
   return (
