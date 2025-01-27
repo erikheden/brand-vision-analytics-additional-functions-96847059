@@ -1,6 +1,7 @@
 import { FONT_FAMILY } from './constants';
+import { Options } from 'highcharts';
 
-export const createChartOptions = (fontFamily: string = FONT_FAMILY) => ({
+export const createChartOptions = (fontFamily: string = FONT_FAMILY): Options => ({
   chart: {
     style: {
       fontFamily,
@@ -20,13 +21,9 @@ export const createChartOptions = (fontFamily: string = FONT_FAMILY) => ({
     style: {
       fontFamily,
     }
-  }
-});
-
-export const createBarChartOptions = (fontFamily: string = FONT_FAMILY) => ({
-  ...createChartOptions(fontFamily),
+  },
   xAxis: {
-    type: 'category',
+    type: 'linear',
     labels: {
       style: {
         color: '#ffffff',
@@ -50,6 +47,21 @@ export const createBarChartOptions = (fontFamily: string = FONT_FAMILY) => ({
         fontFamily,
       }
     },
+    gridLineColor: 'rgba(255, 255, 255, 0.1)'
+  }
+});
+
+export const createBarChartOptions = (fontFamily: string = FONT_FAMILY): Options => ({
+  ...createChartOptions(fontFamily),
+  xAxis: {
+    type: 'category',
+    labels: {
+      style: {
+        color: '#ffffff',
+        fontFamily,
+      }
+    },
+    lineColor: '#ffffff',
     gridLineColor: 'rgba(255, 255, 255, 0.1)'
   },
   plotOptions: {

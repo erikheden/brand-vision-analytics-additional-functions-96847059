@@ -44,9 +44,9 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChart
       enabled: false
     },
     series: [{
+      type: 'column',
       name: 'Score',
-      data: seriesData,
-      type: 'column'
+      data: seriesData
     }]
   };
 

@@ -4,6 +4,7 @@ import { ChartContainer } from "@/components/ui/chart";
 import { createChartOptions } from '@/utils/chartConfigs';
 import { createSeriesConfig } from '@/utils/seriesConfigs';
 import { createTooltipFormatter } from './ChartTooltip';
+import { FONT_FAMILY } from '@/utils/constants';
 
 interface BrandChartProps {
   chartData: any[];
@@ -12,14 +13,16 @@ interface BrandChartProps {
   chartConfig: any;
 }
 
-const FONT_FAMILY = 'Forma DJR Display';
-
 const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: BrandChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
   const series = createSeriesConfig(selectedBrands, chartData);
 
   const options: Highcharts.Options = {
     ...baseOptions,
+    chart: {
+      ...baseOptions.chart,
+      type: 'line'
+    },
     xAxis: {
       ...baseOptions.xAxis,
       min: yearRange.earliest,
