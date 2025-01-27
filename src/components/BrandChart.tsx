@@ -23,6 +23,13 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: Brand
       ...baseOptions.chart,
       type: 'line'
     },
+    title: {
+      text: 'Brand Score Trends',
+      style: {
+        color: '#ffffff',
+        fontFamily: FONT_FAMILY
+      }
+    },
     xAxis: {
       ...baseOptions.xAxis,
       min: yearRange.earliest,
@@ -30,6 +37,7 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: Brand
       allowDecimals: false,
       labels: {
         style: {
+          color: '#ffffff',
           fontFamily: FONT_FAMILY
         }
       }

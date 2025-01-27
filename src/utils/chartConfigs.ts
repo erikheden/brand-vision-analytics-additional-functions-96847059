@@ -1,5 +1,5 @@
-import { FONT_FAMILY } from './constants';
 import { Options } from 'highcharts';
+import { FONT_FAMILY } from './constants';
 
 export const createChartOptions = (fontFamily: string = FONT_FAMILY): Options => ({
   chart: {
@@ -12,6 +12,7 @@ export const createChartOptions = (fontFamily: string = FONT_FAMILY): Options =>
     enabled: false,
   },
   title: {
+    text: 'Brand Score Trends',
     style: {
       color: '#ffffff',
       fontFamily,
@@ -48,6 +49,12 @@ export const createChartOptions = (fontFamily: string = FONT_FAMILY): Options =>
       }
     },
     gridLineColor: 'rgba(255, 255, 255, 0.1)'
+  },
+  legend: {
+    itemStyle: {
+      color: '#ffffff',
+      fontFamily,
+    }
   }
 });
 
