@@ -74,10 +74,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChart
       gridLineColor: 'rgba(255, 255, 255, 0.1)'
     },
     legend: {
-      itemStyle: {
-        color: '#ffffff',
-        fontFamily: FONT_FAMILY
-      }
+      enabled: false // Disable the legend
     },
     series: [{
       name: 'Score',
