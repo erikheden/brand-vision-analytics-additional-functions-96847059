@@ -7,20 +7,20 @@ export const useSelectionState = (
   const [selectedIndustry, setSelectedIndustry] = useState<string>("");
 
   const handleIndustryToggle = (industry: string, brands: BrandData[]) => {
-    // If clicking the currently selected industry, just clear the selection
+    // If clicking the currently selected industry, clear the selection
     if (selectedIndustry === industry) {
       setSelectedIndustry("");
       setSelectedBrands([]);
       return;
     }
 
-    // Get brands for the new industry before changing the selection
+    // Get all brands for the new industry
     const industryBrands = brands
       .filter(item => item.industry === industry)
       .map(item => item.Brand)
       .filter((brand): brand is string => brand !== null);
 
-    // Update both states together
+    // Update both states together - always select all brands for the new industry
     setSelectedIndustry(industry);
     setSelectedBrands([...new Set(industryBrands)]);
   };
