@@ -2,7 +2,6 @@ import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
 import { calculateYearRange, processChartData, createChartConfig } from "@/utils/chartDataUtils";
 import BrandChart from "./BrandChart";
-import BrandBarChart from "./BrandBarChart";
 import EmptyChartState from "./EmptyChartState";
 
 interface ChartSectionProps {
@@ -11,9 +10,9 @@ interface ChartSectionProps {
 }
 
 const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) => {
-  const { data: scores = [] } = useChartData(selectedCountry, selectedBrands);
+  const { data: scores = [] } = useChartData(selectedCountry);
   
-  if (scores.length === 0) {
+  if (!selectedCountry) {
     return (
       <Card className="p-6 bg-[#34502b] text-white rounded-xl shadow-lg">
         <EmptyChartState selectedCountry={selectedCountry} />
@@ -21,25 +20,30 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
     );
   }
 
-  const yearRange = calculateYearRange(scores);
-  const chartData = processChartData(scores);
-  const chartConfig = createChartConfig(selectedBrands);
+  const yearRange = {
+    earliest: Math.min(...scores.map(s => s.year)),
+    latest: Math.max(...scores.map(s => s.year))
+  };
+
+  const chartData = scores.map(score => ({
+    year: score.year,
+    [selectedCountry]: score.score
+  }));
+
+  const chartConfig = {
+    [selectedCountry]: {
+      label: selectedCountry,
+      color: '#34502b'
+    }
+  };
 
   return (
     <div className="space-y-6">
       <Card className="p-6 bg-[#34502b] text-white rounded-xl shadow-lg">
         <BrandChart
           chartData={chartData}
-          selectedBrands={selectedBrands}
+          selectedBrands={[selectedCountry]}
           yearRange={yearRange}
-          chartConfig={chartConfig}
-        />
-      </Card>
-      
-      <Card className="p-6 bg-[#34502b] text-white rounded-xl shadow-lg">
-        <BrandBarChart
-          chartData={chartData}
-          selectedBrands={selectedBrands}
           chartConfig={chartConfig}
         />
       </Card>

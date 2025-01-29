@@ -2,25 +2,25 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Score {
-  Year: number;
-  Brand: string;
-  Score: number;
+  year: number;
+  score: number;
+  country: string;
 }
 
-export const useChartData = (selectedCountry: string, selectedBrands: string[]) => {
+export const useChartData = (selectedCountry: string) => {
   return useQuery({
-    queryKey: ["scores", selectedCountry, selectedBrands],
+    queryKey: ["average-scores", selectedCountry],
     queryFn: async () => {
-      if (!selectedCountry || selectedBrands.length === 0) return [];
+      if (!selectedCountry) return [];
       const { data, error } = await supabase
-        .from("NEW SBI Ranking Scores 2011-2024")
+        .from("SBI Average Scores")
         .select("*")
-        .eq("Country", selectedCountry)
-        .in("Brand", selectedBrands);
+        .eq("country", selectedCountry)
+        .order('year', { ascending: true });
       
       if (error) throw error;
       return data as Score[];
     },
-    enabled: !!selectedCountry && selectedBrands.length > 0
+    enabled: !!selectedCountry
   });
 };
