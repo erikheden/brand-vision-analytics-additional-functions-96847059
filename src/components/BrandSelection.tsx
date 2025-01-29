@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { X, Search } from "lucide-react";
 import BrandCheckbox from "./BrandCheckbox";
+import { useState } from "react";
 
 interface BrandSelectionProps {
   brands: string[];
@@ -16,6 +18,8 @@ const BrandSelection = ({
   onBrandToggle,
   onClearBrands,
 }: BrandSelectionProps) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  
   // Calculate the number of rows needed based on total brands and 4 columns
   const numColumns = 4;
   const numRows = Math.ceil(brands.length / numColumns);
@@ -39,6 +43,11 @@ const BrandSelection = ({
   };
 
   const columnOrderedBrands = reorganizeBrandsIntoColumns(brands);
+  
+  // Filter brands based on search query
+  const filteredBrands = columnOrderedBrands.filter(brand =>
+    brand.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="space-y-2">
@@ -56,8 +65,18 @@ const BrandSelection = ({
           </Button>
         )}
       </div>
+      <div className="relative">
+        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Search brands..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-8"
+        />
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 max-h-[300px] overflow-y-auto">
-        {columnOrderedBrands.map((brand) => (
+        {filteredBrands.map((brand) => (
           <BrandCheckbox
             key={brand}
             brand={brand}
