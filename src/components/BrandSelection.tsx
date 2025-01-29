@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { X, Search } from "lucide-react";
+import { X, Check, Search } from "lucide-react";
 import BrandCheckbox from "./BrandCheckbox";
 import { useState } from "react";
 
@@ -49,21 +49,40 @@ const BrandSelection = ({
     brand.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleSelectAll = () => {
+    // If no brands are selected, select all filtered brands
+    if (selectedBrands.length === 0) {
+      filteredBrands.forEach(brand => {
+        onBrandToggle(brand, true);
+      });
+    } else {
+      // If any brands are selected, clear all
+      onClearBrands();
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <Label>Select Brands</Label>
-        {selectedBrands.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onClearBrands}
-            className="text-sm"
-          >
-            <X className="h-4 w-4 mr-1" />
-            Clear all
-          </Button>
-        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleSelectAll}
+          className="text-sm"
+        >
+          {selectedBrands.length === 0 ? (
+            <>
+              <Check className="h-4 w-4 mr-1" />
+              Select all
+            </>
+          ) : (
+            <>
+              <X className="h-4 w-4 mr-1" />
+              Clear all
+            </>
+          )}
+        </Button>
       </div>
       <div className="relative">
         <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
