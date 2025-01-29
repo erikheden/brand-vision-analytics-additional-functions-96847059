@@ -16,10 +16,10 @@ interface BrandChartProps {
 
 const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, marketAverages }: BrandChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
-  const series = [
+  const series: Highcharts.SeriesOptionsType[] = [
     ...createSeriesConfig(selectedBrands, chartData),
     {
-      type: 'line',
+      type: 'line' as const,
       name: 'Market Average',
       data: marketAverages
         .map(point => [point.year, point.score])
