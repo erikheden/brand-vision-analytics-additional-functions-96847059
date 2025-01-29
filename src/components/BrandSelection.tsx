@@ -50,7 +50,7 @@ const BrandSelection = ({
   );
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
         <Label>Select Brands</Label>
         {selectedBrands.length > 0 && (
@@ -75,7 +75,7 @@ const BrandSelection = ({
           className="pl-8"
         />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 max-h-[300px] overflow-y-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 mt-6 max-h-[300px] overflow-y-auto">
         {filteredBrands.map((brand) => (
           <BrandCheckbox
             key={brand}
