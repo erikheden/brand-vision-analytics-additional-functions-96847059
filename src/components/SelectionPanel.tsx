@@ -41,7 +41,7 @@ const SelectionPanel = ({
   const uniqueBrandNames = [...new Set(brands.map(item => item.Brand))].sort();
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 bg-gray-50">
       <div className="space-y-6">
         <CountrySelect
           selectedCountry={selectedCountry}
