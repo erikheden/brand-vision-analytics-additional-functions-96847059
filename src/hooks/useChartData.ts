@@ -21,7 +21,8 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         .from("NEW SBI Ranking Scores 2011-2024")
         .select("*")
         .eq("Country", selectedCountry)
-        .in("Brand", selectedBrands);
+        .in("Brand", selectedBrands)
+        .order('Year', { ascending: true });
       
       if (error) throw error;
       return data as Score[];
@@ -41,7 +42,7 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         .select("Year, Score")
         .eq("Country", selectedCountry)
         .not("Score", "is", null)
-        .order('Year', { ascending: true }); // Order by year to ensure consistent data
+        .order('Year', { ascending: true });
       
       if (error) {
         console.error('Error fetching scores for average calculation:', error);
@@ -60,10 +61,12 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
       }, {});
 
       // Calculate average for each year
-      const marketAverages: MarketAverage[] = Object.entries(averagesByYear).map(([year, scores]) => ({
-        year: parseInt(year),
-        score: scores.reduce((sum, score) => sum + score, 0) / scores.length
-      }));
+      const marketAverages: MarketAverage[] = Object.entries(averagesByYear)
+        .map(([year, scores]) => ({
+          year: parseInt(year),
+          score: scores.reduce((sum, score) => sum + score, 0) / scores.length
+        }))
+        .sort((a, b) => a.year - b.year); // Ensure years are sorted
 
       console.log('Calculated market averages:', marketAverages);
       return marketAverages;

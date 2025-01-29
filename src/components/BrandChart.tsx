@@ -17,12 +17,21 @@ interface BrandChartProps {
 const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, marketAverages }: BrandChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
   
-  // Format market averages data for the chart without filtering by year range
+  // Format market averages data for the chart
   const marketAverageData = marketAverages
     .map(point => [point.year, Number(point.score)])
     .sort((a, b) => (a[0] as number) - (b[0] as number));
 
   console.log('Market Average Data:', marketAverageData); // Debug log
+
+  // Calculate the actual min and max years from all available data
+  const allYears = [...new Set([
+    ...marketAverageData.map(point => point[0] as number),
+    ...chartData.map(point => point.year)
+  ])];
+  
+  const minYear = Math.min(...allYears);
+  const maxYear = Math.max(...allYears);
 
   const series: Highcharts.SeriesOptionsType[] = [
     ...createSeriesConfig(selectedBrands, chartData),
@@ -56,8 +65,8 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, marketA
     },
     xAxis: {
       ...baseOptions.xAxis,
-      min: yearRange.earliest,
-      max: yearRange.latest,
+      min: minYear,
+      max: maxYear,
       allowDecimals: false,
       labels: {
         style: {
