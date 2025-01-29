@@ -7,23 +7,22 @@ export const useSelectionState = (
   const [selectedIndustry, setSelectedIndustry] = useState<string>("");
 
   const handleIndustryToggle = (industry: string, brands: BrandData[]) => {
+    // If clicking the currently selected industry, just clear the selection
     if (selectedIndustry === industry) {
-      // If clicking the same industry, deselect it and clear brands
       setSelectedIndustry("");
       setSelectedBrands([]);
-    } else {
-      // Select new industry and update brands
-      setSelectedIndustry(industry);
-      
-      // Get all brands for the selected industry
-      const industryBrands = brands
-        .filter(item => item.industry === industry)
-        .map(item => item.Brand)
-        .filter((brand): brand is string => brand !== null);
-      
-      // Update selected brands with unique values
-      setSelectedBrands([...new Set(industryBrands)]);
+      return;
     }
+
+    // Get brands for the new industry before changing the selection
+    const industryBrands = brands
+      .filter(item => item.industry === industry)
+      .map(item => item.Brand)
+      .filter((brand): brand is string => brand !== null);
+
+    // Update both states together
+    setSelectedIndustry(industry);
+    setSelectedBrands([...new Set(industryBrands)]);
   };
 
   return {
