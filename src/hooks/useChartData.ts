@@ -40,7 +40,8 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         .from("NEW SBI Ranking Scores 2011-2024")
         .select("Year, Score")
         .eq("Country", selectedCountry)
-        .not("Score", "is", null);
+        .not("Score", "is", null)
+        .order('Year', { ascending: true }); // Order by year to ensure consistent data
       
       if (error) {
         console.error('Error fetching scores for average calculation:', error);
@@ -49,7 +50,7 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
 
       // Group scores by year and calculate average
       const averagesByYear = data.reduce((acc: { [key: number]: number[] }, curr) => {
-        if (curr.Year && curr.Score) {
+        if (curr.Year && curr.Score !== null) {
           if (!acc[curr.Year]) {
             acc[curr.Year] = [];
           }
