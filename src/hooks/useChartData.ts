@@ -29,22 +29,43 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
     enabled: !!selectedCountry && selectedBrands.length > 0
   });
 
+  // Calculate market averages from all brands in the country for each year
   const marketAverages = useQuery({
-    queryKey: ["marketAverages", selectedCountry],
+    queryKey: ["calculatedMarketAverages", selectedCountry],
     queryFn: async () => {
       if (!selectedCountry) return [];
-      console.log('Fetching market averages for country:', selectedCountry);
+      console.log('Calculating market averages for country:', selectedCountry);
+      
       const { data, error } = await supabase
-        .from("SBI Average Scores")
-        .select("*")
-        .eq("country", selectedCountry);
+        .from("NEW SBI Ranking Scores 2011-2024")
+        .select("Year, Score")
+        .eq("Country", selectedCountry)
+        .not("Score", "is", null);
       
       if (error) {
-        console.error('Error fetching market averages:', error);
+        console.error('Error fetching scores for average calculation:', error);
         throw error;
       }
-      console.log('Market averages data:', data);
-      return data as MarketAverage[];
+
+      // Group scores by year and calculate average
+      const averagesByYear = data.reduce((acc: { [key: number]: number[] }, curr) => {
+        if (curr.Year && curr.Score) {
+          if (!acc[curr.Year]) {
+            acc[curr.Year] = [];
+          }
+          acc[curr.Year].push(curr.Score);
+        }
+        return acc;
+      }, {});
+
+      // Calculate average for each year
+      const marketAverages: MarketAverage[] = Object.entries(averagesByYear).map(([year, scores]) => ({
+        year: parseInt(year),
+        score: scores.reduce((sum, score) => sum + score, 0) / scores.length
+      }));
+
+      console.log('Calculated market averages:', marketAverages);
+      return marketAverages;
     },
     enabled: !!selectedCountry
   });
