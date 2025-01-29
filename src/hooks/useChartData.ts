@@ -41,9 +41,9 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
       
       // Query all scores for the country without any brand/industry filtering
       const { data, error } = await supabase
-        .from("SBI Average Scores")  // Using the pre-calculated averages table
+        .from("SBI Average Scores")
         .select('*')
-        .eq('country', selectedCountry)
+        .eq('country', selectedCountry.toLowerCase()) // Convert to lowercase to match DB
         .order('year', { ascending: true });
       
       if (error) {
@@ -51,10 +51,10 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         throw error;
       }
 
-      // Map the data to the expected format
+      // Map the data to the expected format, using correct column names
       const marketAverages: MarketAverage[] = data.map(row => ({
-        year: row.year,
-        score: row.score
+        year: row['year'],  // Using bracket notation to ensure we get the right property
+        score: row['score']
       }));
 
       console.log('Market averages for country:', marketAverages);
