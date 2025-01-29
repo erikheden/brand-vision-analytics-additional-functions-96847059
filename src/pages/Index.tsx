@@ -8,7 +8,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-[#C5D1B0]">
-      <div className="w-full bg-[#34502b] py-6">
+      <div className="w-full bg-[#C5D1B0] py-6">
         <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
           <h1 className="text-4xl md:text-5xl text-white font-['bely-display'] font-normal">
           </h1>
