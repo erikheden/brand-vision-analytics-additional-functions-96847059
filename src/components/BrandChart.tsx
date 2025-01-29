@@ -11,50 +11,17 @@ interface BrandChartProps {
   selectedBrands: string[];
   yearRange: { earliest: number; latest: number };
   chartConfig: any;
-  marketAverages: { year: number; score: number; }[];
 }
 
-const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, marketAverages }: BrandChartProps) => {
+const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: BrandChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
-  
-  // Format market averages data for the chart
-  const marketAverageData = marketAverages
-    .map(point => [point.year, Number(point.score)])
-    .sort((a, b) => (a[0] as number) - (b[0] as number));
-
-  console.log('Market Average Data:', marketAverageData); // Debug log
-
-  // Calculate the actual min and max years from all available data
-  const allYears = [...new Set([
-    ...marketAverageData.map(point => point[0] as number),
-    ...chartData.map(point => point.year)
-  ])];
-  
-  const minYear = Math.min(...allYears);
-  const maxYear = Math.max(...allYears);
-
-  const series: Highcharts.SeriesOptionsType[] = [
-    ...createSeriesConfig(selectedBrands, chartData),
-    {
-      type: 'line' as const,
-      name: 'Market Average',
-      data: marketAverageData,
-      dashStyle: 'Dash',
-      color: '#ffffff',
-      lineWidth: 1,
-      marker: {
-        symbol: 'circle',
-        radius: 3
-      }
-    }
-  ];
+  const series = createSeriesConfig(selectedBrands, chartData);
 
   const options: Highcharts.Options = {
     ...baseOptions,
     chart: {
       ...baseOptions.chart,
-      type: 'line',
-      backgroundColor: 'transparent'
+      type: 'line'
     },
     title: {
       text: 'Brand Score Trends',
@@ -65,8 +32,8 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, marketA
     },
     xAxis: {
       ...baseOptions.xAxis,
-      min: minYear,
-      max: maxYear,
+      min: yearRange.earliest,
+      max: yearRange.latest,
       allowDecimals: false,
       labels: {
         style: {
