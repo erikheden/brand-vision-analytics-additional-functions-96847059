@@ -5,7 +5,7 @@ interface EmptyChartStateProps {
 const EmptyChartState = ({ selectedCountry }: EmptyChartStateProps) => {
   return (
     <div 
-      className="h-[500px] flex items-center justify-center text-muted-foreground" 
+      className="h-[500px] flex items-center justify-center text-white" 
       style={{ fontFamily: 'Forma DJR Display' }}
     >
       {selectedCountry
