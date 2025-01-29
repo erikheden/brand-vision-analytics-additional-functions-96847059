@@ -16,14 +16,21 @@ interface BrandChartProps {
 
 const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, marketAverages }: BrandChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
+  
+  // Format market averages data for the chart
+  const marketAverageData = marketAverages
+    .filter(point => point.year >= yearRange.earliest && point.year <= yearRange.latest)
+    .map(point => [point.year, Number(point.score)])
+    .sort((a, b) => (a[0] as number) - (b[0] as number));
+
+  console.log('Market Average Data:', marketAverageData); // Debug log
+
   const series: Highcharts.SeriesOptionsType[] = [
     ...createSeriesConfig(selectedBrands, chartData),
     {
       type: 'line' as const,
       name: 'Market Average',
-      data: marketAverages
-        .map(point => [point.year, point.score])
-        .filter(([year]) => year >= yearRange.earliest && year <= yearRange.latest),
+      data: marketAverageData,
       dashStyle: 'Dash',
       color: '#ffffff',
       lineWidth: 1,
@@ -38,7 +45,8 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, marketA
     ...baseOptions,
     chart: {
       ...baseOptions.chart,
-      type: 'line'
+      type: 'line',
+      backgroundColor: 'transparent'
     },
     title: {
       text: 'Brand Score Trends',
