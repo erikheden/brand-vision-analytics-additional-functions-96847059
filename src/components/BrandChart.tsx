@@ -17,9 +17,8 @@ interface BrandChartProps {
 const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, marketAverages }: BrandChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
   
-  // Format market averages data for the chart
+  // Format market averages data for the chart without filtering by year range
   const marketAverageData = marketAverages
-    .filter(point => point.year >= yearRange.earliest && point.year <= yearRange.latest)
     .map(point => [point.year, Number(point.score)])
     .sort((a, b) => (a[0] as number) - (b[0] as number));
 
