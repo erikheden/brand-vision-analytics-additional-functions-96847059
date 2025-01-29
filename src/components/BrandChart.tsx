@@ -11,11 +11,28 @@ interface BrandChartProps {
   selectedBrands: string[];
   yearRange: { earliest: number; latest: number };
   chartConfig: any;
+  marketAverages: { year: number; score: number; }[];
 }
 
-const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: BrandChartProps) => {
+const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, marketAverages }: BrandChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
-  const series = createSeriesConfig(selectedBrands, chartData);
+  const series = [
+    ...createSeriesConfig(selectedBrands, chartData),
+    {
+      type: 'line',
+      name: 'Market Average',
+      data: marketAverages
+        .map(point => [point.year, point.score])
+        .filter(([year]) => year >= yearRange.earliest && year <= yearRange.latest),
+      dashStyle: 'Dash',
+      color: '#ffffff',
+      lineWidth: 1,
+      marker: {
+        symbol: 'circle',
+        radius: 3
+      }
+    }
+  ];
 
   const options: Highcharts.Options = {
     ...baseOptions,

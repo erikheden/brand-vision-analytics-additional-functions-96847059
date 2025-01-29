@@ -11,7 +11,7 @@ interface ChartSectionProps {
 }
 
 const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) => {
-  const { data: scores = [] } = useChartData(selectedCountry, selectedBrands);
+  const { data: scores = [], marketAverages = [] } = useChartData(selectedCountry, selectedBrands);
   
   if (scores.length === 0) {
     return (
@@ -33,6 +33,7 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
           selectedBrands={selectedBrands}
           yearRange={yearRange}
           chartConfig={chartConfig}
+          marketAverages={marketAverages}
         />
       </Card>
       

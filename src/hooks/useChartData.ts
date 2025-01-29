@@ -7,8 +7,13 @@ interface Score {
   Score: number;
 }
 
+interface MarketAverage {
+  year: number;
+  score: number;
+}
+
 export const useChartData = (selectedCountry: string, selectedBrands: string[]) => {
-  return useQuery({
+  const brandScores = useQuery({
     queryKey: ["scores", selectedCountry, selectedBrands],
     queryFn: async () => {
       if (!selectedCountry || selectedBrands.length === 0) return [];
@@ -23,4 +28,24 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
     },
     enabled: !!selectedCountry && selectedBrands.length > 0
   });
+
+  const marketAverages = useQuery({
+    queryKey: ["marketAverages", selectedCountry],
+    queryFn: async () => {
+      if (!selectedCountry) return [];
+      const { data, error } = await supabase
+        .from("SBI Average Scores")
+        .select("*")
+        .eq("country", selectedCountry);
+      
+      if (error) throw error;
+      return data as MarketAverage[];
+    },
+    enabled: !!selectedCountry
+  });
+
+  return {
+    data: brandScores.data || [],
+    marketAverages: marketAverages.data || []
+  };
 };
