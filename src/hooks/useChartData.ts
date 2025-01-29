@@ -33,12 +33,17 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
     queryKey: ["marketAverages", selectedCountry],
     queryFn: async () => {
       if (!selectedCountry) return [];
+      console.log('Fetching market averages for country:', selectedCountry);
       const { data, error } = await supabase
         .from("SBI Average Scores")
         .select("*")
         .eq("country", selectedCountry);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching market averages:', error);
+        throw error;
+      }
+      console.log('Market averages data:', data);
       return data as MarketAverage[];
     },
     enabled: !!selectedCountry
