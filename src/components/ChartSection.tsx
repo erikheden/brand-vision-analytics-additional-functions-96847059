@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
 import { calculateYearRange, processChartData, createChartConfig } from "@/utils/chartDataUtils";
@@ -12,7 +13,7 @@ interface ChartSectionProps {
 }
 
 const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) => {
-  const [standardized, setStandardized] = React.useState(false);
+  const [standardized, setStandardized] = useState(false);
   const { data: scores = [] } = useChartData(selectedCountry, selectedBrands);
   
   if (scores.length === 0) {

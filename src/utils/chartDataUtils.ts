@@ -1,3 +1,10 @@
+interface Score {
+  Year: number;
+  Brand: string;
+  Score: number;
+  Country: string;
+}
+
 interface YearRange {
   earliest: number;
   latest: number;
@@ -8,11 +15,7 @@ interface ChartDataPoint {
   [key: string]: number;
 }
 
-interface YearGroup {
-  [key: number]: ChartDataPoint;
-}
-
-export const calculateYearRange = (scores: any[]): YearRange => {
+export const calculateYearRange = (scores: Score[]): YearRange => {
   const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
   
   if (validScores.length === 0) {
@@ -25,11 +28,11 @@ export const calculateYearRange = (scores: any[]): YearRange => {
   }), { earliest: Infinity, latest: -Infinity });
 };
 
-export const processChartData = (scores: any[], standardized: boolean = false): ChartDataPoint[] => {
+export const processChartData = (scores: Score[], standardized: boolean = false): ChartDataPoint[] => {
   const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
   
   // Group scores by year
-  const yearGroups = validScores.reduce((acc: { [key: number]: any[] }, score) => {
+  const yearGroups = validScores.reduce((acc: { [key: number]: Score[] }, score) => {
     const year = score.Year;
     if (!acc[year]) {
       acc[year] = [];
