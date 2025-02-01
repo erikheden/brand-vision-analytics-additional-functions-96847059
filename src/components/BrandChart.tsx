@@ -11,9 +11,10 @@ interface BrandChartProps {
   selectedBrands: string[];
   yearRange: { earliest: number; latest: number };
   chartConfig: any;
+  standardized: boolean;
 }
 
-const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: BrandChartProps) => {
+const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standardized }: BrandChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
   const series = createSeriesConfig(selectedBrands, chartData);
 
@@ -24,10 +25,20 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: Brand
       type: 'line'
     },
     title: {
-      text: 'Brand Score Trends',
+      text: standardized ? 'Standardized Brand Score Trends' : 'Brand Score Trends',
       style: {
         color: '#ffffff',
         fontFamily: FONT_FAMILY
+      }
+    },
+    yAxis: {
+      ...baseOptions.yAxis,
+      title: {
+        text: standardized ? 'Standardized Score' : 'Score',
+        style: {
+          color: '#ffffff',
+          fontFamily: FONT_FAMILY
+        }
       }
     },
     xAxis: {
@@ -45,7 +56,7 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig }: Brand
     tooltip: {
       shared: true,
       useHTML: true,
-      formatter: createTooltipFormatter(FONT_FAMILY)
+      formatter: createTooltipFormatter(FONT_FAMILY, standardized)
     },
     series
   };

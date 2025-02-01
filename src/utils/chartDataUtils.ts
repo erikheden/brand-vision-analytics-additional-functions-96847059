@@ -25,19 +25,48 @@ export const calculateYearRange = (scores: any[]): YearRange => {
   }), { earliest: Infinity, latest: -Infinity });
 };
 
-export const processChartData = (scores: any[]): ChartDataPoint[] => {
+export const processChartData = (scores: any[], standardized: boolean = false): ChartDataPoint[] => {
   const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
   
-  const yearGroups: YearGroup = validScores.reduce((acc: YearGroup, score) => {
+  // Group scores by year
+  const yearGroups = validScores.reduce((acc: { [key: number]: any[] }, score) => {
     const year = score.Year;
     if (!acc[year]) {
-      acc[year] = { year };
+      acc[year] = [];
     }
-    acc[year][score.Brand] = score.Score;
+    acc[year].push(score);
     return acc;
   }, {});
 
-  return Object.values(yearGroups) as ChartDataPoint[];
+  // Process each year's data
+  return Object.entries(yearGroups).map(([year, yearScores]) => {
+    const yearNum = parseInt(year);
+    const result: ChartDataPoint = { year: yearNum };
+
+    if (standardized) {
+      // Calculate mean and standard deviation for the year
+      const scores = yearScores.map(s => s.Score);
+      const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+      const variance = scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scores.length;
+      const stdDev = Math.sqrt(variance);
+
+      // Add standardized scores
+      yearScores.forEach(score => {
+        if (stdDev === 0) {
+          result[score.Brand] = 0;
+        } else {
+          result[score.Brand] = (score.Score - mean) / stdDev;
+        }
+      });
+    } else {
+      // Add raw scores
+      yearScores.forEach(score => {
+        result[score.Brand] = score.Score;
+      });
+    }
+
+    return result;
+  }).sort((a, b) => a.year - b.year);
 };
 
 export const getBrandColors = () => [

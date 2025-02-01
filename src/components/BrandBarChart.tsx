@@ -8,9 +8,10 @@ interface BrandBarChartProps {
   chartData: any[];
   selectedBrands: string[];
   chartConfig: any;
+  standardized: boolean;
 }
 
-const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChartProps) => {
+const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized }: BrandBarChartProps) => {
   const baseOptions = createBarChartOptions(FONT_FAMILY);
   
   const latestData = chartData
@@ -34,14 +35,32 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig }: BrandBarChart
       type: 'column',
     },
     title: {
-      text: '2024 Brand Scores Comparison',
+      text: standardized ? '2024 Standardized Brand Scores Comparison' : '2024 Brand Scores Comparison',
       style: {
         color: '#ffffff',
         fontFamily: FONT_FAMILY
       }
     },
+    yAxis: {
+      ...baseOptions.yAxis,
+      title: {
+        text: standardized ? 'Standardized Score' : 'Score',
+        style: {
+          color: '#ffffff',
+          fontFamily: FONT_FAMILY
+        }
+      }
+    },
     legend: {
       enabled: false
+    },
+    tooltip: {
+      formatter: function() {
+        const value = standardized ? 
+          `${this.y?.toFixed(2)} SD` : 
+          this.y?.toFixed(2);
+        return `<b>${this.key}</b>: ${value}`;
+      }
     },
     series: [{
       type: 'column',

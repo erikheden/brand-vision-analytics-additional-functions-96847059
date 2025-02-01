@@ -8,7 +8,7 @@ interface TooltipPointData {
   y: number | null;
 }
 
-export const createTooltipFormatter = (fontFamily: string) => {
+export const createTooltipFormatter = (fontFamily: string, standardized: boolean = false) => {
   return function(this: any) {
     if (!this.points) return '';
     
@@ -18,11 +18,15 @@ export const createTooltipFormatter = (fontFamily: string) => {
 
     const pointsHtml = sortedPoints.map(point => {
       const color = point.series.color;
+      const value = standardized ? 
+        `${point.y?.toFixed(2)} SD` : 
+        point.y?.toFixed(2);
+      
       return `
         <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
           <div style="width: 10px; height: 10px; background-color: ${color}; border-radius: 50%;"></div>
           <span style="color: #ffffff;">${point.series.name}:</span>
-          <span style="font-weight: bold; color: #ffffff;">${point.y?.toFixed(2)}</span>
+          <span style="font-weight: bold; color: #ffffff;">${value}</span>
         </div>
       `;
     }).join('');
