@@ -43,7 +43,6 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
     return acc;
   }, {});
 
-  // Process each year's data
   return Object.entries(yearGroups).map(([year, yearScores]) => {
     const yearNum = parseInt(year);
     const result: ChartDataPoint = { year: yearNum };
