@@ -32,9 +32,10 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
     <div className="space-y-6">
       <div className="flex items-center justify-end space-x-2">
         <span className="text-sm text-white">Standardized Scores</span>
-        <Toggle
+        <Toggle 
           pressed={standardized}
           onPressedChange={setStandardized}
+          className="bg-white/10 data-[state=on]:bg-white/30 hover:bg-white/20"
           aria-label="Toggle standardized scores"
         />
       </div>
