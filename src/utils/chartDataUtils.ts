@@ -3,6 +3,8 @@ interface Score {
   Brand: string;
   Score: number;
   Country: string;
+  industry?: string | null;
+  "Row ID"?: number;
 }
 
 interface YearRange {

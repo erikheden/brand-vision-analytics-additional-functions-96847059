@@ -5,6 +5,9 @@ interface Score {
   Year: number;
   Brand: string;
   Score: number;
+  Country: string;
+  industry?: string | null;
+  "Row ID"?: number;
 }
 
 export const useChartData = (selectedCountry: string, selectedBrands: string[]) => {
