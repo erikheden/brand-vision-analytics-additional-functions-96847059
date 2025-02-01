@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
 import { calculateYearRange, processChartData, createChartConfig } from "@/utils/chartDataUtils";
 import { Toggle } from "@/components/ui/toggle";
+import { Check } from "lucide-react";
 import BrandChart from "./BrandChart";
 import BrandBarChart from "./BrandBarChart";
 import EmptyChartState from "./EmptyChartState";
@@ -35,9 +36,13 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
         <Toggle 
           pressed={standardized}
           onPressedChange={setStandardized}
-          className="bg-white/10 data-[state=on]:bg-white/30 hover:bg-white/20"
+          className="bg-white/20 data-[state=on]:bg-white/40 hover:bg-white/30 border border-white/30 relative"
           aria-label="Toggle standardized scores"
-        />
+        >
+          {standardized && (
+            <Check className="h-4 w-4 text-white absolute" />
+          )}
+        </Toggle>
       </div>
       
       <Card className="p-6 bg-[#34502b] text-white rounded-xl shadow-lg">
