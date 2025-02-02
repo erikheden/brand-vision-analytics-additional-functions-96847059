@@ -51,10 +51,15 @@ export const processChartData = async (scores: Score[], standardized: boolean = 
   const country = scores[0]?.Country;
   if (!country) return [];
 
+  // Get the year range from the selected scores
+  const yearRange = calculateYearRange(scores);
+
   const { data: allScores } = await supabase
     .from("NEW SBI Ranking Scores 2011-2024")
     .select("*")
-    .eq("Country", country);
+    .eq("Country", country)
+    .gte("Year", yearRange.earliest)
+    .lte("Year", yearRange.latest);
 
   console.log("All scores for country:", country, allScores);
 
