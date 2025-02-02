@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
 import { calculateYearRange, processChartData, createChartConfig } from "@/utils/chartDataUtils";
@@ -15,8 +15,19 @@ interface ChartSectionProps {
 
 const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) => {
   const [standardized, setStandardized] = useState(false);
+  const [processedData, setProcessedData] = useState<any[]>([]);
   const { data: scores = [] } = useChartData(selectedCountry, selectedBrands);
   
+  useEffect(() => {
+    const processData = async () => {
+      if (scores.length > 0) {
+        const data = await processChartData(scores, standardized);
+        setProcessedData(data);
+      }
+    };
+    processData();
+  }, [scores, standardized]);
+
   if (scores.length === 0) {
     return (
       <Card className="p-6 bg-[#34502b] text-white rounded-xl shadow-lg">
@@ -26,7 +37,6 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
   }
 
   const yearRange = calculateYearRange(scores);
-  const chartData = processChartData(scores, standardized);
   const chartConfig = createChartConfig(selectedBrands);
 
   return (
@@ -36,7 +46,7 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
         <Toggle 
           pressed={standardized}
           onPressedChange={setStandardized}
-          className="bg-white/20 data-[state=on]:bg-white/40 hover:bg-white/30 border border-white/30 relative"
+          className="bg-white/20 data-[state=on]:bg-white/40 hover:bg-white/30 border-2 border-white relative"
           aria-label="Toggle standardized scores"
         >
           {standardized && (
@@ -47,7 +57,7 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
       
       <Card className="p-6 bg-[#34502b] text-white rounded-xl shadow-lg">
         <BrandChart
-          chartData={chartData}
+          chartData={processedData}
           selectedBrands={selectedBrands}
           yearRange={yearRange}
           chartConfig={chartConfig}
@@ -57,7 +67,7 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
       
       <Card className="p-6 bg-[#34502b] text-white rounded-xl shadow-lg">
         <BrandBarChart
-          chartData={chartData}
+          chartData={processedData}
           selectedBrands={selectedBrands}
           chartConfig={chartConfig}
           standardized={standardized}
