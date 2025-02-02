@@ -69,39 +69,57 @@ export const processChartData = async (scores: Score[], standardized: boolean = 
     .from("NEW SBI Ranking Scores 2011-2024")
     .select("*")
     .eq("Country", country)
-    .not('Score', 'is', null);
+    .not('Score', 'is', null)
+    .not('Score', 'eq', 0);  // Add this line to exclude zero scores
 
   if (error) {
     console.error("Error fetching all scores:", error);
     return [];
   }
 
-  console.log("All scores fetched for country:", allScores?.length);
+  console.log("Raw scores from database:", allScores);
 
   if (!allScores || allScores.length === 0) {
     console.log("No scores found for country");
     return [];
   }
 
-  // Group all scores by year
+  // Group all scores by year with additional logging
   const scoresByYear = allScores.reduce((acc: { [key: number]: number[] }, score) => {
     if (score.Year && score.Score !== null && score.Score !== 0) {
+      console.log(`Adding score ${score.Score} for year ${score.Year}`);
       if (!acc[score.Year]) {
         acc[score.Year] = [];
       }
       acc[score.Year].push(score.Score);
+    } else {
+      console.log(`Skipping invalid score entry:`, score);
     }
     return acc;
   }, {});
 
   console.log("Scores grouped by year:", scoresByYear);
 
-  // Calculate market statistics for each year
+  // Calculate market statistics for each year with validation
   const marketStats = Object.entries(scoresByYear).reduce((acc: { [key: number]: { mean: number; stdDev: number } }, [year, yearScores]) => {
+    console.log(`Calculating stats for year ${year} with ${yearScores.length} scores:`, yearScores);
+    
+    if (yearScores.length < 2) {
+      console.log(`Not enough scores for year ${year} to calculate statistics`);
+      return acc;
+    }
+
     const mean = yearScores.reduce((sum, score) => sum + score, 0) / yearScores.length;
     const variance = yearScores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / yearScores.length;
     const stdDev = Math.sqrt(variance);
     
+    console.log(`Year ${year} statistics:`, { mean, variance, stdDev });
+    
+    if (stdDev === 0) {
+      console.log(`Warning: Standard deviation is zero for year ${year}`);
+      return acc;
+    }
+
     acc[parseInt(year)] = { mean, stdDev };
     return acc;
   }, {});
