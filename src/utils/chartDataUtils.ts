@@ -33,6 +33,7 @@ export const calculateYearRange = (scores: Score[]): YearRange => {
 };
 
 export const processChartData = async (scores: Score[], standardized: boolean = false): Promise<ChartDataPoint[]> => {
+  // If not standardized, just return the raw scores
   if (!standardized) {
     return scores.reduce((acc: ChartDataPoint[], score) => {
       const existingPoint = acc.find(point => point.year === score.Year);
@@ -51,20 +52,17 @@ export const processChartData = async (scores: Score[], standardized: boolean = 
   const country = scores[0]?.Country;
   if (!country) return [];
 
-  // Get the year range from the selected scores
-  const yearRange = calculateYearRange(scores);
-
+  // Get all scores for the country
   const { data: allScores } = await supabase
     .from("NEW SBI Ranking Scores 2011-2024")
     .select("*")
     .eq("Country", country)
-    .gte("Year", yearRange.earliest)
-    .lte("Year", yearRange.latest);
+    .not('Score', 'is', null);
 
-  console.log("All scores for country:", country, allScores);
+  if (!allScores) return [];
 
   // Group all scores by year
-  const scoresByYear = (allScores || []).reduce((acc: { [key: number]: number[] }, score) => {
+  const scoresByYear = allScores.reduce((acc: { [key: number]: number[] }, score) => {
     if (score.Year && score.Score !== null && score.Score !== 0) {
       if (!acc[score.Year]) {
         acc[score.Year] = [];
@@ -73,8 +71,6 @@ export const processChartData = async (scores: Score[], standardized: boolean = 
     }
     return acc;
   }, {});
-
-  console.log("Scores grouped by year:", scoresByYear);
 
   // Calculate market statistics for each year
   const marketStats = Object.entries(scoresByYear).reduce((acc: { [key: number]: { mean: number; stdDev: number } }, [year, yearScores]) => {
@@ -86,8 +82,6 @@ export const processChartData = async (scores: Score[], standardized: boolean = 
     return acc;
   }, {});
 
-  console.log("Market statistics by year:", marketStats);
-
   // Now standardize the selected brands' scores using market statistics
   return scores.reduce((acc: ChartDataPoint[], score) => {
     if (!score.Year || score.Score === null || score.Score === 0) return acc;
@@ -97,13 +91,6 @@ export const processChartData = async (scores: Score[], standardized: boolean = 
 
     const existingPoint = acc.find(point => point.year === score.Year);
     const standardizedScore = (score.Score - stats.mean) / stats.stdDev;
-
-    console.log(`Standardizing score for ${score.Brand} in ${score.Year}:`, {
-      originalScore: score.Score,
-      mean: stats.mean,
-      stdDev: stats.stdDev,
-      standardizedScore
-    });
 
     if (existingPoint) {
       existingPoint[score.Brand] = standardizedScore;
