@@ -33,76 +33,82 @@ export const calculateYearRange = (scores: Score[]): YearRange => {
 };
 
 export const processChartData = async (scores: Score[], standardized: boolean = false): Promise<ChartDataPoint[]> => {
-  const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
-  
-  // Group scores by year
-  const yearGroups = validScores.reduce((acc: { [key: number]: Score[] }, score) => {
-    const year = score.Year;
-    if (!acc[year]) {
-      acc[year] = [];
-    }
-    acc[year].push(score);
-    return acc;
-  }, {});
-
   if (!standardized) {
-    return Object.entries(yearGroups).map(([year, yearScores]) => {
-      const yearNum = parseInt(year);
-      const result: ChartDataPoint = { year: yearNum };
-      yearScores.forEach(score => {
-        result[score.Brand] = score.Score;
-      });
-      return result;
-    }).sort((a, b) => a.year - b.year);
+    return scores.reduce((acc: ChartDataPoint[], score) => {
+      const existingPoint = acc.find(point => point.year === score.Year);
+      if (existingPoint) {
+        existingPoint[score.Brand] = score.Score;
+      } else {
+        const newPoint: ChartDataPoint = { year: score.Year };
+        newPoint[score.Brand] = score.Score;
+        acc.push(newPoint);
+      }
+      return acc;
+    }, []).sort((a, b) => a.year - b.year);
   }
 
-  // For standardized scores, we need to fetch all brands' scores for each year
+  // For standardized scores, we need all scores for the country to calculate market statistics
+  const country = scores[0]?.Country;
+  if (!country) return [];
+
   const { data: allScores } = await supabase
     .from("NEW SBI Ranking Scores 2011-2024")
     .select("*")
-    .eq("Country", scores[0].Country); // Use the same country as the selected scores
+    .eq("Country", country);
 
-  // Calculate market-wide statistics per year
-  const marketStats = (allScores || []).reduce((acc: { [key: number]: { scores: number[], mean?: number, stdDev?: number } }, score) => {
-    if (score.Score !== null && score.Score !== 0 && score.Year) {
+  console.log("All scores for country:", country, allScores);
+
+  // Group all scores by year
+  const scoresByYear = (allScores || []).reduce((acc: { [key: number]: number[] }, score) => {
+    if (score.Year && score.Score !== null && score.Score !== 0) {
       if (!acc[score.Year]) {
-        acc[score.Year] = { scores: [] };
+        acc[score.Year] = [];
       }
-      acc[score.Year].scores.push(score.Score);
+      acc[score.Year].push(score.Score);
     }
     return acc;
   }, {});
 
-  // Calculate mean and standard deviation for each year
-  Object.keys(marketStats).forEach(year => {
-    const yearScores = marketStats[parseInt(year)].scores;
+  console.log("Scores grouped by year:", scoresByYear);
+
+  // Calculate market statistics for each year
+  const marketStats = Object.entries(scoresByYear).reduce((acc: { [key: number]: { mean: number; stdDev: number } }, [year, yearScores]) => {
     const mean = yearScores.reduce((sum, score) => sum + score, 0) / yearScores.length;
     const variance = yearScores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / yearScores.length;
     const stdDev = Math.sqrt(variance);
     
-    marketStats[parseInt(year)].mean = mean;
-    marketStats[parseInt(year)].stdDev = stdDev;
-  });
+    acc[parseInt(year)] = { mean, stdDev };
+    return acc;
+  }, {});
 
-  // Apply market-wide standardization to selected brands
-  return Object.entries(yearGroups).map(([year, yearScores]) => {
-    const yearNum = parseInt(year);
-    const result: ChartDataPoint = { year: yearNum };
-    const stats = marketStats[yearNum];
+  console.log("Market statistics by year:", marketStats);
 
-    if (stats && stats.mean !== undefined && stats.stdDev !== undefined && stats.stdDev !== 0) {
-      yearScores.forEach(score => {
-        result[score.Brand] = (score.Score - stats.mean!) / stats.stdDev!;
-      });
+  // Now standardize the selected brands' scores using market statistics
+  return scores.reduce((acc: ChartDataPoint[], score) => {
+    if (!score.Year || score.Score === null || score.Score === 0) return acc;
+
+    const stats = marketStats[score.Year];
+    if (!stats || stats.stdDev === 0) return acc;
+
+    const existingPoint = acc.find(point => point.year === score.Year);
+    const standardizedScore = (score.Score - stats.mean) / stats.stdDev;
+
+    console.log(`Standardizing score for ${score.Brand} in ${score.Year}:`, {
+      originalScore: score.Score,
+      mean: stats.mean,
+      stdDev: stats.stdDev,
+      standardizedScore
+    });
+
+    if (existingPoint) {
+      existingPoint[score.Brand] = standardizedScore;
     } else {
-      // Fallback to raw scores if we can't calculate standardized scores
-      yearScores.forEach(score => {
-        result[score.Brand] = score.Score;
-      });
+      const newPoint: ChartDataPoint = { year: score.Year };
+      newPoint[score.Brand] = standardizedScore;
+      acc.push(newPoint);
     }
-
-    return result;
-  }).sort((a, b) => a.year - b.year);
+    return acc;
+  }, []).sort((a, b) => a.year - b.year);
 };
 
 export const getBrandColors = () => [
