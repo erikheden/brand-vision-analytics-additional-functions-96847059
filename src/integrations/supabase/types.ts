@@ -9,6 +9,21 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      age_groups: {
+        Row: {
+          age_group: string
+          age_id: number
+        }
+        Insert: {
+          age_group: string
+          age_id?: number
+        }
+        Update: {
+          age_group?: string
+          age_id?: number
+        }
+        Relationships: []
+      }
       "Awareness_Attitude_2019-2024": {
         Row: {
           awareness_level: number | null
@@ -108,6 +123,65 @@ export type Database = {
           Industry_id?: number | null
           Row_id?: number
           Year?: number | null
+        }
+        Relationships: []
+      }
+      materiality_areas__age_sbi: {
+        Row: {
+          age_id: number
+          country: string
+          materiality_area: string
+          percentage: number
+          row_id: number
+          year: number
+        }
+        Insert: {
+          age_id: number
+          country: string
+          materiality_area: string
+          percentage: number
+          row_id?: number
+          year: number
+        }
+        Update: {
+          age_id?: number
+          country?: string
+          materiality_area?: string
+          percentage?: number
+          row_id?: number
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materiality_areas_sbi_age_id_fkey"
+            columns: ["age_id"]
+            isOneToOne: false
+            referencedRelation: "age_groups"
+            referencedColumns: ["age_id"]
+          },
+        ]
+      }
+      materiality_areas_general_sbi: {
+        Row: {
+          country: string
+          materiality_area: string
+          percentage: number
+          row_id: number
+          year: number
+        }
+        Insert: {
+          country: string
+          materiality_area: string
+          percentage: number
+          row_id?: number
+          year: number
+        }
+        Update: {
+          country?: string
+          materiality_area?: string
+          percentage?: number
+          row_id?: number
+          year?: number
         }
         Relationships: []
       }
