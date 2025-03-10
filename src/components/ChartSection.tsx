@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
@@ -28,6 +29,9 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
   const yearRange = calculateYearRange(scores);
   const chartData = processChartData(scores, standardized);
   const chartConfig = createChartConfig(selectedBrands);
+
+  // Find the most recent year with data
+  const mostRecentYear = yearRange.latest;
 
   return (
     <div className="space-y-6">
@@ -61,6 +65,7 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
           selectedBrands={selectedBrands}
           chartConfig={chartConfig}
           standardized={standardized}
+          latestYear={mostRecentYear}
         />
       </Card>
     </div>

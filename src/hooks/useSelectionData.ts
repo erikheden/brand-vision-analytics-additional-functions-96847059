@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -6,7 +7,7 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
     queryKey: ["countries"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("NEW SBI Ranking Scores 2011-2024")
+        .from("SBI Ranking Scores 2011-2025")
         .select('Country')
         .not('Country', 'is', null);
       
@@ -22,7 +23,7 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
     queryFn: async () => {
       if (!selectedCountry) return [];
       const { data, error } = await supabase
-        .from("NEW SBI Ranking Scores 2011-2024")
+        .from("SBI Ranking Scores 2011-2025")
         .select('industry')
         .eq('Country', selectedCountry)
         .not('industry', 'is', null);
@@ -40,7 +41,7 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
     queryFn: async () => {
       if (!selectedCountry) return [];
       let query = supabase
-        .from("NEW SBI Ranking Scores 2011-2024")
+        .from("SBI Ranking Scores 2011-2025")
         .select('Brand, industry, Country, Year, Score, "Row ID"')
         .eq('Country', selectedCountry)
         .not('Brand', 'is', null);

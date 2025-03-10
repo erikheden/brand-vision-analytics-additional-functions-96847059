@@ -269,6 +269,33 @@ export type Database = {
         }
         Relationships: []
       }
+      "SBI Ranking Scores 2011-2025": {
+        Row: {
+          Brand: string | null
+          Country: string | null
+          industry: string | null
+          "Row ID": number
+          Score: number | null
+          Year: number | null
+        }
+        Insert: {
+          Brand?: string | null
+          Country?: string | null
+          industry?: string | null
+          "Row ID": number
+          Score?: number | null
+          Year?: number | null
+        }
+        Update: {
+          Brand?: string | null
+          Country?: string | null
+          industry?: string | null
+          "Row ID"?: number
+          Score?: number | null
+          Year?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

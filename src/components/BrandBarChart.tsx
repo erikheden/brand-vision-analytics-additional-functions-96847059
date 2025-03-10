@@ -1,3 +1,4 @@
+
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
@@ -9,13 +10,14 @@ interface BrandBarChartProps {
   selectedBrands: string[];
   chartConfig: any;
   standardized: boolean;
+  latestYear?: number;
 }
 
-const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized }: BrandBarChartProps) => {
+const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, latestYear = 2024 }: BrandBarChartProps) => {
   const baseOptions = createBarChartOptions(FONT_FAMILY);
   
   const latestData = chartData
-    .filter(point => point.year === 2024)
+    .filter(point => point.year === latestYear)
     .sort((a, b) => {
       const scoreA = selectedBrands.map(brand => a[brand]).find(score => score !== undefined) || 0;
       const scoreB = selectedBrands.map(brand => b[brand]).find(score => score !== undefined) || 0;
@@ -35,7 +37,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized }:
       type: 'column',
     },
     title: {
-      text: standardized ? '2024 Standardized Brand Scores Comparison' : '2024 Brand Scores Comparison',
+      text: `${latestYear} ${standardized ? 'Standardized Brand Scores Comparison' : 'Brand Scores Comparison'}`,
       style: {
         color: '#ffffff',
         fontFamily: FONT_FAMILY

@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -16,7 +17,7 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
     queryFn: async () => {
       if (!selectedCountry || selectedBrands.length === 0) return [];
       const { data, error } = await supabase
-        .from("NEW SBI Ranking Scores 2011-2024")
+        .from("SBI Ranking Scores 2011-2025")
         .select("*")
         .eq("Country", selectedCountry)
         .in("Brand", selectedBrands);
