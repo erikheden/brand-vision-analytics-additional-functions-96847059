@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { BrandData } from "@/types/brand";
 
@@ -7,8 +8,12 @@ export const useSelectionState = (
   const [selectedIndustry, setSelectedIndustry] = useState<string>("");
 
   const handleIndustryToggle = (industry: string, brands: BrandData[]) => {
+    console.log("Handle industry toggle called with:", industry);
+    console.log("Current brands data:", brands);
+    
     // If clicking the currently selected industry, just clear the selection
     if (selectedIndustry === industry) {
+      console.log("Clearing industry selection");
       setSelectedIndustry("");
       setSelectedBrands([]);
       return;
@@ -18,7 +23,9 @@ export const useSelectionState = (
     const industryBrands = brands
       .filter(item => item.industry === industry)
       .map(item => item.Brand)
-      .filter((brand): brand is string => brand !== null);
+      .filter((brand): brand is string => typeof brand === 'string' && brand !== null);
+
+    console.log("Filtered brands for industry:", industryBrands);
 
     // Update both states together
     setSelectedIndustry(industry);

@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import CountrySelect from "./CountrySelect";
 import BrandSelection from "./BrandSelection";
@@ -37,8 +38,11 @@ const SelectionPanel = ({
     }
   };
 
-  // Get unique brand names from the brands data
-  const uniqueBrandNames = [...new Set(brands.map(item => item.Brand))].sort();
+  // Get unique brand names from the brands data and ensure they are strings
+  const uniqueBrandNames = [...new Set(brands
+    .map(item => item.Brand)
+    .filter((brand): brand is string => typeof brand === 'string' && brand !== null)
+  )].sort();
 
   return (
     <Card className="p-6 bg-gray-50">
@@ -47,6 +51,7 @@ const SelectionPanel = ({
           selectedCountry={selectedCountry}
           countries={countries}
           onCountryChange={(country) => {
+            console.log("Country changed to:", country);
             setSelectedCountry(country);
             setSelectedBrands([]);
             setSelectedIndustry("");
@@ -58,7 +63,10 @@ const SelectionPanel = ({
             <IndustryTags
               industries={industries}
               selectedIndustry={selectedIndustry}
-              onIndustryToggle={(industry) => handleIndustryToggle(industry, brands)}
+              onIndustryToggle={(industry) => {
+                console.log("Industry toggled:", industry);
+                handleIndustryToggle(industry, brands);
+              }}
             />
             <BrandSelection
               brands={uniqueBrandNames}
