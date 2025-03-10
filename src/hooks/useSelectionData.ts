@@ -9,11 +9,11 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
       // Debugging the countries query
       console.log("Fetching countries from database");
       
-      // Use a different query approach to get countries
+      // Use the correct syntax for filtering non-null values
       const { data, error } = await supabase
         .from("SBI Ranking Scores 2011-2025")
         .select('Country')
-        .is('Country', 'not.null');
+        .not('Country', 'is', null);
       
       if (error) {
         console.error("Error fetching countries:", error);
@@ -41,7 +41,7 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
         .from("SBI Ranking Scores 2011-2025")
         .select('industry')
         .eq('Country', selectedCountry)
-        .not('industry', 'eq', null);
+        .not('industry', 'is', null);
       
       if (error) {
         console.error("Error fetching industries:", error);
@@ -70,7 +70,7 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
         .from("SBI Ranking Scores 2011-2025")
         .select('Brand, industry, Country, Year, Score, "Row ID"')
         .eq('Country', selectedCountry)
-        .not('Brand', 'eq', null);
+        .not('Brand', 'is', null);
       
       if (selectedIndustries.length > 0) {
         query = query.in('industry', selectedIndustries);
