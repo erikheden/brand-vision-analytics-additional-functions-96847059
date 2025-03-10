@@ -10,7 +10,7 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
       console.log("Fetching countries from database");
       
       try {
-        // Get all distinct countries - using correct filter syntax
+        // Get all distinct countries
         const { data, error } = await supabase
           .from("SBI Ranking Scores 2011-2025")
           .select('Country')
