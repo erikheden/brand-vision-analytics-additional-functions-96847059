@@ -9,7 +9,8 @@ interface CountrySelectProps {
   onCountryChange: (country: string) => void;
 }
 
-const countryMapping: { [key: string]: string } = {
+// Map of country codes to full names
+export const countryMapping: { [key: string]: string } = {
   'Se': 'Sweden',
   'No': 'Norway',
   'Dk': 'Denmark',
@@ -17,8 +18,21 @@ const countryMapping: { [key: string]: string } = {
   'Nl': 'The Netherlands'
 };
 
-const getFullCountryName = (code: string) => {
+// Map of full names back to country codes
+export const reverseCountryMapping: { [key: string]: string } = {
+  'Sweden': 'Se',
+  'Norway': 'No',
+  'Denmark': 'Dk',
+  'Finland': 'Fi',
+  'The Netherlands': 'Nl'
+};
+
+export const getFullCountryName = (code: string) => {
   return countryMapping[code] || code;
+};
+
+export const getCountryCode = (fullName: string) => {
+  return reverseCountryMapping[fullName] || fullName;
 };
 
 const CountrySelect = ({

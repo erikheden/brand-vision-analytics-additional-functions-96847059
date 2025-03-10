@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandData } from "@/types/brand";
+import { getFullCountryName } from "@/components/CountrySelect";
 
 export const useSelectionData = (selectedCountry: string, selectedIndustries: string[]) => {
   const { data: countries = [], error: countriesError } = useQuery({
@@ -47,17 +48,33 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
       console.log("Fetching industries for country:", selectedCountry);
       
       try {
-        const { data, error } = await supabase
+        // Get the full country name if we have a country code
+        const fullCountryName = getFullCountryName(selectedCountry);
+        
+        // Try with country code first
+        let { data: codeData, error: codeError } = await supabase
           .from("SBI Ranking Scores 2011-2025")
           .select('industry')
           .eq('Country', selectedCountry)
           .not('industry', 'is', null);
         
-        if (error) {
-          console.error("Error fetching industries:", error);
-          throw error;
+        // If no data with code, try with full name
+        if ((codeError || codeData.length === 0) && selectedCountry !== fullCountryName) {
+          console.log("No industry data found with country code, trying with full name:", fullCountryName);
+          const { data: nameData, error: nameError } = await supabase
+            .from("SBI Ranking Scores 2011-2025")
+            .select('industry')
+            .eq('Country', fullCountryName)
+            .not('industry', 'is', null);
+          
+          if (nameError) {
+            console.error("Error fetching industries with full name:", nameError);
+          } else {
+            codeData = [...(codeData || []), ...(nameData || [])];
+          }
         }
         
+        const data = codeData;
         console.log("Industries raw data:", data);
         
         // Extract unique industries, filter out nulls, and sort them
@@ -81,6 +98,10 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
       console.log("Fetching brands for country:", selectedCountry, "and industries:", selectedIndustries);
       
       try {
+        // Get the full country name if we have a country code
+        const fullCountryName = getFullCountryName(selectedCountry);
+        
+        // Try with country code first
         let query = supabase
           .from("SBI Ranking Scores 2011-2025")
           .select('Brand, industry, Country, Year, Score, "Row ID"')
@@ -91,13 +112,31 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
           query = query.in('industry', selectedIndustries);
         }
         
-        const { data, error } = await query;
+        let { data: codeData, error: codeError } = await query;
         
-        if (error) {
-          console.error("Error fetching brands:", error);
-          throw error;
+        // If no data with code, try with full name
+        if ((codeError || codeData.length === 0) && selectedCountry !== fullCountryName) {
+          console.log("No brand data found with country code, trying with full name:", fullCountryName);
+          let fullNameQuery = supabase
+            .from("SBI Ranking Scores 2011-2025")
+            .select('Brand, industry, Country, Year, Score, "Row ID"')
+            .eq('Country', fullCountryName)
+            .not('Brand', 'is', null);
+          
+          if (selectedIndustries.length > 0) {
+            fullNameQuery = fullNameQuery.in('industry', selectedIndustries);
+          }
+          
+          const { data: nameData, error: nameError } = await fullNameQuery;
+          
+          if (nameError) {
+            console.error("Error fetching brands with full name:", nameError);
+          } else {
+            codeData = [...(codeData || []), ...(nameData || [])];
+          }
         }
         
+        const data = codeData;
         console.log("Brands data from DB:", data);
         
         return data as BrandData[];
