@@ -1,3 +1,4 @@
+
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
@@ -17,6 +18,9 @@ interface BrandChartProps {
 const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standardized }: BrandChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
   const series = createSeriesConfig(selectedBrands, chartData);
+
+  // Ensure the chart includes 2025 even if there's no data yet
+  const latestYearToShow = Math.max(yearRange.latest, 2025);
 
   const options: Highcharts.Options = {
     ...baseOptions,
@@ -44,7 +48,7 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
     xAxis: {
       ...baseOptions.xAxis,
       min: yearRange.earliest,
-      max: yearRange.latest,
+      max: latestYearToShow,
       allowDecimals: false,
       labels: {
         style: {

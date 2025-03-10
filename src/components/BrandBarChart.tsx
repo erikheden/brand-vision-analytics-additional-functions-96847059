@@ -13,22 +13,31 @@ interface BrandBarChartProps {
   latestYear?: number;
 }
 
-const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, latestYear = 2024 }: BrandBarChartProps) => {
+const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, latestYear = 2025 }: BrandBarChartProps) => {
   const baseOptions = createBarChartOptions(FONT_FAMILY);
   
-  const latestData = chartData
-    .filter(point => point.year === latestYear)
-    .sort((a, b) => {
-      const scoreA = selectedBrands.map(brand => a[brand]).find(score => score !== undefined) || 0;
-      const scoreB = selectedBrands.map(brand => b[brand]).find(score => score !== undefined) || 0;
-      return scoreB - scoreA;
-    });
+  // Find data for the latest year, falling back to the most recent available year if 2025 has no data
+  const latestYearData = chartData.filter(point => point.year === latestYear);
+  
+  // If no data for the specified latest year, get the most recent year with data
+  const dataToUse = latestYearData.length > 0 
+    ? latestYearData 
+    : chartData.length > 0 
+      ? [chartData.reduce((latest, current) => latest.year > current.year ? latest : current)] 
+      : [];
+  
+  // Sort brands by their score values
+  const seriesData = selectedBrands.map(brand => {
+    const scoreValue = dataToUse[0]?.[brand] || 0;
+    return {
+      name: brand,
+      y: scoreValue,
+      color: BAR_COLOR
+    };
+  }).sort((a, b) => b.y - a.y);
 
-  const seriesData = selectedBrands.map(brand => ({
-    name: brand,
-    y: latestData[0]?.[brand] || 0,
-    color: BAR_COLOR
-  })).sort((a, b) => b.y - a.y);
+  // Get the actual year being displayed
+  const displayYear = dataToUse[0]?.year || latestYear;
 
   const options: Highcharts.Options = {
     ...baseOptions,
@@ -37,7 +46,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
       type: 'column',
     },
     title: {
-      text: `${latestYear} ${standardized ? 'Standardized Brand Scores Comparison' : 'Brand Scores Comparison'}`,
+      text: `${displayYear} ${standardized ? 'Standardized Brand Scores Comparison' : 'Brand Scores Comparison'}`,
       style: {
         color: '#ffffff',
         fontFamily: FONT_FAMILY

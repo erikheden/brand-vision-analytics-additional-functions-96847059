@@ -21,13 +21,20 @@ export const calculateYearRange = (scores: Score[]): YearRange => {
   const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
   
   if (validScores.length === 0) {
-    return { earliest: new Date().getFullYear(), latest: new Date().getFullYear() };
+    return { earliest: new Date().getFullYear() - 5, latest: new Date().getFullYear() };
   }
 
-  return validScores.reduce((range, score) => ({
+  // Calculate the natural range from the data
+  const dataRange = validScores.reduce((range, score) => ({
     earliest: Math.min(range.earliest, score.Year),
     latest: Math.max(range.latest, score.Year)
   }), { earliest: Infinity, latest: -Infinity });
+  
+  // Ensure we show at least up to 2025
+  return {
+    earliest: dataRange.earliest,
+    latest: Math.max(dataRange.latest, 2025)
+  };
 };
 
 export const processChartData = (scores: Score[], standardized: boolean = false): ChartDataPoint[] => {
