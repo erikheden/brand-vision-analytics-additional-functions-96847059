@@ -1,3 +1,4 @@
+
 interface Score {
   Year: number;
   Brand: string;
@@ -5,6 +6,7 @@ interface Score {
   Country: string;
   industry?: string | null;
   "Row ID"?: number;
+  Projected?: boolean;
 }
 
 interface YearRange {
@@ -14,7 +16,8 @@ interface YearRange {
 
 interface ChartDataPoint {
   year: number;
-  [key: string]: number;
+  Projected?: boolean;
+  [key: string]: number | boolean | undefined;
 }
 
 export const calculateYearRange = (scores: Score[]): YearRange => {
@@ -53,6 +56,12 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
   return Object.entries(yearGroups).map(([year, yearScores]) => {
     const yearNum = parseInt(year);
     const result: ChartDataPoint = { year: yearNum };
+    
+    // Check if this is projected data
+    const hasProjectedData = yearScores.some(score => score.Projected);
+    if (hasProjectedData) {
+      result.Projected = true;
+    }
 
     if (standardized) {
       // Calculate mean and standard deviation for the year

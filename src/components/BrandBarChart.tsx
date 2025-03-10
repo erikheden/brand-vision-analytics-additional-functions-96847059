@@ -27,10 +27,11 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
           latest.year > current.year ? latest : current, chartData[0])] 
       : [];
       
-  console.log("Using data year for bar chart:", dataToUse[0]?.year);
-  
   // Get the actual year being displayed (for the title)
   const displayYear = dataToUse[0]?.year || latestYear;
+  const isProjected = displayYear === 2025 && dataToUse[0]?.Projected;
+  
+  console.log("Using data year for bar chart:", displayYear, "Projected:", isProjected);
   
   // Sort brands by their score values
   const seriesData = selectedBrands.map(brand => {
@@ -49,7 +50,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
       type: 'column',
     },
     title: {
-      text: `${displayYear} ${standardized ? 'Standardized Brand Scores Comparison' : 'Brand Scores Comparison'}`,
+      text: `${displayYear}${isProjected ? ' (Projected)' : ''} ${standardized ? 'Standardized Brand Scores Comparison' : 'Brand Scores Comparison'}`,
       style: {
         color: '#ffffff',
         fontFamily: FONT_FAMILY
@@ -73,7 +74,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
         const value = standardized ? 
           `${this.y?.toFixed(2)} SD` : 
           this.y?.toFixed(2);
-        return `<b>${this.key}</b>: ${value}`;
+        return `<b>${this.key}</b>: ${value}${isProjected ? ' (Projected)' : ''}`;
       }
     },
     series: [{

@@ -1,3 +1,4 @@
+
 export interface BrandData {
   Brand: string | null;
   Country: string | null;
@@ -5,4 +6,5 @@ export interface BrandData {
   "Row ID": number;
   Score: number | null;
   Year: number | null;
+  Projected?: boolean;
 }
