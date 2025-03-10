@@ -1,5 +1,7 @@
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useEffect } from "react";
 
 interface CountrySelectProps {
   selectedCountry: string;
@@ -24,6 +26,11 @@ const CountrySelect = ({
   countries,
   onCountryChange,
 }: CountrySelectProps) => {
+  // Log when countries are loaded or changed
+  useEffect(() => {
+    console.log("CountrySelect rendered with countries:", countries);
+  }, [countries]);
+
   return (
     <div className="space-y-2">
       <Label>Select Country</Label>
@@ -34,11 +41,17 @@ const CountrySelect = ({
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {countries.map((country) => (
-            <SelectItem key={country} value={country}>
-              {getFullCountryName(country)}
+          {countries.length > 0 ? (
+            countries.map((country) => (
+              <SelectItem key={country} value={country}>
+                {getFullCountryName(country)}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem value="loading" disabled>
+              No countries available
             </SelectItem>
-          ))}
+          )}
         </SelectContent>
       </Select>
     </div>
