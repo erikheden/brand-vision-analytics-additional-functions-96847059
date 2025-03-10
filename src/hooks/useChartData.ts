@@ -16,15 +16,16 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
           .from("SBI Ranking Scores 2011-2025")
           .select("*")
           .eq("Country", selectedCountry)
-          .in("Brand", selectedBrands);
+          .in("Brand", selectedBrands)
+          .order('Year', { ascending: true }); // Ensure data is ordered by year
         
         if (error) {
           console.error("Error fetching scores:", error);
           throw error;
         }
         
-        console.log("Chart data count:", data.length);
-        console.log("Chart data sample:", data.slice(0, 3));
+        console.log("All fetched chart data:", data);
+        console.log("Data for 2025:", data?.filter(d => d.Year === 2025));
         
         // If no data is found, return an empty array
         if (data.length === 0) {

@@ -9,18 +9,20 @@ export const createSeriesConfig = (
   const brandColors = getBrandColors();
   
   return selectedBrands.map((brand, index) => {
+    // Extract all data points for this brand, including 2025
     const data = chartData
-      .map(point => [point.year, point[brand]])
-      .filter(([_, value]) => value !== null && value !== 0 && value !== undefined);
-    
-    // Check if 2025 exists - if not, add null point to extend line to 2025
-    const has2025Data = data.some(([year]) => year === 2025);
-    if (!has2025Data) {
-      data.push([2025, null]);
-    }
+      .map(point => [point.Year, point.Score])
+      .filter(([year, value]) => 
+        value !== null && 
+        value !== 0 && 
+        value !== undefined &&
+        year !== null
+      );
     
     // Sort data points by year to ensure correct line drawing
     data.sort((a, b) => (a[0] as number) - (b[0] as number));
+    
+    console.log(`Series data for brand ${brand}:`, data);
     
     return {
       type: 'line',
