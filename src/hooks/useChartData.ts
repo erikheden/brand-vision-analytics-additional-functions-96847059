@@ -16,7 +16,9 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         // Get the full country name if we have a country code
         const fullCountryName = getFullCountryName(selectedCountry);
         
-        // First try with the country code
+        console.log(`Trying both country formats: code=${selectedCountry}, fullName=${fullCountryName}`);
+        
+        // Query with country code
         let { data: dataWithCode, error: errorWithCode } = await supabase
           .from("SBI Ranking Scores 2011-2025")
           .select("*")
@@ -24,49 +26,72 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
           .in("Brand", selectedBrands)
           .order('Year', { ascending: true });
         
-        // If no data or error, try with the full country name
-        if ((errorWithCode || dataWithCode.length === 0) && selectedCountry !== fullCountryName) {
-          console.log("No data found with country code, trying with full name:", fullCountryName);
-          const { data: dataWithFullName, error: errorWithFullName } = await supabase
-            .from("SBI Ranking Scores 2011-2025")
-            .select("*")
-            .eq("Country", fullCountryName)
-            .in("Brand", selectedBrands)
-            .order('Year', { ascending: true });
-          
-          if (errorWithFullName) {
-            console.error("Error fetching scores with full country name:", errorWithFullName);
-            throw errorWithFullName;
-          }
-          
-          dataWithCode = [...(dataWithCode || []), ...(dataWithFullName || [])];
+        if (errorWithCode) {
+          console.error("Error fetching with country code:", errorWithCode);
         }
         
-        const data = dataWithCode;
-        console.log("All fetched chart data:", data);
+        // Query with full country name
+        let { data: dataWithFullName, error: errorWithFullName } = await supabase
+          .from("SBI Ranking Scores 2011-2025")
+          .select("*")
+          .eq("Country", fullCountryName)
+          .in("Brand", selectedBrands)
+          .order('Year', { ascending: true });
+        
+        if (errorWithFullName) {
+          console.error("Error fetching with full country name:", errorWithFullName);
+        }
+        
+        // Combine both result sets and remove duplicates
+        const combinedData = [
+          ...(dataWithCode || []), 
+          ...(dataWithFullName || [])
+        ];
+        
+        console.log("Combined data length:", combinedData.length);
+        console.log("Data from country code query:", dataWithCode?.length || 0);
+        console.log("Data from full name query:", dataWithFullName?.length || 0);
+        
+        // Remove duplicates (same Brand and Year)
+        const uniqueEntries = new Map();
+        combinedData.forEach(entry => {
+          const key = `${entry.Brand}-${entry.Year}`;
+          if (!uniqueEntries.has(key) || entry.Score > uniqueEntries.get(key).Score) {
+            uniqueEntries.set(key, entry);
+          }
+        });
+        
+        const finalData = Array.from(uniqueEntries.values());
+        console.log("Final deduplicated data:", finalData.length);
         
         // If no data is found, return an empty array
-        if (data.length === 0) {
+        if (finalData.length === 0) {
           console.warn("No chart data found for the selected brands and country.");
           return [];
         }
         
-        // Check if we have 2025 data
-        const has2025Data = data.some(item => item.Year === 2025);
-        console.log("Has 2025 data:", has2025Data);
+        // Check if we have 2025 data for each selected brand
+        const yearDataByBrand = selectedBrands.map(brand => {
+          const brandEntries = finalData.filter(item => item.Brand === brand);
+          const has2025 = brandEntries.some(item => item.Year === 2025);
+          return { brand, has2025, brandEntries };
+        });
         
-        // If we don't have 2025 data, create projected data for 2025
-        if (!has2025Data) {
-          console.log("Generating projected 2025 data");
-          // For each brand, find the latest year data and use it to project 2025
-          const brandsLatestData = selectedBrands.map(brand => {
-            const brandData = data.filter(item => item.Brand === brand);
+        console.log("Brand data status:", yearDataByBrand.map(item => 
+          `${item.brand}: has2025=${item.has2025}, totalEntries=${item.brandEntries.length}`
+        ));
+        
+        // For brands without 2025 data, create projected data
+        const projectedData = yearDataByBrand
+          .filter(item => !item.has2025 && item.brandEntries.length > 0)
+          .map(item => {
             // Get the most recent year with valid data for this brand
-            const latestData = brandData
-              .filter(item => item.Score !== null && item.Score !== 0)
+            const latestData = item.brandEntries
+              .filter(entry => entry.Score !== null && entry.Score !== 0)
               .sort((a, b) => b.Year - a.Year)[0];
             
             if (latestData) {
+              console.log(`Creating projected 2025 data for ${item.brand} based on ${latestData.Year} data`);
               // Create a projected entry for 2025
               return {
                 ...latestData,
@@ -77,15 +102,13 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
               };
             }
             return null;
-          }).filter(Boolean);
-          
-          console.log("Projected 2025 data:", brandsLatestData);
-          
-          // Add the projected data to our result
-          return [...data, ...brandsLatestData] as BrandData[];
-        }
+          })
+          .filter(Boolean);
         
-        return data as BrandData[];
+        console.log("Generated projected data for brands without 2025 data:", projectedData);
+        
+        // Combine actual data with any needed projections
+        return [...finalData, ...projectedData] as BrandData[];
       } catch (err) {
         console.error("Exception in chart data query:", err);
         return [];

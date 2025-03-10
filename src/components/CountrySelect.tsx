@@ -1,4 +1,3 @@
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
@@ -35,6 +34,22 @@ export const getCountryCode = (fullName: string) => {
   return reverseCountryMapping[fullName] || fullName;
 };
 
+// Function to normalize country code/name to ensure consistent format
+export const normalizeCountry = (country: string) => {
+  // If it's a known code, return the code
+  if (countryMapping[country]) {
+    return country;
+  }
+  
+  // If it's a known full name, return the code
+  if (reverseCountryMapping[country]) {
+    return reverseCountryMapping[country];
+  }
+  
+  // Otherwise, return as is
+  return country;
+};
+
 const CountrySelect = ({
   selectedCountry,
   countries,
@@ -56,11 +71,15 @@ const CountrySelect = ({
         </SelectTrigger>
         <SelectContent className="bg-white z-50">
           {countries && countries.length > 0 ? (
-            countries.map((country) => (
-              <SelectItem key={country} value={country}>
-                {getFullCountryName(country)}
-              </SelectItem>
-            ))
+            countries.map((country) => {
+              // Normalize country to ensure consistent display
+              const normalizedCountry = normalizeCountry(country);
+              return (
+                <SelectItem key={normalizedCountry} value={normalizedCountry}>
+                  {getFullCountryName(normalizedCountry)}
+                </SelectItem>
+              );
+            })
           ) : (
             <SelectItem value="loading" disabled>
               No countries available

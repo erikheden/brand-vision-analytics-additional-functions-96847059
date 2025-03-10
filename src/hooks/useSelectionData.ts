@@ -51,6 +51,8 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
         // Get the full country name if we have a country code
         const fullCountryName = getFullCountryName(selectedCountry);
         
+        console.log(`Trying both country formats for industries: code=${selectedCountry}, fullName=${fullCountryName}`);
+        
         // Try with country code first
         let { data: codeData, error: codeError } = await supabase
           .from("SBI Ranking Scores 2011-2025")
@@ -58,27 +60,31 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
           .eq('Country', selectedCountry)
           .not('industry', 'is', null);
         
-        // If no data with code, try with full name
-        if ((codeError || codeData.length === 0) && selectedCountry !== fullCountryName) {
-          console.log("No industry data found with country code, trying with full name:", fullCountryName);
-          const { data: nameData, error: nameError } = await supabase
-            .from("SBI Ranking Scores 2011-2025")
-            .select('industry')
-            .eq('Country', fullCountryName)
-            .not('industry', 'is', null);
-          
-          if (nameError) {
-            console.error("Error fetching industries with full name:", nameError);
-          } else {
-            codeData = [...(codeData || []), ...(nameData || [])];
-          }
+        if (codeError) {
+          console.error("Error fetching industries with country code:", codeError);
         }
         
-        const data = codeData;
-        console.log("Industries raw data:", data);
+        // Try with full name
+        let { data: nameData, error: nameError } = await supabase
+          .from("SBI Ranking Scores 2011-2025")
+          .select('industry')
+          .eq('Country', fullCountryName)
+          .not('industry', 'is', null);
+        
+        if (nameError) {
+          console.error("Error fetching industries with full name:", nameError);
+        }
+        
+        // Combine both result sets
+        const combinedData = [
+          ...(codeData || []), 
+          ...(nameData || [])
+        ];
+        
+        console.log("Industries raw data:", combinedData);
         
         // Extract unique industries, filter out nulls, and sort them
-        const uniqueIndustries = [...new Set(data.map(item => item.industry).filter(Boolean))].sort();
+        const uniqueIndustries = [...new Set(combinedData.map(item => item.industry).filter(Boolean))].sort();
         console.log("Unique industries:", uniqueIndustries);
         
         return uniqueIndustries;
@@ -101,45 +107,51 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
         // Get the full country name if we have a country code
         const fullCountryName = getFullCountryName(selectedCountry);
         
+        console.log(`Trying both country formats for brands: code=${selectedCountry}, fullName=${fullCountryName}`);
+        
         // Try with country code first
-        let query = supabase
+        let codeQuery = supabase
           .from("SBI Ranking Scores 2011-2025")
           .select('Brand, industry, Country, Year, Score, "Row ID"')
           .eq('Country', selectedCountry)
           .not('Brand', 'is', null);
         
         if (selectedIndustries.length > 0) {
-          query = query.in('industry', selectedIndustries);
+          codeQuery = codeQuery.in('industry', selectedIndustries);
         }
         
-        let { data: codeData, error: codeError } = await query;
+        let { data: codeData, error: codeError } = await codeQuery;
         
-        // If no data with code, try with full name
-        if ((codeError || codeData.length === 0) && selectedCountry !== fullCountryName) {
-          console.log("No brand data found with country code, trying with full name:", fullCountryName);
-          let fullNameQuery = supabase
-            .from("SBI Ranking Scores 2011-2025")
-            .select('Brand, industry, Country, Year, Score, "Row ID"')
-            .eq('Country', fullCountryName)
-            .not('Brand', 'is', null);
-          
-          if (selectedIndustries.length > 0) {
-            fullNameQuery = fullNameQuery.in('industry', selectedIndustries);
-          }
-          
-          const { data: nameData, error: nameError } = await fullNameQuery;
-          
-          if (nameError) {
-            console.error("Error fetching brands with full name:", nameError);
-          } else {
-            codeData = [...(codeData || []), ...(nameData || [])];
-          }
+        if (codeError) {
+          console.error("Error fetching brands with country code:", codeError);
         }
         
-        const data = codeData;
-        console.log("Brands data from DB:", data);
+        // Try with full name
+        let fullNameQuery = supabase
+          .from("SBI Ranking Scores 2011-2025")
+          .select('Brand, industry, Country, Year, Score, "Row ID"')
+          .eq('Country', fullCountryName)
+          .not('Brand', 'is', null);
         
-        return data as BrandData[];
+        if (selectedIndustries.length > 0) {
+          fullNameQuery = fullNameQuery.in('industry', selectedIndustries);
+        }
+        
+        let { data: nameData, error: nameError } = await fullNameQuery;
+        
+        if (nameError) {
+          console.error("Error fetching brands with full name:", nameError);
+        }
+        
+        // Combine both result sets
+        const combinedData = [
+          ...(codeData || []), 
+          ...(nameData || [])
+        ];
+        
+        console.log("Brands data from DB (combined):", combinedData.length);
+        
+        return combinedData as BrandData[];
       } catch (err) {
         console.error("Exception in brands query:", err);
         return [];
