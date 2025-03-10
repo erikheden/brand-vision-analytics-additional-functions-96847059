@@ -16,15 +16,21 @@ interface BrandBarChartProps {
 const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, latestYear = 2025 }: BrandBarChartProps) => {
   const baseOptions = createBarChartOptions(FONT_FAMILY);
   
-  // Find data for the latest year, falling back to the most recent available year if 2025 has no data
-  const latestYearData = chartData.filter(point => point.year === latestYear);
+  // Specifically filter for 2025 data first
+  const data2025 = chartData.filter(point => point.year === 2025);
   
-  // If no data for the specified latest year, get the most recent year with data
-  const dataToUse = latestYearData.length > 0 
-    ? latestYearData 
+  // If no 2025 data exists, fall back to the most recent year data
+  const dataToUse = data2025.length > 0 
+    ? data2025 
     : chartData.length > 0 
-      ? [chartData.reduce((latest, current) => latest.year > current.year ? latest : current)] 
+      ? [chartData.reduce((latest, current) => 
+          latest.year > current.year ? latest : current, chartData[0])] 
       : [];
+      
+  console.log("Using data year for bar chart:", dataToUse[0]?.year);
+  
+  // Get the actual year being displayed (for the title)
+  const displayYear = dataToUse[0]?.year || latestYear;
   
   // Sort brands by their score values
   const seriesData = selectedBrands.map(brand => {
@@ -35,9 +41,6 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
       color: BAR_COLOR
     };
   }).sort((a, b) => b.y - a.y);
-
-  // Get the actual year being displayed
-  const displayYear = dataToUse[0]?.year || latestYear;
 
   const options: Highcharts.Options = {
     ...baseOptions,

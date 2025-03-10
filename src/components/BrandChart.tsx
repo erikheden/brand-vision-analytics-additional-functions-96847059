@@ -17,10 +17,37 @@ interface BrandChartProps {
 
 const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standardized }: BrandChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
-  const series = createSeriesConfig(selectedBrands, chartData);
-
-  // Ensure the chart includes 2025 even if there's no data yet
-  const latestYearToShow = Math.max(yearRange.latest, 2025);
+  
+  // Ensure we include 2025 in our data range
+  const latestYearToShow = 2025;
+  
+  // Generate series data with proper handling of 2025
+  const series = selectedBrands.map((brand, index) => {
+    const brandColor = chartConfig[brand]?.color || '#333333';
+    const data = chartData
+      .map(point => [point.year, point[brand]])
+      .filter(([_, value]) => value !== null && value !== 0 && value !== undefined);
+    
+    // Check if we have 2025 data - if not and we're displaying 2025, add a null point
+    const has2025Data = data.some(([year]) => year === 2025);
+    if (!has2025Data && latestYearToShow === 2025) {
+      // Add a null value for 2025 to extend the x-axis
+      data.push([2025, null]);
+    }
+    
+    return {
+      type: 'line' as const,
+      name: brand,
+      data: data,
+      color: brandColor,
+      marker: {
+        symbol: 'circle',
+        radius: 4
+      },
+      lineWidth: 2,
+      connectNulls: false // Don't connect lines across null points
+    };
+  });
 
   const options: Highcharts.Options = {
     ...baseOptions,

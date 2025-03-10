@@ -30,8 +30,11 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
   const chartData = processChartData(scores, standardized);
   const chartConfig = createChartConfig(selectedBrands);
 
-  // Find the most recent year with data - use 2025 as the target year for comparison
-  const mostRecentYear = 2025;
+  // Always use 2025 as the target year for comparison
+  const targetYear = 2025;
+
+  console.log("Chart data years available:", chartData.map(d => d.year));
+  console.log("Year range:", yearRange);
 
   return (
     <div className="space-y-6">
@@ -65,7 +68,7 @@ const ChartSection = ({ selectedCountry, selectedBrands }: ChartSectionProps) =>
           selectedBrands={selectedBrands}
           chartConfig={chartConfig}
           standardized={standardized}
-          latestYear={mostRecentYear}
+          latestYear={targetYear}
         />
       </Card>
     </div>
