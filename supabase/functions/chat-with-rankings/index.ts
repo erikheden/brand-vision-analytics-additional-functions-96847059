@@ -15,27 +15,33 @@ serve(async (req) => {
 
   try {
     const { country, brands, message } = await req.json();
+    console.log("Chat function received request for country:", country, "and brands:", brands);
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-    // Fetch relevant data
+    // Fetch relevant data from the new table
     const { data: rankingData, error: rankingError } = await supabase
       .from('SBI Ranking Scores 2011-2025')
       .select('*')
       .eq('Country', country)
       .in('Brand', brands);
 
-    if (rankingError) throw rankingError;
+    if (rankingError) {
+      console.error("Error fetching ranking data:", rankingError);
+      throw rankingError;
+    }
+
+    console.log(`Retrieved ${rankingData.length} ranking data points`);
 
     // Prepare data context
     const dataContext = rankingData.map(item => 
       `${item.Brand} had a sustainability score of ${item.Score} in ${item.Year}`
     ).join('. ');
 
-    console.log('Sending request to OpenAI with context:', dataContext);
+    console.log('Sending request to OpenAI with context');
 
     // Call OpenAI API
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -64,7 +70,7 @@ serve(async (req) => {
     });
 
     const data = await response.json();
-    console.log('OpenAI API Response:', data);
+    console.log('OpenAI API Response received');
 
     return new Response(JSON.stringify({ 
       response: data.choices[0].message.content 

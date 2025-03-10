@@ -16,13 +16,22 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
     queryKey: ["scores", selectedCountry, selectedBrands],
     queryFn: async () => {
       if (!selectedCountry || selectedBrands.length === 0) return [];
+      
+      console.log("Fetching chart data for country:", selectedCountry, "and brands:", selectedBrands);
+      
       const { data, error } = await supabase
         .from("SBI Ranking Scores 2011-2025")
         .select("*")
         .eq("Country", selectedCountry)
         .in("Brand", selectedBrands);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching scores:", error);
+        throw error;
+      }
+      
+      console.log("Chart data count:", data.length);
+      
       return data as Score[];
     },
     enabled: !!selectedCountry && selectedBrands.length > 0
