@@ -9,10 +9,11 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
       // Debugging the countries query
       console.log("Fetching countries from database");
       
+      // Use a different query approach to get countries
       const { data, error } = await supabase
         .from("SBI Ranking Scores 2011-2025")
         .select('Country')
-        .not('Country', 'eq', null);
+        .is('Country', 'not.null');
       
       if (error) {
         console.error("Error fetching countries:", error);
@@ -22,7 +23,7 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
       console.log("Countries raw data:", data);
       
       // Extract unique countries and sort them
-      const uniqueCountries = [...new Set(data.map(item => item.Country))].sort();
+      const uniqueCountries = [...new Set(data.map(item => item.Country).filter(Boolean))].sort();
       console.log("Unique countries:", uniqueCountries);
       
       return uniqueCountries;
