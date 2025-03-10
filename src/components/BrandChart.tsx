@@ -117,13 +117,20 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
       shared: true,
       useHTML: true,
       formatter: function() {
-        if (!this.points) return '';
+        // Fix: TypeScript errors by properly typing 'this'
+        // The Highcharts tooltip context has a 'points' property when shared is true
+        const tooltipContext = this as unknown as { 
+          points?: Highcharts.Point[],
+          x?: number
+        };
+        
+        if (!tooltipContext.points || tooltipContext.points.length === 0) return '';
     
-        const points = [...this.points].sort((a, b) => 
+        const points = [...tooltipContext.points].sort((a, b) => 
           ((b.y ?? 0) - (a.y ?? 0)) as number
         );
         
-        const pointYear = this.x;
+        const pointYear = tooltipContext.x;
         const isProjectedYear = pointYear === 2025;
         
         const pointsHtml = points.map(point => {
