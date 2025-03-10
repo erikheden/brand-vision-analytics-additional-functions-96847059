@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -10,11 +9,11 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
       console.log("Fetching countries from database");
       
       try {
-        // Get all distinct countries - using a more direct approach
+        // Get all distinct countries - using correct filter syntax
         const { data, error } = await supabase
           .from("SBI Ranking Scores 2011-2025")
           .select('Country')
-          .is('Country', 'not.null');
+          .not('Country', 'is', null);
         
         if (error) {
           console.error("Error fetching countries:", error);
