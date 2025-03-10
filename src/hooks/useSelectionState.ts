@@ -23,7 +23,11 @@ export const useSelectionState = (
     const industryBrands = brands
       .filter(item => item.industry === industry)
       .map(item => item.Brand)
-      .filter((brand): brand is string => typeof brand === 'string' && brand !== null);
+      .filter((brand): brand is string => 
+        typeof brand === 'string' && 
+        brand !== null && 
+        brand.trim() !== ''
+      );
 
     console.log("Filtered brands for industry:", industryBrands);
 

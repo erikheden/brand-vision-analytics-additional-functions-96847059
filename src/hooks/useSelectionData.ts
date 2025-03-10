@@ -27,18 +27,10 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
         const uniqueCountries = [...new Set(data.map(item => item.Country).filter(Boolean))].sort();
         console.log("Unique countries:", uniqueCountries);
         
-        // Return sample data if no countries are found (temporary for debugging)
-        if (uniqueCountries.length === 0) {
-          console.log("No countries found, returning sample data");
-          return ['Se', 'No', 'Dk', 'Fi', 'Nl'];
-        }
-        
         return uniqueCountries;
       } catch (err) {
         console.error("Exception in countries query:", err);
-        // Return sample data in case of error
-        console.log("Error occurred, returning sample data");
-        return ['Se', 'No', 'Dk', 'Fi', 'Nl'];
+        return [];
       }
     }
   });
@@ -76,11 +68,6 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
         return uniqueIndustries;
       } catch (err) {
         console.error("Exception in industries query:", err);
-        // Return dummy data for testing if no industries are found
-        if (selectedCountry) {
-          console.log("No industries found or error, returning sample data");
-          return ['Retail', 'Technology', 'Finance', 'Automotive'];
-        }
         return [];
       }
     },
@@ -112,34 +99,11 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
           throw error;
         }
         
-        console.log("Brands data count:", data.length);
-        
-        // Return dummy data if no brands are found
-        if (data.length === 0 && selectedCountry) {
-          console.log("No brands found, returning sample data");
-          const dummyBrands = [
-            { Brand: "Brand A", industry: selectedIndustries[0] || "Retail", Country: selectedCountry, Year: 2023, Score: 75.5, "Row ID": 1 },
-            { Brand: "Brand B", industry: selectedIndustries[0] || "Retail", Country: selectedCountry, Year: 2023, Score: 82.3, "Row ID": 2 },
-            { Brand: "Brand C", industry: selectedIndustries[0] || "Finance", Country: selectedCountry, Year: 2023, Score: 68.7, "Row ID": 3 },
-          ];
-          return dummyBrands;
-        }
+        console.log("Brands data from DB:", data);
         
         return data;
       } catch (err) {
         console.error("Exception in brands query:", err);
-        
-        // Return dummy data in case of error
-        if (selectedCountry) {
-          console.log("Error occurred, returning sample data");
-          const dummyBrands = [
-            { Brand: "Brand X", industry: selectedIndustries[0] || "Technology", Country: selectedCountry, Year: 2023, Score: 79.5, "Row ID": 4 },
-            { Brand: "Brand Y", industry: selectedIndustries[0] || "Technology", Country: selectedCountry, Year: 2023, Score: 85.3, "Row ID": 5 },
-            { Brand: "Brand Z", industry: selectedIndustries[0] || "Automotive", Country: selectedCountry, Year: 2023, Score: 72.7, "Row ID": 6 },
-          ];
-          return dummyBrands;
-        }
-        
         return [];
       }
     },

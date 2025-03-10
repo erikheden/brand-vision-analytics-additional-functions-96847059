@@ -32,27 +32,12 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         }
         
         console.log("Chart data count:", data.length);
+        console.log("Chart data sample:", data.slice(0, 3));
         
-        // If no data is found, provide sample data for the selected brands
+        // Only use sample data as a last resort if no data is found
         if (data.length === 0) {
-          console.log("No chart data found, generating sample data");
-          const years = [2019, 2020, 2021, 2022, 2023];
-          const sampleData: Score[] = [];
-          
-          selectedBrands.forEach(brand => {
-            years.forEach(year => {
-              sampleData.push({
-                Year: year,
-                Brand: brand,
-                Score: Math.floor(Math.random() * 30) + 60, // Random score between 60-90
-                Country: selectedCountry,
-                industry: "Sample",
-                "Row ID": Math.floor(Math.random() * 1000)
-              });
-            });
-          });
-          
-          return sampleData;
+          console.warn("No real chart data found for the selected brands and country. This is unusual and should be investigated.");
+          return [];
         }
         
         return data as Score[];
