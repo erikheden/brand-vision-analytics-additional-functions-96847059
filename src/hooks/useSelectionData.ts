@@ -1,16 +1,15 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { BrandData } from "@/types/brand";
 
 export const useSelectionData = (selectedCountry: string, selectedIndustries: string[]) => {
   const { data: countries = [], error: countriesError } = useQuery({
     queryKey: ["countries"],
     queryFn: async () => {
-      // Debugging the countries query
       console.log("Fetching countries from database");
       
       try {
-        // Get all distinct countries
         const { data, error } = await supabase
           .from("SBI Ranking Scores 2011-2025")
           .select('Country')
@@ -101,7 +100,7 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
         
         console.log("Brands data from DB:", data);
         
-        return data;
+        return data as BrandData[];
       } catch (err) {
         console.error("Exception in brands query:", err);
         return [];
