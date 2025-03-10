@@ -35,13 +35,13 @@ const CountrySelect = ({
     <div className="space-y-2">
       <Label>Select Country</Label>
       <Select value={selectedCountry} onValueChange={onCountryChange}>
-        <SelectTrigger>
+        <SelectTrigger className="bg-white">
           <SelectValue placeholder="Choose a country">
             {selectedCountry ? getFullCountryName(selectedCountry) : "Choose a country"}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          {countries.length > 0 ? (
+        <SelectContent className="bg-white z-50">
+          {countries && countries.length > 0 ? (
             countries.map((country) => (
               <SelectItem key={country} value={country}>
                 {getFullCountryName(country)}
