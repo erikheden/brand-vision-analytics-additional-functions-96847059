@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
@@ -41,7 +40,7 @@ const ChartSection = ({
         </Toggle>
       </div>
       
-      <Card className="p-6 bg-[#f5f5f5] shadow-lg my-0 px-[29px] mx-0 rounded-md py-0">
+      <Card className="p-6 bg-[#f5f5f5] shadow-lg my-0 px-[29px] mx-0 rounded-md py-[31px]">
         <BrandChart chartData={chartData} selectedBrands={selectedBrands} yearRange={yearRange} chartConfig={chartConfig} standardized={standardized} />
       </Card>
       
