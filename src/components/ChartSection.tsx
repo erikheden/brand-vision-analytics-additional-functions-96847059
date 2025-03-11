@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
@@ -20,7 +21,7 @@ const ChartSection = ({
     data: scores = []
   } = useChartData(selectedCountry, selectedBrands);
   if (scores.length === 0) {
-    return <Card className="p-6 bg-gray-50 rounded-xl shadow-lg">
+    return <Card className="p-6 bg-[#f5f5f5] rounded-xl shadow-lg">
         <EmptyChartState selectedCountry={selectedCountry} />
       </Card>;
   }
@@ -40,11 +41,11 @@ const ChartSection = ({
         </Toggle>
       </div>
       
-      <Card className="p-6 bg-gray-50 shadow-lg my-0 px-[29px] mx-0 rounded-md py-0">
+      <Card className="p-6 bg-[#f5f5f5] shadow-lg my-0 px-[29px] mx-0 rounded-md py-0">
         <BrandChart chartData={chartData} selectedBrands={selectedBrands} yearRange={yearRange} chartConfig={chartConfig} standardized={standardized} />
       </Card>
       
-      <Card className="p-6 bg-gray-50 rounded-xl shadow-lg">
+      <Card className="p-6 bg-[#f5f5f5] rounded-xl shadow-lg">
         <BrandBarChart chartData={chartData} selectedBrands={selectedBrands} chartConfig={chartConfig} standardized={standardized} latestYear={targetYear} />
       </Card>
     </div>;
