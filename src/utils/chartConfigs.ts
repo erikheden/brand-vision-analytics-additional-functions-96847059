@@ -1,8 +1,6 @@
 
 import { Options } from 'highcharts';
-
-// Update the constant to use Bely Display font
-export const FONT_FAMILY = 'bely-display, serif';
+import { FONT_FAMILY } from './constants';
 
 export const createChartOptions = (fontFamily: string = FONT_FAMILY): Options => ({
   chart: {

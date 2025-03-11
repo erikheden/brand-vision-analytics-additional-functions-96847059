@@ -1,3 +1,4 @@
+
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
@@ -15,8 +16,10 @@ interface BrandBarChartProps {
 const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, latestYear = 2025 }: BrandBarChartProps) => {
   const baseOptions = createBarChartOptions(FONT_FAMILY);
   
+  // Specifically filter for 2025 data first
   const data2025 = chartData.filter(point => point.year === 2025);
   
+  // If no 2025 data exists, fall back to the most recent year data
   const dataToUse = data2025.length > 0 
     ? data2025 
     : chartData.length > 0 
@@ -24,11 +27,13 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
           latest.year > current.year ? latest : current, chartData[0])] 
       : [];
       
+  // Get the actual year being displayed (for the title)
   const displayYear = dataToUse[0]?.year || latestYear;
   const isProjected = displayYear === 2025 && dataToUse[0]?.Projected;
   
   console.log("Using data year for bar chart:", displayYear, "Projected:", isProjected);
   
+  // Sort brands by their score values
   const seriesData = selectedBrands.map(brand => {
     const scoreValue = dataToUse[0]?.[brand] || 0;
     return {
