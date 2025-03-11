@@ -5,6 +5,7 @@ import BrandSelection from "./BrandSelection";
 import IndustryTags from "./IndustryTags";
 import { useSelectionData } from "@/hooks/useSelectionData";
 import { useSelectionState } from "@/hooks/useSelectionState";
+import { ChevronDown } from "lucide-react";
 
 interface SelectionPanelProps {
   selectedCountry: string;
@@ -45,18 +46,26 @@ const SelectionPanel = ({
   )].sort();
 
   return (
-    <Card className="p-6 bg-gray-50">
+    <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#E5DEFF] shadow-lg rounded-xl transition-all duration-300 hover:shadow-xl">
       <div className="space-y-6">
-        <CountrySelect
-          selectedCountry={selectedCountry}
-          countries={countries}
-          onCountryChange={(country) => {
-            console.log("Country changed to:", country);
-            setSelectedCountry(country);
-            setSelectedBrands([]);
-            setSelectedIndustry("");
-          }}
-        />
+        <div className="flex flex-col space-y-2">
+          <CountrySelect
+            selectedCountry={selectedCountry}
+            countries={countries}
+            onCountryChange={(country) => {
+              console.log("Country changed to:", country);
+              setSelectedCountry(country);
+              setSelectedBrands([]);
+              setSelectedIndustry("");
+            }}
+          />
+          {!selectedCountry && (
+            <div className="flex items-center justify-center mt-2 text-[#34502b] animate-bounce">
+              <ChevronDown className="h-5 w-5" />
+              <span className="ml-2 font-medium">Start by selecting a country</span>
+            </div>
+          )}
+        </div>
 
         {selectedCountry && (
           <>
