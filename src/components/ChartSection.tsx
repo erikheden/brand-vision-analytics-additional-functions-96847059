@@ -44,7 +44,7 @@ const ChartSection = ({
         <BrandChart chartData={chartData} selectedBrands={selectedBrands} yearRange={yearRange} chartConfig={chartConfig} standardized={standardized} />
       </Card>
       
-      <Card className="p-6 bg-[#f5f5f5] rounded-xl shadow-lg">
+      <Card className="p-6 bg-[#f5f5f5] rounded-xl shadow-lg py-[30px]">
         <BrandBarChart chartData={chartData} selectedBrands={selectedBrands} chartConfig={chartConfig} standardized={standardized} latestYear={targetYear} />
       </Card>
     </div>;
