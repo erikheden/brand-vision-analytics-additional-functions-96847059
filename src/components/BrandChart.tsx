@@ -1,4 +1,3 @@
-
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
@@ -16,17 +15,13 @@ interface BrandChartProps {
 const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standardized }: BrandChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
   
-  // Ensure we include 2025 in our data range
   const latestYearToShow = 2025;
   
-  // Generate series data with proper handling of 2025
   const series = selectedBrands.map((brand, index) => {
     const brandColor = chartConfig[brand]?.color || '#333333';
     
-    // Get all data points for this brand
     const data = chartData
       .map(point => {
-        // Check if this is projected data (2025)
         const isProjected = point.year === 2025 && point.Projected;
         
         return {
@@ -37,7 +32,6 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
       })
       .filter(point => point.y !== null && point.y !== 0 && point.y !== undefined);
     
-    // Format data for highcharts
     const formattedData = data.map(point => ({ 
       x: point.x, 
       y: point.y,
@@ -59,7 +53,7 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
         radius: 4
       },
       lineWidth: 2,
-      connectNulls: false // Don't connect lines across null points
+      connectNulls: false
     };
   });
 
@@ -97,14 +91,11 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
           fontFamily: FONT_FAMILY
         }
       }
-      // Removed the plotLines section that showed the projection line
     },
     tooltip: {
       shared: true,
       useHTML: true,
       formatter: function() {
-        // Fix: TypeScript errors by properly typing 'this'
-        // The Highcharts tooltip context has a 'points' property when shared is true
         const tooltipContext = this as unknown as { 
           points?: Highcharts.Point[],
           x?: number
@@ -117,7 +108,6 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
         );
         
         const pointYear = tooltipContext.x;
-        // Removed isProjectedYear check and related conditional
         
         const pointsHtml = points.map(point => {
           const color = point.series.color;
@@ -134,11 +124,10 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
           `;
         }).join('');
         
-        // Removed the "Projected" label from the year label
         const yearLabel = `${pointYear}`;
         
         return `
-          <div style="font-family: '${FONT_FAMILY}'; padding: 8px; background: rgba(52, 80, 43, 0.95); border-radius: 4px;">
+          <div style="font-family: '${FONT_FAMILY}'; padding: 8px; background: linear-gradient(to bottom, rgba(183, 200, 149, 0.95), rgba(52, 80, 43, 0.95)); border-radius: 4px;">
             <div style="font-weight: bold; margin-bottom: 8px; color: #ffffff;">${yearLabel}</div>
             ${pointsHtml}
           </div>

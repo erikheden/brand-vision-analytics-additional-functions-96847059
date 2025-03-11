@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import SelectionPanel from "@/components/SelectionPanel";
 import ChartSection from "@/components/ChartSection";
@@ -7,8 +8,8 @@ const Index = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
 
   return (
-    <div className="min-h-screen bg-[#C5D1B0]">
-      <div className="w-full bg-[#C5D1B0] py-6">
+    <div className="min-h-screen bg-gradient-to-b from-[#b7c895] to-[#34502b]">
+      <div className="w-full bg-transparent py-6">
         <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
           <h1 className="text-4xl md:text-5xl text-white font-['bely-display'] font-normal">
           </h1>
