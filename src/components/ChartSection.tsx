@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
@@ -8,12 +7,10 @@ import { Check } from "lucide-react";
 import BrandChart from "./BrandChart";
 import BrandBarChart from "./BrandBarChart";
 import EmptyChartState from "./EmptyChartState";
-
 interface ChartSectionProps {
   selectedCountry: string;
   selectedBrands: string[];
 }
-
 const ChartSection = ({
   selectedCountry,
   selectedBrands
@@ -22,13 +19,11 @@ const ChartSection = ({
   const {
     data: scores = []
   } = useChartData(selectedCountry, selectedBrands);
-  
   if (scores.length === 0) {
     return <Card className="p-6 bg-gray-50 rounded-xl shadow-lg">
         <EmptyChartState selectedCountry={selectedCountry} />
       </Card>;
   }
-  
   const yearRange = calculateYearRange(scores);
   const chartData = processChartData(scores, standardized);
   const chartConfig = createChartConfig(selectedBrands);
@@ -37,7 +32,6 @@ const ChartSection = ({
   const targetYear = 2025;
   console.log("Chart data years available:", chartData.map(d => d.year));
   console.log("Year range:", yearRange);
-  
   return <div className="space-y-6">
       <div className="flex items-center justify-end space-x-2">
         <span className="text-sm text-[#34502b]">Standardized Scores</span>
@@ -46,7 +40,7 @@ const ChartSection = ({
         </Toggle>
       </div>
       
-      <Card className="p-6 bg-gray-50 shadow-lg my-0 py-[20px] px-[29px] mx-0 rounded-md">
+      <Card className="p-6 bg-gray-50 shadow-lg my-0 px-[29px] mx-0 rounded-md py-0">
         <BrandChart chartData={chartData} selectedBrands={selectedBrands} yearRange={yearRange} chartConfig={chartConfig} standardized={standardized} />
       </Card>
       
@@ -55,5 +49,4 @@ const ChartSection = ({
       </Card>
     </div>;
 };
-
 export default ChartSection;
