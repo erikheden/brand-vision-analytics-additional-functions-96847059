@@ -50,7 +50,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
       type: 'column',
     },
     title: {
-      text: `${displayYear}${isProjected ? ' (Projected)' : ''} ${standardized ? 'Standardized Brand Scores Comparison' : 'Brand Scores Comparison'}`,
+      text: `${displayYear} ${standardized ? 'Standardized Brand Scores Comparison' : 'Brand Scores Comparison'}`,
       style: {
         color: '#ffffff',
         fontFamily: FONT_FAMILY
@@ -62,7 +62,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
         text: standardized ? 'Standardized Score' : 'Score',
         style: {
           color: '#ffffff',
-          fontFamily: FONT_FAMILY
+          fontFamily,
         }
       }
     },
@@ -74,7 +74,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
         const value = standardized ? 
           `${this.y?.toFixed(2)} SD` : 
           this.y?.toFixed(2);
-        return `<b>${this.key}</b>: ${value}${isProjected ? ' (Projected)' : ''}`;
+        return `<b>${this.key}</b>: ${value}`;
       }
     },
     series: [{
