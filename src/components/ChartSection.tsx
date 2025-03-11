@@ -35,7 +35,7 @@ const ChartSection = ({
   return <div className="space-y-6">
       <div className="flex items-center justify-end space-x-2">
         <span className="text-sm text-white">Standardized Scores</span>
-        <Toggle pressed={standardized} onPressedChange={setStandardized} className="bg-white/20 data-[state=on]:bg-white/40 hover:bg-white/30 border border-white/30 relative" aria-label="Toggle standardized scores">
+        <Toggle pressed={standardized} onPressedChange={setStandardized} aria-label="Toggle standardized scores" className="border border-white/30 relative bg-[#f0d2b0] font-semibold">
           {standardized && <Check className="h-4 w-4 text-white absolute" />}
         </Toggle>
       </div>
