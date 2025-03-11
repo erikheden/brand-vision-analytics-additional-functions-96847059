@@ -96,22 +96,8 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
           color: '#ffffff',
           fontFamily: FONT_FAMILY
         }
-      },
-      plotLines: [{
-        color: 'rgba(255, 255, 255, 0.3)',
-        dashStyle: 'Dash',
-        value: 2024,
-        width: 1,
-        label: {
-          text: 'Projected →',
-          align: 'right',
-          style: {
-            color: '#ffffff',
-            fontStyle: 'italic',
-            fontFamily: FONT_FAMILY
-          }
-        }
-      }]
+      }
+      // Removed the plotLines section that showed the projection line
     },
     tooltip: {
       shared: true,
@@ -131,7 +117,7 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
         );
         
         const pointYear = tooltipContext.x;
-        const isProjectedYear = pointYear === 2025;
+        // Removed isProjectedYear check and related conditional
         
         const pointsHtml = points.map(point => {
           const color = point.series.color;
@@ -148,7 +134,8 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
           `;
         }).join('');
         
-        const yearLabel = isProjectedYear ? `${pointYear} (Projected)` : `${pointYear}`;
+        // Removed the "Projected" label from the year label
+        const yearLabel = `${pointYear}`;
         
         return `
           <div style="font-family: '${FONT_FAMILY}'; padding: 8px; background: rgba(52, 80, 43, 0.95); border-radius: 4px;">
