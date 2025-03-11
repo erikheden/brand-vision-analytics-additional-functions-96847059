@@ -12,7 +12,7 @@ const Index = () => {
       <div className="w-full bg-transparent py-6">
         <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
           <img 
-            src="/lovable-uploads/33bef5eb-44ae-4ef2-92c3-cd831e46f1a8.png" 
+            src="/lovable-uploads/8b26bfaf-912f-4219-9ea9-5bb7156bb1e9.png" 
             alt="Data Dashboard" 
             className="h-12 md:h-16 w-auto animate-fade-in"
           />
