@@ -1,3 +1,4 @@
+
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
@@ -61,12 +62,13 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
     ...baseOptions,
     chart: {
       ...baseOptions.chart,
-      type: 'line'
+      type: 'line',
+      backgroundColor: '#f5f5f5',
     },
     title: {
       text: standardized ? 'Standardized Brand Score Trends' : 'Brand Score Trends',
       style: {
-        color: '#ffffff',
+        color: '#34502b',
         fontFamily: FONT_FAMILY
       }
     },
@@ -75,10 +77,17 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
       title: {
         text: standardized ? 'Standardized Score' : 'Score',
         style: {
-          color: '#ffffff',
+          color: '#34502b',
           fontFamily: FONT_FAMILY
         }
-      }
+      },
+      labels: {
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY
+        }
+      },
+      gridLineColor: 'rgba(52, 80, 43, 0.1)'
     },
     xAxis: {
       ...baseOptions.xAxis,
@@ -87,10 +96,12 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
       allowDecimals: false,
       labels: {
         style: {
-          color: '#ffffff',
+          color: '#34502b',
           fontFamily: FONT_FAMILY
         }
-      }
+      },
+      lineColor: '#34502b',
+      gridLineColor: 'rgba(52, 80, 43, 0.1)'
     },
     tooltip: {
       shared: true,
@@ -118,8 +129,8 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
           return `
             <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
               <div style="width: 10px; height: 10px; background-color: ${color}; border-radius: 50%;"></div>
-              <span style="color: #ffffff;">${point.series.name}:</span>
-              <span style="font-weight: bold; color: #ffffff;">${value}</span>
+              <span style="color: #34502b;">${point.series.name}:</span>
+              <span style="font-weight: bold; color: #34502b;">${value}</span>
             </div>
           `;
         }).join('');
@@ -127,8 +138,8 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
         const yearLabel = `${pointYear}`;
         
         return `
-          <div style="font-family: '${FONT_FAMILY}'; padding: 8px; background: linear-gradient(to bottom, rgba(183, 200, 149, 0.95), rgba(52, 80, 43, 0.95)); border-radius: 4px;">
-            <div style="font-weight: bold; margin-bottom: 8px; color: #ffffff;">${yearLabel}</div>
+          <div style="font-family: '${FONT_FAMILY}'; padding: 8px; background: #f5f5f5; border-radius: 4px; border: 1px solid rgba(52, 80, 43, 0.2);">
+            <div style="font-weight: bold; margin-bottom: 8px; color: #34502b;">${yearLabel}</div>
             ${pointsHtml}
           </div>
         `;

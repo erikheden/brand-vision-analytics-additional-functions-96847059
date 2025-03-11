@@ -48,11 +48,12 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
     chart: {
       ...baseOptions.chart,
       type: 'column',
+      backgroundColor: '#f5f5f5',
     },
     title: {
       text: `${displayYear} ${standardized ? 'Standardized Brand Scores Comparison' : 'Brand Scores Comparison'}`,
       style: {
-        color: '#ffffff',
+        color: '#34502b',
         fontFamily: FONT_FAMILY
       }
     },
@@ -61,10 +62,28 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
       title: {
         text: standardized ? 'Standardized Score' : 'Score',
         style: {
-          color: '#ffffff',
+          color: '#34502b',
           fontFamily: FONT_FAMILY,
         }
-      }
+      },
+      labels: {
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY,
+        }
+      },
+      gridLineColor: 'rgba(52, 80, 43, 0.1)'
+    },
+    xAxis: {
+      type: 'category',
+      labels: {
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY,
+        }
+      },
+      lineColor: '#34502b',
+      gridLineColor: 'rgba(52, 80, 43, 0.1)'
     },
     legend: {
       enabled: false
@@ -75,6 +94,11 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
           `${this.y?.toFixed(2)} SD` : 
           this.y?.toFixed(2);
         return `<b>${this.key}</b>: ${value}`;
+      },
+      backgroundColor: '#f5f5f5',
+      style: {
+        color: '#34502b',
+        fontFamily: FONT_FAMILY
       }
     },
     series: [{

@@ -1,3 +1,4 @@
+
 import { Options } from 'highcharts';
 import { FONT_FAMILY } from './constants';
 
@@ -14,7 +15,7 @@ export const createChartOptions = (fontFamily: string = FONT_FAMILY): Options =>
   title: {
     text: 'Brand Score Trends',
     style: {
-      color: '#ffffff',
+      color: '#34502b',
       fontFamily,
     }
   },
@@ -27,32 +28,32 @@ export const createChartOptions = (fontFamily: string = FONT_FAMILY): Options =>
     type: 'linear',
     labels: {
       style: {
-        color: '#ffffff',
+        color: '#34502b',
         fontFamily,
       }
     },
-    lineColor: '#ffffff',
-    gridLineColor: 'rgba(255, 255, 255, 0.1)'
+    lineColor: '#34502b',
+    gridLineColor: 'rgba(52, 80, 43, 0.1)'
   },
   yAxis: {
     title: {
       text: 'Score',
       style: {
-        color: '#ffffff',
+        color: '#34502b',
         fontFamily,
       }
     },
     labels: {
       style: {
-        color: '#ffffff',
+        color: '#34502b',
         fontFamily,
       }
     },
-    gridLineColor: 'rgba(255, 255, 255, 0.1)'
+    gridLineColor: 'rgba(52, 80, 43, 0.1)'
   },
   legend: {
     itemStyle: {
-      color: '#ffffff',
+      color: '#34502b',
       fontFamily,
     }
   }
@@ -64,12 +65,12 @@ export const createBarChartOptions = (fontFamily: string = FONT_FAMILY): Options
     type: 'category',
     labels: {
       style: {
-        color: '#ffffff',
+        color: '#34502b',
         fontFamily,
       }
     },
-    lineColor: '#ffffff',
-    gridLineColor: 'rgba(255, 255, 255, 0.1)'
+    lineColor: '#34502b',
+    gridLineColor: 'rgba(52, 80, 43, 0.1)'
   },
   plotOptions: {
     column: {
