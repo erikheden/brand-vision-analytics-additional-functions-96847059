@@ -16,7 +16,7 @@ const Index = () => {
           <img 
             src="/lovable-uploads/8732b50b-f85b-48ca-91ac-748d8819f66c.png" 
             alt="SB Index Logo" 
-            className="h-16 md:h-20 w-auto"
+            className="h-24 md:h-30 w-auto" // Increased from h-16 md:h-20 to h-24 md:h-30 (1.5x bigger)
           />
         </div>
       </div>
