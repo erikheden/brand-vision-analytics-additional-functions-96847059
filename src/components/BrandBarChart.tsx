@@ -62,7 +62,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
         text: standardized ? 'Standardized Score' : 'Score',
         style: {
           color: '#ffffff',
-          fontFamily,
+          fontFamily: FONT_FAMILY,
         }
       }
     },
