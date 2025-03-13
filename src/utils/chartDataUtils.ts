@@ -1,3 +1,4 @@
+
 interface Score {
   Year: number;
   Brand: string;
@@ -40,9 +41,16 @@ export const calculateYearRange = (scores: Score[]): YearRange => {
 };
 
 export const processChartData = (scores: Score[], standardized: boolean = false): ChartDataPoint[] => {
-  const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
+  // First, check if we have market data available (added by useChartData to the scores array)
+  const marketData = (scores as any).marketData || [];
   
-  // Group scores by year and country - this should include ALL brands, not just selected ones
+  // Use either the full market data (if available and standardizing) or just the selected brands
+  const dataToUse = standardized && marketData.length > 0 ? marketData : scores;
+  console.log(`Processing chart data with ${dataToUse.length} data points (${standardized ? 'using full market data' : 'using selected brands only'})`);
+  
+  const validScores = dataToUse.filter(score => score.Score !== null && score.Score !== 0);
+  
+  // Group scores by year and country
   const yearCountryGroups: { [key: string]: Score[] } = {};
   
   validScores.forEach(score => {
@@ -57,20 +65,22 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
   const marketStats: { [key: string]: { mean: number; stdDev: number } } = {};
   
   Object.entries(yearCountryGroups).forEach(([yearCountryKey, yearCountryScores]) => {
-    const scores = yearCountryScores.map(s => s.Score);
-    const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-    const variance = scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scores.length;
+    const scoresValues = yearCountryScores.map(s => s.Score);
+    const mean = scoresValues.reduce((sum, score) => sum + score, 0) / scoresValues.length;
+    const variance = scoresValues.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scoresValues.length;
     const stdDev = Math.sqrt(variance);
     
     marketStats[yearCountryKey] = { mean, stdDev };
     
-    console.log(`Market stats for ${yearCountryKey}: mean=${mean.toFixed(2)}, stdDev=${stdDev.toFixed(2)} (based on ${scores.length} scores)`);
+    console.log(`Market stats for ${yearCountryKey}: mean=${mean.toFixed(2)}, stdDev=${stdDev.toFixed(2)} (based on ${scoresValues.length} scores)`);
   });
 
-  // Now group scores by year for the chart data points
+  // Now group the SELECTED scores (not market data) by year for the chart data points
+  // This way we only visualize the selected brands, but standardize against the full market
+  const selectedScores = scores.filter(score => score.Score !== null && score.Score !== 0);
   const yearGroups: { [key: number]: Score[] } = {};
   
-  validScores.forEach(score => {
+  selectedScores.forEach(score => {
     const year = score.Year;
     if (!yearGroups[year]) {
       yearGroups[year] = [];
@@ -103,8 +113,9 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
         if (stats.stdDev === 0) {
           result[score.Brand] = 0;
         } else {
-          // This is the key change: standardize scores against market mean and stdDev
+          // Standardize scores against market mean and stdDev
           result[score.Brand] = (score.Score - stats.mean) / stats.stdDev;
+          console.log(`Standardized score for ${score.Brand} in ${score.Year}-${score.Country}: ${result[score.Brand].toFixed(2)} (score: ${score.Score}, mean: ${stats.mean.toFixed(2)}, stdDev: ${stats.stdDev.toFixed(2)})`);
         }
       });
     } else {

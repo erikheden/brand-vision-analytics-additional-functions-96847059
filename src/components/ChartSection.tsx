@@ -55,7 +55,7 @@ const ChartSection = ({
               <Info className="h-4 w-4 text-white transition-transform hover:scale-110" />
             </TooltipTrigger>
             <TooltipContent className="bg-white p-3 max-w-xs">
-              <p>Standardized scores normalize the data against the market average in each country, showing how many standard deviations each brand is above or below the market mean.</p>
+              <p>Standardized scores normalize the data against the <strong>entire market average</strong> in each country, showing how many standard deviations each brand is above or below the market mean.</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
