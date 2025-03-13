@@ -19,6 +19,18 @@ interface BrandScore {
 }
 
 /**
+ * Normalizes industry names to handle minor formatting differences
+ */
+export const normalizeIndustryName = (industry: string): string => {
+  // Standardize common variations
+  return industry
+    .trim()
+    .replace(/&/g, '&')  // Standardize ampersands
+    .replace(/,\s+/g, ', ') // Standardize commas
+    .replace(/\s+/g, ' '); // Remove extra spaces
+};
+
+/**
  * Calculates the industry average scores by year for comparison
  * Using ALL brands in the database for each industry, completely independent of selected brands
  */
@@ -32,7 +44,9 @@ export const calculateIndustryAverages = (scores: BrandData[], selectedBrands: s
   const allIndustries = new Set<string>();
   scores.forEach(score => {
     if (score.industry) {
-      allIndustries.add(score.industry);
+      // Normalize industry names to handle potential formatting inconsistencies
+      const normalizedIndustry = normalizeIndustryName(score.industry);
+      allIndustries.add(normalizedIndustry);
     }
   });
   
@@ -40,20 +54,23 @@ export const calculateIndustryAverages = (scores: BrandData[], selectedBrands: s
   scores.forEach(score => {
     if (!score.industry) return;
     
-    if (!industryScoresByYear[score.industry]) {
-      industryScoresByYear[score.industry] = {};
+    // Normalize industry name for consistency
+    const normalizedIndustry = normalizeIndustryName(score.industry);
+    
+    if (!industryScoresByYear[normalizedIndustry]) {
+      industryScoresByYear[normalizedIndustry] = {};
     }
     
     const year = score.Year;
-    if (!industryScoresByYear[score.industry][year]) {
-      industryScoresByYear[score.industry][year] = [];
+    if (!industryScoresByYear[normalizedIndustry][year]) {
+      industryScoresByYear[normalizedIndustry][year] = [];
     }
     
-    industryScoresByYear[score.industry][year].push({
+    industryScoresByYear[normalizedIndustry][year].push({
       brand: score.Brand,
       score: score.Score,
       year: score.Year,
-      industry: score.industry
+      industry: normalizedIndustry
     });
   });
   
@@ -84,7 +101,7 @@ export const calculateIndustryAverages = (scores: BrandData[], selectedBrands: s
  */
 export const getBrandIndustry = (scores: BrandData[], brand: string): string | null => {
   const brandData = scores.find(score => score.Brand === brand);
-  return brandData?.industry || null;
+  return brandData?.industry ? normalizeIndustryName(brandData.industry) : null;
 };
 
 /**
@@ -123,7 +140,7 @@ export const getAllIndustries = (scores: BrandData[]): string[] => {
   
   scores.forEach(score => {
     if (score.industry) {
-      industries.add(score.industry);
+      industries.add(normalizeIndustryName(score.industry));
     }
   });
   
@@ -134,10 +151,11 @@ export const getAllIndustries = (scores: BrandData[]): string[] => {
  * Get all brands in a specific industry
  */
 export const getBrandsInIndustry = (scores: BrandData[], industry: string): string[] => {
+  const normalizedTargetIndustry = normalizeIndustryName(industry);
   const brands = new Set<string>();
   
   scores.forEach(score => {
-    if (score.industry === industry && score.Brand) {
+    if (score.industry && normalizeIndustryName(score.industry) === normalizedTargetIndustry && score.Brand) {
       brands.add(score.Brand);
     }
   });
@@ -152,11 +170,12 @@ export const getIndustryPerformanceOverTime = (
   scores: BrandData[],
   industry: string
 ): Record<number, number> => {
+  const normalizedTargetIndustry = normalizeIndustryName(industry);
   const yearlyScores: Record<number, number[]> = {};
   
   // Group scores by year
   scores.forEach(score => {
-    if (score.industry !== industry) return;
+    if (score.industry && normalizeIndustryName(score.industry) !== normalizedTargetIndustry) return;
     
     const year = score.Year;
     if (!yearlyScores[year]) {

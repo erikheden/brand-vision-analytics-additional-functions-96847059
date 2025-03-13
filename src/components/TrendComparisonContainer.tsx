@@ -1,7 +1,7 @@
 
 import { useMemo } from 'react';
 import TrendComparisonWidget from './TrendComparisonWidget';
-import { calculateIndustryAverages, getBrandIndustry } from '@/utils/industryAverageUtils';
+import { calculateIndustryAverages, getBrandIndustry, normalizeIndustryName } from '@/utils/industryAverageUtils';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -27,10 +27,12 @@ const TrendComparisonContainer = ({
     const counts: Record<string, number> = {};
     scores.forEach(score => {
       if (score.industry && score.Year === comparisonYear) {
-        if (!counts[score.industry]) {
-          counts[score.industry] = 0;
+        // Normalize industry name
+        const normalizedIndustry = normalizeIndustryName(score.industry);
+        if (!counts[normalizedIndustry]) {
+          counts[normalizedIndustry] = 0;
         }
-        counts[score.industry]++;
+        counts[normalizedIndustry]++;
       }
     });
     return counts;
@@ -45,7 +47,7 @@ const TrendComparisonContainer = ({
           brand,
           score: score.Score,
           year: score.Year,
-          industry: score.industry
+          industry: score.industry ? normalizeIndustryName(score.industry) : null
         }));
       
       return brandScores[0] || null;
@@ -55,6 +57,11 @@ const TrendComparisonContainer = ({
   if (brandScores.length === 0) {
     return null;
   }
+  
+  // Debug display to show industry names
+  console.log("Industries in data:", [...new Set(scores.map(s => s.industry))]);
+  console.log("Normalized industries:", [...new Set(scores.map(s => s.industry ? normalizeIndustryName(s.industry) : null))]);
+  console.log("Industry averages for year:", industryAverages[comparisonYear]);
   
   return (
     <div className="space-y-2">
@@ -84,7 +91,7 @@ const TrendComparisonContainer = ({
             industryAverages[comparisonYear][industry] : undefined;
           
           const brandsInIndustry = industry ? brandsPerIndustry[industry] || 0 : 0;
-            
+          
           return (
             <TrendComparisonWidget
               key={brandScore.brand}
