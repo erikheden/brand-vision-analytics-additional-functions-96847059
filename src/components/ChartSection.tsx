@@ -39,6 +39,14 @@ const ChartSection = ({
   const targetYear = 2025;
 
   return <div className="space-y-6">
+      {/* Industry Comparison Widgets - Now first */}
+      <TrendComparisonContainer 
+        scores={scores} 
+        selectedBrands={selectedBrands} 
+        comparisonYear={targetYear} 
+      />
+      
+      {/* Standardized toggle - Moved below industry comparison widgets */}
       <div className="flex items-center justify-end space-x-4 mb-4 py-2">
         <span className="text-sm text-white font-medium">Standardized Scores</span>
         <TooltipProvider>
@@ -61,19 +69,12 @@ const ChartSection = ({
         </Toggle>
       </div>
       
-      {/* Industry Comparison Widgets */}
-      <TrendComparisonContainer 
-        scores={scores} 
-        selectedBrands={selectedBrands} 
-        comparisonYear={targetYear} 
-      />
-      
-      {/* Bar Chart (now first) */}
+      {/* Bar Chart */}
       <Card className="p-6 bg-[#f5f5f5] rounded-xl shadow-lg py-[30px] transition-all duration-300 hover:shadow-xl">
         <BrandBarChart chartData={chartData} selectedBrands={selectedBrands} chartConfig={chartConfig} standardized={standardized} latestYear={targetYear} />
       </Card>
       
-      {/* Line Chart (now second) */}
+      {/* Line Chart */}
       <Card className="p-6 bg-[#f5f5f5] shadow-lg my-0 px-[29px] mx-0 rounded-md py-[31px] transition-all duration-300 hover:shadow-xl">
         <BrandChart chartData={chartData} selectedBrands={selectedBrands} yearRange={yearRange} chartConfig={chartConfig} standardized={standardized} />
       </Card>
