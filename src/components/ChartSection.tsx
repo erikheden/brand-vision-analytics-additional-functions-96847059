@@ -31,6 +31,10 @@ const ChartSection = ({
       </Card>;
   }
 
+  // Check if full market data is available for better standardization
+  const hasMarketData = !!(scores as any).marketData && (scores as any).marketData.length > 0;
+  const marketDataCount = hasMarketData ? (scores as any).marketData.length : 0;
+
   const yearRange = calculateYearRange(scores);
   const chartData = processChartData(scores, standardized);
   const chartConfig = createChartConfig(selectedBrands);
@@ -55,7 +59,7 @@ const ChartSection = ({
               <Info className="h-4 w-4 text-white transition-transform hover:scale-110" />
             </TooltipTrigger>
             <TooltipContent className="bg-white p-3 max-w-xs">
-              <p>Standardized scores normalize the data against the <strong>entire market average</strong> in each country, showing how many standard deviations each brand is above or below the market mean.</p>
+              <p>Standardized scores normalize the data against the <strong>entire market average</strong> in each country ({marketDataCount} brands), showing how many standard deviations each brand is above or below the market mean.</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -71,12 +75,25 @@ const ChartSection = ({
       
       {/* Bar Chart */}
       <Card className="p-6 bg-[#f5f5f5] rounded-xl shadow-lg py-[30px] transition-all duration-300 hover:shadow-xl">
-        <BrandBarChart chartData={chartData} selectedBrands={selectedBrands} chartConfig={chartConfig} standardized={standardized} latestYear={targetYear} />
+        <BrandBarChart 
+          chartData={chartData} 
+          selectedBrands={selectedBrands} 
+          chartConfig={chartConfig} 
+          standardized={standardized} 
+          latestYear={targetYear}
+          marketDataCount={marketDataCount}
+        />
       </Card>
       
       {/* Line Chart */}
       <Card className="p-6 bg-[#f5f5f5] shadow-lg my-0 px-[29px] mx-0 rounded-md py-[31px] transition-all duration-300 hover:shadow-xl">
-        <BrandChart chartData={chartData} selectedBrands={selectedBrands} yearRange={yearRange} chartConfig={chartConfig} standardized={standardized} />
+        <BrandChart 
+          chartData={chartData} 
+          selectedBrands={selectedBrands} 
+          yearRange={yearRange} 
+          chartConfig={chartConfig} 
+          standardized={standardized}
+        />
       </Card>
     </div>;
 };

@@ -11,9 +11,17 @@ interface BrandBarChartProps {
   chartConfig: any;
   standardized: boolean;
   latestYear?: number;
+  marketDataCount?: number;
 }
 
-const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, latestYear = 2025 }: BrandBarChartProps) => {
+const BrandBarChart = ({ 
+  chartData, 
+  selectedBrands, 
+  chartConfig, 
+  standardized, 
+  latestYear = 2025,
+  marketDataCount = 0
+}: BrandBarChartProps) => {
   const baseOptions = createBarChartOptions(FONT_FAMILY);
   
   // Specifically filter for 2025 data first
@@ -43,6 +51,11 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
     };
   }).sort((a, b) => b.y - a.y);
 
+  // Create a more informative title based on standardization and market data
+  const titleText = standardized 
+    ? `${displayYear} Market-Relative Brand Scores (${marketDataCount > 0 ? `vs ${marketDataCount} brands` : 'Market Standardized'})`
+    : `${displayYear} Brand Scores Comparison`;
+
   const options: Highcharts.Options = {
     ...baseOptions,
     chart: {
@@ -51,7 +64,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
       backgroundColor: '#f5f5f5',
     },
     title: {
-      text: `${displayYear} ${standardized ? 'Market-Relative Brand Scores' : 'Brand Scores Comparison'}`,
+      text: titleText,
       style: {
         color: '#34502b',
         fontFamily: FONT_FAMILY
