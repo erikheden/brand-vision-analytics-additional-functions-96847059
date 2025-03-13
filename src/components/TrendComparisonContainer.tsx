@@ -1,7 +1,11 @@
 
 import { useMemo } from 'react';
 import TrendComparisonWidget from './TrendComparisonWidget';
-import { calculateIndustryAverages, getBrandIndustry, normalizeIndustryName } from '@/utils/industryAverageUtils';
+import { 
+  calculateIndustryAverages, 
+  getBrandIndustry, 
+  normalizeIndustryName 
+} from '@/utils/industry';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 

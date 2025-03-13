@@ -1,10 +1,9 @@
-
 import { useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Minus, Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BAR_COLOR } from '@/utils/constants';
-import { calculatePerformanceDelta, calculatePerformancePercentage } from '@/utils/industryAverageUtils';
+import { calculatePerformanceDelta, calculatePerformancePercentage } from '@/utils/industry';
 
 interface TrendComparisonWidgetProps {
   brandName: string;
@@ -31,7 +30,6 @@ const TrendComparisonWidget = ({
     [brandScore, industryAverage]
   );
   
-  // Determine if the brand is outperforming, underperforming, or at industry average
   const status = useMemo(() => {
     if (performanceDelta === null) return 'unknown';
     if (performanceDelta > 0.5) return 'outperforming';
@@ -39,7 +37,6 @@ const TrendComparisonWidget = ({
     return 'average';
   }, [performanceDelta]);
   
-  // Get the appropriate icon and text based on status
   const statusInfo = useMemo(() => {
     switch (status) {
       case 'outperforming':
@@ -128,15 +125,12 @@ const TrendComparisonWidget = ({
             <span>100</span>
           </div>
           <div className="w-full h-2 bg-gray-200 rounded-full relative">
-            {/* Industry average marker */}
             <div 
               className="absolute top-0 bottom-0 w-0.5 bg-gray-600 z-10"
               style={{ 
                 left: `${Math.min(100, Math.max(0, (industryAverage / 100) * 100))}%` 
               }}
             />
-            
-            {/* Brand score bar */}
             <div 
               className="h-full rounded-full relative"
               style={{ 
