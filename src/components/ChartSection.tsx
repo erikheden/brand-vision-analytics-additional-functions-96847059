@@ -62,12 +62,14 @@ const ChartSection = ({
         </Toggle>
       </div>
       
-      <Card className="p-6 bg-[#f5f5f5] shadow-lg my-0 px-[29px] mx-0 rounded-md py-[31px] transition-all duration-300 hover:shadow-xl">
-        <BrandChart chartData={chartData} selectedBrands={selectedBrands} yearRange={yearRange} chartConfig={chartConfig} standardized={standardized} />
-      </Card>
-      
+      {/* Bar Chart (now first) */}
       <Card className="p-6 bg-[#f5f5f5] rounded-xl shadow-lg py-[30px] transition-all duration-300 hover:shadow-xl">
         <BrandBarChart chartData={chartData} selectedBrands={selectedBrands} chartConfig={chartConfig} standardized={standardized} latestYear={targetYear} />
+      </Card>
+      
+      {/* Line Chart (now second) */}
+      <Card className="p-6 bg-[#f5f5f5] shadow-lg my-0 px-[29px] mx-0 rounded-md py-[31px] transition-all duration-300 hover:shadow-xl">
+        <BrandChart chartData={chartData} selectedBrands={selectedBrands} yearRange={yearRange} chartConfig={chartConfig} standardized={standardized} />
       </Card>
     </div>;
 };

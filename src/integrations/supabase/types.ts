@@ -296,9 +296,92 @@ export type Database = {
         }
         Relationships: []
       }
+      STBY_Respondents_ANSWERS: {
+        Row: {
+          Answer: string | null
+          Language: string | null
+          Question: string | null
+          "Response ID": number
+          row_id: number
+          Status: string | null
+        }
+        Insert: {
+          Answer?: string | null
+          Language?: string | null
+          Question?: string | null
+          "Response ID": number
+          row_id?: number
+          Status?: string | null
+        }
+        Update: {
+          Answer?: string | null
+          Language?: string | null
+          Question?: string | null
+          "Response ID"?: number
+          row_id?: number
+          Status?: string | null
+        }
+        Relationships: []
+      }
+      STBY_Respondents_NO: {
+        Row: {
+          Language: string | null
+          "Response ID": number
+          Status: string | null
+        }
+        Insert: {
+          Language?: string | null
+          "Response ID": number
+          Status?: string | null
+        }
+        Update: {
+          Language?: string | null
+          "Response ID"?: number
+          Status?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      answer_distribution: {
+        Row: {
+          Answer: string | null
+          percentage: number | null
+          Question: string | null
+          response_count: number | null
+        }
+        Relationships: []
+      }
+      language_response_summary: {
+        Row: {
+          Language: string | null
+          respondent_count: number | null
+          total_answers: number | null
+          unique_questions: number | null
+        }
+        Relationships: []
+      }
+      question_response_summary: {
+        Row: {
+          all_answers: string[] | null
+          most_common_answer: string | null
+          Question: string | null
+          total_responses: number | null
+          unique_answers: number | null
+          unique_respondents: number | null
+        }
+        Relationships: []
+      }
+      respondent_completion: {
+        Row: {
+          Language: string | null
+          questions_answered: number | null
+          "Response ID": number | null
+          Status: string | null
+          unique_questions_answered: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
