@@ -8,6 +8,7 @@ import { Check, Info } from "lucide-react";
 import BrandChart from "./BrandChart";
 import BrandBarChart from "./BrandBarChart";
 import EmptyChartState from "./EmptyChartState";
+import TrendComparisonContainer from "./TrendComparisonContainer";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ChartSectionProps {
@@ -61,6 +62,13 @@ const ChartSection = ({
           {standardized && <Check className="h-4 w-4 text-[#34502b] absolute animate-scale-in" />}
         </Toggle>
       </div>
+      
+      {/* Industry Comparison Widgets */}
+      <TrendComparisonContainer 
+        scores={scores} 
+        selectedBrands={selectedBrands} 
+        comparisonYear={yearRange.latest <= 2023 ? yearRange.latest : 2023} 
+      />
       
       {/* Bar Chart (now first) */}
       <Card className="p-6 bg-[#f5f5f5] rounded-xl shadow-lg py-[30px] transition-all duration-300 hover:shadow-xl">
