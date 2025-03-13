@@ -17,24 +17,36 @@ const TrendComparisonContainer = ({
   comparisonYear
 }: TrendComparisonContainerProps) => {
   // Calculate industry averages using ALL brands, completely independent of selected brands
-  const industryAverages = useMemo(() => 
-    calculateIndustryAverages(scores, []), // Passing empty array to ensure we don't filter by selected brands
-    [scores]
-  );
+  // Using useMemo to prevent recalculation on every render
+  const industryAverages = useMemo(() => {
+    console.log("Recalculating industry averages with ALL brands");
+    return calculateIndustryAverages(scores, []);  // Passing empty array to ensure we don't filter by selected brands
+  }, [scores]);  // Only depend on scores array, not on selectedBrands
   
   // Count number of brands per industry for the tooltip
   const brandsPerIndustry = useMemo(() => {
     const counts: Record<string, number> = {};
+    const uniqueBrands = new Set<string>();
+    
     scores.forEach(score => {
       if (score.industry && score.Year === comparisonYear) {
         // Normalize industry name
         const normalizedIndustry = normalizeIndustryName(score.industry);
-        if (!counts[normalizedIndustry]) {
-          counts[normalizedIndustry] = 0;
+        
+        // Only count unique brands per industry
+        const brandKey = `${score.Brand}-${normalizedIndustry}`;
+        if (!uniqueBrands.has(brandKey)) {
+          uniqueBrands.add(brandKey);
+          
+          if (!counts[normalizedIndustry]) {
+            counts[normalizedIndustry] = 0;
+          }
+          counts[normalizedIndustry]++;
         }
-        counts[normalizedIndustry]++;
       }
     });
+    
+    console.log("Brands per industry:", counts);
     return counts;
   }, [scores, comparisonYear]);
   
@@ -58,7 +70,7 @@ const TrendComparisonContainer = ({
     return null;
   }
   
-  // Debug display to show industry names
+  // Debug display to show industry names and averages
   console.log("Industries in data:", [...new Set(scores.map(s => s.industry))]);
   console.log("Normalized industries:", [...new Set(scores.map(s => s.industry ? normalizeIndustryName(s.industry) : null))]);
   console.log("Industry averages for year:", industryAverages[comparisonYear]);

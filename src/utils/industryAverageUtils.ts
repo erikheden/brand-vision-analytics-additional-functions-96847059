@@ -22,12 +22,16 @@ interface BrandScore {
  * Normalizes industry names to handle minor formatting differences
  */
 export const normalizeIndustryName = (industry: string): string => {
+  if (!industry) return '';
+  
   // Standardize common variations
   return industry
     .trim()
     .replace(/&/g, '&')  // Standardize ampersands
     .replace(/,\s+/g, ', ') // Standardize commas
-    .replace(/\s+/g, ' '); // Remove extra spaces
+    .replace(/\s+/g, ' ') // Remove extra spaces
+    .replace(/cafes/i, 'Cafés') // Standardize "Cafes" to "Cafés"
+    .replace(/take-?away/i, 'Take-away'); // Standardize takeaway variations
 };
 
 /**
@@ -37,41 +41,49 @@ export const normalizeIndustryName = (industry: string): string => {
 export const calculateIndustryAverages = (scores: BrandData[], selectedBrands: string[]): Record<number, Record<string, number>> => {
   if (!scores || scores.length === 0) return {};
 
-  // Group all scores by industry and year
-  const industryScoresByYear: Record<string, Record<number, BrandScore[]>> = {};
-  
-  // Get all unique industries present in the data
-  const allIndustries = new Set<string>();
-  scores.forEach(score => {
-    if (score.industry) {
-      // Normalize industry names to handle potential formatting inconsistencies
-      const normalizedIndustry = normalizeIndustryName(score.industry);
-      allIndustries.add(normalizedIndustry);
-    }
-  });
+  // Create a map of unique scores to prevent duplicate entries from affecting averages
+  const uniqueScoreMap = new Map<string, BrandScore>();
   
   // Process ALL scores regardless of selected brands
   scores.forEach(score => {
-    if (!score.industry) return;
+    if (!score.industry || score.Score === null || score.Score === undefined) return;
     
     // Normalize industry name for consistency
     const normalizedIndustry = normalizeIndustryName(score.industry);
     
-    if (!industryScoresByYear[normalizedIndustry]) {
-      industryScoresByYear[normalizedIndustry] = {};
+    // Create a unique key for each brand-year-industry combination
+    const key = `${score.Brand}-${score.Year}-${normalizedIndustry}`;
+    
+    // Only add if we don't already have this entry (prevents duplicates)
+    if (!uniqueScoreMap.has(key)) {
+      uniqueScoreMap.set(key, {
+        brand: score.Brand,
+        score: score.Score,
+        year: score.Year,
+        industry: normalizedIndustry
+      });
+    }
+  });
+  
+  // Convert the unique scores map back to an array
+  const uniqueScores = Array.from(uniqueScoreMap.values());
+  
+  // Group all unique scores by industry and year
+  const industryScoresByYear: Record<string, Record<number, BrandScore[]>> = {};
+  
+  uniqueScores.forEach(score => {
+    if (!score.industry) return;
+    
+    if (!industryScoresByYear[score.industry]) {
+      industryScoresByYear[score.industry] = {};
     }
     
-    const year = score.Year;
-    if (!industryScoresByYear[normalizedIndustry][year]) {
-      industryScoresByYear[normalizedIndustry][year] = [];
+    const year = score.year;
+    if (!industryScoresByYear[score.industry][year]) {
+      industryScoresByYear[score.industry][year] = [];
     }
     
-    industryScoresByYear[normalizedIndustry][year].push({
-      brand: score.Brand,
-      score: score.Score,
-      year: score.Year,
-      industry: normalizedIndustry
-    });
+    industryScoresByYear[score.industry][year].push(score);
   });
   
   // Calculate averages by industry and year
@@ -89,6 +101,12 @@ export const calculateIndustryAverages = (scores: BrandData[], selectedBrands: s
       if (validScores.length > 0) {
         const sum = validScores.reduce((acc, curr) => acc + curr.score, 0);
         industryAveragesByYear[numYear][industry] = sum / validScores.length;
+        
+        // Debug log to see what's being included in the average
+        if (numYear === 2025) {
+          console.log(`Industry average for ${industry} in ${numYear}: ${industryAveragesByYear[numYear][industry]} (based on ${validScores.length} brands)`);
+          console.log(`Brands used in average:`, validScores.map(s => s.brand).sort());
+        }
       }
     });
   });
