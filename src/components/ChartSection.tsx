@@ -32,8 +32,8 @@ const ChartSection = ({
   }
 
   // Check if full market data is available for better standardization
-  const hasMarketData = !!(scores as any).marketData && (scores as any).marketData.length > 0;
-  const marketDataCount = hasMarketData ? (scores as any).marketData.length : 0;
+  const marketData = (scores as any).marketData || [];
+  const marketDataCount = marketData.length || 0;
 
   const yearRange = calculateYearRange(scores);
   const chartData = processChartData(scores, standardized);
@@ -59,7 +59,7 @@ const ChartSection = ({
               <Info className="h-4 w-4 text-white transition-transform hover:scale-110" />
             </TooltipTrigger>
             <TooltipContent className="bg-white p-3 max-w-xs">
-              <p>Standardized scores normalize the data against the <strong>entire market average</strong> in each country ({marketDataCount} brands), showing how many standard deviations each brand is above or below the market mean.</p>
+              <p>Standardized scores normalize the data against the <strong>entire market average</strong> in each country ({marketDataCount > 0 ? `${marketDataCount} brands` : 'all available brands'}), showing how many standard deviations each brand is above or below the market mean.</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

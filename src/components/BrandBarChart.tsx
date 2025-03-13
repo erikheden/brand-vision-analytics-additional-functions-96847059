@@ -37,7 +37,7 @@ const BrandBarChart = ({
       
   // Get the actual year being displayed (for the title)
   const displayYear = dataToUse[0]?.year || latestYear;
-  const isProjected = displayYear === 2025 && dataToUse[0]?.Projected;
+  const isProjected = dataToUse[0]?.Projected;
   
   console.log("Using data year for bar chart:", displayYear, "Projected:", isProjected);
   
@@ -51,9 +51,14 @@ const BrandBarChart = ({
     };
   }).sort((a, b) => b.y - a.y);
 
+  // Display the actual number of brands used for standardization
+  const marketComparisonText = marketDataCount > 0 
+    ? `vs ${marketDataCount} brands` 
+    : 'Market Standardized';
+
   // Create a more informative title based on standardization and market data
   const titleText = standardized 
-    ? `${displayYear} Market-Relative Brand Scores (${marketDataCount > 0 ? `vs ${marketDataCount} brands` : 'Market Standardized'})`
+    ? `${displayYear} Market-Relative Brand Scores (${marketComparisonText})`
     : `${displayYear} Brand Scores Comparison`;
 
   const options: Highcharts.Options = {
