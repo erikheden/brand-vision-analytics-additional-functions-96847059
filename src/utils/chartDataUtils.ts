@@ -43,15 +43,41 @@ export const calculateYearRange = (scores: Score[]): YearRange => {
 export const processChartData = (scores: Score[], standardized: boolean = false): ChartDataPoint[] => {
   const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
   
-  // Group scores by year
-  const yearGroups = validScores.reduce((acc: { [key: number]: Score[] }, score) => {
-    const year = score.Year;
-    if (!acc[year]) {
-      acc[year] = [];
+  // Group scores by year and country
+  const yearCountryGroups: { [key: string]: Score[] } = {};
+  
+  validScores.forEach(score => {
+    const yearCountryKey = `${score.Year}-${score.Country}`;
+    if (!yearCountryGroups[yearCountryKey]) {
+      yearCountryGroups[yearCountryKey] = [];
     }
-    acc[year].push(score);
-    return acc;
-  }, {});
+    yearCountryGroups[yearCountryKey].push(score);
+  });
+
+  // Calculate market statistics for each year and country
+  const marketStats: { [key: string]: { mean: number; stdDev: number } } = {};
+  
+  Object.entries(yearCountryGroups).forEach(([yearCountryKey, yearCountryScores]) => {
+    const scores = yearCountryScores.map(s => s.Score);
+    const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    const variance = scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scores.length;
+    const stdDev = Math.sqrt(variance);
+    
+    marketStats[yearCountryKey] = { mean, stdDev };
+    
+    console.log(`Market stats for ${yearCountryKey}: mean=${mean.toFixed(2)}, stdDev=${stdDev.toFixed(2)} (based on ${scores.length} scores)`);
+  });
+
+  // Now group scores by year for the chart data points
+  const yearGroups: { [key: number]: Score[] } = {};
+  
+  validScores.forEach(score => {
+    const year = score.Year;
+    if (!yearGroups[year]) {
+      yearGroups[year] = [];
+    }
+    yearGroups[year].push(score);
+  });
 
   return Object.entries(yearGroups).map(([year, yearScores]) => {
     const yearNum = parseInt(year);
@@ -64,18 +90,22 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
     }
 
     if (standardized) {
-      // Calculate mean and standard deviation for the year
-      const scores = yearScores.map(s => s.Score);
-      const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-      const variance = scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scores.length;
-      const stdDev = Math.sqrt(variance);
-
-      // Add standardized scores
+      // Add standardized scores based on market statistics
       yearScores.forEach(score => {
-        if (stdDev === 0) {
+        const yearCountryKey = `${score.Year}-${score.Country}`;
+        const stats = marketStats[yearCountryKey];
+        
+        if (!stats) {
+          console.warn(`No market statistics found for ${yearCountryKey}`);
+          result[score.Brand] = 0;
+          return;
+        }
+        
+        if (stats.stdDev === 0) {
           result[score.Brand] = 0;
         } else {
-          result[score.Brand] = (score.Score - mean) / stdDev;
+          // This is the key change: standardize scores against market mean and stdDev
+          result[score.Brand] = (score.Score - stats.mean) / stats.stdDev;
         }
       });
     } else {

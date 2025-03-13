@@ -51,7 +51,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
       backgroundColor: '#f5f5f5',
     },
     title: {
-      text: `${displayYear} ${standardized ? 'Standardized Brand Scores Comparison' : 'Brand Scores Comparison'}`,
+      text: `${displayYear} ${standardized ? 'Market-Relative Brand Scores' : 'Brand Scores Comparison'}`,
       style: {
         color: '#34502b',
         fontFamily: FONT_FAMILY
@@ -60,7 +60,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
     yAxis: {
       ...baseOptions.yAxis,
       title: {
-        text: standardized ? 'Standardized Score' : 'Score',
+        text: standardized ? 'Standard Deviations from Market Mean' : 'Score',
         style: {
           color: '#34502b',
           fontFamily: FONT_FAMILY,
@@ -91,7 +91,7 @@ const BrandBarChart = ({ chartData, selectedBrands, chartConfig, standardized, l
     tooltip: {
       formatter: function() {
         const value = standardized ? 
-          `${this.y?.toFixed(2)} SD` : 
+          `${this.y?.toFixed(2)} SD from market mean` : 
           this.y?.toFixed(2);
         return `<b>${this.key}</b>: ${value}`;
       },
