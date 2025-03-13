@@ -1,4 +1,3 @@
-
 // This utility calculates industry averages for comparison with individual brands
 
 interface BrandData {
@@ -20,14 +19,12 @@ interface BrandScore {
 
 /**
  * Calculates the industry average scores by year for comparison
+ * This now uses ALL brands in each industry, not just the selected ones
  */
 export const calculateIndustryAverages = (scores: BrandData[], selectedBrands: string[]): Record<number, Record<string, number>> => {
   if (!scores || scores.length === 0) return {};
 
-  // Group all scores by industry and year
-  const industryScoresByYear: Record<string, Record<number, BrandScore[]>> = {};
-  
-  // Only process scores that are from the selected brands' industries
+  // Get industries that are relevant to our selected brands
   const selectedBrandsIndustries = new Set(
     scores
       .filter(score => selectedBrands.includes(score.Brand))
@@ -36,6 +33,9 @@ export const calculateIndustryAverages = (scores: BrandData[], selectedBrands: s
   );
   
   // Group all scores by industry and year
+  const industryScoresByYear: Record<string, Record<number, BrandScore[]>> = {};
+  
+  // Process all scores, not just those from selected brands
   scores.forEach(score => {
     if (!score.industry || !selectedBrandsIndustries.has(score.industry)) return;
     

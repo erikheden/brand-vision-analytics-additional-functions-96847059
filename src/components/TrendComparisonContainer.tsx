@@ -16,11 +16,25 @@ const TrendComparisonContainer = ({
   selectedBrands,
   comparisonYear
 }: TrendComparisonContainerProps) => {
-  // Calculate industry averages for all years and industries
+  // Calculate industry averages for all years and industries (using all brands, not just selected ones)
   const industryAverages = useMemo(() => 
     calculateIndustryAverages(scores, selectedBrands), 
     [scores, selectedBrands]
   );
+  
+  // Count number of brands per industry for the tooltip
+  const brandsPerIndustry = useMemo(() => {
+    const counts: Record<string, number> = {};
+    scores.forEach(score => {
+      if (score.industry && score.Year === comparisonYear) {
+        if (!counts[score.industry]) {
+          counts[score.industry] = 0;
+        }
+        counts[score.industry]++;
+      }
+    });
+    return counts;
+  }, [scores, comparisonYear]);
   
   // Get the latest scores for each selected brand
   const brandScores = useMemo(() => {
@@ -54,7 +68,9 @@ const TrendComparisonContainer = ({
             <TooltipContent className="bg-white p-3 max-w-xs">
               <p>These widgets show how each brand's sustainability score compares to its industry average. 
               The percentage shows how much better or worse a brand performs compared to others in the same industry.
-              The horizontal bar shows the actual score on a scale of 0-100, with the industry average marked by a vertical line.</p>
+              The horizontal bar shows the actual score on a scale of 0-100, with the industry average marked by a vertical line.
+              <br /><br />
+              <strong>Note:</strong> Industry averages are calculated using <em>all</em> brands in the database for each industry, not just the selected ones.</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -66,6 +82,8 @@ const TrendComparisonContainer = ({
           const industry = brandScore.industry;
           const industryAverage = industry && industryAverages[comparisonYear] ? 
             industryAverages[comparisonYear][industry] : undefined;
+          
+          const brandsInIndustry = industry ? brandsPerIndustry[industry] || 0 : 0;
             
           return (
             <TrendComparisonWidget
@@ -73,6 +91,7 @@ const TrendComparisonContainer = ({
               brandName={brandScore.brand}
               brandScore={brandScore.score}
               industryAverage={industryAverage}
+              brandsInIndustry={brandsInIndustry}
               year={comparisonYear}
             />
           );

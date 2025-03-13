@@ -10,6 +10,7 @@ interface TrendComparisonWidgetProps {
   brandName: string;
   brandScore: number | undefined;
   industryAverage: number | undefined;
+  brandsInIndustry?: number;
   year: number;
 }
 
@@ -17,6 +18,7 @@ const TrendComparisonWidget = ({
   brandName,
   brandScore,
   industryAverage,
+  brandsInIndustry = 0,
   year
 }: TrendComparisonWidgetProps) => {
   const performanceDelta = useMemo(() => 
@@ -93,6 +95,14 @@ const TrendComparisonWidget = ({
                     <span className="font-medium">Brand score: {brandScore?.toFixed(2)}</span>
                     <br/>
                     <span className="font-medium">Industry average: {industryAverage?.toFixed(2)}</span>
+                    {brandsInIndustry > 0 && (
+                      <>
+                        <br/>
+                        <span className="font-medium text-gray-600">
+                          (Based on {brandsInIndustry} {brandsInIndustry === 1 ? 'brand' : 'brands'})
+                        </span>
+                      </>
+                    )}
                     {performancePercentage !== null && (
                       <>
                         <br/>
