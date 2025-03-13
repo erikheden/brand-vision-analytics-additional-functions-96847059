@@ -16,10 +16,10 @@ const TrendComparisonContainer = ({
   selectedBrands,
   comparisonYear
 }: TrendComparisonContainerProps) => {
-  // Calculate industry averages for all years and industries (using all brands, not just selected ones)
+  // Calculate industry averages using ALL brands, completely independent of selected brands
   const industryAverages = useMemo(() => 
-    calculateIndustryAverages(scores, selectedBrands), 
-    [scores, selectedBrands]
+    calculateIndustryAverages(scores, []), // Passing empty array to ensure we don't filter by selected brands
+    [scores]
   );
   
   // Count number of brands per industry for the tooltip
