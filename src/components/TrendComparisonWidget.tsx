@@ -80,7 +80,7 @@ const TrendComparisonWidget = ({
               <div className="flex items-center space-x-2 cursor-help">
                 {statusInfo.icon}
                 <span className={`text-sm font-medium ${statusInfo.color}`}>
-                  {performanceDelta !== null ? performanceDelta.toFixed(2) : 'N/A'}
+                  {performancePercentage !== null ? `${performancePercentage > 0 ? '+' : ''}${performancePercentage.toFixed(1)}%` : 'N/A'}
                 </span>
               </div>
             </TooltipTrigger>
@@ -110,26 +110,43 @@ const TrendComparisonWidget = ({
         </TooltipProvider>
       </div>
       
-      <div className="mt-3 w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-        {industryAverage !== undefined && (
-          <div 
-            className="h-full bg-[#34502b] rounded-full relative"
-            style={{ 
-              width: `${Math.min(100, Math.max(0, (brandScore || 0) / (industryAverage * 1.5) * 100))}%`,
-              backgroundColor: BAR_COLOR
-            }}
-          >
-            {industryAverage > 0 && (
-              <div 
-                className="absolute top-0 h-full w-0.5 bg-gray-600"
-                style={{ 
-                  left: `${Math.min(100, (industryAverage / (industryAverage * 1.5)) * 100)}%` 
-                }}
-              />
-            )}
+      {industryAverage !== undefined && brandScore !== undefined && (
+        <div className="mt-4">
+          <div className="flex justify-between text-xs text-gray-500 mb-1">
+            <span>0</span>
+            <span>Industry Avg: {industryAverage.toFixed(1)}</span>
+            <span>100</span>
           </div>
-        )}
-      </div>
+          <div className="w-full h-2 bg-gray-200 rounded-full relative">
+            {/* Industry average marker */}
+            <div 
+              className="absolute top-0 bottom-0 w-0.5 bg-gray-600 z-10"
+              style={{ 
+                left: `${Math.min(100, Math.max(0, (industryAverage / 100) * 100))}%` 
+              }}
+            />
+            
+            {/* Brand score bar */}
+            <div 
+              className="h-full rounded-full relative"
+              style={{ 
+                width: `${Math.min(100, Math.max(0, (brandScore / 100) * 100))}%`,
+                backgroundColor: status === 'outperforming' ? '#4ade80' : status === 'underperforming' ? '#f97316' : BAR_COLOR
+              }}
+            />
+          </div>
+          <div className="flex justify-between mt-1">
+            <div className="text-xs">
+              <span className="font-medium text-[#34502b]">Brand: {brandScore.toFixed(1)}</span>
+            </div>
+            <div className="text-xs">
+              <span className={`font-medium ${statusInfo.color}`}>
+                {performanceDelta !== null ? (performanceDelta > 0 ? '+' : '') + performanceDelta.toFixed(1) + ' points' : ''}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 };

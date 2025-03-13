@@ -53,7 +53,8 @@ const TrendComparisonContainer = ({
             </TooltipTrigger>
             <TooltipContent className="bg-white p-3 max-w-xs">
               <p>These widgets show how each brand's sustainability score compares to its industry average. 
-              Positive values indicate the brand is outperforming the industry benchmark.</p>
+              The percentage shows how much better or worse a brand performs compared to others in the same industry.
+              The horizontal bar shows the actual score on a scale of 0-100, with the industry average marked by a vertical line.</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
