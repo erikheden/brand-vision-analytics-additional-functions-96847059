@@ -1,4 +1,3 @@
-
 // This utility calculates industry averages for comparison with individual brands
 
 interface BrandData {
@@ -98,4 +97,62 @@ export const calculatePerformanceDelta = (
     return null;
   }
   return brandScore - industryAverage;
+};
+
+/**
+ * Calculates the growth rate between two scores
+ * @param currentScore The current/latest score
+ * @param previousScore The previous/earlier score
+ * @returns The percentage growth rate or null if calculation is not possible
+ */
+export const calculateGrowthRate = (
+  currentScore: number | undefined,
+  previousScore: number | undefined
+): number | null => {
+  if (currentScore === undefined || previousScore === undefined || previousScore === 0) {
+    return null;
+  }
+  return ((currentScore - previousScore) / previousScore) * 100;
+};
+
+/**
+ * Gets annual scores for a brand across years
+ * Returns an array of scores sorted by year
+ */
+export const getBrandAnnualScores = (
+  scores: BrandData[],
+  brand: string
+): { year: number; score: number; isProjected: boolean }[] => {
+  return scores
+    .filter(score => score.Brand === brand)
+    .map(score => ({
+      year: score.Year,
+      score: score.Score,
+      isProjected: score.Projected || false
+    }))
+    .sort((a, b) => a.year - b.year);
+};
+
+/**
+ * Calculates year-over-year growth rates for a brand
+ * @returns Array of growth rates with corresponding years
+ */
+export const calculateYearOverYearGrowth = (
+  scores: BrandData[],
+  brand: string
+): { year: number; growthRate: number | null; isProjected: boolean }[] => {
+  const annualScores = getBrandAnnualScores(scores, brand);
+  
+  if (annualScores.length < 2) {
+    return [];
+  }
+  
+  return annualScores.slice(1).map((currentYearData, index) => {
+    const previousYearData = annualScores[index];
+    return {
+      year: currentYearData.year,
+      growthRate: calculateGrowthRate(currentYearData.score, previousYearData.score),
+      isProjected: currentYearData.isProjected
+    };
+  });
 };

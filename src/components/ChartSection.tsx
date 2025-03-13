@@ -9,6 +9,7 @@ import BrandChart from "./BrandChart";
 import BrandBarChart from "./BrandBarChart";
 import EmptyChartState from "./EmptyChartState";
 import TrendComparisonContainer from "./TrendComparisonContainer";
+import GrowthRateChart from "./GrowthRateChart";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ChartSectionProps {
@@ -68,12 +69,18 @@ const ChartSection = ({
         comparisonYear={targetYear} 
       />
       
-      {/* Bar Chart (now first) */}
+      {/* Growth Rate Chart */}
+      <GrowthRateChart 
+        scores={scores} 
+        selectedBrands={selectedBrands} 
+      />
+      
+      {/* Bar Chart */}
       <Card className="p-6 bg-[#f5f5f5] rounded-xl shadow-lg py-[30px] transition-all duration-300 hover:shadow-xl">
         <BrandBarChart chartData={chartData} selectedBrands={selectedBrands} chartConfig={chartConfig} standardized={standardized} latestYear={targetYear} />
       </Card>
       
-      {/* Line Chart (now second) */}
+      {/* Line Chart */}
       <Card className="p-6 bg-[#f5f5f5] shadow-lg my-0 px-[29px] mx-0 rounded-md py-[31px] transition-all duration-300 hover:shadow-xl">
         <BrandChart chartData={chartData} selectedBrands={selectedBrands} yearRange={yearRange} chartConfig={chartConfig} standardized={standardized} />
       </Card>
