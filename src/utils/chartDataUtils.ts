@@ -114,8 +114,9 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
           result[score.Brand] = 0;
         } else {
           // Standardize scores against market mean and stdDev
-          result[score.Brand] = (score.Score - stats.mean) / stats.stdDev;
-          console.log(`Standardized score for ${score.Brand} in ${score.Year}-${score.Country}: ${result[score.Brand].toFixed(2)} (score: ${score.Score}, mean: ${stats.mean.toFixed(2)}, stdDev: ${stats.stdDev.toFixed(2)})`);
+          const standardizedScore = (score.Score - stats.mean) / stats.stdDev;
+          result[score.Brand] = standardizedScore;
+          console.log(`Standardized score for ${score.Brand} in ${score.Year}-${score.Country}: ${standardizedScore.toFixed(2)} (score: ${score.Score}, mean: ${stats.mean.toFixed(2)}, stdDev: ${stats.stdDev.toFixed(2)})`);
         }
       });
     } else {
