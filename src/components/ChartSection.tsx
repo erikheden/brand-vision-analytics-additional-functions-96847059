@@ -37,8 +37,6 @@ const ChartSection = ({
 
   // Always use 2025 as the target year for comparison
   const targetYear = 2025;
-  console.log("Chart data years available:", chartData.map(d => d.year));
-  console.log("Year range:", yearRange);
 
   return <div className="space-y-6">
       <div className="flex items-center justify-end space-x-4 mb-4 py-2">
@@ -67,7 +65,7 @@ const ChartSection = ({
       <TrendComparisonContainer 
         scores={scores} 
         selectedBrands={selectedBrands} 
-        comparisonYear={yearRange.latest <= 2023 ? yearRange.latest : 2023} 
+        comparisonYear={targetYear} 
       />
       
       {/* Bar Chart (now first) */}

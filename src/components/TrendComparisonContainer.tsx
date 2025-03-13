@@ -2,6 +2,8 @@
 import { useMemo } from 'react';
 import TrendComparisonWidget from './TrendComparisonWidget';
 import { calculateIndustryAverages, getBrandIndustry } from '@/utils/industryAverageUtils';
+import { Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TrendComparisonContainerProps {
   scores: any[];
@@ -41,24 +43,40 @@ const TrendComparisonContainer = ({
   }
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
-      {brandScores.map(brandScore => {
-        if (!brandScore) return null;
-        
-        const industry = brandScore.industry;
-        const industryAverage = industry && industryAverages[comparisonYear] ? 
-          industryAverages[comparisonYear][industry] : undefined;
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <h3 className="text-white font-medium">Industry Comparison (2025)</h3>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Info className="h-4 w-4 text-white/70 cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent className="bg-white p-3 max-w-xs">
+              <p>These widgets show how each brand's sustainability score compares to its industry average. 
+              Positive values indicate the brand is outperforming the industry benchmark.</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
+        {brandScores.map(brandScore => {
+          if (!brandScore) return null;
           
-        return (
-          <TrendComparisonWidget
-            key={brandScore.brand}
-            brandName={brandScore.brand}
-            brandScore={brandScore.score}
-            industryAverage={industryAverage}
-            year={comparisonYear}
-          />
-        );
-      })}
+          const industry = brandScore.industry;
+          const industryAverage = industry && industryAverages[comparisonYear] ? 
+            industryAverages[comparisonYear][industry] : undefined;
+            
+          return (
+            <TrendComparisonWidget
+              key={brandScore.brand}
+              brandName={brandScore.brand}
+              brandScore={brandScore.score}
+              industryAverage={industryAverage}
+              year={comparisonYear}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };
