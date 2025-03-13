@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Minus, Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BAR_COLOR } from '@/utils/constants';
-import { calculatePerformanceDelta, getBrandIndustry } from '@/utils/industryAverageUtils';
+import { calculatePerformanceDelta, calculatePerformancePercentage } from '@/utils/industryAverageUtils';
 
 interface TrendComparisonWidgetProps {
   brandName: string;
@@ -21,6 +21,11 @@ const TrendComparisonWidget = ({
 }: TrendComparisonWidgetProps) => {
   const performanceDelta = useMemo(() => 
     calculatePerformanceDelta(brandScore, industryAverage),
+    [brandScore, industryAverage]
+  );
+  
+  const performancePercentage = useMemo(() => 
+    calculatePerformancePercentage(brandScore, industryAverage),
     [brandScore, industryAverage]
   );
   
@@ -88,6 +93,15 @@ const TrendComparisonWidget = ({
                     <span className="font-medium">Brand score: {brandScore?.toFixed(2)}</span>
                     <br/>
                     <span className="font-medium">Industry average: {industryAverage?.toFixed(2)}</span>
+                    {performancePercentage !== null && (
+                      <>
+                        <br/>
+                        <span className="font-medium">
+                          {performancePercentage > 0 ? '+' : ''}
+                          {performancePercentage.toFixed(2)}% vs. industry
+                        </span>
+                      </>
+                    )}
                   </>
                 )}
               </p>

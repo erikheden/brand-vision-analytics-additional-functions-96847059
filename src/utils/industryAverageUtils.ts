@@ -99,3 +99,83 @@ export const calculatePerformanceDelta = (
   }
   return brandScore - industryAverage;
 };
+
+/**
+ * Returns a percentage difference between a brand's score and its industry average
+ * Positive values mean the brand is outperforming its industry
+ */
+export const calculatePerformancePercentage = (
+  brandScore: number | undefined,
+  industryAverage: number | undefined
+): number | null => {
+  if (brandScore === undefined || industryAverage === undefined || industryAverage === 0) {
+    return null;
+  }
+  return ((brandScore - industryAverage) / industryAverage) * 100;
+};
+
+/**
+ * Get all unique industries from the scores data
+ */
+export const getAllIndustries = (scores: BrandData[]): string[] => {
+  const industries = new Set<string>();
+  
+  scores.forEach(score => {
+    if (score.industry) {
+      industries.add(score.industry);
+    }
+  });
+  
+  return Array.from(industries).sort();
+};
+
+/**
+ * Get all brands in a specific industry
+ */
+export const getBrandsInIndustry = (scores: BrandData[], industry: string): string[] => {
+  const brands = new Set<string>();
+  
+  scores.forEach(score => {
+    if (score.industry === industry && score.Brand) {
+      brands.add(score.Brand);
+    }
+  });
+  
+  return Array.from(brands).sort();
+};
+
+/**
+ * Calculate industry average performance over time
+ */
+export const getIndustryPerformanceOverTime = (
+  scores: BrandData[],
+  industry: string
+): Record<number, number> => {
+  const yearlyScores: Record<number, number[]> = {};
+  
+  // Group scores by year
+  scores.forEach(score => {
+    if (score.industry !== industry) return;
+    
+    const year = score.Year;
+    if (!yearlyScores[year]) {
+      yearlyScores[year] = [];
+    }
+    
+    if (score.Score !== null && score.Score !== undefined) {
+      yearlyScores[year].push(score.Score);
+    }
+  });
+  
+  // Calculate average for each year
+  const yearlyAverages: Record<number, number> = {};
+  
+  Object.entries(yearlyScores).forEach(([year, scores]) => {
+    if (scores.length > 0) {
+      const sum = scores.reduce((acc, score) => acc + score, 0);
+      yearlyAverages[parseInt(year)] = sum / scores.length;
+    }
+  });
+  
+  return yearlyAverages;
+};

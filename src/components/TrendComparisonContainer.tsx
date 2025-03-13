@@ -45,7 +45,7 @@ const TrendComparisonContainer = ({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <h3 className="text-white font-medium">Industry Comparison (2025)</h3>
+        <h3 className="text-white font-medium">Industry Comparison ({comparisonYear})</h3>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
