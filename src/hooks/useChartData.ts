@@ -42,15 +42,34 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
           console.error("Error fetching with full country name:", errorWithFullName);
         }
         
-        // Combine both result sets and remove duplicates
+        // ADDITIONAL QUERY: Get ALL brands for this country to calculate market averages properly
+        let { data: allBrandsDataWithCode } = await supabase
+          .from("SBI Ranking Scores 2011-2025")
+          .select("*")
+          .eq("Country", selectedCountry)
+          .order('Year', { ascending: true });
+          
+        let { data: allBrandsDataWithFullName } = await supabase
+          .from("SBI Ranking Scores 2011-2025")
+          .select("*")
+          .eq("Country", fullCountryName)
+          .order('Year', { ascending: true });
+        
+        // Store all brands data for market statistics calculation
+        const allBrandsData = [
+          ...(allBrandsDataWithCode || []),
+          ...(allBrandsDataWithFullName || [])
+        ];
+        
+        console.log("Total brands in market for statistics:", allBrandsData.length);
+        
+        // Combine both result sets (for selected brands) and remove duplicates
         const combinedData = [
           ...(dataWithCode || []), 
           ...(dataWithFullName || [])
         ];
         
-        console.log("Combined data length:", combinedData.length);
-        console.log("Data from country code query:", dataWithCode?.length || 0);
-        console.log("Data from full name query:", dataWithFullName?.length || 0);
+        console.log("Combined selected brands data length:", combinedData.length);
         
         // Remove duplicates (same Brand and Year)
         const uniqueEntries = new Map();
@@ -62,7 +81,13 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         });
         
         const finalData = Array.from(uniqueEntries.values());
-        console.log("Final deduplicated data:", finalData.length);
+        
+        // Store market data for standardization
+        // This attaches the full market data as a property of the array
+        Object.defineProperty(finalData, 'marketData', {
+          value: allBrandsData,
+          enumerable: false
+        });
         
         // If no data is found, return an empty array
         if (finalData.length === 0) {
@@ -76,10 +101,6 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
           const has2025 = brandEntries.some(item => item.Year === 2025);
           return { brand, has2025, brandEntries };
         });
-        
-        console.log("Brand data status:", yearDataByBrand.map(item => 
-          `${item.brand}: has2025=${item.has2025}, totalEntries=${item.brandEntries.length}`
-        ));
         
         // For brands without 2025 data, create projected data
         const projectedData = yearDataByBrand
@@ -104,8 +125,6 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
             return null;
           })
           .filter(Boolean);
-        
-        console.log("Generated projected data for brands without 2025 data:", projectedData);
         
         // Combine actual data with any needed projections
         return [...finalData, ...projectedData] as BrandData[];

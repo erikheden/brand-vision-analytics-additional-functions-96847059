@@ -20,19 +20,22 @@ const TrendComparisonContainer = ({
   selectedBrands,
   comparisonYear
 }: TrendComparisonContainerProps) => {
+  // Get the full market data if available
+  const marketData = Object.getOwnPropertyDescriptor(scores, 'marketData')?.value || scores;
+  
   // Calculate industry averages using ALL brands, completely independent of selected brands
   // Using useMemo to prevent recalculation on every render
   const industryAverages = useMemo(() => {
     console.log("Recalculating industry averages with ALL brands");
-    return calculateIndustryAverages(scores, []);  // Passing empty array to ensure we don't filter by selected brands
-  }, [scores]);  // Only depend on scores array, not on selectedBrands
+    return calculateIndustryAverages(marketData, []);  // Passing empty array to ensure we don't filter by selected brands
+  }, [marketData]);  // Only depend on marketData array, not on selectedBrands
   
   // Count number of brands per industry for the tooltip
   const brandsPerIndustry = useMemo(() => {
     const counts: Record<string, number> = {};
     const uniqueBrands = new Set<string>();
     
-    scores.forEach(score => {
+    marketData.forEach((score: any) => {
       if (score.industry && score.Year === comparisonYear) {
         // Normalize industry name
         const normalizedIndustry = normalizeIndustryName(score.industry);
@@ -52,7 +55,7 @@ const TrendComparisonContainer = ({
     
     console.log("Brands per industry:", counts);
     return counts;
-  }, [scores, comparisonYear]);
+  }, [marketData, comparisonYear]);
   
   // Get the latest scores for each selected brand
   const brandScores = useMemo(() => {
@@ -75,8 +78,8 @@ const TrendComparisonContainer = ({
   }
   
   // Debug display to show industry names and averages
-  console.log("Industries in data:", [...new Set(scores.map(s => s.industry))]);
-  console.log("Normalized industries:", [...new Set(scores.map(s => s.industry ? normalizeIndustryName(s.industry) : null))]);
+  console.log("Industries in data:", [...new Set(marketData.map((s: any) => s.industry))]);
+  console.log("Normalized industries:", [...new Set(marketData.map((s: any) => s.industry ? normalizeIndustryName(s.industry) : null))]);
   console.log("Industry averages for year:", industryAverages[comparisonYear]);
   
   return (

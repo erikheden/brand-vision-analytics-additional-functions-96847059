@@ -1,4 +1,3 @@
-
 interface Score {
   Year: number;
   Brand: string;
@@ -43,7 +42,7 @@ export const calculateYearRange = (scores: Score[]): YearRange => {
 export const processChartData = (scores: Score[], standardized: boolean = false): ChartDataPoint[] => {
   const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
   
-  // Group scores by year and country
+  // Group scores by year and country - this should include ALL brands, not just selected ones
   const yearCountryGroups: { [key: string]: Score[] } = {};
   
   validScores.forEach(score => {
