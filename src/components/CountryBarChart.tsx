@@ -15,7 +15,7 @@ import { getFullCountryName } from "@/components/CountrySelect";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
 import { BrandData } from "@/types/brand";
 import { ChartTooltip } from "./ChartTooltip";
-import { getBrandColor } from "@/utils/countryComparison/chartColors";
+import { getBrandColor } from "@/utils/countryChartDataUtils";
 
 interface CountryBarChartProps {
   allCountriesData: MultiCountryData;
@@ -117,8 +117,27 @@ const CountryBarChart = ({
       }
     });
     
-    return Array.from(countryGroups.values());
-  }, [processedData]);
+    // Convert to array and sort by the first brand's score (high to low)
+    // This ensures the chart bars are sorted from highest to lowest values
+    const dataArray = Array.from(countryGroups.values());
+    
+    if (selectedBrands.length > 0 && dataArray.length > 0) {
+      const primaryBrand = selectedBrands[0];
+      
+      dataArray.sort((a, b) => {
+        const scoreA = a[primaryBrand] !== undefined ? a[primaryBrand] : -Infinity;
+        const scoreB = b[primaryBrand] !== undefined ? b[primaryBrand] : -Infinity;
+        return scoreB - scoreA; // Sort high to low
+      });
+      
+      console.log("Sorted chart data:", dataArray.map(item => ({
+        country: item.country, 
+        score: item[primaryBrand]
+      })));
+    }
+    
+    return dataArray;
+  }, [processedData, selectedBrands]);
   
   if (chartData.length === 0) {
     return <div className="text-center py-10">No data available for the selected parameters.</div>;
@@ -147,9 +166,7 @@ const CountryBarChart = ({
               dataKey={brand} 
               fill={getBrandColor(brand)} 
               name={brand}
-              // Use a fixed opacity value instead of a function
               fillOpacity={0.9}
-              // Use CSS style property for Bar component
               style={{
                 opacity: 1
               }}
