@@ -1,3 +1,4 @@
+
 import { useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Minus, Info } from 'lucide-react';
@@ -67,7 +68,7 @@ const TrendComparisonWidget = ({
   }, [status]);
   
   return (
-    <Card className="p-4 bg-[#f5f5f5] border border-[#E5DEFF] shadow-sm hover:shadow-md transition-all duration-300">
+    <Card className="p-4 bg-white border-2 border-[#E5DEFF] shadow-md hover:shadow-lg transition-all duration-300">
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
           <div className="text-sm text-gray-500">Industry Comparison ({year})</div>
@@ -83,7 +84,7 @@ const TrendComparisonWidget = ({
                 </span>
               </div>
             </TooltipTrigger>
-            <TooltipContent className="bg-white p-3 max-w-xs">
+            <TooltipContent className="bg-white p-3 max-w-xs shadow-md">
               <p className="text-sm text-gray-800">
                 {statusInfo.label}
                 {performanceDelta !== null && (

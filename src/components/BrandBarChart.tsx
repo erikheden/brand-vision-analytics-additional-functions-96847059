@@ -66,7 +66,7 @@ const BrandBarChart = ({
     chart: {
       ...baseOptions.chart,
       type: 'column',
-      backgroundColor: '#f5f5f5',
+      backgroundColor: 'white',
     },
     title: {
       text: titleText,
@@ -113,7 +113,7 @@ const BrandBarChart = ({
           this.y?.toFixed(2);
         return `<b>${this.key}</b>: ${value}`;
       },
-      backgroundColor: '#f5f5f5',
+      backgroundColor: 'white',
       style: {
         color: '#34502b',
         fontFamily: FONT_FAMILY

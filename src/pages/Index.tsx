@@ -8,8 +8,8 @@ const Index = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#b7c895] to-[#34502b]">
-      <div className="w-full bg-transparent py-6">
+    <div className="min-h-screen bg-white">
+      <div className="w-full bg-white py-6">
         <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
           <img 
             src="/lovable-uploads/8b26bfaf-912f-4219-9ea9-5bb7156bb1e9.png" 

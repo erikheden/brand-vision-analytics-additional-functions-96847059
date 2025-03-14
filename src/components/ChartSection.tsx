@@ -26,7 +26,7 @@ const ChartSection = ({
   } = useChartData(selectedCountry, selectedBrands);
 
   if (scores.length === 0) {
-    return <Card className="p-6 bg-[#f5f5f5] rounded-xl shadow-lg">
+    return <Card className="p-6 bg-white border-2 border-[#E5DEFF] rounded-xl shadow-md">
         <EmptyChartState selectedCountry={selectedCountry} />
       </Card>;
   }
@@ -52,13 +52,13 @@ const ChartSection = ({
       
       {/* Standardized toggle - Moved below industry comparison widgets */}
       <div className="flex items-center justify-end space-x-4 mb-4 py-2">
-        <span className="text-sm text-white font-medium">Standardized Scores</span>
+        <span className="text-sm text-[#34502b] font-medium">Standardized Scores</span>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <Info className="h-4 w-4 text-white transition-transform hover:scale-110" />
+              <Info className="h-4 w-4 text-[#34502b] transition-transform hover:scale-110" />
             </TooltipTrigger>
-            <TooltipContent className="bg-white p-3 max-w-xs">
+            <TooltipContent className="bg-white p-3 max-w-xs shadow-lg">
               <p>Standardized scores normalize the data against the <strong>entire market average</strong> in each country ({marketDataCount > 0 ? `${marketDataCount} brands` : 'all available brands'}), showing how many standard deviations each brand is above or below the market mean.</p>
             </TooltipContent>
           </Tooltip>
@@ -74,7 +74,7 @@ const ChartSection = ({
       </div>
       
       {/* Bar Chart */}
-      <Card className="p-6 bg-[#f5f5f5] rounded-xl shadow-lg py-[30px] transition-all duration-300 hover:shadow-xl">
+      <Card className="p-6 bg-white border-2 border-[#E5DEFF] rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
         <BrandBarChart 
           chartData={chartData} 
           selectedBrands={selectedBrands} 
@@ -86,7 +86,7 @@ const ChartSection = ({
       </Card>
       
       {/* Line Chart */}
-      <Card className="p-6 bg-[#f5f5f5] shadow-lg my-0 px-[29px] mx-0 rounded-md py-[31px] transition-all duration-300 hover:shadow-xl">
+      <Card className="p-6 bg-white border-2 border-[#E5DEFF] shadow-md hover:shadow-lg transition-all duration-300 rounded-xl py-[31px]">
         <BrandChart 
           chartData={chartData} 
           selectedBrands={selectedBrands} 
