@@ -9,35 +9,29 @@ interface Score {
   Projected?: boolean;
 }
 
-interface YearRange {
-  earliest: number;
-  latest: number;
-}
-
 interface ChartDataPoint {
   year: number;
   Projected?: boolean;
   [key: string]: number | boolean | undefined;
 }
 
-export const calculateYearRange = (scores: Score[]): YearRange => {
+// Updated to return an array of years instead of YearRange object
+export const calculateYearRange = (scores: Score[]): number[] => {
   const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
   
   if (validScores.length === 0) {
-    return { earliest: new Date().getFullYear() - 5, latest: new Date().getFullYear() };
+    return [new Date().getFullYear() - 5, new Date().getFullYear()];
   }
 
-  // Calculate the natural range from the data
-  const dataRange = validScores.reduce((range, score) => ({
-    earliest: Math.min(range.earliest, score.Year),
-    latest: Math.max(range.latest, score.Year)
-  }), { earliest: Infinity, latest: -Infinity });
+  // Extract unique years and sort them
+  const years = [...new Set(validScores.map(score => score.Year))].sort((a, b) => a - b);
   
   // Ensure we show at least up to 2025
-  return {
-    earliest: dataRange.earliest,
-    latest: Math.max(dataRange.latest, 2025)
-  };
+  if (years.length > 0 && years[years.length - 1] < 2025) {
+    years.push(2025);
+  }
+  
+  return years;
 };
 
 export const processChartData = (scores: Score[], standardized: boolean = false): ChartDataPoint[] => {

@@ -49,8 +49,9 @@ const CountryComparisonPanel = ({
       )
     : availableBrands;
   
-  // Get unique brand names from the filtered list
-  const uniqueBrandNames = [...new Set(commonBrands.map(brand => brand.Brand))].filter(Boolean) as string[];
+  // Get unique brand names from the filtered list - fix the type error
+  const uniqueBrandNames = [...new Set(commonBrands.map(brand => brand.Brand))]
+    .filter(Boolean) as string[];
   
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">

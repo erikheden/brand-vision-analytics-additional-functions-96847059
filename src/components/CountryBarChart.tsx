@@ -152,8 +152,8 @@ const CountryBarChart = ({
               dataKey={brand} 
               fill={BRAND_COLORS[index % BRAND_COLORS.length]} 
               name={brand}
-              // Add pattern if projected
-              fillOpacity={(_, index) => chartData[index][`${brand}_projected`] ? 0.7 : 1}
+              // Fix the type error by making fillOpacity a static value or a function that returns a number
+              fillOpacity={(dataItem: any) => dataItem[`${brand}_projected`] ? 0.7 : 1}
             />
           ))}
         </BarChart>

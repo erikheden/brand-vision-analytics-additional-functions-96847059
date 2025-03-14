@@ -12,7 +12,7 @@ import {
   ReferenceLine
 } from "recharts";
 import { BrandData } from "@/types/brand";
-import { processChartData, calculateYearRange, createChartConfig } from "@/utils/chartDataUtils";
+import { processChartData } from "@/utils/chartDataUtils";
 import { getFullCountryName } from "@/components/CountrySelect";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
 import ChartTooltip from "./ChartTooltip";
@@ -22,6 +22,17 @@ interface CountryLineChartProps {
   selectedBrands: string[];
   standardized: boolean;
 }
+
+// Helper function to calculate year range from brand data
+const calculateYearRange = (data: BrandData[]) => {
+  const years = data
+    .filter(item => item.Year !== null)
+    .map(item => item.Year as number);
+  
+  if (years.length === 0) return [new Date().getFullYear() - 5, new Date().getFullYear()];
+  
+  return [...new Set(years)].sort((a, b) => a - b);
+};
 
 const CountryLineChart = ({
   allCountriesData,
@@ -88,24 +99,6 @@ const CountryLineChart = ({
     
     return [...new Set(allYears)].sort((a, b) => a - b);
   }, [allCountriesData]);
-  
-  // Create config for each brand-country combination
-  const chartConfig = useMemo(() => {
-    const config = createChartConfig(selectedBrands);
-    const enhancedConfig: Record<string, any> = {};
-    
-    Object.entries(allCountriesData).forEach(([country, _]) => {
-      selectedBrands.forEach(brand => {
-        const key = `${brand}__${country}`;
-        enhancedConfig[key] = {
-          ...config[brand],
-          label: `${brand} (${getFullCountryName(country)})`,
-        };
-      });
-    });
-    
-    return enhancedConfig;
-  }, [selectedBrands, allCountriesData]);
   
   // Generate consistent line colors for each brand across countries
   const getColorForBrandCountry = (brand: string, country: string, index: number) => {
