@@ -93,12 +93,14 @@
 @layer base {
   * {
     @apply border-border;
+    font-family: 'forma-djr-display', sans-serif;
   }
 
   body {
     @apply bg-background text-foreground m-0 p-0;
     min-height: 100vh;
     width: 100%;
+    font-family: 'forma-djr-display', sans-serif;
   }
 
   html {
@@ -106,15 +108,18 @@
     padding: 0;
     width: 100%;
     height: 100%;
+    font-family: 'forma-djr-display', sans-serif;
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+    font-family: 'forma-djr-display', sans-serif;
   }
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'forma-djr-display', sans-serif;
   }
 }
