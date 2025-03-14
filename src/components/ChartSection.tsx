@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
 import { calculateYearRange, processChartData, createChartConfig } from "@/utils/chartDataUtils";
 import { Toggle } from "@/components/ui/toggle";
-import { Check, Info } from "lucide-react";
+import { Check, Info, ChevronUp } from "lucide-react";
 import BrandChart from "./BrandChart";
 import BrandBarChart from "./BrandBarChart";
 import EmptyChartState from "./EmptyChartState";
@@ -52,6 +52,10 @@ const ChartSection = ({
       
       {/* Standardized toggle - Moved below industry comparison widgets */}
       <div className="flex items-center justify-end space-x-4 mb-4 py-2">
+        <div className="flex items-center text-[#34502b] animate-bounce">
+          <ChevronUp className="h-5 w-5" />
+          <span className="ml-2 font-medium">Try standardized scores</span>
+        </div>
         <span className="text-sm text-[#34502b] font-medium">Standardized Scores</span>
         <TooltipProvider>
           <Tooltip>
