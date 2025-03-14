@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
 import { calculateYearRange, processChartData, createChartConfig } from "@/utils/chartDataUtils";
 import { Toggle } from "@/components/ui/toggle";
-import { Check, Info, MousePointerClick } from "lucide-react";
+import { Check, Info, Sparkles } from "lucide-react";
 import BrandChart from "./BrandChart";
 import BrandBarChart from "./BrandBarChart";
 import EmptyChartState from "./EmptyChartState";
@@ -50,27 +50,27 @@ const ChartSection = ({
         comparisonYear={targetYear} 
       />
       
-      {/* Standardized toggle - Moved below industry comparison widgets */}
+      {/* Standardized toggle - Cleaner design */}
       <div className="flex items-center justify-end space-x-4 mb-4 py-2">
-        <div className="relative flex flex-col items-center">
+        <div className="flex items-center gap-2">
           <span className="text-sm text-[#34502b] font-medium">Standardized Scores</span>
-          <div className="flex items-center relative">
+          <div className="relative flex items-center">
             <Toggle 
               pressed={standardized} 
               onPressedChange={setStandardized} 
               aria-label="Toggle standardized scores" 
-              className="mt-1 border border-[#34502b]/30 relative bg-[#f0d2b0] font-semibold transition-all duration-300 hover:bg-[#e5c7a5]"
+              className="border border-[#34502b]/30 relative bg-[#f0d2b0] font-semibold transition-all duration-300 hover:bg-[#e5c7a5]"
             >
               {standardized && <Check className="h-4 w-4 text-[#34502b] absolute animate-scale-in" />}
             </Toggle>
-            <div className="absolute -right-9 animate-[pulse_1s_ease-in-out_infinite]">
-              <MousePointerClick className="h-5 w-5 text-[#34502b] animate-[slide-in-right_1s_ease-in-out_infinite_reverse]" />
-            </div>
+            <span className="ml-2">
+              <Sparkles className="h-4 w-4 text-[#34502b] opacity-70 animate-pulse" />
+            </span>
           </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
-                <Info className="h-4 w-4 text-[#34502b] transition-transform hover:scale-110 ml-1" />
+                <Info className="h-4 w-4 text-[#34502b] transition-transform hover:scale-110" />
               </TooltipTrigger>
               <TooltipContent className="bg-white p-3 max-w-xs shadow-lg">
                 <p>Standardized scores normalize the data against the <strong>entire market average</strong> in each country ({marketDataCount > 0 ? `${marketDataCount} brands` : 'all available brands'}), showing how many standard deviations each brand is above or below the market mean.</p>
