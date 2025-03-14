@@ -50,8 +50,10 @@ const CountryComparisonPanel = ({
     : availableBrands;
   
   // Get unique brand names from the filtered list - fix the type error
-  const uniqueBrandNames = [...new Set(commonBrands.map(brand => brand.Brand))]
-    .filter(Boolean) as string[];
+  const uniqueBrandNames = [...new Set(commonBrands
+    .map(brand => brand.Brand)
+    .filter((brand): brand is string => brand !== null && typeof brand === 'string')
+  )].sort();
   
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
@@ -106,7 +108,7 @@ const CountryComparisonPanel = ({
             </h3>
             <div className="mt-2">
               <BrandSelection
-                brands={commonBrands}
+                brands={uniqueBrandNames}
                 selectedBrands={selectedBrands}
                 setSelectedBrands={setSelectedBrands}
                 selectedIndustries={selectedIndustries}

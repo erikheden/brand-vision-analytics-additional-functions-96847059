@@ -14,7 +14,7 @@ import {
 import { getFullCountryName } from "@/components/CountrySelect";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
 import { BrandData } from "@/types/brand";
-import ChartTooltip from "./ChartTooltip";
+import { ChartTooltip } from "./ChartTooltip";
 
 interface CountryBarChartProps {
   allCountriesData: MultiCountryData;
@@ -152,8 +152,12 @@ const CountryBarChart = ({
               dataKey={brand} 
               fill={BRAND_COLORS[index % BRAND_COLORS.length]} 
               name={brand}
-              // Fix the type error by making fillOpacity a static value or a function that returns a number
-              fillOpacity={(dataItem: any) => dataItem[`${brand}_projected`] ? 0.7 : 1}
+              // Fix: Use a number value for fillOpacity rather than a function
+              fillOpacity={0.9}
+              // Add a style property to handle conditional opacity
+              style={(entry) => ({
+                opacity: entry[`${brand}_projected`] ? 0.7 : 1
+              })}
             />
           ))}
         </BarChart>

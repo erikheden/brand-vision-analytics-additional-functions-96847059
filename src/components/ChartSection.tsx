@@ -35,7 +35,13 @@ const ChartSection = ({
   const marketData = (scores as any).marketData || [];
   const marketDataCount = marketData.length || 0;
 
-  const yearRange = calculateYearRange(scores);
+  const years = calculateYearRange(scores);
+  // Create a yearRange object compatible with BrandChart's expected format
+  const yearRange = {
+    earliest: years[0],
+    latest: years[years.length - 1]
+  };
+  
   const chartData = processChartData(scores, standardized);
   const chartConfig = createChartConfig(selectedBrands);
 

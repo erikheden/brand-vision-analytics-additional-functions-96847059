@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface TooltipPointData {
@@ -13,8 +12,8 @@ interface ChartTooltipProps {
   standardized: boolean;
 }
 
-// Custom tooltip component for Recharts
-const ChartTooltip: React.FC<any> = (props) => {
+// Export the component with a named export for importing in other files
+export const ChartTooltip: React.FC<any> = (props) => {
   const { active, payload, label, standardized } = props;
   
   if (!active || !payload || payload.length === 0) {
@@ -49,6 +48,7 @@ const ChartTooltip: React.FC<any> = (props) => {
   );
 };
 
+// Keep the existing formatter function
 export const createTooltipFormatter = (fontFamily: string, standardized: boolean = false) => {
   return function(this: any) {
     if (!this.points) return '';
@@ -81,4 +81,5 @@ export const createTooltipFormatter = (fontFamily: string, standardized: boolean
   };
 };
 
+// Also add a default export for backward compatibility
 export default ChartTooltip;

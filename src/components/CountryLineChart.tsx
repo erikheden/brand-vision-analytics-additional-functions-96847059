@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { 
   LineChart, 
   Line, 
@@ -9,13 +9,12 @@ import {
   Tooltip, 
   Legend, 
   ResponsiveContainer,
-  ReferenceLine
+  ReferenceLine 
 } from "recharts";
-import { BrandData } from "@/types/brand";
-import { processChartData } from "@/utils/chartDataUtils";
 import { getFullCountryName } from "@/components/CountrySelect";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
-import ChartTooltip from "./ChartTooltip";
+import { BrandData } from "@/types/brand";
+import { ChartTooltip } from "./ChartTooltip";
 
 interface CountryLineChartProps {
   allCountriesData: MultiCountryData;
@@ -23,166 +22,190 @@ interface CountryLineChartProps {
   standardized: boolean;
 }
 
-// Helper function to calculate year range from brand data
-const calculateYearRange = (data: BrandData[]) => {
-  const years = data
-    .filter(item => item.Year !== null)
-    .map(item => item.Year as number);
-  
-  if (years.length === 0) return [new Date().getFullYear() - 5, new Date().getFullYear()];
-  
-  return [...new Set(years)].sort((a, b) => a - b);
-};
+// Color palette for lines
+const COUNTRY_COLORS = [
+  "#34502b", "#09657b", "#dd8c57", "#6ec0dc", "#7c9457",
+  "#b7c895", "#dadada", "#f0d2b0", "#bce2f3", "#1d1d1b"
+];
 
 const CountryLineChart = ({
   allCountriesData,
   selectedBrands,
   standardized
 }: CountryLineChartProps) => {
-  const [chartWidth, setChartWidth] = useState<number>(0);
-
-  useEffect(() => {
-    const updateWidth = () => {
-      setChartWidth(window.innerWidth);
-    };
-
-    window.addEventListener("resize", updateWidth);
-    updateWidth();
-    
-    return () => window.removeEventListener("resize", updateWidth);
-  }, []);
-
-  // Process the data for the chart
+  // Process the data for the line chart
   const processedData = useMemo(() => {
-    // Create a map to store data by year
-    const yearData: Record<number, any> = {};
+    // If there's no data, return empty array
+    if (Object.keys(allCountriesData).length === 0) {
+      return { chartData: [], years: [] };
+    }
     
-    // Process each country's data
+    // Collect all years from all countries
+    const allYears = new Set<number>();
+    
+    // Prepare data structure for each brand and country
+    const brandCountryData: Map<string, Map<string, Map<number, number>>> = new Map();
+    
+    // Process data from each country
     Object.entries(allCountriesData).forEach(([country, countryData]) => {
-      // Skip if there's no data for this country
       if (!countryData || countryData.length === 0) return;
       
-      // Standardize scores if needed
-      const processedCountryData = processChartData(countryData as BrandData[], standardized);
+      // For standardization, we'll need market statistics per year
+      const marketStatsByYear: Map<number, { mean: number; stdDev: number }> = new Map();
       
-      // Merge into year data
-      processedCountryData.forEach(item => {
-        const year = item.year;
+      if (standardized && Array.isArray((countryData as any).marketData)) {
+        const marketData = (countryData as any).marketData;
         
-        if (!yearData[year]) {
-          yearData[year] = { year };
-        }
-        
-        // Add data for each brand in this country
-        selectedBrands.forEach(brand => {
-          if (item[brand] !== undefined) {
-            yearData[year][`${brand}__${country}`] = item[brand];
+        // Group market data by year
+        const marketDataByYear = new Map<number, BrandData[]>();
+        marketData.forEach((item: BrandData) => {
+          if (item.Year === null || item.Score === null) return;
+          
+          if (!marketDataByYear.has(item.Year)) {
+            marketDataByYear.set(item.Year, []);
           }
+          marketDataByYear.get(item.Year)?.push(item);
+        });
+        
+        // Calculate statistics for each year
+        marketDataByYear.forEach((yearData, year) => {
+          const validScores = yearData
+            .map(item => item.Score)
+            .filter((score): score is number => score !== null);
+          
+          if (validScores.length > 0) {
+            const mean = validScores.reduce((sum, val) => sum + val, 0) / validScores.length;
+            const variance = validScores.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / validScores.length;
+            const stdDev = Math.sqrt(variance);
+            
+            marketStatsByYear.set(year, { mean, stdDev });
+          }
+        });
+      }
+      
+      // Process data for each brand
+      selectedBrands.forEach(brand => {
+        // Filter data for this brand
+        const brandData = countryData.filter(item => item.Brand === brand);
+        
+        if (brandData.length === 0) return;
+        
+        // For each data point
+        brandData.forEach(dataPoint => {
+          if (dataPoint.Year === null || dataPoint.Score === null) return;
+          
+          // Add to the set of all years
+          allYears.add(dataPoint.Year);
+          
+          // Initialize data structures if needed
+          if (!brandCountryData.has(brand)) {
+            brandCountryData.set(brand, new Map());
+          }
+          const brandMap = brandCountryData.get(brand)!;
+          
+          if (!brandMap.has(country)) {
+            brandMap.set(country, new Map());
+          }
+          const countryMap = brandMap.get(country)!;
+          
+          // Calculate score (standardized or raw)
+          let score = dataPoint.Score;
+          
+          if (standardized) {
+            const stats = marketStatsByYear.get(dataPoint.Year);
+            if (stats && stats.stdDev > 0) {
+              score = (score - stats.mean) / stats.stdDev;
+            }
+          }
+          
+          // Store the score
+          countryMap.set(dataPoint.Year, score);
         });
       });
     });
     
-    // Convert to array and sort by year
-    return Object.values(yearData).sort((a, b) => a.year - b.year);
-  }, [allCountriesData, selectedBrands, standardized]);
-  
-  // Calculate min and max years across all countries
-  const yearRange = useMemo(() => {
-    const allYears: number[] = [];
+    // Convert all years to sorted array
+    const years = Array.from(allYears).sort((a, b) => a - b);
     
-    Object.values(allCountriesData).forEach(countryData => {
-      if (countryData && countryData.length > 0) {
-        const countryYearRange = calculateYearRange(countryData as BrandData[]);
-        allYears.push(...countryYearRange);
-      }
+    // Create data points for the chart
+    const chartData = years.map(year => {
+      const dataPoint: any = { year };
+      
+      // Add data for each brand and country
+      brandCountryData.forEach((brandMap, brand) => {
+        brandMap.forEach((countryMap, country) => {
+          const score = countryMap.get(year);
+          if (score !== undefined) {
+            dataPoint[`${brand}-${country}`] = score;
+          }
+        });
+      });
+      
+      return dataPoint;
     });
     
-    return [...new Set(allYears)].sort((a, b) => a - b);
-  }, [allCountriesData]);
+    return { chartData, years };
+  }, [allCountriesData, selectedBrands, standardized]);
   
-  // Generate consistent line colors for each brand across countries
-  const getColorForBrandCountry = (brand: string, country: string, index: number) => {
-    const brandIndex = selectedBrands.indexOf(brand);
-    const countryIndex = Object.keys(allCountriesData).indexOf(country);
-    const baseColors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
-    
-    // Base color determined by brand
-    const baseColor = baseColors[brandIndex % baseColors.length];
-    
-    // Adjust color based on country (make it lighter or darker)
-    const darkenFactor = 1 - (countryIndex * 0.2); // Adjust by 20% for each country
-    
-    // Simple color adjustment (this is a basic example)
-    const adjustColor = (hex: string, factor: number) => {
-      // Convert hex to RGB
-      const r = parseInt(hex.slice(1, 3), 16);
-      const g = parseInt(hex.slice(3, 5), 16);
-      const b = parseInt(hex.slice(5, 7), 16);
-      
-      // Adjust each channel
-      const adjustedR = Math.min(255, Math.max(0, Math.round(r * factor)));
-      const adjustedG = Math.min(255, Math.max(0, Math.round(g * factor)));
-      const adjustedB = Math.min(255, Math.max(0, Math.round(b * factor)));
-      
-      // Convert back to hex
-      return `#${adjustedR.toString(16).padStart(2, '0')}${adjustedG.toString(16).padStart(2, '0')}${adjustedB.toString(16).padStart(2, '0')}`;
-    };
-    
-    return adjustColor(baseColor, darkenFactor);
-  };
+  const { chartData, years } = processedData;
   
-  if (processedData.length === 0) {
+  if (chartData.length === 0) {
     return <div className="text-center py-10">No data available for the selected parameters.</div>;
   }
   
-  // Generate all line elements
-  const lineElements = Object.keys(allCountriesData).flatMap(country => 
-    selectedBrands.map((brand, index) => {
-      const key = `${brand}__${country}`;
-      return (
-        <Line
-          key={key}
-          type="monotone"
-          dataKey={key}
-          name={`${brand} (${getFullCountryName(country)})`}
-          stroke={getColorForBrandCountry(brand, country, index)}
-          strokeWidth={2}
-          dot={{ strokeWidth: 2, r: 4 }}
-          activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
-          connectNulls={true}
-        />
+  // Create lines for each brand-country combination
+  const lines: React.ReactNode[] = [];
+  let lineIndex = 0;
+  
+  selectedBrands.forEach(brand => {
+    Object.keys(allCountriesData).forEach(country => {
+      // Check if we have any data for this brand-country combination
+      const hasData = chartData.some(dataPoint => 
+        dataPoint[`${brand}-${country}`] !== undefined
       );
-    })
-  );
+      
+      if (hasData) {
+        const color = COUNTRY_COLORS[lineIndex % COUNTRY_COLORS.length];
+        lineIndex++;
+        
+        lines.push(
+          <Line
+            key={`${brand}-${country}`}
+            type="monotone"
+            dataKey={`${brand}-${country}`}
+            name={`${brand} (${getFullCountryName(country)})`}
+            stroke={color}
+            dot={{ fill: color, r: 4 }}
+            activeDot={{ r: 6, fill: color }}
+          />
+        );
+      }
+    });
+  });
   
   return (
     <div className="w-full h-[400px]">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
-          data={processedData}
-          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          data={chartData}
+          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
           <XAxis 
-            dataKey="year" 
-            domain={[Math.min(...yearRange), Math.max(...yearRange)]}
-            allowDecimals={false}
+            dataKey="year"
             type="number"
-            tickCount={chartWidth < 500 ? 5 : 10}
+            domain={['dataMin', 'dataMax']}
+            allowDecimals={false}
           />
           <YAxis 
             domain={standardized ? [-3, 3] : ['auto', 'auto']}
             tickFormatter={(value) => standardized ? `${value.toFixed(1)}σ` : value.toFixed(1)}
           />
           <Tooltip content={<ChartTooltip standardized={standardized} />} />
-          <Legend 
-            layout="horizontal" 
-            verticalAlign="bottom" 
-            align="center"
-            wrapperStyle={{ paddingTop: 20 }}
-          />
+          <Legend wrapperStyle={{ paddingTop: 20 }} />
           {standardized && <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" />}
-          {lineElements}
+          
+          {lines}
         </LineChart>
       </ResponsiveContainer>
     </div>
