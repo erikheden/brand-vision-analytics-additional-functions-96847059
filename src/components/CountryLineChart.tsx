@@ -40,6 +40,8 @@ const CountryLineChart = ({
       return { chartData: [], years: [] };
     }
     
+    console.log("Processing data for line chart with countries:", Object.keys(allCountriesData));
+    
     // Collect all years from all countries
     const allYears = new Set<number>();
     
@@ -49,6 +51,8 @@ const CountryLineChart = ({
     // Process data from each country
     Object.entries(allCountriesData).forEach(([country, countryData]) => {
       if (!countryData || countryData.length === 0) return;
+      
+      console.log(`Processing data for ${country}: ${countryData.length} entries`);
       
       // For standardization, we'll need market statistics per year
       const marketStatsByYear: Map<number, { mean: number; stdDev: number }> = new Map();
@@ -88,11 +92,15 @@ const CountryLineChart = ({
         // Filter data for this brand
         const brandData = countryData.filter(item => item.Brand === brand);
         
+        console.log(`Brand ${brand} in ${country}: ${brandData.length} data points`);
+        
         if (brandData.length === 0) return;
         
         // For each data point
         brandData.forEach(dataPoint => {
           if (dataPoint.Year === null || dataPoint.Score === null) return;
+          
+          console.log(`Data point for ${brand}/${country}/${dataPoint.Year}: ${dataPoint.Score}`);
           
           // Add to the set of all years
           allYears.add(dataPoint.Year);
@@ -126,6 +134,14 @@ const CountryLineChart = ({
     
     // Convert all years to sorted array
     const years = Array.from(allYears).sort((a, b) => a - b);
+    
+    console.log("Years in the data:", years);
+    console.log("Brand-country combinations:", 
+      Array.from(brandCountryData.entries()).map(([brand, countryMap]) => ({
+        brand,
+        countries: Array.from(countryMap.keys())
+      }))
+    );
     
     // Create data points for the chart
     const chartData = years.map(year => {

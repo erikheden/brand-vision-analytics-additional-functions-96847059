@@ -30,6 +30,24 @@ export const useMultiCountryChartData = (selectedCountries: string[], selectedBr
             
             console.log(`Looking for matches for "${selectedBrand}" (normalized: "${normalizedSelectedBrand}") in ${country}`);
             
+            // Try with country code first (direct match with the selected brand)
+            let { data: directMatchData, error: directMatchError } = await supabase
+              .from("SBI Ranking Scores 2011-2025")
+              .select("Brand, industry, Country, Year, Score, \"Row ID\"")
+              .or(`Country.eq.${country},Country.eq.${fullCountryName}`)
+              .eq('Brand', selectedBrand)
+              .order('Year', { ascending: true });
+              
+            if (directMatchError) {
+              console.error(`Error fetching direct match for ${selectedBrand}:`, directMatchError);
+            }
+            
+            // If we found a direct match, use it
+            if (directMatchData && directMatchData.length > 0) {
+              console.log(`Found direct match for "${selectedBrand}" in ${country}: ${directMatchData.length} records`);
+              return directMatchData;
+            }
+            
             // Get all brands in this country to find potential matches
             let { data: allBrandsInCountry, error: brandsError } = await supabase
               .from("SBI Ranking Scores 2011-2025")
@@ -87,6 +105,8 @@ export const useMultiCountryChartData = (selectedCountries: string[], selectedBr
           
           // Flatten the array of arrays
           const combinedData = brandDataArrays.flat();
+          
+          console.log(`Final combined data for ${country}: ${combinedData.length} records`);
           
           // Get market data for standardization purposes
           let { data: allBrandsDataWithCode } = await supabase
