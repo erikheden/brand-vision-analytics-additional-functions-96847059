@@ -82,9 +82,9 @@ export const processLineChartData = (
         // Calculate score (standardized or raw)
         let score = dataPoint.Score;
         
-        if (standardized) {
-          const stats = marketStatsByYear.get(year);
-          if (stats && stats.stdDev > 0) {
+        if (standardized && marketStatsByYear.has(year)) {
+          const stats = marketStatsByYear.get(year)!;
+          if (stats.stdDev > 0) {
             score = (score - stats.mean) / stats.stdDev;
           }
         }
@@ -114,8 +114,9 @@ export const processLineChartData = (
     brandCountryData.forEach((brandMap, brand) => {
       brandMap.forEach((countryMap, country) => {
         const score = countryMap.get(year);
-        if (score !== undefined) {
-          dataPoint[`${brand}-${country}`] = score;
+        if (score !== undefined && score !== null) {
+          const dataKey = `${brand}-${country}`;
+          dataPoint[dataKey] = score;
         }
       });
     });
@@ -123,6 +124,7 @@ export const processLineChartData = (
     return dataPoint;
   });
   
+  console.log("Generated chart data with points:", chartData.length);
   return { chartData, years };
 };
 

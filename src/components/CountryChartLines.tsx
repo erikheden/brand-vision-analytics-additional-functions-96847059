@@ -2,7 +2,7 @@
 import React from "react";
 import { Line } from "recharts";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
-import { getBrandColor } from "@/utils/countryComparison/chartColors";
+import { getBrandColor } from "@/utils/countryChartDataUtils";
 
 interface CountryChartLinesProps {
   chartData: any[];
@@ -34,14 +34,19 @@ const CountryChartLines: React.FC<CountryChartLinesProps> = ({
       const dataKey = `${brand}-${country}`;
       
       // Check if this data key exists in our chart data
-      const hasData = chartData.some(point => dataKey in point && point[dataKey] !== null && point[dataKey] !== undefined);
+      const hasData = chartData.some(point => {
+        return dataKey in point && point[dataKey] !== null && point[dataKey] !== undefined;
+      });
       
       if (hasData) {
+        console.log(`Adding line for ${dataKey} - data exists`);
+        
         // Use consistent brand color across countries
         const brandColor = getBrandColor(brand);
         
         // Adjust opacity based on country index for differentiation
-        const opacity = 1 - (countryIndex * 0.2);
+        const opacity = 1 - (countryIndex * 0.15);
+        const finalOpacity = Math.max(opacity, 0.5); // Ensure minimum opacity of 0.5
         
         lines.push(
           <Line
@@ -51,16 +56,19 @@ const CountryChartLines: React.FC<CountryChartLinesProps> = ({
             name={`${brand} (${country})`}
             stroke={brandColor}
             strokeWidth={2}
-            strokeOpacity={opacity > 0.4 ? opacity : 0.4}
+            strokeOpacity={finalOpacity}
             dot={{ r: 4, fill: brandColor }}
             activeDot={{ r: 6 }}
             connectNulls={true}
           />
         );
+      } else {
+        console.log(`No data for ${dataKey}`);
       }
     });
   });
   
+  console.log(`Generated ${lines.length} lines for the chart`);
   return <>{lines}</>;
 };
 
