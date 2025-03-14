@@ -38,18 +38,36 @@ const CountryComparisonPanel = ({
     setSelectedBrands([]);
   }, [selectedCountries, setSelectedBrands]);
   
+  // Normalize brand names for comparison (remove country-specific identifiers)
+  const normalizeBrandName = (brandName: string): string => {
+    if (!brandName) return '';
+    // Remove any trailing country codes, clean up whitespace
+    return brandName
+      .trim()
+      .replace(/\s+\([A-Z]{2}\)$/, '') // Remove country codes in parentheses at the end
+      .replace(/\s+/g, ' '); // Normalize whitespace
+  };
+  
   // Get brands that appear in all selected countries
+  // Using a more flexible approach to match brands across countries
   const commonBrands = selectedCountries.length > 1 
-    ? availableBrands.filter(brand => 
-        selectedCountries.every(country => 
+    ? availableBrands.filter(brand => {
+        if (!brand.Brand) return false;
+        
+        // Normalize this brand name
+        const normalizedBrandName = normalizeBrandName(brand.Brand);
+        
+        // Check if normalized version exists in all countries
+        return selectedCountries.every(country => 
           availableBrands.some(b => 
-            b.Brand === brand.Brand && b.Country === country
+            b.Country === country && 
+            normalizeBrandName(b.Brand || '') === normalizedBrandName
           )
-        )
-      )
+        );
+      })
     : availableBrands;
   
-  // Get unique brand names from the filtered list - fix the type error
+  // Get unique brand names from the filtered list
   const uniqueBrandNames = [...new Set(commonBrands
     .map(brand => brand.Brand)
     .filter((brand): brand is string => brand !== null && typeof brand === 'string')

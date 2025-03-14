@@ -7,4 +7,7 @@ export interface BrandData {
   Score: number | null;
   Year: number | null;
   Projected?: boolean;
+  // New fields for cross-country brand comparison
+  OriginalBrand?: string | null;
+  NormalizedBrand?: string;
 }

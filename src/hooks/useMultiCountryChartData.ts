@@ -7,6 +7,16 @@ import { getFullCountryName } from "@/components/CountrySelect";
 // Type to represent data for multiple countries
 export type MultiCountryData = Record<string, BrandData[]>;
 
+// Helper function to normalize brand names for cross-country comparison
+const normalizeBrandName = (brandName: string): string => {
+  if (!brandName) return '';
+  // Remove any trailing country codes, clean up whitespace
+  return brandName
+    .trim()
+    .replace(/\s+\([A-Z]{2}\)$/, '') // Remove country codes in parentheses at the end
+    .replace(/\s+/g, ' '); // Normalize whitespace
+};
+
 export const useMultiCountryChartData = (selectedCountries: string[], selectedBrands: string[]) => {
   const queryClient = useQueryClient();
   
@@ -22,29 +32,61 @@ export const useMultiCountryChartData = (selectedCountries: string[], selectedBr
           // Get the full country name
           const fullCountryName = getFullCountryName(country);
           
-          // Query with country code
-          let { data: dataWithCode, error: errorWithCode } = await supabase
-            .from("SBI Ranking Scores 2011-2025")
-            .select("*")
-            .eq("Country", country)
-            .in("Brand", selectedBrands)
-            .order('Year', { ascending: true });
+          // For each selected brand, we need to find potential matches in the current country
+          const brandQueries = selectedBrands.map(async (selectedBrand) => {
+            // Normalize the selected brand name for comparison
+            const normalizedSelectedBrand = normalizeBrandName(selectedBrand);
+            
+            // Get all brands in this country to find potential matches
+            let { data: allBrandsInCountry, error: brandsError } = await supabase
+              .from("SBI Ranking Scores 2011-2025")
+              .select("Brand")
+              .or(`Country.eq.${country},Country.eq.${fullCountryName}`)
+              .not('Brand', 'is', null)
+              .order('Brand', { ascending: true });
+            
+            if (brandsError) {
+              console.error("Error fetching brands for matching:", brandsError);
+              return [];
+            }
+            
+            // Find brands in this country that match the normalized selected brand
+            const matchingBrandNames = allBrandsInCountry
+              ?.map(item => item.Brand as string)
+              .filter(brandName => normalizedSelectedBrand === normalizeBrandName(brandName)) || [];
+            
+            if (matchingBrandNames.length === 0) {
+              console.log(`No matching brands found for ${selectedBrand} in ${country}`);
+              return [];
+            }
+            
+            // Query data for all matching brands
+            let { data: brandData, error: dataError } = await supabase
+              .from("SBI Ranking Scores 2011-2025")
+              .select("*")
+              .or(`Country.eq.${country},Country.eq.${fullCountryName}`)
+              .in('Brand', matchingBrandNames)
+              .order('Year', { ascending: true });
+            
+            if (dataError) {
+              console.error(`Error fetching data for brand matches in ${country}:`, dataError);
+              return [];
+            }
+            
+            // Tag these records with the selected brand name for consistency
+            return (brandData || []).map(item => ({
+              ...item,
+              OriginalBrand: item.Brand, // Keep the original brand name
+              Brand: selectedBrand, // Use the selected brand name for consistency
+              NormalizedBrand: normalizedSelectedBrand // For debugging
+            }));
+          });
           
-          if (errorWithCode) {
-            console.error("Error fetching with country code:", errorWithCode);
-          }
+          // Wait for all brand queries to complete
+          const brandDataArrays = await Promise.all(brandQueries);
           
-          // Query with full country name
-          let { data: dataWithFullName, error: errorWithFullName } = await supabase
-            .from("SBI Ranking Scores 2011-2025")
-            .select("*")
-            .eq("Country", fullCountryName)
-            .in("Brand", selectedBrands)
-            .order('Year', { ascending: true });
-          
-          if (errorWithFullName) {
-            console.error("Error fetching with full country name:", errorWithFullName);
-          }
+          // Flatten the array of arrays
+          const combinedData = brandDataArrays.flat();
           
           // Get market data for standardization purposes
           let { data: allBrandsDataWithCode } = await supabase
@@ -63,12 +105,6 @@ export const useMultiCountryChartData = (selectedCountries: string[], selectedBr
           const allBrandsData = [
             ...(allBrandsDataWithCode || []),
             ...(allBrandsDataWithFullName || [])
-          ];
-          
-          // Combine both result sets and remove duplicates
-          const combinedData = [
-            ...(dataWithCode || []), 
-            ...(dataWithFullName || [])
           ];
           
           // Remove duplicates (same Brand and Year)
