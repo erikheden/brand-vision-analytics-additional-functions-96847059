@@ -3,8 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandData } from "@/types/brand";
 import { getFullCountryName } from "@/components/CountrySelect";
+import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
 
-export const useSelectionData = (selectedCountry: string, selectedIndustries: string[]) => {
+export const useSelectionData = (selectedCountry: string | string[], selectedIndustries: string[]) => {
   const { data: countries = [], error: countriesError } = useQuery({
     queryKey: ["countries"],
     queryFn: async () => {
@@ -48,38 +49,44 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
       console.log("Fetching industries for country:", selectedCountry);
       
       try {
-        // Get the full country name if we have a country code
-        const fullCountryName = getFullCountryName(selectedCountry);
+        // Handle array of countries
+        const countriesToQuery = Array.isArray(selectedCountry) ? selectedCountry : [selectedCountry];
+        let combinedData: any[] = [];
         
-        console.log(`Trying both country formats for industries: code=${selectedCountry}, fullName=${fullCountryName}`);
-        
-        // Try with country code first
-        let { data: codeData, error: codeError } = await supabase
-          .from("SBI Ranking Scores 2011-2025")
-          .select('industry')
-          .eq('Country', selectedCountry)
-          .not('industry', 'is', null);
-        
-        if (codeError) {
-          console.error("Error fetching industries with country code:", codeError);
+        // Query for each country
+        for (const country of countriesToQuery) {
+          if (!country) continue;
+          
+          // Get the full country name if we have a country code
+          const fullCountryName = getFullCountryName(country);
+          
+          console.log(`Trying both country formats for industries: code=${country}, fullName=${fullCountryName}`);
+          
+          // Try with country code first
+          let { data: codeData, error: codeError } = await supabase
+            .from("SBI Ranking Scores 2011-2025")
+            .select('industry')
+            .eq('Country', country)
+            .not('industry', 'is', null);
+          
+          if (codeError) {
+            console.error(`Error fetching industries with country code for ${country}:`, codeError);
+          }
+          
+          // Try with full name
+          let { data: nameData, error: nameError } = await supabase
+            .from("SBI Ranking Scores 2011-2025")
+            .select('industry')
+            .eq('Country', fullCountryName)
+            .not('industry', 'is', null);
+          
+          if (nameError) {
+            console.error(`Error fetching industries with full name for ${fullCountryName}:`, nameError);
+          }
+          
+          // Add results to combined data
+          combinedData = [...combinedData, ...(codeData || []), ...(nameData || [])];
         }
-        
-        // Try with full name
-        let { data: nameData, error: nameError } = await supabase
-          .from("SBI Ranking Scores 2011-2025")
-          .select('industry')
-          .eq('Country', fullCountryName)
-          .not('industry', 'is', null);
-        
-        if (nameError) {
-          console.error("Error fetching industries with full name:", nameError);
-        }
-        
-        // Combine both result sets
-        const combinedData = [
-          ...(codeData || []), 
-          ...(nameData || [])
-        ];
         
         console.log("Industries raw data:", combinedData);
         
@@ -104,54 +111,66 @@ export const useSelectionData = (selectedCountry: string, selectedIndustries: st
       console.log("Fetching brands for country:", selectedCountry, "and industries:", selectedIndustries);
       
       try {
-        // Get the full country name if we have a country code
-        const fullCountryName = getFullCountryName(selectedCountry);
+        // Handle array of countries
+        const countriesToQuery = Array.isArray(selectedCountry) ? selectedCountry : [selectedCountry];
+        let allBrands: BrandData[] = [];
         
-        console.log(`Trying both country formats for brands: code=${selectedCountry}, fullName=${fullCountryName}`);
-        
-        // Try with country code first
-        let codeQuery = supabase
-          .from("SBI Ranking Scores 2011-2025")
-          .select('Brand, industry, Country, Year, Score, "Row ID"')
-          .eq('Country', selectedCountry)
-          .not('Brand', 'is', null);
-        
-        if (selectedIndustries.length > 0) {
-          codeQuery = codeQuery.in('industry', selectedIndustries);
+        // Query for each country
+        for (const country of countriesToQuery) {
+          if (!country) continue;
+          
+          // Get the full country name if we have a country code
+          const fullCountryName = getFullCountryName(country);
+          
+          console.log(`Querying brands for country: code=${country}, fullName=${fullCountryName}`);
+          
+          // Try with country code first
+          let codeQuery = supabase
+            .from("SBI Ranking Scores 2011-2025")
+            .select('Brand, industry, Country, Year, Score, "Row ID"')
+            .eq('Country', country)
+            .not('Brand', 'is', null);
+          
+          if (selectedIndustries.length > 0) {
+            codeQuery = codeQuery.in('industry', selectedIndustries);
+          }
+          
+          let { data: codeData, error: codeError } = await codeQuery;
+          
+          if (codeError) {
+            console.error(`Error fetching brands with country code for ${country}:`, codeError);
+          }
+          
+          // Try with full name
+          let fullNameQuery = supabase
+            .from("SBI Ranking Scores 2011-2025")
+            .select('Brand, industry, Country, Year, Score, "Row ID"')
+            .eq('Country', fullCountryName)
+            .not('Brand', 'is', null);
+          
+          if (selectedIndustries.length > 0) {
+            fullNameQuery = fullNameQuery.in('industry', selectedIndustries);
+          }
+          
+          let { data: nameData, error: nameError } = await fullNameQuery;
+          
+          if (nameError) {
+            console.error(`Error fetching brands with full name for ${fullCountryName}:`, nameError);
+          }
+          
+          // Add results to combined data
+          allBrands = [...allBrands, ...(codeData || []), ...(nameData || [])];
         }
         
-        let { data: codeData, error: codeError } = await codeQuery;
+        console.log(`Fetched ${allBrands.length} brands for ${countriesToQuery.join(', ')}:`, 
+          allBrands.slice(0, 5).map(b => ({ 
+            brand: b.Brand, 
+            country: b.Country,
+            normalized: b.Brand ? normalizeBrandName(b.Brand) : null
+          }))
+        );
         
-        if (codeError) {
-          console.error("Error fetching brands with country code:", codeError);
-        }
-        
-        // Try with full name
-        let fullNameQuery = supabase
-          .from("SBI Ranking Scores 2011-2025")
-          .select('Brand, industry, Country, Year, Score, "Row ID"')
-          .eq('Country', fullCountryName)
-          .not('Brand', 'is', null);
-        
-        if (selectedIndustries.length > 0) {
-          fullNameQuery = fullNameQuery.in('industry', selectedIndustries);
-        }
-        
-        let { data: nameData, error: nameError } = await fullNameQuery;
-        
-        if (nameError) {
-          console.error("Error fetching brands with full name:", nameError);
-        }
-        
-        // Combine both result sets
-        const combinedData = [
-          ...(codeData || []), 
-          ...(nameData || [])
-        ];
-        
-        console.log("Brands data from DB (combined):", combinedData.length);
-        
-        return combinedData as BrandData[];
+        return allBrands as BrandData[];
       } catch (err) {
         console.error("Exception in brands query:", err);
         return [];
