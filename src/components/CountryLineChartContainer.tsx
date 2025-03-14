@@ -1,17 +1,20 @@
 
-import React from "react";
+import React, { useMemo } from "react";
 import { 
   LineChart, 
+  Line,
   XAxis, 
   YAxis, 
   CartesianGrid, 
   Tooltip, 
   Legend, 
-  ResponsiveContainer
+  ResponsiveContainer,
+  ReferenceLine
 } from "recharts";
 import { ChartTooltip } from "./ChartTooltip";
-import CountryChartLines from "./CountryChartLines";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
+import { FONT_FAMILY } from "@/utils/constants";
+import { getBrandColor } from "@/utils/countryChartDataUtils";
 
 interface CountryLineChartContainerProps {
   chartData: any[];
@@ -26,6 +29,119 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
   allCountriesData,
   standardized
 }) => {
+  // Get all countries
+  const countries = Object.keys(allCountriesData);
+  
+  // Calculate the domain for the y-axis
+  const yAxisDomain = useMemo(() => {
+    if (standardized) {
+      return [-3, 3] as [number, number]; // Fixed domain for standardized scores
+    }
+    
+    // Find min and max values across all data points
+    let minValue = Infinity;
+    let maxValue = -Infinity;
+    
+    chartData.forEach(dataPoint => {
+      // Check all keys in the data point that might be brand-country combinations
+      Object.keys(dataPoint).forEach(key => {
+        // Skip year and non-data keys
+        if (key === 'year' || typeof dataPoint[key] !== 'number') return;
+        
+        const value = dataPoint[key];
+        if (value !== undefined && value !== null) {
+          minValue = Math.min(minValue, value);
+          maxValue = Math.max(maxValue, value);
+        }
+      });
+    });
+    
+    if (minValue === Infinity) minValue = 0;
+    if (maxValue === -Infinity) maxValue = 100;
+    
+    // Calculate padding (10% of the range)
+    const range = maxValue - minValue;
+    const padding = range * 0.1;
+    
+    // Set minimum to 0 if it's close to 0
+    const minY = minValue > 0 && minValue < 10 ? 0 : Math.max(0, minValue - padding);
+    
+    // Add padding to the top
+    const maxY = maxValue + padding;
+    
+    // Round to nice values
+    const roundedMin = Math.floor(minY / 10) * 10;
+    const roundedMax = Math.ceil(maxY / 10) * 10;
+    
+    return [roundedMin, roundedMax] as [number, number];
+  }, [chartData, standardized]);
+  
+  // Generate lines for each brand-country combination
+  const lines = useMemo(() => {
+    if (chartData.length === 0 || countries.length === 0) {
+      return [];
+    }
+    
+    const generatedLines: JSX.Element[] = [];
+    
+    // Loop through brands and countries to create lines
+    selectedBrands.forEach((brand) => {
+      countries.forEach((country, countryIndex) => {
+        // Generate a dataKey that matches our data structure
+        const dataKey = `${brand}-${country}`;
+        
+        // Check if this data key exists in our chart data
+        const hasData = chartData.some(point => {
+          return dataKey in point && point[dataKey] !== null && point[dataKey] !== undefined;
+        });
+        
+        if (hasData) {
+          console.log(`Adding line for ${dataKey} - data exists`);
+          
+          // Use consistent brand color across countries
+          const brandColor = getBrandColor(brand);
+          
+          // Adjust opacity based on country index for differentiation
+          const opacity = 1 - (countryIndex * 0.15);
+          const finalOpacity = Math.max(opacity, 0.5); // Ensure minimum opacity of 0.5
+          
+          generatedLines.push(
+            <Line
+              key={dataKey}
+              type="monotone"
+              dataKey={dataKey}
+              name={`${brand} (${country})`}
+              stroke={brandColor}
+              strokeWidth={2}
+              strokeOpacity={finalOpacity}
+              dot={{ r: 4, fill: brandColor }}
+              activeDot={{ r: 6 }}
+              connectNulls={true}
+            />
+          );
+        } else {
+          console.log(`No data for ${dataKey}`);
+        }
+      });
+    });
+    
+    console.log(`Generated ${generatedLines.length} lines for the chart`);
+    return generatedLines;
+  }, [chartData, countries, selectedBrands]);
+
+  // Find min and max years for the x-axis
+  const { minYear, maxYear } = useMemo(() => {
+    if (chartData.length === 0) {
+      return { minYear: 2011, maxYear: 2025 };
+    }
+    
+    const years = chartData.map(d => d.year).filter(Boolean);
+    return {
+      minYear: Math.min(...years),
+      maxYear: Math.max(...years)
+    };
+  }, [chartData]);
+  
   return (
     <div className="w-full h-[400px]">
       <ResponsiveContainer width="100%" height="100%">
@@ -37,22 +153,32 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
           <XAxis 
             dataKey="year"
             type="number"
-            domain={['dataMin', 'dataMax']}
+            domain={[minYear, maxYear]}
             allowDecimals={false}
+            tickCount={5}
+            label={{ value: '', position: 'insideBottom', offset: -5 }}
+            style={{ 
+              fontFamily: FONT_FAMILY,
+              fontSize: '12px'
+            }}
           />
           <YAxis 
-            domain={standardized ? [-3, 3] : ['auto', 'auto']}
-            tickFormatter={(value) => standardized ? `${value.toFixed(1)}σ` : value.toFixed(1)}
+            domain={yAxisDomain}
+            tickFormatter={(value) => standardized ? `${value.toFixed(0)}σ` : value.toFixed(0)}
+            style={{ 
+              fontFamily: FONT_FAMILY,
+              fontSize: '12px'
+            }}
           />
           <Tooltip content={<ChartTooltip standardized={standardized} />} />
-          <Legend wrapperStyle={{ paddingTop: 20 }} />
-          
-          <CountryChartLines 
-            chartData={chartData}
-            selectedBrands={selectedBrands}
-            allCountriesData={allCountriesData}
-            standardized={standardized}
+          <Legend 
+            wrapperStyle={{ 
+              paddingTop: 20,
+              fontFamily: FONT_FAMILY 
+            }}
           />
+          {standardized && <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" />}
+          {lines}
         </LineChart>
       </ResponsiveContainer>
     </div>

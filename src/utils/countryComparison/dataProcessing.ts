@@ -124,8 +124,19 @@ export const processLineChartData = (
     return dataPoint;
   });
   
-  console.log("Generated chart data with points:", chartData.length);
-  return { chartData, years };
+  // Ensure non-empty data
+  const filteredChartData = chartData.filter(point => {
+    // Check if this point has any data beyond the year
+    return Object.keys(point).length > 1;
+  });
+  
+  console.log("Generated chart data with points:", filteredChartData.length);
+  if (filteredChartData.length > 0) {
+    console.log("First data point:", filteredChartData[0]);
+    console.log("Last data point:", filteredChartData[filteredChartData.length - 1]);
+  }
+  
+  return { chartData: filteredChartData, years };
 };
 
 /**

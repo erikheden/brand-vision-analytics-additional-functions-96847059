@@ -22,6 +22,9 @@ const CountryLineChart = ({
   
   const { chartData, years } = processedData;
   
+  console.log("Line chart data points:", chartData.length);
+  console.log("Sample data point:", chartData.length > 0 ? chartData[0] : "No data");
+  
   if (chartData.length === 0) {
     return <div className="text-center py-10">No data available for the selected parameters.</div>;
   }
