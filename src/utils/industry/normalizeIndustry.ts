@@ -12,5 +12,6 @@ export const normalizeIndustryName = (industry: string): string => {
     .replace(/,\s+/g, ', ') // Standardize commas
     .replace(/\s+/g, ' ') // Remove extra spaces
     .replace(/cafes/i, 'Cafés') // Standardize "Cafes" to "Cafés"
-    .replace(/take-?away/i, 'Take-away'); // Standardize takeaway variations
+    .replace(/take-?away/i, 'Take-away') // Standardize takeaway variations
+    .toLowerCase(); // Make case-insensitive
 };

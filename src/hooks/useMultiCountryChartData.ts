@@ -10,11 +10,14 @@ export type MultiCountryData = Record<string, BrandData[]>;
 // Helper function to normalize brand names for cross-country comparison
 const normalizeBrandName = (brandName: string): string => {
   if (!brandName) return '';
-  // Remove any trailing country codes, clean up whitespace
+  
+  // More aggressive normalization
   return brandName
     .trim()
-    .replace(/\s+\([A-Z]{2}\)$/, '') // Remove country codes in parentheses at the end
-    .replace(/\s+/g, ' '); // Normalize whitespace
+    .replace(/\s*\([A-Z]{1,3}\)\s*$/i, '') // Remove country codes in parentheses at the end
+    .replace(/\s+-\s+[A-Z]{1,3}\s*$/i, '') // Remove formats like "- SE" at the end
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .toLowerCase(); // Case insensitive comparison
 };
 
 export const useMultiCountryChartData = (selectedCountries: string[], selectedBrands: string[]) => {
@@ -37,6 +40,8 @@ export const useMultiCountryChartData = (selectedCountries: string[], selectedBr
             // Normalize the selected brand name for comparison
             const normalizedSelectedBrand = normalizeBrandName(selectedBrand);
             
+            console.log(`Looking for matches for "${selectedBrand}" (normalized: "${normalizedSelectedBrand}") in ${country}`);
+            
             // Get all brands in this country to find potential matches
             let { data: allBrandsInCountry, error: brandsError } = await supabase
               .from("SBI Ranking Scores 2011-2025")
@@ -52,8 +57,15 @@ export const useMultiCountryChartData = (selectedCountries: string[], selectedBr
             
             // Find brands in this country that match the normalized selected brand
             const matchingBrandNames = allBrandsInCountry
-              ?.map(item => item.Brand as string)
-              .filter(brandName => normalizedSelectedBrand === normalizeBrandName(brandName)) || [];
+              ?.filter(item => item.Brand)
+              .map(item => ({
+                original: item.Brand as string,
+                normalized: normalizeBrandName(item.Brand as string)
+              }))
+              .filter(item => item.normalized === normalizedSelectedBrand)
+              .map(item => item.original) || [];
+            
+            console.log(`Found ${matchingBrandNames.length} matching brands for "${selectedBrand}" in ${country}:`, matchingBrandNames);
             
             if (matchingBrandNames.length === 0) {
               console.log(`No matching brands found for ${selectedBrand} in ${country}`);
