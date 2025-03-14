@@ -68,7 +68,7 @@ const TrendComparisonWidget = ({
   }, [status]);
   
   return (
-    <Card className="p-4 bg-white border-2 border-[#E5DEFF] shadow-md hover:shadow-lg transition-all duration-300">
+    <Card className="p-4 bg-white border-2 border-[#34502b]/20 shadow-md hover:shadow-lg transition-all duration-300">
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
           <div className="text-sm text-gray-500">Industry Comparison ({year})</div>

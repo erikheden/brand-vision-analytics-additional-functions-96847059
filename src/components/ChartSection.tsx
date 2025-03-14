@@ -26,7 +26,7 @@ const ChartSection = ({
   } = useChartData(selectedCountry, selectedBrands);
 
   if (scores.length === 0) {
-    return <Card className="p-6 bg-white border-2 border-[#E5DEFF] rounded-xl shadow-md">
+    return <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <EmptyChartState selectedCountry={selectedCountry} />
       </Card>;
   }
@@ -74,7 +74,7 @@ const ChartSection = ({
       </div>
       
       {/* Bar Chart */}
-      <Card className="p-6 bg-white border-2 border-[#E5DEFF] rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
+      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
         <BrandBarChart 
           chartData={chartData} 
           selectedBrands={selectedBrands} 
@@ -86,7 +86,7 @@ const ChartSection = ({
       </Card>
       
       {/* Line Chart */}
-      <Card className="p-6 bg-white border-2 border-[#E5DEFF] shadow-md hover:shadow-lg transition-all duration-300 rounded-xl py-[31px]">
+      <Card className="p-6 bg-white border-2 border-[#34502b]/20 shadow-md hover:shadow-lg transition-all duration-300 rounded-xl py-[31px]">
         <BrandChart 
           chartData={chartData} 
           selectedBrands={selectedBrands} 

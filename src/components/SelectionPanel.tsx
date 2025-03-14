@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import CountrySelect from "./CountrySelect";
 import BrandSelection from "./BrandSelection";
@@ -46,7 +45,7 @@ const SelectionPanel = ({
   )].sort();
 
   return (
-    <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#E5DEFF] shadow-lg rounded-xl transition-all duration-300 hover:shadow-xl">
+    <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl transition-all duration-300 hover:shadow-xl">
       <div className="space-y-6">
         <div className="flex flex-col space-y-2">
           <CountrySelect
