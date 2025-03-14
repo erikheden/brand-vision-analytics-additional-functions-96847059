@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
 import { calculateYearRange, processChartData, createChartConfig } from "@/utils/chartDataUtils";
 import { Toggle } from "@/components/ui/toggle";
-import { Check, Info, ArrowDown } from "lucide-react";
+import { Check, Info, MousePointerClick } from "lucide-react";
 import BrandChart from "./BrandChart";
 import BrandBarChart from "./BrandBarChart";
 import EmptyChartState from "./EmptyChartState";
@@ -53,10 +53,20 @@ const ChartSection = ({
       {/* Standardized toggle - Moved below industry comparison widgets */}
       <div className="flex items-center justify-end space-x-4 mb-4 py-2">
         <div className="relative flex flex-col items-center">
-          <div className="absolute -top-8 text-center w-full">
-            <ArrowDown className="h-6 w-6 text-[#34502b] animate-bounce mx-auto" />
-          </div>
           <span className="text-sm text-[#34502b] font-medium">Standardized Scores</span>
+          <div className="flex items-center relative">
+            <Toggle 
+              pressed={standardized} 
+              onPressedChange={setStandardized} 
+              aria-label="Toggle standardized scores" 
+              className="mt-1 border border-[#34502b]/30 relative bg-[#f0d2b0] font-semibold transition-all duration-300 hover:bg-[#e5c7a5]"
+            >
+              {standardized && <Check className="h-4 w-4 text-[#34502b] absolute animate-scale-in" />}
+            </Toggle>
+            <div className="absolute -right-9 animate-[pulse_1s_ease-in-out_infinite]">
+              <MousePointerClick className="h-5 w-5 text-[#34502b] animate-[slide-in-right_1s_ease-in-out_infinite_reverse]" />
+            </div>
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
@@ -67,14 +77,6 @@ const ChartSection = ({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <Toggle 
-            pressed={standardized} 
-            onPressedChange={setStandardized} 
-            aria-label="Toggle standardized scores" 
-            className="mt-1 border border-[#34502b]/30 relative bg-[#f0d2b0] font-semibold transition-all duration-300 hover:bg-[#e5c7a5]"
-          >
-            {standardized && <Check className="h-4 w-4 text-[#34502b] absolute animate-scale-in" />}
-          </Toggle>
         </div>
       </div>
       
