@@ -4,7 +4,7 @@ import BrandSelection from "./BrandSelection";
 import IndustryTags from "./IndustryTags";
 import { useSelectionData } from "@/hooks/useSelectionData";
 import { useSelectionState } from "@/hooks/useSelectionState";
-import { ChevronDown } from "lucide-react";
+import { ChevronUp } from "lucide-react";
 
 interface SelectionPanelProps {
   selectedCountry: string;
@@ -38,7 +38,6 @@ const SelectionPanel = ({
     }
   };
 
-  // Get unique brand names from the brands data and ensure they are strings
   const uniqueBrandNames = [...new Set(brands
     .map(item => item.Brand)
     .filter((brand): brand is string => typeof brand === 'string' && brand !== null)
@@ -60,7 +59,7 @@ const SelectionPanel = ({
           />
           {!selectedCountry && (
             <div className="flex items-center justify-center mt-2 text-[#34502b] animate-bounce">
-              <ChevronDown className="h-5 w-5" />
+              <ChevronUp className="h-5 w-5" />
               <span className="ml-2 font-medium">Start by selecting a country</span>
             </div>
           )}
