@@ -4,7 +4,8 @@ import TrendComparisonWidget from './TrendComparisonWidget';
 import { 
   calculateIndustryAverages, 
   getBrandIndustry, 
-  normalizeIndustryName 
+  normalizeIndustryName,
+  calculatePerformancePercentage
 } from '@/utils/industry';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -82,6 +83,23 @@ const TrendComparisonContainer = ({
   console.log("Normalized industries:", [...new Set(marketData.map((s: any) => s.industry ? normalizeIndustryName(s.industry) : null))]);
   console.log("Industry averages for year:", industryAverages[comparisonYear]);
   
+  // Calculate performance percentages and sort brandScores by percentage (highest to lowest)
+  const sortedBrandScores = [...brandScores].sort((a, b) => {
+    const industryA = a.industry;
+    const industryB = b.industry;
+    
+    const industryAverageA = industryA && industryAverages[comparisonYear] ? 
+      industryAverages[comparisonYear][industryA] : undefined;
+    
+    const industryAverageB = industryB && industryAverages[comparisonYear] ? 
+      industryAverages[comparisonYear][industryB] : undefined;
+    
+    const percentageA = calculatePerformancePercentage(a.score, industryAverageA) || 0;
+    const percentageB = calculatePerformancePercentage(b.score, industryAverageB) || 0;
+    
+    return percentageB - percentageA; // Sort by highest to lowest
+  });
+  
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
@@ -102,7 +120,7 @@ const TrendComparisonContainer = ({
         </TooltipProvider>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
-        {brandScores.map(brandScore => {
+        {sortedBrandScores.map(brandScore => {
           if (!brandScore) return null;
           
           const industry = brandScore.industry;
