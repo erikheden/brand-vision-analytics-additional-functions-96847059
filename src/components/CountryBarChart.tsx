@@ -152,12 +152,12 @@ const CountryBarChart = ({
               dataKey={brand} 
               fill={BRAND_COLORS[index % BRAND_COLORS.length]} 
               name={brand}
-              // Fix: Use a number value for fillOpacity rather than a function
+              // Use a fixed opacity value instead of a function
               fillOpacity={0.9}
-              // Add a style property to handle conditional opacity
-              style={(entry) => ({
-                opacity: entry[`${brand}_projected`] ? 0.7 : 1
-              })}
+              // Use CSS style property for Bar component
+              style={{
+                opacity: 1
+              }}
             />
           ))}
         </BarChart>

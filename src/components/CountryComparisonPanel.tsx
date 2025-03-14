@@ -55,6 +55,18 @@ const CountryComparisonPanel = ({
     .filter((brand): brand is string => brand !== null && typeof brand === 'string')
   )].sort();
   
+  const handleBrandToggle = (brand: string, checked: boolean) => {
+    if (checked) {
+      setSelectedBrands([...selectedBrands, brand]);
+    } else {
+      setSelectedBrands(selectedBrands.filter(b => b !== brand));
+    }
+  };
+
+  const handleClearBrands = () => {
+    setSelectedBrands([]);
+  };
+  
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <div className="space-y-6">
@@ -110,10 +122,8 @@ const CountryComparisonPanel = ({
               <BrandSelection
                 brands={uniqueBrandNames}
                 selectedBrands={selectedBrands}
-                setSelectedBrands={setSelectedBrands}
-                selectedIndustries={selectedIndustries}
-                setSelectedIndustries={setSelectedIndustries}
-                uniqueBrandNames={uniqueBrandNames}
+                onBrandToggle={handleBrandToggle}
+                onClearBrands={handleClearBrands}
               />
             </div>
             {selectedCountries.length > 1 && uniqueBrandNames.length === 0 && (
