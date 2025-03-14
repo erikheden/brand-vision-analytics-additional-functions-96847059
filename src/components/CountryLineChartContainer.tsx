@@ -1,4 +1,3 @@
-
 import React, { useMemo } from "react";
 import { 
   LineChart, 
@@ -86,6 +85,9 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
     
     // Loop through brands and countries to create lines
     selectedBrands.forEach((brand) => {
+      // Get a unique color for this brand
+      const brandColor = getBrandColor(brand);
+      
       countries.forEach((country, countryIndex) => {
         // Generate a dataKey that matches our data structure
         const dataKey = `${brand}-${country}`;
@@ -98,8 +100,12 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
         if (hasData) {
           console.log(`Adding line for ${dataKey} - data exists`);
           
-          // Use consistent brand color across countries
-          const brandColor = getBrandColor(brand);
+          // Apply a slightly different dash array based on country index for differentiation
+          // while keeping the same brand color
+          const strokeDasharray = countryIndex === 0 ? "0" : 
+                                 countryIndex === 1 ? "5 5" : 
+                                 countryIndex === 2 ? "10 10" : 
+                                 "15 10 5 10";
           
           // Adjust opacity based on country index for differentiation
           const opacity = 1 - (countryIndex * 0.15);
@@ -114,6 +120,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
               stroke={brandColor}
               strokeWidth={2}
               strokeOpacity={finalOpacity}
+              strokeDasharray={countryIndex > 0 ? strokeDasharray : undefined}
               dot={{ r: 4, fill: brandColor }}
               activeDot={{ r: 6 }}
               connectNulls={false}

@@ -106,7 +106,7 @@ export const processLineChartData = (
     }))
   );
   
-  // Create data points for the chart
+  // Create data points for the chart - ensure every year is represented
   const chartData = years.map(year => {
     const dataPoint: any = { year };
     
@@ -114,6 +114,7 @@ export const processLineChartData = (
     brandCountryData.forEach((brandMap, brand) => {
       brandMap.forEach((countryMap, country) => {
         const score = countryMap.get(year);
+        // Only add values that exist - don't connect nulls
         if (score !== undefined && score !== null) {
           const dataKey = `${brand}-${country}`;
           dataPoint[dataKey] = score;

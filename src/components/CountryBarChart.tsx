@@ -1,4 +1,3 @@
-
 import { useMemo } from "react";
 import { 
   BarChart, 
@@ -16,6 +15,7 @@ import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
 import { BrandData } from "@/types/brand";
 import { ChartTooltip } from "./ChartTooltip";
 import { getBrandColor } from "@/utils/countryChartDataUtils";
+import { FONT_FAMILY } from "@/utils/constants";
 
 interface CountryBarChartProps {
   allCountriesData: MultiCountryData;
@@ -193,13 +193,30 @@ const CountryBarChart = ({
           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-          <XAxis dataKey="country" />
+          <XAxis 
+            dataKey="country" 
+            style={{ 
+              fontFamily: FONT_FAMILY,
+              fontSize: '12px',
+              color: '#34502b'
+            }}
+          />
           <YAxis 
             domain={yAxisDomain}
             tickFormatter={(value) => standardized ? `${value.toFixed(0)}σ` : value.toFixed(0)}
+            style={{ 
+              fontFamily: FONT_FAMILY,
+              fontSize: '12px',
+              color: '#34502b'
+            }}
           />
           <Tooltip content={<ChartTooltip standardized={standardized} />} />
-          <Legend wrapperStyle={{ paddingTop: 20 }} />
+          <Legend 
+            wrapperStyle={{ 
+              paddingTop: 20,
+              fontFamily: FONT_FAMILY 
+            }}
+          />
           {standardized && <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" />}
           
           {selectedBrands.map((brand) => (
@@ -209,9 +226,6 @@ const CountryBarChart = ({
               fill={getBrandColor(brand)} 
               name={brand}
               fillOpacity={0.9}
-              style={{
-                opacity: 1
-              }}
             />
           ))}
         </BarChart>
