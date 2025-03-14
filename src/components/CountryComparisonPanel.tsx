@@ -8,7 +8,7 @@ import { getFullCountryName } from "@/components/CountrySelect";
 import { X, Globe, CircleCheck } from "lucide-react";
 import CountryMultiSelect from "./CountryMultiSelect";
 import BrandSelection from "./BrandSelection";
-import { normalizeIndustryName } from "@/utils/industry/normalizeIndustry";
+import { normalizeIndustryName, normalizeBrandName } from "@/utils/industry/normalizeIndustry";
 
 interface CountryComparisonPanelProps {
   selectedCountries: string[];
@@ -38,19 +38,6 @@ const CountryComparisonPanel = ({
   useEffect(() => {
     setSelectedBrands([]);
   }, [selectedCountries, setSelectedBrands]);
-  
-  // Improved brand name normalization for comparison
-  const normalizeBrandName = (brandName: string): string => {
-    if (!brandName) return '';
-    
-    // More aggressive normalization
-    return brandName
-      .trim()
-      .replace(/\s*\([A-Z]{1,3}\)\s*$/i, '') // Remove country codes in parentheses at the end
-      .replace(/\s+-\s+[A-Z]{1,3}\s*$/i, '') // Remove formats like "- SE" at the end
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .toLowerCase(); // Case insensitive comparison
-  };
   
   console.log("Available brands:", availableBrands.map(b => ({
     original: b.Brand,

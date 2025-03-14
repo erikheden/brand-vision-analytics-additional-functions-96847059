@@ -3,22 +3,10 @@ import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandData } from "@/types/brand";
 import { getFullCountryName } from "@/components/CountrySelect";
+import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
 
 // Type to represent data for multiple countries
 export type MultiCountryData = Record<string, BrandData[]>;
-
-// Helper function to normalize brand names for cross-country comparison
-const normalizeBrandName = (brandName: string): string => {
-  if (!brandName) return '';
-  
-  // More aggressive normalization
-  return brandName
-    .trim()
-    .replace(/\s*\([A-Z]{1,3}\)\s*$/i, '') // Remove country codes in parentheses at the end
-    .replace(/\s+-\s+[A-Z]{1,3}\s*$/i, '') // Remove formats like "- SE" at the end
-    .replace(/\s+/g, ' ') // Normalize whitespace
-    .toLowerCase(); // Case insensitive comparison
-};
 
 export const useMultiCountryChartData = (selectedCountries: string[], selectedBrands: string[]) => {
   const queryClient = useQueryClient();
