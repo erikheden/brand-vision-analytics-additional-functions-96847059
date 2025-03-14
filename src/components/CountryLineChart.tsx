@@ -1,7 +1,7 @@
 
 import { useMemo } from "react";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
-import { processLineChartData } from "@/utils/countryChartDataUtils";
+import { processLineChartData } from "@/utils/countryComparison/dataProcessing";
 import CountryLineChartContainer from "./CountryLineChartContainer";
 
 interface CountryLineChartProps {

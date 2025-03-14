@@ -1,9 +1,8 @@
 
 import React from "react";
-import { Line, ReferenceLine } from "recharts";
-import { getFullCountryName } from "@/components/CountrySelect";
+import { Line } from "recharts";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
-import { COUNTRY_COLORS } from "@/utils/countryChartDataUtils";
+import { COUNTRY_COLORS } from "@/utils/countryComparison/chartColors";
 
 interface CountryChartLinesProps {
   chartData: any[];
@@ -15,45 +14,50 @@ interface CountryChartLinesProps {
 const CountryChartLines: React.FC<CountryChartLinesProps> = ({
   chartData,
   selectedBrands,
-  allCountriesData,
-  standardized
+  allCountriesData
 }) => {
-  // Create lines for each brand-country combination
-  const lines: React.ReactNode[] = [];
-  let lineIndex = 0;
+  // Get all countries
+  const countries = Object.keys(allCountriesData);
   
-  selectedBrands.forEach(brand => {
-    Object.keys(allCountriesData).forEach(country => {
-      // Check if we have any data for this brand-country combination
-      const hasData = chartData.some(dataPoint => 
-        dataPoint[`${brand}-${country}`] !== undefined
-      );
+  // If there's no data, return null
+  if (chartData.length === 0 || countries.length === 0) {
+    return null;
+  }
+  
+  // Generate lines for each brand-country combination
+  const lines: JSX.Element[] = [];
+  
+  // Loop through brands and countries to create lines
+  selectedBrands.forEach((brand, brandIndex) => {
+    countries.forEach((country, countryIndex) => {
+      // Generate a dataKey that matches our data structure
+      const dataKey = `${brand}-${country}`;
+      
+      // Check if this data key exists in our chart data
+      const hasData = chartData.some(point => dataKey in point);
       
       if (hasData) {
-        const color = COUNTRY_COLORS[lineIndex % COUNTRY_COLORS.length];
-        lineIndex++;
+        // Calculate color index
+        const colorIndex = (brandIndex * countries.length + countryIndex) % COUNTRY_COLORS.length;
         
         lines.push(
           <Line
-            key={`${brand}-${country}`}
+            key={dataKey}
             type="monotone"
-            dataKey={`${brand}-${country}`}
-            name={`${brand} (${getFullCountryName(country)})`}
-            stroke={color}
-            dot={{ fill: color, r: 4 }}
-            activeDot={{ r: 6, fill: color }}
+            dataKey={dataKey}
+            name={`${brand} (${country})`}
+            stroke={COUNTRY_COLORS[colorIndex]}
+            strokeWidth={2}
+            dot={{ r: 4 }}
+            activeDot={{ r: 6 }}
+            connectNulls={true}
           />
         );
       }
     });
   });
-
-  return (
-    <>
-      {standardized && <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" />}
-      {lines}
-    </>
-  );
+  
+  return <>{lines}</>;
 };
 
 export default CountryChartLines;
