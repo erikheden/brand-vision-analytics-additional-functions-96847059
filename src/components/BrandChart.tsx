@@ -63,7 +63,7 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
     chart: {
       ...baseOptions.chart,
       type: 'line',
-      backgroundColor: '#f5f5f5',
+      backgroundColor: '#ffffff', // Changed from #f5f5f5 to white
     },
     title: {
       text: standardized ? 'Standardized Brand Score Trends' : 'Brand Score Trends',
@@ -138,7 +138,7 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
         const yearLabel = `${pointYear}`;
         
         return `
-          <div style="font-family: '${FONT_FAMILY}'; padding: 8px; background: #f5f5f5; border-radius: 4px; border: 1px solid rgba(52, 80, 43, 0.2);">
+          <div style="font-family: '${FONT_FAMILY}'; padding: 8px; background: #ffffff; border: 1px solid rgba(52, 80, 43, 0.2); border-radius: 4px;">
             <div style="font-weight: bold; margin-bottom: 8px; color: #34502b;">${yearLabel}</div>
             ${pointsHtml}
           </div>
