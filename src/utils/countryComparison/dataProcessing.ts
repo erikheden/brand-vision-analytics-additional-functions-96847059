@@ -39,10 +39,11 @@ export const processLineChartData = (
       marketData.forEach((item: any) => {
         if (item.Year === null || item.Score === null) return;
         
-        if (!marketDataByYear.has(item.Year)) {
-          marketDataByYear.set(item.Year, []);
+        const year = Number(item.Year);
+        if (!marketDataByYear.has(year)) {
+          marketDataByYear.set(year, []);
         }
-        marketDataByYear.get(item.Year)?.push(item);
+        marketDataByYear.get(year)?.push(item);
       });
       
       calculateMarketStats(marketDataByYear, marketStatsByYear);
@@ -61,10 +62,11 @@ export const processLineChartData = (
       brandData.forEach(dataPoint => {
         if (dataPoint.Year === null || dataPoint.Score === null) return;
         
-        console.log(`Data point for ${brand}/${country}/${dataPoint.Year}: ${dataPoint.Score}`);
+        const year = Number(dataPoint.Year);
+        console.log(`Data point for ${brand}/${country}/${year}: ${dataPoint.Score}`);
         
         // Add to the set of all years
-        allYears.add(dataPoint.Year);
+        allYears.add(year);
         
         // Initialize data structures if needed
         if (!brandCountryData.has(brand)) {
@@ -81,14 +83,14 @@ export const processLineChartData = (
         let score = dataPoint.Score;
         
         if (standardized) {
-          const stats = marketStatsByYear.get(dataPoint.Year);
+          const stats = marketStatsByYear.get(year);
           if (stats && stats.stdDev > 0) {
             score = (score - stats.mean) / stats.stdDev;
           }
         }
         
         // Store the score
-        countryMap.set(dataPoint.Year, score);
+        countryMap.set(year, score);
       });
     });
   });
@@ -134,8 +136,8 @@ function calculateMarketStats(
   // Calculate statistics for each year
   marketDataByYear.forEach((yearData, year) => {
     const validScores = yearData
-      .map(item => item.Score)
-      .filter((score): score is number => score !== null);
+      .map(item => Number(item.Score))
+      .filter(score => !isNaN(score) && score !== null);
     
     if (validScores.length > 0) {
       const mean = validScores.reduce((sum, val) => sum + val, 0) / validScores.length;

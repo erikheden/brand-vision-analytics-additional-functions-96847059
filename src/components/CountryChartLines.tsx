@@ -2,7 +2,7 @@
 import React from "react";
 import { Line } from "recharts";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
-import { COUNTRY_COLORS } from "@/utils/countryComparison/chartColors";
+import { getBrandColor } from "@/utils/countryComparison/chartColors";
 
 interface CountryChartLinesProps {
   chartData: any[];
@@ -28,17 +28,20 @@ const CountryChartLines: React.FC<CountryChartLinesProps> = ({
   const lines: JSX.Element[] = [];
   
   // Loop through brands and countries to create lines
-  selectedBrands.forEach((brand, brandIndex) => {
+  selectedBrands.forEach((brand) => {
     countries.forEach((country, countryIndex) => {
       // Generate a dataKey that matches our data structure
       const dataKey = `${brand}-${country}`;
       
       // Check if this data key exists in our chart data
-      const hasData = chartData.some(point => dataKey in point);
+      const hasData = chartData.some(point => dataKey in point && point[dataKey] !== null && point[dataKey] !== undefined);
       
       if (hasData) {
-        // Calculate color index
-        const colorIndex = (brandIndex * countries.length + countryIndex) % COUNTRY_COLORS.length;
+        // Use consistent brand color across countries
+        const brandColor = getBrandColor(brand);
+        
+        // Adjust opacity based on country index for differentiation
+        const opacity = 1 - (countryIndex * 0.2);
         
         lines.push(
           <Line
@@ -46,9 +49,10 @@ const CountryChartLines: React.FC<CountryChartLinesProps> = ({
             type="monotone"
             dataKey={dataKey}
             name={`${brand} (${country})`}
-            stroke={COUNTRY_COLORS[colorIndex]}
+            stroke={brandColor}
             strokeWidth={2}
-            dot={{ r: 4 }}
+            strokeOpacity={opacity > 0.4 ? opacity : 0.4}
+            dot={{ r: 4, fill: brandColor }}
             activeDot={{ r: 6 }}
             connectNulls={true}
           />

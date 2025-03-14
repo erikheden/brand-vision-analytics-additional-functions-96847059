@@ -15,18 +15,13 @@ import { getFullCountryName } from "@/components/CountrySelect";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
 import { BrandData } from "@/types/brand";
 import { ChartTooltip } from "./ChartTooltip";
+import { getBrandColor } from "@/utils/countryComparison/chartColors";
 
 interface CountryBarChartProps {
   allCountriesData: MultiCountryData;
   selectedBrands: string[];
   standardized: boolean;
 }
-
-// Color palette for bars
-const BRAND_COLORS = [
-  "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", 
-  "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
-];
 
 const CountryBarChart = ({
   allCountriesData,
@@ -146,11 +141,11 @@ const CountryBarChart = ({
           <Legend wrapperStyle={{ paddingTop: 20 }} />
           {standardized && <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" />}
           
-          {selectedBrands.map((brand, index) => (
+          {selectedBrands.map((brand) => (
             <Bar 
               key={brand} 
               dataKey={brand} 
-              fill={BRAND_COLORS[index % BRAND_COLORS.length]} 
+              fill={getBrandColor(brand)} 
               name={brand}
               // Use a fixed opacity value instead of a function
               fillOpacity={0.9}
