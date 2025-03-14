@@ -196,7 +196,7 @@ const CountryBarChart = ({
           <XAxis dataKey="country" />
           <YAxis 
             domain={yAxisDomain}
-            tickFormatter={(value) => standardized ? `${value.toFixed(1)}σ` : value.toFixed(1)}
+            tickFormatter={(value) => standardized ? `${value.toFixed(0)}σ` : value.toFixed(0)}
           />
           <Tooltip content={<ChartTooltip standardized={standardized} />} />
           <Legend wrapperStyle={{ paddingTop: 20 }} />
