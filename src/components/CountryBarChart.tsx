@@ -139,6 +139,48 @@ const CountryBarChart = ({
     return dataArray;
   }, [processedData, selectedBrands]);
   
+  // Calculate the y-axis domain similar to single country view
+  const yAxisDomain = useMemo(() => {
+    if (standardized) {
+      return [-3, 3] as [number, number]; // Fixed domain for standardized scores
+    }
+    
+    // Find min and max values across all brands
+    let minValue = Infinity;
+    let maxValue = -Infinity;
+    
+    chartData.forEach(dataPoint => {
+      selectedBrands.forEach(brand => {
+        const value = dataPoint[brand];
+        if (value !== undefined && value !== null) {
+          minValue = Math.min(minValue, value);
+          maxValue = Math.max(maxValue, value);
+        }
+      });
+    });
+    
+    if (minValue === Infinity) minValue = 0;
+    if (maxValue === -Infinity) maxValue = 100;
+    
+    // Calculate padding (10% of the range)
+    const range = maxValue - minValue;
+    const padding = range * 0.1;
+    
+    // Set minimum to 0 if it's close to 0
+    const minY = minValue > 0 && minValue < 10 ? 0 : Math.max(0, minValue - padding);
+    
+    // Add padding to the top 
+    const maxY = maxValue + padding;
+    
+    // Round to nice values
+    const roundedMin = Math.floor(minY / 10) * 10;
+    const roundedMax = Math.ceil(maxY / 10) * 10;
+    
+    console.log("Y-axis domain:", [roundedMin, roundedMax]);
+    
+    return [roundedMin, roundedMax] as [number, number];
+  }, [chartData, selectedBrands, standardized]);
+  
   if (chartData.length === 0) {
     return <div className="text-center py-10">No data available for the selected parameters.</div>;
   }
@@ -153,7 +195,7 @@ const CountryBarChart = ({
           <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
           <XAxis dataKey="country" />
           <YAxis 
-            domain={standardized ? [-3, 3] : ['auto', 'auto']}
+            domain={yAxisDomain}
             tickFormatter={(value) => standardized ? `${value.toFixed(1)}σ` : value.toFixed(1)}
           />
           <Tooltip content={<ChartTooltip standardized={standardized} />} />
