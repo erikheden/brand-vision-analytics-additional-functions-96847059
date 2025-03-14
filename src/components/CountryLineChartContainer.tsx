@@ -90,7 +90,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
         // Generate a dataKey that matches our data structure
         const dataKey = `${brand}-${country}`;
         
-        // Check if this data key exists in our chart data
+        // Check if this data key exists in our chart data and has valid values
         const hasData = chartData.some(point => {
           return dataKey in point && point[dataKey] !== null && point[dataKey] !== undefined;
         });
@@ -116,7 +116,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
               strokeOpacity={finalOpacity}
               dot={{ r: 4, fill: brandColor }}
               activeDot={{ r: 6 }}
-              connectNulls={true}
+              connectNulls={false}
             />
           );
         } else {
@@ -143,7 +143,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
   }, [chartData]);
   
   return (
-    <div className="w-full h-[400px]">
+    <div className="w-full h-[500px]">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={chartData}
@@ -155,11 +155,13 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
             type="number"
             domain={[minYear, maxYear]}
             allowDecimals={false}
-            tickCount={5}
+            tickCount={10}
+            ticks={Array.from({ length: maxYear - minYear + 1 }, (_, i) => minYear + i)}
             label={{ value: '', position: 'insideBottom', offset: -5 }}
             style={{ 
               fontFamily: FONT_FAMILY,
-              fontSize: '12px'
+              fontSize: '12px',
+              color: '#34502b'
             }}
           />
           <YAxis 
@@ -167,7 +169,8 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
             tickFormatter={(value) => standardized ? `${value.toFixed(0)}σ` : value.toFixed(0)}
             style={{ 
               fontFamily: FONT_FAMILY,
-              fontSize: '12px'
+              fontSize: '12px',
+              color: '#34502b'
             }}
           />
           <Tooltip content={<ChartTooltip standardized={standardized} />} />
@@ -181,6 +184,9 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
           {lines}
         </LineChart>
       </ResponsiveContainer>
+      <div className="mt-4 text-xs text-center text-[#34502b]/80">
+        Comparing {selectedBrands.length} brand{selectedBrands.length !== 1 ? "s" : ""} across {countries.length} countr{countries.length !== 1 ? "ies" : "y"}: {countries.join(", ")}
+      </div>
     </div>
   );
 };
