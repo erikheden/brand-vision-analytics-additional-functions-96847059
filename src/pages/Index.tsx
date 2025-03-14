@@ -2,27 +2,51 @@
 import { useState } from "react";
 import SelectionPanel from "@/components/SelectionPanel";
 import ChartSection from "@/components/ChartSection";
+
 const Index = () => {
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  return <div className="min-h-screen bg-white flex flex-col">
-      <div className="w-full bg-[#34502b] px-0 my-0 mx-0 py-0">
-        <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
-          <img src="/lovable-uploads/8b26bfaf-912f-4219-9ea9-5bb7156bb1e9.png" alt="Data Dashboard" className="h-12 md:h-16 w-auto animate-fade-in" />
-          <img src="/lovable-uploads/8732b50b-f85b-48ca-91ac-748d8819f66c.png" alt="SB Index Logo" className="h-24 md:h-30 w-auto" />
-        </div>
-      </div>
-      <div className="max-w-[1400px] mx-auto px-6 py-8 space-y-8 flex-grow">
-        <div className="space-y-6">
-          <SelectionPanel selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} selectedBrands={selectedBrands} setSelectedBrands={setSelectedBrands} />
-          
-          <ChartSection selectedCountry={selectedCountry} selectedBrands={selectedBrands} />
+  
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Header */}
+      <div className="w-full bg-[#34502b] py-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          <img 
+            src="/lovable-uploads/8b26bfaf-912f-4219-9ea9-5bb7156bb1e9.png" 
+            alt="Data Dashboard" 
+            className="h-10 md:h-12 w-auto animate-fade-in" 
+          />
+          <img 
+            src="/lovable-uploads/8732b50b-f85b-48ca-91ac-748d8819f66c.png" 
+            alt="SB Index Logo" 
+            className="h-14 md:h-16 w-auto" 
+          />
         </div>
       </div>
       
-      {/* Footer section */}
-      <div className="w-full bg-[#34502b] px-0 my-0 mx-0 py-4">
-        <div className="max-w-[1400px] mx-auto px-6">
+      {/* Main content */}
+      <div className="flex-grow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="space-y-6">
+            <SelectionPanel 
+              selectedCountry={selectedCountry}
+              setSelectedCountry={setSelectedCountry}
+              selectedBrands={selectedBrands}
+              setSelectedBrands={setSelectedBrands}
+            />
+            
+            <ChartSection 
+              selectedCountry={selectedCountry} 
+              selectedBrands={selectedBrands} 
+            />
+          </div>
+        </div>
+      </div>
+      
+      {/* Footer */}
+      <div className="w-full bg-[#34502b] mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <p className="text-xs text-center text-white">
             © 2025 SB Insight AB. All rights reserved.
           </p>
@@ -34,6 +58,8 @@ const Index = () => {
           </p>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
