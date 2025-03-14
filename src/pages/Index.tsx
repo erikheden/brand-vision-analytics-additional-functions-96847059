@@ -1,36 +1,22 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SelectionPanel from "@/components/SelectionPanel";
 import ChartSection from "@/components/ChartSection";
 import { Button } from "@/components/ui/button";
 import { Globe } from "lucide-react";
-
 const Index = () => {
   const navigate = useNavigate();
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-
   const handleLogoClick = () => {
     window.location.reload();
   };
-
   return <div className="min-h-screen flex flex-col bg-white">
       {/* Header */}
       <div className="w-full bg-[#34502b] py-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <img 
-            src="/lovable-uploads/8b26bfaf-912f-4219-9ea9-5bb7156bb1e9.png" 
-            alt="Data Dashboard" 
-            className="h-10 md:h-12 w-auto animate-fade-in cursor-pointer" 
-            onClick={handleLogoClick}
-          />
-          <img 
-            src="/lovable-uploads/8732b50b-f85b-48ca-91ac-748d8819f66c.png" 
-            alt="SB Index Logo" 
-            className="h-14 md:h-16 w-auto cursor-pointer" 
-            onClick={handleLogoClick}
-          />
+          <img src="/lovable-uploads/8b26bfaf-912f-4219-9ea9-5bb7156bb1e9.png" alt="Data Dashboard" className="h-10 md:h-12 w-auto animate-fade-in cursor-pointer" onClick={handleLogoClick} />
+          <img src="/lovable-uploads/8732b50b-f85b-48ca-91ac-748d8819f66c.png" alt="SB Index Logo" className="h-14 md:h-16 w-auto cursor-pointer" onClick={handleLogoClick} />
         </div>
       </div>
       
@@ -39,14 +25,9 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <h1 className="text-2xl font-semibold text-[#34502b]">
-                Brand Sustainability Index Dashboard
-              </h1>
+              <h1 className="text-2xl font-semibold text-[#34502b]">Sustainable Brand Index Dashboard</h1>
               
-              <Button
-                onClick={() => navigate('/country-comparison')}
-                className="bg-[#34502b] hover:bg-[#34502b]/90 text-white flex items-center gap-2"
-              >
+              <Button onClick={() => navigate('/country-comparison')} className="bg-[#34502b] hover:bg-[#34502b]/90 text-white flex items-center gap-2">
                 <Globe className="h-4 w-4" />
                 Cross-Country Comparison
               </Button>
@@ -75,5 +56,4 @@ const Index = () => {
       </div>
     </div>;
 };
-
 export default Index;
