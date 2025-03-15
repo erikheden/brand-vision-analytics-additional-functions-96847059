@@ -8,7 +8,7 @@ export interface LineConfig {
   name: string;
   color: string;
   opacity: number;
-  dashArray?: string;
+  strokeDasharray?: string; // Change from dashArray to strokeDasharray to match Recharts prop name
 }
 
 interface CountryChartLinesProps {
@@ -29,7 +29,7 @@ const CountryChartLines: React.FC<CountryChartLinesProps> = ({ lines }) => {
           stroke={line.color}
           strokeWidth={2}
           strokeOpacity={line.opacity}
-          strokeDasharray={line.dashArray}
+          strokeDasharray={line.strokeDasharray} // Use strokeDasharray here
           dot={{ r: 4, fill: line.color }}
           activeDot={{ r: 6 }}
           connectNulls={true}

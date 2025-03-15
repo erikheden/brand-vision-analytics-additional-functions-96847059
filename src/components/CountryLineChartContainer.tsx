@@ -39,7 +39,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
   } = useCountryLineChart(chartData, selectedBrands, allCountriesData, standardized);
   
   console.log("Chart data in container:", chartData.length, "points");
-  console.log("Chart lines in container:", lines);
+  console.log("Chart lines in container:", JSON.stringify(lines, null, 2));
   
   if (lines.length === 0) {
     return <div className="text-center py-8">No valid data found to display chart lines.</div>;

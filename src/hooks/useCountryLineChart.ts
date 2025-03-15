@@ -83,11 +83,11 @@ export const useCountryLineChart = (
           
           // Apply a slightly different dash array based on country index for differentiation
           // while keeping the same brand color
-          let dashArray: string | undefined = undefined;
+          let strokeDasharray: string | undefined = undefined;
           if (countryIndex > 0) {
-            dashArray = countryIndex === 1 ? "5 5" : 
-                       countryIndex === 2 ? "10 10" : 
-                       "15 10 5 10";
+            strokeDasharray = countryIndex === 1 ? "5 5" : 
+                             countryIndex === 2 ? "10 10" : 
+                             "15 10 5 10";
           }
           
           // Adjust opacity based on country index for differentiation
@@ -100,7 +100,7 @@ export const useCountryLineChart = (
             name: `${brand} (${country})`,
             color: brandColor,
             opacity: finalOpacity,
-            dashArray
+            strokeDasharray
           });
         } else {
           console.log(`No data for ${dataKey}`);
