@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Globe } from "lucide-react";
@@ -34,7 +33,7 @@ const CountryComparison = () => {
       
       {/* Main content */}
       <div className="flex-grow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-12">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-semibold text-[#34502b] flex items-center gap-2">
               <Globe className="h-6 w-6" />

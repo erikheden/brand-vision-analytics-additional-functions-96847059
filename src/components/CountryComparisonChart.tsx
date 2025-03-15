@@ -61,7 +61,7 @@ const CountryComparisonChart = ({
   }
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mb-16">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <Tabs defaultValue="line" value={chartType} onValueChange={setChartType} className="w-full md:w-auto">
           <TabsList className="bg-[#34502b]/10">

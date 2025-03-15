@@ -39,7 +39,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
   } = useCountryLineChart(chartData, selectedBrands, allCountriesData, standardized);
   
   return (
-    <div className="w-full h-[500px]">
+    <div className="w-full h-[500px] mb-10">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={chartData}
