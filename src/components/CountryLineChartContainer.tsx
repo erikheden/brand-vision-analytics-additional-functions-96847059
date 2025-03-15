@@ -38,6 +38,10 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
     maxYear
   } = useCountryLineChart(chartData, selectedBrands, allCountriesData, standardized);
   
+  if (lines.length === 0) {
+    return <div className="text-center py-8">No valid data found to display chart lines.</div>;
+  }
+  
   return (
     <div className="w-full h-[500px] mb-10">
       <ResponsiveContainer width="100%" height="100%">
