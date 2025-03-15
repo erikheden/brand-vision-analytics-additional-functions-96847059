@@ -33,6 +33,7 @@ const CountryChartLines: React.FC<CountryChartLinesProps> = ({ lines }) => {
           dot={{ r: 4, fill: line.color }}
           activeDot={{ r: 6 }}
           connectNulls={true}
+          isAnimationActive={true}
         />
       ))}
     </>
