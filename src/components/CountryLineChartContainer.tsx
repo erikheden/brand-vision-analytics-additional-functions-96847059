@@ -41,6 +41,8 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
   console.log("Chart data in container:", chartData.length, "points");
   console.log("First data point:", chartData.length > 0 ? JSON.stringify(chartData[0]) : "No data");
   console.log("Chart lines in container:", JSON.stringify(lines, null, 2));
+  console.log("Y-axis domain:", yAxisDomain);
+  console.log("X-axis range:", minYear, "to", maxYear);
   
   if (lines.length === 0) {
     return <div className="text-center py-8">No valid data found to display chart lines.</div>;
