@@ -8,7 +8,7 @@ export interface LineConfig {
   name: string;
   color: string;
   opacity: number;
-  strokeDasharray?: string; // Change from dashArray to strokeDasharray to match Recharts prop name
+  strokeDasharray?: string;
 }
 
 interface CountryChartLinesProps {
@@ -18,24 +18,32 @@ interface CountryChartLinesProps {
 const CountryChartLines: React.FC<CountryChartLinesProps> = ({ lines }) => {
   console.log("Rendering CountryChartLines with:", lines);
   
+  if (!lines || lines.length === 0) {
+    console.log("No lines to render");
+    return null;
+  }
+  
   return (
     <>
-      {lines.map(line => (
-        <Line
-          key={line.key}
-          type="monotone"
-          dataKey={line.dataKey}
-          name={line.name}
-          stroke={line.color}
-          strokeWidth={2}
-          strokeOpacity={line.opacity}
-          strokeDasharray={line.strokeDasharray} // Use strokeDasharray here
-          dot={{ r: 4, fill: line.color }}
-          activeDot={{ r: 6 }}
-          connectNulls={true}
-          isAnimationActive={true}
-        />
-      ))}
+      {lines.map(line => {
+        console.log(`Rendering line: ${line.dataKey} with color ${line.color} and dash ${line.strokeDasharray || 'solid'}`);
+        return (
+          <Line
+            key={line.key}
+            type="monotone"
+            dataKey={line.dataKey}
+            name={line.name}
+            stroke={line.color}
+            strokeWidth={2}
+            strokeOpacity={line.opacity}
+            strokeDasharray={line.strokeDasharray}
+            dot={{ r: 4, fill: line.color }}
+            activeDot={{ r: 6 }}
+            connectNulls={true}
+            isAnimationActive={false}
+          />
+        );
+      })}
     </>
   );
 };

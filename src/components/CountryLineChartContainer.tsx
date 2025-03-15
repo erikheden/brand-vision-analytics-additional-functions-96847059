@@ -44,7 +44,19 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
   console.log("Y-axis domain:", yAxisDomain);
   console.log("X-axis range:", minYear, "to", maxYear);
   
-  if (lines.length === 0) {
+  // Sample a datapoint to check if data exists for the configured lines
+  if (chartData.length > 0 && lines.length > 0) {
+    const sample = chartData[chartData.length - 1]; // Get most recent data point
+    lines.forEach(line => {
+      console.log(`Data for ${line.dataKey} in last point:`, sample[line.dataKey]);
+    });
+  }
+  
+  if (!chartData || chartData.length === 0) {
+    return <div className="text-center py-8">No chart data available.</div>;
+  }
+  
+  if (!lines || lines.length === 0) {
     return <div className="text-center py-8">No valid data found to display chart lines.</div>;
   }
   

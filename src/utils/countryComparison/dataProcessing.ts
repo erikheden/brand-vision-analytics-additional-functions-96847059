@@ -63,7 +63,7 @@ export const processLineChartData = (
         if (dataPoint.Year === null) return;
         
         // Use 0 for null scores instead of skipping them
-        const score = dataPoint.Score === null ? 0 : dataPoint.Score;
+        const score = dataPoint.Score === null ? 0 : Number(dataPoint.Score);
         const year = Number(dataPoint.Year);
         
         console.log(`Data point for ${brand}/${country}/${year}: ${score}`);
@@ -116,10 +116,26 @@ export const processLineChartData = (
     brandCountryData.forEach((brandMap, brand) => {
       brandMap.forEach((countryMap, country) => {
         const score = countryMap.get(year);
-        // Set undefined or null values to 0 instead of skipping them
+        const dataKey = `${brand}-${country}`;
+        
+        // Set undefined or null values to 0 or undefined based on context
         if (score !== undefined) {
-          const dataKey = `${brand}-${country}`;
           dataPoint[dataKey] = score;
+        } else {
+          // For years where we have no data, check if we need to connect the dots
+          // by interpolating values or leaving them undefined
+          const hasEarlierData = Array.from(countryMap.keys())
+            .some(yr => yr < year);
+          const hasLaterData = Array.from(countryMap.keys())
+            .some(yr => yr > year);
+            
+          // If this year is between years with data, set to null to allow connection
+          // This helps recharts connect lines across gaps
+          if (hasEarlierData && hasLaterData) {
+            dataPoint[dataKey] = null; // Let recharts handle the gap
+          } else {
+            dataPoint[dataKey] = 0; // Default to 0 for years outside the data range
+          }
         }
       });
     });
@@ -127,7 +143,7 @@ export const processLineChartData = (
     return dataPoint;
   });
   
-  // Ensure non-empty data
+  // Filter out years with no meaningful data
   const filteredChartData = chartData.filter(point => {
     // Check if this point has any data beyond the year
     return Object.keys(point).length > 1;
