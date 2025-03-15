@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Toggle } from "@/components/ui/toggle";
@@ -25,7 +24,6 @@ const CountryComparisonChart = ({
   
   const { data: allCountriesData, isLoading } = useMultiCountryChartData(selectedCountries, selectedBrands);
   
-  // If still loading or no data
   if (isLoading) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
@@ -44,7 +42,6 @@ const CountryComparisonChart = ({
     );
   }
   
-  // Count total data points for all countries
   const totalDataPoints = Object.values(allCountriesData).reduce(
     (total, countryData) => total + (countryData?.length || 0), 
     0
@@ -121,10 +118,6 @@ const CountryComparisonChart = ({
             standardized={standardized}
           />
         )}
-        
-        <div className="mt-4 text-xs text-center text-[#34502b]/70">
-          Comparing {selectedBrands.length} brand{selectedBrands.length !== 1 ? "s" : ""} across {selectedCountries.length} countr{selectedCountries.length !== 1 ? "ies" : "y"}: {selectedCountries.map(c => getFullCountryName(c)).join(", ")}
-        </div>
       </Card>
     </div>
   );
