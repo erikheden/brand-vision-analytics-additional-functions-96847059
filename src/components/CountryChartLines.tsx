@@ -2,7 +2,7 @@
 import React from "react";
 import { Line } from "recharts";
 
-interface LineConfig {
+export interface LineConfig {
   key: string;
   dataKey: string;
   name: string;
