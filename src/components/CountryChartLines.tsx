@@ -1,26 +1,40 @@
 
 import React from "react";
 import { Line } from "recharts";
-import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
-import { getBrandColor } from "@/utils/countryChartDataUtils";
 
-interface CountryChartLinesProps {
-  chartData: any[];
-  selectedBrands: string[];
-  allCountriesData: MultiCountryData;
-  standardized: boolean;
+interface LineConfig {
+  key: string;
+  dataKey: string;
+  name: string;
+  color: string;
+  opacity: number;
+  dashArray?: string;
 }
 
-// This component is now deprecated as the line generation functionality
-// has been moved directly into CountryLineChartContainer for better performance
-// and easier debugging
-const CountryChartLines: React.FC<CountryChartLinesProps> = ({
-  chartData,
-  selectedBrands,
-  allCountriesData
-}) => {
-  console.warn("CountryChartLines is deprecated - using inline line generation in CountryLineChartContainer");
-  return null;
+interface CountryChartLinesProps {
+  lines: LineConfig[];
+}
+
+const CountryChartLines: React.FC<CountryChartLinesProps> = ({ lines }) => {
+  return (
+    <>
+      {lines.map(line => (
+        <Line
+          key={line.key}
+          type="monotone"
+          dataKey={line.dataKey}
+          name={line.name}
+          stroke={line.color}
+          strokeWidth={2}
+          strokeOpacity={line.opacity}
+          strokeDasharray={line.dashArray}
+          dot={{ r: 4, fill: line.color }}
+          activeDot={{ r: 6 }}
+          connectNulls={false} // Critical setting: do not connect through null values
+        />
+      ))}
+    </>
+  );
 };
 
 export default CountryChartLines;
