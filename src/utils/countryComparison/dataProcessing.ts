@@ -60,10 +60,13 @@ export const processLineChartData = (
       
       // For each data point
       brandData.forEach(dataPoint => {
-        if (dataPoint.Year === null || dataPoint.Score === null) return;
+        if (dataPoint.Year === null) return;
         
+        // Use 0 for null scores instead of skipping them
+        const score = dataPoint.Score === null ? 0 : dataPoint.Score;
         const year = Number(dataPoint.Year);
-        console.log(`Data point for ${brand}/${country}/${year}: ${dataPoint.Score}`);
+        
+        console.log(`Data point for ${brand}/${country}/${year}: ${score}`);
         
         // Add to the set of all years
         allYears.add(year);
@@ -80,16 +83,16 @@ export const processLineChartData = (
         const countryMap = brandMap.get(country)!;
         
         // Calculate score (standardized or raw)
-        let score = dataPoint.Score;
+        let finalScore = score;
         
         if (standardized && marketStatsByYear.has(year)) {
           const stats = marketStatsByYear.get(year)!;
           if (stats.stdDev > 0) {
-            score = (score - stats.mean) / stats.stdDev;
+            finalScore = (score - stats.mean) / stats.stdDev;
           }
         }
         
-        countryMap.set(year, score);
+        countryMap.set(year, finalScore);
       });
     });
   });
@@ -113,8 +116,8 @@ export const processLineChartData = (
     brandCountryData.forEach((brandMap, brand) => {
       brandMap.forEach((countryMap, country) => {
         const score = countryMap.get(year);
-        // Only add values that exist
-        if (score !== undefined && score !== null) {
+        // Set undefined or null values to 0 instead of skipping them
+        if (score !== undefined) {
           const dataKey = `${brand}-${country}`;
           dataPoint[dataKey] = score;
         }
@@ -132,8 +135,8 @@ export const processLineChartData = (
   
   console.log("Generated chart data with points:", filteredChartData.length);
   if (filteredChartData.length > 0) {
-    console.log("First data point:", filteredChartData[0]);
-    console.log("Last data point:", filteredChartData[filteredChartData.length - 1]);
+    console.log("First data point:", JSON.stringify(filteredChartData[0]));
+    console.log("Last data point:", JSON.stringify(filteredChartData[filteredChartData.length - 1]));
   }
   
   return { chartData: filteredChartData, years };

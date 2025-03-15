@@ -39,6 +39,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
   } = useCountryLineChart(chartData, selectedBrands, allCountriesData, standardized);
   
   console.log("Chart data in container:", chartData.length, "points");
+  console.log("First data point:", chartData.length > 0 ? JSON.stringify(chartData[0]) : "No data");
   console.log("Chart lines in container:", JSON.stringify(lines, null, 2));
   
   if (lines.length === 0) {
