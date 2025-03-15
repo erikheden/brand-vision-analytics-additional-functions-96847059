@@ -1,4 +1,3 @@
-
 import { useMemo } from "react";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
 import { getBrandColor } from "@/utils/countryComparison/chartColors";
@@ -76,7 +75,7 @@ export const useCountryLineChart = (
         
         // Check if this data key exists in our chart data and has valid values
         const hasData = chartData.some(point => {
-          return dataKey in point && point[dataKey] !== null && point[dataKey] !== undefined;
+          return dataKey in point && (point[dataKey] !== null && point[dataKey] !== undefined);
         });
         
         if (hasData) {
@@ -84,10 +83,12 @@ export const useCountryLineChart = (
           
           // Apply a slightly different dash array based on country index for differentiation
           // while keeping the same brand color
-          const strokeDasharray = countryIndex === 0 ? "0" : 
-                                  countryIndex === 1 ? "5 5" : 
-                                  countryIndex === 2 ? "10 10" : 
-                                  "15 10 5 10";
+          let dashArray: string | undefined = undefined;
+          if (countryIndex > 0) {
+            dashArray = countryIndex === 1 ? "5 5" : 
+                       countryIndex === 2 ? "10 10" : 
+                       "15 10 5 10";
+          }
           
           // Adjust opacity based on country index for differentiation
           const opacity = 1 - (countryIndex * 0.15);
@@ -99,7 +100,7 @@ export const useCountryLineChart = (
             name: `${brand} (${country})`,
             color: brandColor,
             opacity: finalOpacity,
-            dashArray: countryIndex > 0 ? strokeDasharray : undefined
+            dashArray
           });
         } else {
           console.log(`No data for ${dataKey}`);
