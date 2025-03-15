@@ -60,7 +60,7 @@ export const processLineChartData = (
       
       // For each data point
       brandData.forEach(dataPoint => {
-        if (dataPoint.Year === null || dataPoint.Score === null) return;
+        if (dataPoint.Year === null || dataPoint.Score === null || dataPoint.Score === 0) return;
         
         const year = Number(dataPoint.Year);
         console.log(`Data point for ${brand}/${country}/${year}: ${dataPoint.Score}`);
@@ -89,8 +89,10 @@ export const processLineChartData = (
           }
         }
         
-        // Store the score
-        countryMap.set(year, score);
+        // Only store the score if it's not zero
+        if (score !== 0) {
+          countryMap.set(year, score);
+        }
       });
     });
   });
@@ -114,8 +116,8 @@ export const processLineChartData = (
     brandCountryData.forEach((brandMap, brand) => {
       brandMap.forEach((countryMap, country) => {
         const score = countryMap.get(year);
-        // Only add values that exist - don't connect nulls
-        if (score !== undefined && score !== null) {
+        // Only add values that exist and are not zero
+        if (score !== undefined && score !== null && score !== 0) {
           const dataKey = `${brand}-${country}`;
           dataPoint[dataKey] = score;
         }

@@ -1,3 +1,4 @@
+
 import React, { useMemo } from "react";
 import { 
   LineChart, 
@@ -123,7 +124,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
               strokeDasharray={countryIndex > 0 ? strokeDasharray : undefined}
               dot={{ r: 4, fill: brandColor }}
               activeDot={{ r: 6 }}
-              connectNulls={false}
+              connectNulls={false} // Critical setting: do not connect through null values
             />
           );
         } else {
