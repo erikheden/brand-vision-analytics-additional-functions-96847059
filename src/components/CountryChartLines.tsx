@@ -16,6 +16,8 @@ interface CountryChartLinesProps {
 }
 
 const CountryChartLines: React.FC<CountryChartLinesProps> = ({ lines }) => {
+  console.log("Rendering CountryChartLines with:", lines);
+  
   return (
     <>
       {lines.map(line => (
@@ -30,7 +32,7 @@ const CountryChartLines: React.FC<CountryChartLinesProps> = ({ lines }) => {
           strokeDasharray={line.dashArray}
           dot={{ r: 4, fill: line.color }}
           activeDot={{ r: 6 }}
-          connectNulls={false} // Critical setting: do not connect through null values
+          connectNulls={true}
         />
       ))}
     </>

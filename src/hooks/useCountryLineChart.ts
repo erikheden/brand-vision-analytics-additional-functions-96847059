@@ -1,3 +1,4 @@
+
 import { useMemo } from "react";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
 import { getBrandColor } from "@/utils/countryComparison/chartColors";
@@ -59,7 +60,7 @@ export const useCountryLineChart = (
   // Generate lines for each brand-country combination
   const lines = useMemo(() => {
     if (chartData.length === 0 || countries.length === 0) {
-      return [];
+      return [] as LineConfig[];
     }
     
     const generatedLines: LineConfig[] = [];
