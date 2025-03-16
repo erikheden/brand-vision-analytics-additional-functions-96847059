@@ -1,3 +1,4 @@
+
 import { useSelectionData } from "@/hooks/useSelectionData";
 import { normalizeBrandName, getPreferredBrandName } from "@/utils/industry/normalizeIndustry";
 
@@ -62,7 +63,7 @@ export const useBrandDiscovery = (
       }
     });
     
-    // Find brands that appear in at least 2 countries
+    // Find brands that appear in at least 2 countries (not all selected countries)
     const brandCountryCount = new Map<string, number>();
     
     // Count country occurrences for each brand
@@ -73,7 +74,7 @@ export const useBrandDiscovery = (
       });
     });
     
-    // Log information about all brands that appear in multiple countries
+    // Log information about brands that appear in multiple countries
     console.log("Brands appearing in multiple countries:");
     brandCountryCount.forEach((count, brand) => {
       if (count >= 2) {
@@ -104,7 +105,7 @@ export const useBrandDiscovery = (
     const commonBrands = getCommonBrands();
     
     // If no multi-country brands found or only a few, provide a list of universal brands
-    if ((commonBrands.length < 5) && selectedCountries.length >= 2) {
+    if ((commonBrands.length < 10) && selectedCountries.length >= 2) {
       console.log(`Few common brands found naturally (${commonBrands.length}) across ${selectedCountries.length} countries, adding known common brands as fallback`);
       
       // Common global/Nordic brands that should match across these countries

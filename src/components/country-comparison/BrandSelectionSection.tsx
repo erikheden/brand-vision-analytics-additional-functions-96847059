@@ -43,7 +43,7 @@ const BrandSelectionSection = ({
                   <p className="font-medium">Using common international brands</p>
                   <p className="text-sm mt-1">
                     We're showing a list of common international brands that should be available 
-                    across all selected countries.
+                    across all selected countries. Some brands may not have data for some countries.
                   </p>
                 </div>
               </div>

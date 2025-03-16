@@ -1,3 +1,4 @@
+
 import { getFullCountryName } from "@/components/CountrySelect";
 import { BrandData } from "@/types/brand";
 import { findDirectBrandMatch, findNormalizedBrandMatches } from "./brandMatching";
@@ -27,6 +28,32 @@ export const fetchCountryBrandData = async (
       if (directMatches.length > 0) {
         console.log(`Found direct match for "${selectedBrand}" in ${country}: ${directMatches.length} records`);
         return directMatches;
+      }
+      
+      // Try more aggressive brand name variations for better matching
+      // For example: "LEGO" could be "Lego", "LEGO Group", etc.
+      const variations = [
+        selectedBrand,
+        selectedBrand.toLowerCase(),
+        selectedBrand.toUpperCase(),
+        selectedBrand + " Group",
+        selectedBrand + " Inc",
+        selectedBrand + " Corporation",
+        selectedBrand + " AB",
+        selectedBrand + " Co"
+      ];
+      
+      // Try each variation
+      for (const variation of variations) {
+        const variationMatches = await findDirectBrandMatch(country, fullCountryName, variation);
+        if (variationMatches.length > 0) {
+          console.log(`Found match for "${selectedBrand}" using variation "${variation}" in ${country}: ${variationMatches.length} records`);
+          // Update the brand name to the original selected brand for consistency
+          return variationMatches.map(match => ({
+            ...match,
+            Brand: selectedBrand
+          }));
+        }
       }
       
       // Otherwise try normalized matching

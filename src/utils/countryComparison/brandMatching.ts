@@ -11,16 +11,23 @@ export const findDirectBrandMatch = async (
   fullCountryName: string, 
   selectedBrand: string
 ): Promise<BrandData[]> => {
+  // Log this attempt for debugging purposes
+  console.log(`Trying direct match for "${selectedBrand}" in ${country}`);
+  
   // Try with country code first (direct match with the selected brand)
   let { data: directMatchData, error: directMatchError } = await supabase
     .from("SBI Ranking Scores 2011-2025")
     .select("Brand, industry, Country, Year, Score, \"Row ID\"")
     .or(`Country.eq.${country},Country.eq.${fullCountryName}`)
-    .eq('Brand', selectedBrand)
+    .ilike('Brand', selectedBrand)  // Using ilike for case-insensitive matching
     .order('Year', { ascending: true });
     
   if (directMatchError) {
     console.error(`Error fetching direct match for ${selectedBrand}:`, directMatchError);
+  }
+  
+  if (directMatchData && directMatchData.length > 0) {
+    console.log(`Found ${directMatchData.length} direct matches for "${selectedBrand}" in ${country}`);
   }
   
   return directMatchData || [];
@@ -63,6 +70,41 @@ export const findNormalizedBrandMatches = async (
   
   if (matchingBrands.length === 0) {
     console.log(`No matching brands found for ${selectedBrand} in ${country}`);
+    
+    // Try a partial match approach for better hit rates
+    const partialMatches = brandNames.filter(brandName => {
+      const normalizedName = normalizeBrandName(brandName);
+      return normalizedName.includes(normalizedSelectedBrand) || 
+             normalizedSelectedBrand.includes(normalizedName);
+    });
+    
+    if (partialMatches.length > 0) {
+      console.log(`Found ${partialMatches.length} partial matches for "${selectedBrand}" in ${country}: ${partialMatches.slice(0, 3).join(', ')}...`);
+      // Get the preferred display name
+      const preferredBrandName = getPreferredBrandName(partialMatches, normalizedSelectedBrand);
+      
+      // Query data for the preferred matching brand
+      let { data: brandData, error: dataError } = await supabase
+        .from("SBI Ranking Scores 2011-2025")
+        .select("*")
+        .or(`Country.eq.${country},Country.eq.${fullCountryName}`)
+        .eq('Brand', preferredBrandName)
+        .order('Year', { ascending: true });
+      
+      if (dataError) {
+        console.error(`Error fetching data for partial brand matches in ${country}:`, dataError);
+        return [];
+      }
+      
+      // Tag these records with the selected brand name for consistency
+      return (brandData || []).map(item => ({
+        ...item,
+        OriginalBrand: item.Brand, // Keep the original brand name
+        Brand: selectedBrand, // Use the selected brand name for consistency
+        NormalizedBrand: normalizedSelectedBrand // For debugging
+      }));
+    }
+    
     return [];
   }
   
