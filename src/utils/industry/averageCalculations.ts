@@ -6,7 +6,7 @@ import { normalizeIndustryName } from './normalizeIndustry';
  * Calculates the industry average scores by year for comparison
  * Using ALL brands in the database for each industry, completely independent of selected brands
  */
-export const calculateIndustryAverages = (scores: BrandData[], selectedBrands: string[]): IndustryAverages => {
+export const calculateIndustryAverages = (scores: BrandData[]): IndustryAverages => {
   if (!scores || scores.length === 0) return {};
 
   // Create a map of unique scores to prevent duplicate entries from affecting averages

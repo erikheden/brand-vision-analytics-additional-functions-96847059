@@ -28,7 +28,7 @@ const TrendComparisonContainer = ({
   // Using useMemo to prevent recalculation on every render
   const industryAverages = useMemo(() => {
     console.log("Recalculating industry averages with ALL brands");
-    return calculateIndustryAverages(marketData, []);  // Passing empty array to ensure we don't filter by selected brands
+    return calculateIndustryAverages(marketData);  // Removed selectedBrands parameter
   }, [marketData]);  // Only depend on marketData array, not on selectedBrands
   
   // Count number of brands per industry for the tooltip
