@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { X, Check, Search, AlertCircle } from "lucide-react";
+import { X, Check, Search, AlertCircle, Info } from "lucide-react";
 import BrandCheckbox from "./BrandCheckbox";
 import { useState, useEffect } from "react";
 import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 interface BrandSelectionProps {
   brands: string[];
   selectedBrands: string[];
+  selectedCountries: string[];
   brandsWithDataInfo?: Record<string, { hasData: boolean, countries: string[] }>;
   onBrandToggle: (brand: string, checked: boolean) => void;
   onClearBrands: () => void;
@@ -19,6 +20,7 @@ interface BrandSelectionProps {
 const BrandSelection = ({
   brands,
   selectedBrands,
+  selectedCountries,
   brandsWithDataInfo = {},
   onBrandToggle,
   onClearBrands,
@@ -116,7 +118,32 @@ const BrandSelection = ({
           const dataInfo = brandsWithDataInfo[brand];
           const hasData = !dataInfo || dataInfo.hasData;
           const countries = dataInfo?.countries || [];
-          const limitedData = !hasData && countries.length > 0;
+          
+          // Calculate if this is limited data (has some data but not in all countries)
+          const limitedData = countries.length > 0 && countries.length < selectedCountries.length;
+          
+          // Format list of countries with data
+          const countriesWithData = countries.length > 0 
+            ? countries.join(', ') 
+            : 'all selected countries';
+          
+          // Format tooltip content based on data status
+          let tooltipContent = '';
+          let iconType = null;
+          
+          if (!hasData && countries.length === 0) {
+            // No data at all
+            tooltipContent = 'No data available for this brand.';
+            iconType = 'alert';
+          } else if (limitedData) {
+            // Some data, but not in all countries
+            tooltipContent = `This brand has data in ${countriesWithData}. Data may be incomplete in other countries.`;
+            iconType = 'info';
+          } else if (hasData) {
+            // Data available in all or most countries
+            tooltipContent = `This brand has comprehensive data across ${countriesWithData}.`;
+            iconType = 'info';
+          }
           
           return (
             <div key={brand} className="flex items-center">
@@ -124,20 +151,21 @@ const BrandSelection = ({
                 brand={brand}
                 isChecked={selectedBrands.includes(brand)}
                 onCheckedChange={(checked) => onBrandToggle(brand, checked)}
-                className={limitedData ? "opacity-70" : ""}
+                className={!hasData ? "opacity-70" : ""}
               />
               
-              {limitedData && (
+              {tooltipContent && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <AlertCircle className="h-4 w-4 text-amber-500 ml-1" />
+                      {iconType === 'alert' ? (
+                        <AlertCircle className="h-4 w-4 text-amber-500 ml-1" />
+                      ) : (
+                        <Info className="h-4 w-4 text-blue-500 ml-1" />
+                      )}
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p className="max-w-xs">
-                        Limited data available. This brand only has data in {countries.join(', ')}.
-                        Results may be incomplete.
-                      </p>
+                      <p className="max-w-xs">{tooltipContent}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -151,3 +179,4 @@ const BrandSelection = ({
 };
 
 export default BrandSelection;
+

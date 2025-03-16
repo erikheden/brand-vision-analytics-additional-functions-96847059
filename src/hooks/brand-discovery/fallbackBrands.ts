@@ -23,7 +23,9 @@ export const knownProblematicBrands = ["Bershka", "Pull & Bear"];
  */
 export const knownGlobalBrands = [
   "Coca-Cola", "H&M", "IKEA", "Volvo", "Nike", "Adidas", 
-  "McDonald's", "Apple", "Samsung", "Google", "Microsoft"
+  "McDonald's", "Apple", "Samsung", "Google", "Microsoft",
+  "Spotify", "Telia", "Nordea", "LEGO", "Zara", "Amazon",
+  "Finnair", "SAS", "BMW", "Audi", "Toyota"
 ];
 
 /**
@@ -43,3 +45,4 @@ export const getFallbackBrands = (commonBrandsCount: number, selectedCountriesCo
   
   return null; // No fallback needed
 };
+

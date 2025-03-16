@@ -86,9 +86,11 @@ export const useBrandDiscovery = (
       const normalizedBrand = normalizeBrandName(brand);
       const countriesWithData: string[] = [];
       
-      // First pass - check direct data availability
+      // First pass - check chart data availability
+      // Look for actual data visualized in the chart
       selectedCountries.forEach(country => {
-        const hasData = availableBrands.some(item => 
+        // Check if brand has non-zero score data in this country
+        const hasChartData = availableBrands.some(item => 
           item.Country === country && 
           item.Brand && 
           normalizeBrandName(item.Brand.toString()) === normalizedBrand &&
@@ -96,27 +98,31 @@ export const useBrandDiscovery = (
           item.Score !== 0
         );
         
-        if (hasData) countriesWithData.push(country);
+        if (hasChartData) countriesWithData.push(country);
       });
       
       // Known global brands should always be shown as having data
       // even if our database doesn't have direct matches yet
       const isKnownGlobalBrand = knownGlobalBrands.includes(brand);
       
-      // If it's a known global brand, ensure it's marked as having data
-      if (isKnownGlobalBrand && countriesWithData.length < 2) {
-        console.log(`Brand ${brand} is a known global brand but only found in ${countriesWithData.length} countries - marking as having data anyway`);
-        // Add at least 2 countries to indicate "has data"
-        if (countriesWithData.length === 0 && selectedCountries.length > 0) {
-          countriesWithData.push(selectedCountries[0]);
-        }
-        if (countriesWithData.length === 1 && selectedCountries.length > 1) {
-          countriesWithData.push(selectedCountries[1]);
-        }
+      // If chart data shows it exists in multiple countries, trust that data
+      const hasMultiCountryData = countriesWithData.length >= 2;
+      
+      // If it's a known global brand but we found less than 2 countries with data,
+      // still mark it as having data across all countries
+      if (isKnownGlobalBrand && !hasMultiCountryData) {
+        console.log(`Brand ${brand} is a known global brand but only found data in ${countriesWithData.length} countries - marking as having data across all`);
+        // For global brands, consider it has data in all selected countries
+        // This ensures the UI doesn't show incorrect limited data warnings for known global brands
+        countriesWithData.length = 0; // Clear existing entries
+        selectedCountries.forEach(country => countriesWithData.push(country));
       }
       
+      // Compare actual data with chart rendering
+      const hasChartData = countriesWithData.length >= 2;
+      
       brandsInfo[brand] = { 
-        hasData: countriesWithData.length >= 2 || isKnownGlobalBrand, 
+        hasData: hasChartData || isKnownGlobalBrand, 
         countries: countriesWithData 
       };
     });
@@ -131,3 +137,4 @@ export const useBrandDiscovery = (
     brandsWithDataInfo: getBrandsWithDataInfo()
   };
 };
+

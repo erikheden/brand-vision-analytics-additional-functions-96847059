@@ -55,6 +55,7 @@ const BrandSelectionSection = ({
             <BrandSelection
               brands={uniqueBrandNames}
               selectedBrands={selectedBrands}
+              selectedCountries={selectedCountries}
               brandsWithDataInfo={brandsWithDataInfo}
               onBrandToggle={onBrandToggle}
               onClearBrands={onClearBrands}
@@ -82,3 +83,4 @@ const BrandSelectionSection = ({
 };
 
 export default BrandSelectionSection;
+
