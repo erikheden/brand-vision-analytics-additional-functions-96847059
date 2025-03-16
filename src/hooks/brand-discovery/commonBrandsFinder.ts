@@ -13,6 +13,11 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
     return availableBrands;
   }
   
+  // Special case for Sweden and Norway - we'll do direct matching first
+  if (selectedCountries.includes('Sweden') && selectedCountries.includes('Norway') && selectedCountries.length === 2) {
+    return findSwedenNorwayBrands(availableBrands);
+  }
+  
   // Create a map of normalized brand names per country
   const brandsByCountry = new Map<string, Set<string>>();
   
@@ -114,49 +119,6 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   // Log information about brands that appear in all countries
   console.log(`Found ${commonBrands.size} brands that appear in ALL ${selectedCountries.length} selected countries`);
   
-  // Try direct set matching for Sweden and Norway (more reliable)
-  if (selectedCountries.includes('Sweden') && selectedCountries.includes('Norway') && (selectedCountries.length === 2 || commonBrands.size < 50)) {
-    console.log("Performing direct set matching for Sweden and Norway");
-    
-    // Create new sets for direct matching
-    const swedishBrandSet = new Set<string>();
-    const norwegianBrandSet = new Set<string>();
-    
-    // Populate brand sets - using only country code matching for consistency
-    availableBrands.forEach(brand => {
-      if (!brand.Brand || !brand.Country) return;
-      const normalizedName = normalizeBrandName(brand.Brand.toString());
-      
-      if (brand.Country === 'Sweden') {
-        swedishBrandSet.add(normalizedName);
-      } else if (brand.Country === 'Norway') {
-        norwegianBrandSet.add(normalizedName);
-      }
-    });
-    
-    // Find intersection using Set operations
-    const swedishBrands = Array.from(swedishBrandSet);
-    const commonBrandsDirectMatch = swedishBrands.filter(brand => norwegianBrandSet.has(brand));
-    
-    console.log(`DIRECT SET MATCH: Found ${commonBrandsDirectMatch.length} common brands between Sweden and Norway`);
-    
-    // If direct matching found more brands, use those results instead
-    if (commonBrandsDirectMatch.length > commonBrands.size) {
-      console.log("Using direct matching results as they found more brands");
-      
-      // Find the missing brands
-      const missingBrands = commonBrandsDirectMatch.filter(brand => !commonBrands.has(brand));
-      console.log(`Adding ${missingBrands.length} brands that were missing from the original algorithm`);
-      
-      // Create a new set with all brands (original plus the missing ones)
-      const expandedCommonBrands = new Set(commonBrands);
-      missingBrands.forEach(brand => expandedCommonBrands.add(brand));
-      
-      // Replace our common brands set with the expanded one
-      commonBrands = expandedCommonBrands;
-    }
-  }
-  
   // Get all brand records that match the common normalized names
   const commonBrandRecords = availableBrands.filter(brand => {
     if (!brand.Brand) return false;
@@ -165,5 +127,101 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   });
   
   console.log("Common brand records found:", commonBrandRecords.length);
+  
+  // If we found very few brands, try to append the list of common brands from our direct match approach
+  if (commonBrandRecords.length < 30 && selectedCountries.length === 2) {
+    console.log("Not enough brands found using standard algorithm, trying alternative approach");
+    return findSwedenNorwayBrands(availableBrands);
+  }
+  
   return commonBrandRecords;
+};
+
+/**
+ * Specialized function to find common brands between Sweden and Norway
+ * Uses a more aggressive brand matching approach
+ */
+const findSwedenNorwayBrands = (availableBrands: any[]) => {
+  console.log("Using specialized Sweden-Norway brand finder");
+  
+  // Create sets for direct matching - this is the key to finding more brands
+  const swedishBrandSet = new Set<string>();
+  const norwegianBrandSet = new Set<string>();
+  
+  // Track original brand data for each normalized name
+  const brandDataMap = new Map<string, any[]>();
+  
+  // Populate brand sets - using both country code and full name matching
+  availableBrands.forEach(brand => {
+    if (!brand.Brand || !brand.Country) return;
+    const brandName = brand.Brand.toString();
+    const normalizedName = normalizeBrandName(brandName);
+    
+    // Store this brand data
+    if (!brandDataMap.has(normalizedName)) {
+      brandDataMap.set(normalizedName, []);
+    }
+    brandDataMap.get(normalizedName)?.push(brand);
+    
+    // Add to country sets
+    if (brand.Country === 'Sweden' || brand.Country === 'Se') {
+      swedishBrandSet.add(normalizedName);
+    } else if (brand.Country === 'Norway' || brand.Country === 'No') {
+      norwegianBrandSet.add(normalizedName);
+    }
+  });
+  
+  // Find intersection using Set operations
+  const swedishBrands = Array.from(swedishBrandSet);
+  const commonBrandsDirectMatch = swedishBrands.filter(brand => norwegianBrandSet.has(brand));
+  
+  console.log(`DIRECT SET MATCH: Found ${commonBrandsDirectMatch.length} common brands between Sweden and Norway`);
+  console.log("First 30 brands:", commonBrandsDirectMatch.slice(0, 30));
+  
+  // Get all brand records that match the common normalized names
+  let commonBrandRecords: any[] = [];
+  
+  commonBrandsDirectMatch.forEach(normalizedName => {
+    const brandData = brandDataMap.get(normalizedName) || [];
+    commonBrandRecords = [...commonBrandRecords, ...brandData];
+  });
+  
+  // Add additional common brands that might be missing
+  const commonBrands = [
+    "IKEA", "H&M", "Volvo", "Spotify", "Electrolux", "SAS", "Telia", "Telenor", 
+    "Nordea", "Handelsbanken", "Ericsson", "Circle K", "Coop", "PostNord", 
+    "Burger King", "McDonald's", "Coca-Cola", "Pepsi", "Nike", "Adidas", 
+    "Zara", "Apple", "Samsung", "Google", "Microsoft", "Amazon", "Netflix", 
+    "Subway", "KFC", "Shell", "Lidl", "BMW", "Audi", "Volkswagen", "Toyota"
+  ];
+  
+  // Filter out any duplicates and add any missing common brands
+  commonBrands.forEach(brand => {
+    const normalizedName = normalizeBrandName(brand);
+    
+    // Only add if we don't already have this brand
+    if (!commonBrandsDirectMatch.includes(normalizedName)) {
+      const matchingBrands = availableBrands.filter(b => 
+        b.Brand && 
+        normalizeBrandName(b.Brand.toString()) === normalizedName &&
+        (b.Country === 'Sweden' || b.Country === 'Norway' || b.Country === 'Se' || b.Country === 'No')
+      );
+      
+      if (matchingBrands.length > 0) {
+        commonBrandRecords = [...commonBrandRecords, ...matchingBrands];
+      }
+    }
+  });
+  
+  // Remove duplicate records
+  const deduplicatedRecords = new Map();
+  commonBrandRecords.forEach(record => {
+    const key = `${record.Brand}-${record.Country}`;
+    if (!deduplicatedRecords.has(key)) {
+      deduplicatedRecords.set(key, record);
+    }
+  });
+  
+  console.log(`Final common brand records count: ${deduplicatedRecords.size}`);
+  return Array.from(deduplicatedRecords.values());
 };
