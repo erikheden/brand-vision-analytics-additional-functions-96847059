@@ -41,12 +41,15 @@ export const useBrandDiscovery = (
       }
     });
     
-    // Log debug information
-    console.log("Brands by country:", Array.from(brandsByCountry.entries()).map(([country, brands]) => ({
-      country,
-      brandCount: brands.size,
-      sampleBrands: Array.from(brands).slice(0, 5)
-    })));
+    // Log detailed information about brands in each country
+    console.log("Detailed brands by country:");
+    selectedCountries.forEach(country => {
+      const brands = brandsByCountry.get(country);
+      console.log(`${country} has ${brands?.size || 0} normalized brands`);
+      if (brands && brands.size > 0) {
+        console.log(`Sample brands in ${country}:`, Array.from(brands).slice(0, 10));
+      }
+    });
     
     // Find brands that appear in ALL selected countries
     // First, get all unique normalized brand names
@@ -55,15 +58,21 @@ export const useBrandDiscovery = (
       brandSet.forEach(brand => allNormalizedBrands.add(brand));
     });
     
+    console.log("Total unique normalized brands across all countries:", allNormalizedBrands.size);
+    
     // Then check which of these appear in all countries
     const commonNormalizedBrands = Array.from(allNormalizedBrands).filter(normalizedBrand => {
-      return Array.from(brandsByCountry.entries()).every(([_, brandSet]) => 
+      const isCommon = Array.from(brandsByCountry.entries()).every(([_, brandSet]) => 
         brandSet.has(normalizedBrand)
       );
+      if (isCommon) {
+        console.log(`Found common brand: ${normalizedBrand}`);
+      }
+      return isCommon;
     });
     
-    console.log("All unique normalized brands:", allNormalizedBrands.size);
-    console.log("Normalized common brands:", commonNormalizedBrands);
+    console.log("Common normalized brands count:", commonNormalizedBrands.length);
+    console.log("Common normalized brands:", commonNormalizedBrands);
     
     // Get all brand records that match the common normalized names
     const commonBrandRecords = availableBrands.filter(brand => {
@@ -72,7 +81,7 @@ export const useBrandDiscovery = (
       return commonNormalizedBrands.includes(normalizedName);
     });
     
-    console.log("Common brands found:", commonBrandRecords.length);
+    console.log("Common brand records found:", commonBrandRecords.length);
     return commonBrandRecords;
   };
   

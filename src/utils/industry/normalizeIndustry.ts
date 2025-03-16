@@ -56,8 +56,41 @@ export const normalizeBrandName = (brandName: string): string => {
     'pepsi': 'pepsi',
     'pepsi max': 'pepsimax',
     'pepsimax': 'pepsimax',
-    'mcdonald': 'mcdonalds'
-    // Removed duplicate 'mcdonalds' entry
+    'mcdonald': 'mcdonalds',
+    // Adding more Nordic brands that appear in multiple countries
+    'finnair': 'finnair',
+    'norwegian': 'norwegian',
+    'sas': 'sas',
+    'scandinavian airlines': 'sas',
+    'volvo': 'volvo',
+    'nokia': 'nokia',
+    'nordea': 'nordea',
+    'telia': 'telia',
+    'telenor': 'telenor',
+    'spotify': 'spotify',
+    'lidl': 'lidl',
+    'burger king': 'burgerking',
+    'burgerking': 'burgerking',
+    'adidas': 'adidas',
+    'nike': 'nike',
+    'subway': 'subway',
+    'starbucks': 'starbucks',
+    'shell': 'shell',
+    'circle k': 'circlek',
+    'circlek': 'circlek',
+    'apple': 'apple',
+    'samsung': 'samsung',
+    'google': 'google',
+    'microsoft': 'microsoft',
+    'amazon': 'amazon',
+    'audi': 'audi',
+    'bmw': 'bmw',
+    'volkswagen': 'volkswagen',
+    'vw': 'volkswagen',
+    'toyota': 'toyota',
+    'netflix': 'netflix',
+    'xbox': 'xbox',
+    'playstation': 'playstation'
   };
   
   // Check if this normalized brand name has a special case mapping
@@ -89,7 +122,7 @@ export const getPreferredBrandName = (
     if (str.length < 2) return false;
     
     // Common airline and brand acronyms
-    const knownAcronyms = ['KLM', 'SAS', 'TUI', 'ICA', 'BYD', 'BMW', 'IBM'];
+    const knownAcronyms = ['KLM', 'SAS', 'TUI', 'ICA', 'BYD', 'BMW', 'IBM', 'H&M', 'VW'];
     if (knownAcronyms.includes(str)) return true;
     
     // Check if it has no lowercase letters and no spaces
