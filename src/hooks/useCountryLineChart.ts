@@ -2,7 +2,15 @@
 import { useMemo } from "react";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
 import { getBrandColor } from "@/utils/countryComparison/chartColors";
-import { LineConfig } from "@/components/CountryChartLines";
+
+export interface LineConfig {
+  key: string;
+  dataKey: string;
+  name: string;
+  color: string;
+  opacity: number;
+  strokeDasharray?: string;
+}
 
 export const useCountryLineChart = (
   chartData: any[],
@@ -65,10 +73,6 @@ export const useCountryLineChart = (
     }
     
     const generatedLines: LineConfig[] = [];
-    
-    // Get sample data point to validate data
-    const samplePoint = chartData[chartData.length - 1];
-    console.log("Sample data point for line validation:", samplePoint);
     
     // Loop through brands and countries to create lines
     selectedBrands.forEach((brand) => {

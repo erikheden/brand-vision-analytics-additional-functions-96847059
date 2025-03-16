@@ -1,20 +1,10 @@
 
 import React from "react";
-import { 
-  LineChart, 
-  Line,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer,
-  ReferenceLine
-} from "recharts";
-import { ChartTooltip } from "./ChartTooltip";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
+import { ChartTooltip, createTooltipFormatter } from "./ChartTooltip";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
 import { FONT_FAMILY } from "@/utils/constants";
-import CountryChartLines from "./CountryChartLines";
 import CountryListDisplay from "./CountryListDisplay";
 import { useCountryLineChart } from "@/hooks/useCountryLineChart";
 
@@ -45,14 +35,6 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
   console.log("Y-axis domain:", yAxisDomain);
   console.log("X-axis range:", minYear, "to", maxYear);
   
-  // Sample a datapoint to check if data exists for the configured lines
-  if (chartData.length > 0 && lines.length > 0) {
-    const sample = chartData[chartData.length - 1]; // Get most recent data point
-    lines.forEach(line => {
-      console.log(`Data for ${line.dataKey} in last point:`, sample[line.dataKey]);
-    });
-  }
-  
   if (!chartData || chartData.length === 0) {
     return <div className="text-center py-8">No chart data available.</div>;
   }
@@ -60,64 +42,127 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
   if (!lines || lines.length === 0) {
     return <div className="text-center py-8">No valid data found to display chart lines.</div>;
   }
+
+  // Create series data for Highcharts
+  const series = lines.map(line => {
+    const seriesData = chartData.map(point => {
+      return [
+        point.year, // x value (year)
+        point[line.dataKey] // y value (score)
+      ];
+    }).filter(point => point[1] !== null && point[1] !== undefined);
+    
+    return {
+      name: line.name,
+      data: seriesData,
+      color: line.color,
+      lineWidth: 2,
+      dashStyle: line.strokeDasharray ? 'Dash' : 'Solid',
+      marker: {
+        symbol: 'circle',
+        radius: 4
+      },
+      opacity: line.opacity
+    };
+  });
+  
+  // Configure the Highcharts options
+  const options: Highcharts.Options = {
+    chart: {
+      type: 'line',
+      backgroundColor: 'white',
+      style: {
+        fontFamily: FONT_FAMILY
+      }
+    },
+    title: {
+      text: standardized ? 'Standardized Country Brand Score Comparison' : 'Country Brand Score Comparison',
+      style: {
+        color: '#34502b',
+        fontFamily: FONT_FAMILY
+      }
+    },
+    xAxis: {
+      type: 'linear',
+      min: minYear,
+      max: maxYear,
+      tickInterval: 1,
+      title: {
+        text: 'Year',
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY
+        }
+      },
+      labels: {
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY
+        }
+      },
+      gridLineWidth: 1,
+      gridLineColor: 'rgba(52, 80, 43, 0.1)'
+    },
+    yAxis: {
+      min: yAxisDomain[0],
+      max: yAxisDomain[1],
+      title: {
+        text: standardized ? 'Standardized Score' : 'Score',
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY
+        }
+      },
+      labels: {
+        format: standardized ? '{value:.1f}σ' : '{value:.0f}',
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY
+        }
+      },
+      gridLineColor: 'rgba(52, 80, 43, 0.1)',
+      plotLines: standardized ? [{
+        value: 0,
+        color: '#666',
+        dashStyle: 'Dash',
+        width: 1
+      }] : undefined
+    },
+    tooltip: {
+      formatter: createTooltipFormatter(FONT_FAMILY, standardized),
+      shared: true,
+      useHTML: true
+    },
+    legend: {
+      itemStyle: {
+        color: '#34502b',
+        fontFamily: FONT_FAMILY
+      }
+    },
+    credits: {
+      enabled: false
+    },
+    plotOptions: {
+      line: {
+        connectNulls: true
+      },
+      series: {
+        marker: {
+          enabled: true
+        }
+      }
+    },
+    series
+  };
   
   return (
     <div className="w-full h-[500px] mb-10">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={chartData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-          <XAxis 
-            dataKey="year"
-            type="number"
-            domain={[minYear, maxYear]}
-            allowDecimals={false}
-            tickCount={10}
-            ticks={Array.from({ length: maxYear - minYear + 1 }, (_, i) => minYear + i)}
-            style={{ 
-              fontFamily: FONT_FAMILY,
-              fontSize: '12px',
-              color: '#34502b'
-            }}
-          />
-          <YAxis 
-            domain={yAxisDomain}
-            tickFormatter={(value) => standardized ? `${value.toFixed(1)}σ` : value.toFixed(0)}
-            style={{ 
-              fontFamily: FONT_FAMILY,
-              fontSize: '12px',
-              color: '#34502b'
-            }}
-          />
-          <Tooltip content={<ChartTooltip standardized={standardized} />} />
-          <Legend 
-            wrapperStyle={{ 
-              paddingTop: 20,
-              fontFamily: FONT_FAMILY 
-            }}
-          />
-          {standardized && <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" />}
-          
-          {/* Render each line separately */}
-          {lines.map(line => (
-            <Line
-              key={line.key}
-              type="monotone"
-              dataKey={line.dataKey}
-              name={line.name}
-              stroke={line.color}
-              strokeWidth={2}
-              strokeOpacity={line.opacity}
-              strokeDasharray={line.strokeDasharray}
-              dot={{ r: 4, fill: line.color }}
-              activeDot={{ r: 6 }}
-              connectNulls={true}
-            />
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
+      <div className="h-[90%]">
+        <HighchartsReact
+          highcharts={Highcharts}
+          options={options}
+        />
+      </div>
       
       <CountryListDisplay countries={countries} selectedBrands={selectedBrands} />
     </div>
