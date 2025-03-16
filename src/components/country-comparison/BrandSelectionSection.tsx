@@ -1,5 +1,5 @@
 
-import { CircleCheck, AlertTriangle } from "lucide-react";
+import { CircleCheck, AlertTriangle, Info } from "lucide-react";
 import BrandSelection from "../BrandSelection";
 import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
 
@@ -21,6 +21,11 @@ const BrandSelectionSection = ({
   // Log the brand names to help debug capitalization issues
   console.log("Brand selection section - unique brand names:", uniqueBrandNames);
   
+  // Check if using fallback brands (our standard list of 25 brands)
+  const usingFallbackBrands = uniqueBrandNames.length === 25 && 
+    uniqueBrandNames.includes("McDonald's") && 
+    uniqueBrandNames.includes("Coca-Cola");
+  
   return (
     <div className="space-y-2">
       <h3 className="text-lg font-medium flex items-center gap-2 text-[#34502b]">
@@ -29,12 +34,26 @@ const BrandSelectionSection = ({
       </h3>
       <div className="mt-2">
         {uniqueBrandNames.length > 0 ? (
-          <BrandSelection
-            brands={uniqueBrandNames}
-            selectedBrands={selectedBrands}
-            onBrandToggle={onBrandToggle}
-            onClearBrands={onClearBrands}
-          />
+          <>
+            {usingFallbackBrands && selectedCountries.length >= 2 && (
+              <div className="mb-4 text-blue-600 bg-blue-50 p-4 rounded-md flex items-start gap-2">
+                <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium">Using common international brands</p>
+                  <p className="text-sm mt-1">
+                    We're showing a list of common international brands that should be available 
+                    across all selected countries.
+                  </p>
+                </div>
+              </div>
+            )}
+            <BrandSelection
+              brands={uniqueBrandNames}
+              selectedBrands={selectedBrands}
+              onBrandToggle={onBrandToggle}
+              onClearBrands={onClearBrands}
+            />
+          </>
         ) : selectedCountries.length > 1 ? (
           <div className="text-amber-600 bg-amber-50 p-4 rounded-md flex items-start gap-2">
             <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />

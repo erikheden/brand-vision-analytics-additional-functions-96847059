@@ -102,14 +102,11 @@ export const useBrandDiscovery = (
   const getNormalizedUniqueBrands = () => {
     const commonBrands = getCommonBrands();
     
-    // If no common brands, check if we should look for additional matches
-    if (commonBrands.length === 0 && selectedCountries.length === 2) {
-      // For specific country pairs, add known common brands even if they don't appear
-      // in our database with the same normalized name
-      const sortedCountries = [...selectedCountries].sort().join('-');
-      console.log(`Checking for special case matches for country pair: ${sortedCountries}`);
+    // If no common brands found, provide a list of universal brands that should be available across all countries
+    if (commonBrands.length === 0 && selectedCountries.length >= 2) {
+      console.log(`No common brands found naturally across ${selectedCountries.length} countries, adding known common brands as fallback`);
       
-      // Common Nordic/international brands that should match across these countries
+      // Common global/Nordic brands that should match across these countries
       const knownCommonBrands = [
         "McDonald's", "Coca-Cola", "Pepsi", "IKEA", "H&M", 
         "Spotify", "Volvo", "Nokia", "Adidas", "Nike", 
