@@ -82,28 +82,36 @@ const BrandSelection = ({
     }
   };
 
+  // Count brands with data
+  const brandsWithDataCount = Object.values(brandsWithDataInfo).filter(info => info.hasData).length;
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <Label>Select Brands</Label>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSelectAll}
-          className="text-sm"
-        >
-          {selectedBrands.length === 0 ? (
-            <>
-              <Check className="h-4 w-4 mr-1" />
-              Select all with data
-            </>
-          ) : (
-            <>
-              <X className="h-4 w-4 mr-1" />
-              Clear all
-            </>
-          )}
-        </Button>
+        <div className="flex gap-2 items-center">
+          <span className="text-xs text-muted-foreground">
+            {filteredBrands.length} brands total, {brandsWithDataCount} with data
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSelectAll}
+            className="text-sm"
+          >
+            {selectedBrands.length === 0 ? (
+              <>
+                <Check className="h-4 w-4 mr-1" />
+                Select all with data
+              </>
+            ) : (
+              <>
+                <X className="h-4 w-4 mr-1" />
+                Clear all
+              </>
+            )}
+          </Button>
+        </div>
       </div>
       <div className="relative">
         <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -128,7 +136,6 @@ const BrandSelection = ({
                 onCheckedChange={(checked) => onBrandToggle(brand, checked)}
                 className={!hasData ? "opacity-70" : ""}
               />
-              {/* Removed the information icons that used to be here */}
             </div>
           );
         })}
@@ -138,4 +145,3 @@ const BrandSelection = ({
 };
 
 export default BrandSelection;
-

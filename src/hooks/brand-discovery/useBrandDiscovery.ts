@@ -19,7 +19,7 @@ export const useBrandDiscovery = (
     selectedIndustries
   );
   
-  // Get brands that appear in at least some of the selected countries
+  // Get brands that appear in the selected countries
   const getCommonBrands = () => {
     const commonBrands = findMultiCountryBrands(selectedCountries, availableBrands);
     
@@ -34,32 +34,34 @@ export const useBrandDiscovery = (
   const getNormalizedUniqueBrands = () => {
     const commonBrands = getCommonBrands();
     
-    // Check if we need to use fallback brands
-    const fallbackBrands = getFallbackBrands(commonBrands.length, selectedCountries.length);
-    if (fallbackBrands) {
-      // Filter fallback brands to only include those with actual data
-      const brandsWithData = fallbackBrands.filter(brand => {
-        // Check if this brand has data in at least two countries
-        const normalizedBrand = normalizeBrandName(brand);
-        let countriesWithData = 0;
-        
-        selectedCountries.forEach(country => {
-          const hasData = availableBrands.some(item => 
-            item.Country === country && 
-            item.Brand && 
-            normalizeBrandName(item.Brand.toString()) === normalizedBrand &&
-            item.Score !== null && 
-            item.Score !== 0
-          );
+    // Check if we need to use fallback brands - only use if we found no brands at all
+    if (commonBrands.length === 0) {
+      const fallbackBrands = getFallbackBrands(commonBrands.length, selectedCountries.length);
+      if (fallbackBrands) {
+        // Filter fallback brands to only include those with actual data
+        const brandsWithData = fallbackBrands.filter(brand => {
+          // Check if this brand has data in at least one country
+          const normalizedBrand = normalizeBrandName(brand);
+          let countriesWithData = 0;
           
-          if (hasData) countriesWithData++;
+          selectedCountries.forEach(country => {
+            const hasData = availableBrands.some(item => 
+              item.Country === country && 
+              item.Brand && 
+              normalizeBrandName(item.Brand.toString()) === normalizedBrand &&
+              item.Score !== null && 
+              item.Score !== 0
+            );
+            
+            if (hasData) countriesWithData++;
+          });
+          
+          return countriesWithData >= 1;
         });
         
-        return countriesWithData >= 2;
-      });
-      
-      console.log(`Filtered fallback brands with data: ${brandsWithData.length} out of ${fallbackBrands.length}`);
-      return brandsWithData.length > 0 ? brandsWithData : fallbackBrands;
+        console.log(`Filtered fallback brands with data: ${brandsWithData.length} out of ${fallbackBrands.length}`);
+        return brandsWithData.length > 0 ? brandsWithData : fallbackBrands;
+      }
     }
     
     // Group all brand variants by normalized name
@@ -105,12 +107,9 @@ export const useBrandDiscovery = (
       // even if our database doesn't have direct matches yet
       const isKnownGlobalBrand = knownGlobalBrands.includes(brand);
       
-      // If chart data shows it exists in multiple countries, trust that data
-      const hasMultiCountryData = countriesWithData.length >= 2;
-      
       // If it's a known global brand but we found less than 2 countries with data,
       // still mark it as having data across all countries
-      if (isKnownGlobalBrand && !hasMultiCountryData) {
+      if (isKnownGlobalBrand && countriesWithData.length < 2) {
         console.log(`Brand ${brand} is a known global brand but only found data in ${countriesWithData.length} countries - marking as having data across all`);
         // For global brands, consider it has data in all selected countries
         // This ensures the UI doesn't show incorrect limited data warnings for known global brands
@@ -118,7 +117,7 @@ export const useBrandDiscovery = (
         selectedCountries.forEach(country => countriesWithData.push(country));
       }
       
-      // Compare actual data with chart rendering
+      // For comparison purposes, a brand needs data in at least 2 countries
       const hasChartData = countriesWithData.length >= 2;
       
       brandsInfo[brand] = { 
@@ -137,4 +136,3 @@ export const useBrandDiscovery = (
     brandsWithDataInfo: getBrandsWithDataInfo()
   };
 };
-

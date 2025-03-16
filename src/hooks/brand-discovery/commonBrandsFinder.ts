@@ -1,3 +1,4 @@
+
 import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
 
 /**
@@ -53,7 +54,7 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
     }
   });
   
-  // Find brands that appear in at least 2 countries
+  // Find brands that appear in at least one country
   const brandCountryCount = new Map<string, number>();
   
   // Count country occurrences for each brand
@@ -67,19 +68,18 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   // Log information about brands that appear in multiple countries
   console.log("Brands appearing in multiple countries:");
   brandCountryCount.forEach((count, brand) => {
-    if (count >= 2) {
+    if (count >= 1) {
       console.log(`Brand "${brand}" appears in ${count}/${selectedCountries.length} countries`);
     }
   });
   
-  // Keep ONLY brands that appear in at least 2 countries or all selected countries
-  // The threshold changes based on how many countries are selected
-  const minCountriesRequired = selectedCountries.length <= 3 ? 2 : Math.ceil(selectedCountries.length * 0.6);
+  // Include all brands that appear in at least one of the selected countries
+  // This ensures we show ALL brands across the selected countries
   const multiCountryBrands = Array.from(brandCountryCount.entries())
-    .filter(([_, count]) => count >= minCountriesRequired)
+    .filter(([_, count]) => count >= 1)  // Include all brands that appear in at least one country
     .map(([brand, _]) => brand);
   
-  console.log(`Found ${multiCountryBrands.length} brands that appear in at least ${minCountriesRequired} countries`);
+  console.log(`Found ${multiCountryBrands.length} brands that appear in the selected countries`);
   
   // Get all brand records that match the multi-country normalized names
   const commonBrandRecords = availableBrands.filter(brand => {
