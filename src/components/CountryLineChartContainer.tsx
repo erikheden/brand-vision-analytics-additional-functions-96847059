@@ -46,7 +46,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
   // Create series data for Highcharts with proper typing
   const series: Highcharts.SeriesOptionsType[] = lines.map(line => {
     const seriesData = chartData.map(point => {
-      // Only include points that have a non-zero value
+      // Only include points that have a non-zero and non-null value
       const value = point[line.dataKey];
       if (value === null || value === undefined || value === 0) {
         return [point.year, null]; // Use null to create a break in the line

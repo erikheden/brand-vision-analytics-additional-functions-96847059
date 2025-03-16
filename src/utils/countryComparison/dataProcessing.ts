@@ -78,7 +78,7 @@ export const processLineChartData = (
   });
   
   // Prepare data structure for each brand and country
-  const brandCountryData: Map<string, Map<string, Map<number, number>>> = new Map();
+  const brandCountryData: Map<string, Map<string, Map<number, number | null>>> = new Map();
   
   // Now process the data for the selected brands using the country stats we calculated
   Object.entries(allCountriesData).forEach(([country, countryData]) => {
@@ -124,7 +124,7 @@ export const processLineChartData = (
         allYears.add(year);
         
         // Get the year's statistics for this country
-        let finalScore = score;
+        let finalScore: number | null = score;
         
         if (standardized && countryYearStats.has(country)) {
           const yearStats = countryYearStats.get(country)!.get(year);
@@ -132,17 +132,19 @@ export const processLineChartData = (
           if (yearStats) {
             // We need at least 2 data points to have meaningful standardization
             if (yearStats.count >= 2 && yearStats.stdDev > 0) {
-              finalScore = standardizeScore(score, yearStats.mean, yearStats.stdDev);
-              console.log(`Standardized score for ${brand}/${country}/${year}: ${finalScore.toFixed(2)} (raw=${score}, country avg=${yearStats.mean.toFixed(2)}, stdDev=${yearStats.stdDev.toFixed(2)})`);
+              const standardizedValue = standardizeScore(score, yearStats.mean, yearStats.stdDev);
+              finalScore = standardizedValue; // This may be null if standardization failed
+              if (standardizedValue !== null) {
+                console.log(`Standardized score for ${brand}/${country}/${year}: ${standardizedValue.toFixed(2)} (raw=${score}, country avg=${yearStats.mean.toFixed(2)}, stdDev=${yearStats.stdDev.toFixed(2)})`);
+              }
             } else {
-              // If we don't have enough data points or variation, use 0 (at the mean)
+              // If we don't have enough data points or variation, set to null to indicate no valid data
               console.warn(`Insufficient data for standardization in ${country}/${year}: ${yearStats.count} brands, stdDev=${yearStats.stdDev.toFixed(4)}`);
-              finalScore = 0;
+              finalScore = null;
             }
           } else {
             console.warn(`Missing year stats for ${country}/${year}`);
-            // If we can't standardize, use 0 which represents exactly at average
-            finalScore = 0;
+            finalScore = null;
           }
         }
         

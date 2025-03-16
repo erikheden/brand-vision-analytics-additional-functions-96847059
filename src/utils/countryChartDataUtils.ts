@@ -10,14 +10,13 @@ export { processLineChartData, COUNTRY_COLORS, getBrandColor, BRAND_COLORS };
  * @param score The raw score to standardize
  * @param countryAverage The average score for the country and year
  * @param countryStdDev The standard deviation for the country and year
- * @returns The standardized score (z-score)
+ * @returns The standardized score (z-score) or null if standardization is not possible
  */
-export const standardizeScore = (score: number, countryAverage: number, countryStdDev: number): number => {
+export const standardizeScore = (score: number, countryAverage: number, countryStdDev: number): number | null => {
   // If we have only one data point or zero variance, we can't standardize properly
-  // In this case, return 0 (which represents exactly at the mean)
-  if (countryStdDev === 0 || isNaN(countryStdDev)) {
-    console.log(`Cannot standardize score ${score} with countryAverage=${countryAverage} and countryStdDev=${countryStdDev}. Returning 0.`);
-    return 0;
+  if (countryStdDev === 0 || isNaN(countryStdDev) || countryStdDev < 0.001) {
+    console.log(`Cannot standardize score ${score} with countryAverage=${countryAverage} and countryStdDev=${countryStdDev}. Returning null.`);
+    return null; // Return null to indicate that standardization is not possible
   }
   
   // Calculate z-score: (value - mean) / standard deviation
