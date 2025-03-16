@@ -83,7 +83,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
           />
           <YAxis 
             domain={yAxisDomain}
-            tickFormatter={(value) => standardized ? `${value.toFixed(0)}σ` : value.toFixed(0)}
+            tickFormatter={(value) => standardized ? `${value.toFixed(1)}σ` : value.toFixed(0)}
             style={{ 
               fontFamily: FONT_FAMILY,
               fontSize: '12px',
@@ -98,8 +98,23 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
             }}
           />
           {standardized && <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" />}
-          {/* Important: Ensure CountryChartLines is a direct child of LineChart */}
-          <CountryChartLines lines={lines} />
+          
+          {/* Render each line separately instead of using the component */}
+          {lines.map(line => (
+            <Line
+              key={line.key}
+              type="monotone"
+              dataKey={line.dataKey}
+              name={line.name}
+              stroke={line.color}
+              strokeWidth={2}
+              strokeOpacity={line.opacity}
+              strokeDasharray={line.strokeDasharray}
+              dot={{ r: 4, fill: line.color }}
+              activeDot={{ r: 6 }}
+              connectNulls={true}
+            />
+          ))}
         </LineChart>
       </ResponsiveContainer>
       

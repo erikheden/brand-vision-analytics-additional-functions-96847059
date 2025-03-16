@@ -1,3 +1,4 @@
+
 import { useMemo } from "react";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
 import { getBrandColor } from "@/utils/countryComparison/chartColors";
@@ -29,7 +30,7 @@ export const useCountryLineChart = (
         if (key === 'year' || typeof dataPoint[key] !== 'number') return;
         
         const value = dataPoint[key];
-        if (value !== undefined && value !== null) {
+        if (value !== undefined && value !== null && !isNaN(value)) {
           minValue = Math.min(minValue, value);
           maxValue = Math.max(maxValue, value);
         }
@@ -49,7 +50,7 @@ export const useCountryLineChart = (
     // Add padding to the top
     const maxY = maxValue + padding;
     
-    // Round to nice values
+    // Round to nice values (multiples of 10)
     const roundedMin = Math.floor(minY / 10) * 10;
     const roundedMax = Math.ceil(maxY / 10) * 10;
     
@@ -58,11 +59,16 @@ export const useCountryLineChart = (
   
   // Generate lines for each brand-country combination
   const lines = useMemo(() => {
-    if (chartData.length === 0 || countries.length === 0) {
-      return [] as LineConfig[];
+    if (!chartData || chartData.length === 0 || !countries.length) {
+      console.log("No chart data or countries for line generation");
+      return [];
     }
     
     const generatedLines: LineConfig[] = [];
+    
+    // Get sample data point to validate data
+    const samplePoint = chartData[chartData.length - 1];
+    console.log("Sample data point for line validation:", samplePoint);
     
     // Loop through brands and countries to create lines
     selectedBrands.forEach((brand) => {
@@ -75,14 +81,14 @@ export const useCountryLineChart = (
         
         // Check if this data key exists in our chart data and has valid values
         const hasData = chartData.some(point => {
-          return dataKey in point && (point[dataKey] !== null && point[dataKey] !== undefined);
+          const value = point[dataKey];
+          return value !== null && value !== undefined && !isNaN(value);
         });
         
         if (hasData) {
           console.log(`Adding line for ${dataKey} - data exists`);
           
           // Apply a slightly different dash array based on country index for differentiation
-          // while keeping the same brand color
           let strokeDasharray: string | undefined = undefined;
           if (countryIndex > 0) {
             strokeDasharray = countryIndex === 1 ? "5 5" : 
@@ -103,7 +109,7 @@ export const useCountryLineChart = (
             strokeDasharray
           });
         } else {
-          console.log(`No data for ${dataKey}`);
+          console.log(`No data for ${dataKey} - skipping line`);
         }
       });
     });
@@ -114,11 +120,14 @@ export const useCountryLineChart = (
 
   // Find min and max years for the x-axis
   const { minYear, maxYear } = useMemo(() => {
-    if (chartData.length === 0) {
+    if (!chartData || chartData.length === 0) {
       return { minYear: 2011, maxYear: 2025 };
     }
     
-    const years = chartData.map(d => d.year).filter(Boolean);
+    const years = chartData
+      .map(d => d.year)
+      .filter(year => year !== undefined && year !== null);
+      
     return {
       minYear: Math.min(...years),
       maxYear: Math.max(...years)

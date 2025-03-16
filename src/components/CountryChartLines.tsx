@@ -47,4 +47,4 @@ const CountryChartLines: React.FC<CountryChartLinesProps> = ({ lines }) => {
   );
 };
 
-export default CountryChartLines;
+export default React.memo(CountryChartLines);

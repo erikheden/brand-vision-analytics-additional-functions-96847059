@@ -62,7 +62,7 @@ export const processLineChartData = (
       brandData.forEach(dataPoint => {
         if (dataPoint.Year === null) return;
         
-        // Use 0 for null scores instead of skipping them
+        // Only process points with actual scores
         const score = dataPoint.Score === null ? 0 : Number(dataPoint.Score);
         const year = Number(dataPoint.Year);
         
@@ -118,24 +118,12 @@ export const processLineChartData = (
         const score = countryMap.get(year);
         const dataKey = `${brand}-${country}`;
         
-        // Set undefined or null values to 0 or undefined based on context
+        // Set undefined or null values to null to allow for connectNulls to work
         if (score !== undefined) {
           dataPoint[dataKey] = score;
         } else {
-          // For years where we have no data, check if we need to connect the dots
-          // by interpolating values or leaving them undefined
-          const hasEarlierData = Array.from(countryMap.keys())
-            .some(yr => yr < year);
-          const hasLaterData = Array.from(countryMap.keys())
-            .some(yr => yr > year);
-            
-          // If this year is between years with data, set to null to allow connection
-          // This helps recharts connect lines across gaps
-          if (hasEarlierData && hasLaterData) {
-            dataPoint[dataKey] = null; // Let recharts handle the gap
-          } else {
-            dataPoint[dataKey] = 0; // Default to 0 for years outside the data range
-          }
+          // For years where we have no data, set to null to allow line connection
+          dataPoint[dataKey] = null;
         }
       });
     });
