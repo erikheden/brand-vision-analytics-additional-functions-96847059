@@ -8,7 +8,8 @@ import {
   Tooltip, 
   Legend, 
   ResponsiveContainer,
-  ReferenceLine
+  ReferenceLine,
+  Text
 } from "recharts";
 import { getFullCountryName } from "@/components/CountrySelect";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
@@ -139,60 +140,96 @@ const CountryBarChart = ({
     return dataArray;
   }, [processedData, selectedBrands]);
   
-  // Calculate the y-axis domain similar to single country view
+  // Calculate the y-axis domain similar to dashboard implementation
   const yAxisDomain = useMemo(() => {
     if (standardized) {
       return [-3, 3] as [number, number]; // Fixed domain for standardized scores
     }
     
-    // Find min and max values across all brands
-    let minValue = Infinity;
-    let maxValue = -Infinity;
+    // Find max value across all brands and countries
+    let maxValue = 0;
     
     chartData.forEach(dataPoint => {
       selectedBrands.forEach(brand => {
         const value = dataPoint[brand];
-        if (value !== undefined && value !== null) {
-          minValue = Math.min(minValue, value);
+        if (value !== undefined && value !== null && !isNaN(value)) {
           maxValue = Math.max(maxValue, value);
         }
       });
     });
     
-    if (minValue === Infinity) minValue = 0;
-    if (maxValue === -Infinity) maxValue = 100;
+    // Add some padding (like in the image) and round up to nearest multiple of 25
+    const paddedMax = Math.ceil((maxValue * 1.1) / 25) * 25;
     
-    // Calculate padding (10% of the range)
-    const range = maxValue - minValue;
-    const padding = range * 0.1;
-    
-    // Set minimum to 0 if it's close to 0
-    const minY = minValue > 0 && minValue < 10 ? 0 : Math.max(0, minValue - padding);
-    
-    // Add padding to the top 
-    const maxY = maxValue + padding;
-    
-    // Round to nice values
-    const roundedMin = Math.floor(minY / 10) * 10;
-    const roundedMax = Math.ceil(maxY / 10) * 10;
-    
-    console.log("Y-axis domain:", [roundedMin, roundedMax]);
-    
-    return [roundedMin, roundedMax] as [number, number];
+    // Always start from 0 for bar charts (as seen in the reference image)
+    return [0, paddedMax] as [number, number];
   }, [chartData, selectedBrands, standardized]);
+  
+  // Calculate the year for chart title
+  const chartYear = useMemo(() => {
+    if (processedData.length === 0) return 2025; // Default
+    
+    // Find the most common year in the data
+    const yearCounts: Record<number, number> = {};
+    processedData.forEach(item => {
+      if (item.year) {
+        yearCounts[item.year] = (yearCounts[item.year] || 0) + 1;
+      }
+    });
+    
+    // Find the year with the most data points
+    let mostCommonYear = 2025;
+    let highestCount = 0;
+    
+    Object.entries(yearCounts).forEach(([year, count]) => {
+      if (count > highestCount) {
+        highestCount = count;
+        mostCommonYear = parseInt(year);
+      }
+    });
+    
+    return mostCommonYear;
+  }, [processedData]);
+  
+  // Custom axis label component
+  const AxisLabel = ({ x, y, textAnchor, children }: any) => {
+    return (
+      <Text 
+        x={x} 
+        y={y} 
+        textAnchor={textAnchor} 
+        verticalAnchor="middle" 
+        style={{ 
+          fontFamily: FONT_FAMILY, 
+          fontSize: '14px', 
+          fill: '#34502b',
+          fontWeight: 500
+        }}
+      >
+        {children}
+      </Text>
+    );
+  };
   
   if (chartData.length === 0) {
     return <div className="text-center py-10">No data available for the selected parameters.</div>;
   }
   
   return (
-    <div className="w-full h-[400px]">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="w-full h-[500px]">
+      {/* Chart title similar to the reference image */}
+      <h3 className="text-center text-lg font-medium text-[#34502b] mb-2">
+        {chartYear} Brand Scores Comparison
+      </h3>
+      
+      <ResponsiveContainer width="100%" height="90%">
         <BarChart
           data={chartData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+          barGap={2}
+          barSize={36}
         >
-          <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+          <CartesianGrid strokeDasharray="3 3" opacity={0.1} horizontal={true} vertical={false} />
           <XAxis 
             dataKey="country" 
             style={{ 
@@ -200,6 +237,7 @@ const CountryBarChart = ({
               fontSize: '12px',
               color: '#34502b'
             }}
+            tickMargin={10}
           />
           <YAxis 
             domain={yAxisDomain}
@@ -209,6 +247,18 @@ const CountryBarChart = ({
               fontSize: '12px',
               color: '#34502b'
             }}
+            tickCount={7}
+            axisLine={true}
+            label={
+              <AxisLabel
+                x={-35}
+                y={230}
+                textAnchor="middle"
+                angle={-90}
+              >
+                Score
+              </AxisLabel>
+            }
           />
           <Tooltip content={<ChartTooltip standardized={standardized} />} />
           <Legend 
@@ -226,6 +276,7 @@ const CountryBarChart = ({
               fill={getBrandColor(brand)} 
               name={brand}
               fillOpacity={0.9}
+              radius={[3, 3, 0, 0]}
             />
           ))}
         </BarChart>
