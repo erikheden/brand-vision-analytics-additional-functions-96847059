@@ -75,7 +75,6 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
             allowDecimals={false}
             tickCount={10}
             ticks={Array.from({ length: maxYear - minYear + 1 }, (_, i) => minYear + i)}
-            label={{ value: '', position: 'insideBottom', offset: -5 }}
             style={{ 
               fontFamily: FONT_FAMILY,
               fontSize: '12px',
@@ -99,6 +98,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
             }}
           />
           {standardized && <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" />}
+          {/* Important: Ensure CountryChartLines is a direct child of LineChart */}
           <CountryChartLines lines={lines} />
         </LineChart>
       </ResponsiveContainer>
