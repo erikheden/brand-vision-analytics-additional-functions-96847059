@@ -15,20 +15,20 @@ export const useBarChartData = (
     const latestData: any[] = [];
     
     // For each country, calculate yearly averages first
-    const countryYearStatistics = new Map<string, Map<number, { mean: number; stdDev: number }>>();
+    const countryYearStats = new Map<string, Map<number, { mean: number; stdDev: number }>>();
     
     // Calculate country averages for each year
     Object.entries(allCountriesData).forEach(([country, countryData]) => {
       if (!countryData || countryData.length === 0) return;
       
-      if (!countryYearStatistics.has(country)) {
-        countryYearStatistics.set(country, new Map());
+      if (!countryYearStats.has(country)) {
+        countryYearStats.set(country, new Map());
       }
       
-      const yearStatsMap = countryYearStatistics.get(country)!;
+      const yearStatsMap = countryYearStats.get(country)!;
       
       // Group all scores by year
-      const allBrandsYearData = new Map<number, number[]>();
+      const scoresByYear = new Map<number, number[]>();
       
       // Add all scores (not just selected brands) to calculate proper country average
       if (Array.isArray(countryData)) {
@@ -40,16 +40,16 @@ export const useBarChartData = (
           
           if (isNaN(score)) return;
           
-          if (!allBrandsYearData.has(year)) {
-            allBrandsYearData.set(year, []);
+          if (!scoresByYear.has(year)) {
+            scoresByYear.set(year, []);
           }
           
-          allBrandsYearData.get(year)?.push(score);
+          scoresByYear.get(year)?.push(score);
         });
       }
       
       // Calculate mean and standard deviation for each year
-      allBrandsYearData.forEach((scores, year) => {
+      scoresByYear.forEach((scores, year) => {
         if (scores.length === 0) return;
         
         const sum = scores.reduce((total, score) => total + score, 0);
@@ -96,13 +96,17 @@ export const useBarChartData = (
           const year = latest.Year;
           
           // Get statistics for this country and year
-          if (standardized && countryYearStatistics.has(country)) {
-            const yearStats = countryYearStatistics.get(country)?.get(year);
+          if (standardized && countryYearStats.has(country)) {
+            const yearStats = countryYearStats.get(country)?.get(year);
             
-            if (yearStats) {
+            if (yearStats && yearStats.stdDev > 0) {
               // Standardize the score against country average
               score = standardizeScore(score, yearStats.mean, yearStats.stdDev);
               console.log(`Standardized bar score for ${brand} in ${country}, Year ${year}: ${score.toFixed(2)} (raw=${latest.Score}, mean=${yearStats.mean.toFixed(2)}, stdDev=${yearStats.stdDev.toFixed(2)})`);
+            } else {
+              // If we can't standardize, use 0 (at the mean)
+              score = 0;
+              console.warn(`Missing or invalid year stats for ${country}/${year}, using score=0`);
             }
           }
           

@@ -14,5 +14,10 @@ export { processLineChartData, COUNTRY_COLORS, getBrandColor, BRAND_COLORS };
  */
 export const standardizeScore = (score: number, countryAverage: number, countryStdDev: number): number => {
   if (countryStdDev === 0) return 0; // Avoid division by zero
-  return (score - countryAverage) / countryStdDev;
+  
+  // Calculate z-score: (value - mean) / standard deviation
+  const zScore = (score - countryAverage) / countryStdDev;
+  
+  // Cap extreme values to stay within -3 to +3 standard deviations
+  return Math.max(-3, Math.min(3, zScore));
 };
