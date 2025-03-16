@@ -41,7 +41,7 @@ export const normalizeBrandName = (brandName: string): string => {
 /**
  * Get preferred brand display name 
  * Selects the best version of a brand name from multiple variants,
- * preferring capitalized versions.
+ * now with improved prioritization for acronyms and capitalization patterns.
  */
 export const getPreferredBrandName = (
   brands: string[], 
@@ -53,23 +53,24 @@ export const getPreferredBrandName = (
   
   if (candidates.length === 0) return '';
   
-  // Sort to prioritize:
-  // 1. Capitalized first letter (Title case)
-  // 2. All uppercase
+  // Sort to prioritize (in order):
+  // 1. All uppercase (for acronyms like KLM, SAS)
+  // 2. Capitalized first letter (Title case)
   // 3. Other cases
   return candidates.sort((a, b) => {
+    // First check for ALL CAPS (likely acronyms like KLM, SAS)
+    const aAllCaps = a === a.toUpperCase() && a.length >= 2;
+    const bAllCaps = b === b.toUpperCase() && b.length >= 2;
+    
+    if (aAllCaps && !bAllCaps) return -1;
+    if (!aAllCaps && bAllCaps) return 1;
+    
+    // If neither or both are all caps, check for first letter capitalized
     const aFirstCap = a.charAt(0) === a.charAt(0).toUpperCase();
     const bFirstCap = b.charAt(0) === b.charAt(0).toUpperCase();
     
-    // If one has first letter capitalized and the other doesn't, prioritize the capitalized one
     if (aFirstCap && !bFirstCap) return -1;
     if (!aFirstCap && bFirstCap) return 1;
-    
-    // If both/neither have first letter capitalized, check for ALL CAPS
-    const aAllCaps = a === a.toUpperCase();
-    const bAllCaps = b === b.toUpperCase();
-    if (aAllCaps && !bAllCaps) return -1;
-    if (!aAllCaps && bAllCaps) return 1;
     
     // If still tied, sort alphabetically
     return a.localeCompare(b);
