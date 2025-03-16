@@ -22,7 +22,7 @@ const BrandSelectionSection = ({
   console.log("Brand selection section - unique brand names:", uniqueBrandNames);
   
   // Check if using fallback brands (our standard list of common brands)
-  const usingFallbackBrands = uniqueBrandNames.length === 26 && 
+  const usingFallbackBrands = uniqueBrandNames.length >= 30 && 
     uniqueBrandNames.includes("McDonald's") && 
     uniqueBrandNames.includes("Coca-Cola") &&
     uniqueBrandNames.includes("Zara");

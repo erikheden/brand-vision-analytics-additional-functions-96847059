@@ -73,17 +73,18 @@ export const useBrandDiscovery = (
       });
     });
     
-    // Check for Zara specifically to debug why it might be missing
-    const zaraCount = brandCountryCount.get('zara') || 0;
-    console.log(`DEBUG: Zara appears in ${zaraCount}/${selectedCountries.length} countries`);
+    // Log information about all brands that appear in multiple countries
+    console.log("Brands appearing in multiple countries:");
+    brandCountryCount.forEach((count, brand) => {
+      if (count >= 2) {
+        console.log(`Brand "${brand}" appears in ${count}/${selectedCountries.length} countries`);
+      }
+    });
     
     // Keep brands that appear in at least 2 countries
     const multiCountryBrands = Array.from(brandCountryCount.entries())
       .filter(([_, count]) => count >= 2)
-      .map(([brand, count]) => {
-        console.log(`Brand ${brand} appears in ${count}/${selectedCountries.length} countries`);
-        return brand;
-      });
+      .map(([brand, _]) => brand);
     
     console.log(`Found ${multiCountryBrands.length} brands that appear in multiple countries`);
     
@@ -102,9 +103,9 @@ export const useBrandDiscovery = (
   const getNormalizedUniqueBrands = () => {
     const commonBrands = getCommonBrands();
     
-    // If no multi-country brands found, provide a list of universal brands
-    if (commonBrands.length === 0 && selectedCountries.length >= 2) {
-      console.log(`No common brands found naturally across ${selectedCountries.length} countries, adding known common brands as fallback`);
+    // If no multi-country brands found or only a few, provide a list of universal brands
+    if ((commonBrands.length < 5) && selectedCountries.length >= 2) {
+      console.log(`Few common brands found naturally (${commonBrands.length}) across ${selectedCountries.length} countries, adding known common brands as fallback`);
       
       // Common global/Nordic brands that should match across these countries
       const knownCommonBrands = [
@@ -113,7 +114,8 @@ export const useBrandDiscovery = (
         "Apple", "Samsung", "Netflix", "Google", "Microsoft",
         "BMW", "Audi", "Volkswagen", "Toyota", "SAS",
         "Finnair", "Norwegian", "Telia", "Telenor", "Nordea",
-        "Zara" // Explicitly add Zara to ensure it appears in the fallback list
+        "Zara", "Mango", "Bershka", "Pull & Bear", "Lidl",
+        "Burger King", "Subway", "Starbucks", "Amazon", "LEGO"
       ];
       
       console.log(`Adding ${knownCommonBrands.length} known common brands as fallback`);
@@ -150,21 +152,47 @@ export const useBrandDiscovery = (
       .filter(Boolean)
       .sort();
     
-    // Make sure to include Zara if it should be in multiple countries
-    if (selectedCountries.length >= 2 && !preferredBrandNames.includes("Zara")) {
-      // Check if Zara exists in our available brands but wasn't selected
-      const hasZara = availableBrands.some(brand => 
-        brand.Brand && normalizeBrandName(brand.Brand.toString()) === 'zara'
-      );
+    // Make sure to include important brands if they were not included
+    // This is a fallback for edge cases where our normalization might have issues
+    const ensureImportantBrands = (brandNames: string[]) => {
+      const importantBrands = [
+        "Zara", "IKEA", "H&M", "McDonald's", "Coca-Cola", 
+        "Lidl", "Burger King", "Starbucks", "Adidas", "Nike"
+      ];
       
-      if (hasZara) {
-        console.log("Adding Zara explicitly as it exists in our data but wasn't included");
-        preferredBrandNames.push("Zara");
-      }
-    }
+      importantBrands.forEach(brand => {
+        const normalizedBrand = normalizeBrandName(brand);
+        
+        // Check if the brand exists in our data for any of the selected countries
+        const brandExists = availableBrands.some(
+          item => item.Brand && normalizeBrandName(item.Brand.toString()) === normalizedBrand
+        );
+        
+        // Check if it appears in multiple countries
+        if (brandExists) {
+          const countryCount = selectedCountries.reduce((count, country) => {
+            const hasInCountry = availableBrands.some(
+              item => item.Country === country && 
+                     item.Brand && 
+                     normalizeBrandName(item.Brand.toString()) === normalizedBrand
+            );
+            return hasInCountry ? count + 1 : count;
+          }, 0);
+          
+          // If it's in multiple countries but not in our list, add it
+          if (countryCount >= 2 && !brandNames.some(b => normalizeBrandName(b) === normalizedBrand)) {
+            console.log(`Ensuring ${brand} is included (found in ${countryCount} countries)`);
+            brandNames.push(brand);
+          }
+        }
+      });
+      
+      return brandNames;
+    };
     
-    console.log("Final preferred brand names:", preferredBrandNames);
-    return preferredBrandNames;
+    const finalBrandNames = ensureImportantBrands(preferredBrandNames);
+    console.log("Final preferred brand names:", finalBrandNames);
+    return finalBrandNames;
   };
 
   return {
