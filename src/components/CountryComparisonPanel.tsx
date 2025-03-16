@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useSelectionData } from "@/hooks/useSelectionData";
 import CountrySelectionSection from "./country-comparison/CountrySelectionSection";
 import BrandSelectionSection from "./country-comparison/BrandSelectionSection";
-import { useBrandDiscovery } from "./country-comparison/useBrandDiscovery";
+import { useBrandDiscovery } from "@/hooks/brand-discovery";
 import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
 
 interface CountryComparisonPanelProps {
