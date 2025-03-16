@@ -15,6 +15,7 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   
   // Special case for Sweden and Norway - we'll do direct matching first
   if (selectedCountries.includes('Sweden') && selectedCountries.includes('Norway') && selectedCountries.length === 2) {
+    console.log("Using specialized Sweden-Norway matching");
     return findSwedenNorwayBrands(availableBrands);
   }
   
@@ -187,12 +188,29 @@ const findSwedenNorwayBrands = (availableBrands: any[]) => {
   });
   
   // Add additional common brands that might be missing
+  // Extend the list with the brands from the user's table
   const commonBrands = [
+    // Major international brands
     "IKEA", "H&M", "Volvo", "Spotify", "Electrolux", "SAS", "Telia", "Telenor", 
     "Nordea", "Handelsbanken", "Ericsson", "Circle K", "Coop", "PostNord", 
     "Burger King", "McDonald's", "Coca-Cola", "Pepsi", "Nike", "Adidas", 
     "Zara", "Apple", "Samsung", "Google", "Microsoft", "Amazon", "Netflix", 
-    "Subway", "KFC", "Shell", "Lidl", "BMW", "Audi", "Volkswagen", "Toyota"
+    "Subway", "KFC", "Shell", "Lidl", "BMW", "Audi", "Volkswagen", "Toyota",
+    
+    // Additional brands from the user's list
+    "7-Eleven", "Airbnb", "Air France", "Änglamark", "Apollo", "Best Western",
+    "Bikbok", "Biltema", "Bring", "British Airways", "Byggmax", "Clarion Collection",
+    "Clarion Hotel", "Clas Ohlson", "Comfort Hotel", "Cubus", "Danone", "Db Schenker",
+    "Dove", "Dressmann", "Eldorado", "Elon", "Espresso House", "Fanta", "Findus",
+    "Finnair", "Fiskars", "Fjällräven", "Fortum", "Gina Tricot", "If", "Intersport",
+    "JACK & JONES", "Joe & the Juice", "Johnson & Johnson", "Jula", "JYSK", "Kappahl",
+    "Kavli", "KICKS", "KLM", "Lantmännen", "Lego", "Lindex", "L'Oréal Paris", 
+    "Lufthansa", "Lyko", "Magnum", "Miele", "Nelly.Com", "Nespresso", "Nestlé", 
+    "NetOnNet", "Nissan", "Norwegian", "Orkla", "Polestar", "Power", 
+    "Procter & Gamble", "P&G", "Puma", "Quality Hotel", "Radisson Blu", "Red Bull", 
+    "Renault", "Rituals", "Rusta", "Santa Maria", "Santander", "Scandic", "Siemens", 
+    "Škoda", "Sprite", "St1", "Stena Line", "Strawberry", "Tesla", "TUI", "Uber", 
+    "Unilever", "Vero Moda", "Ving", "Wasa", "XXL", "Zalando"
   ];
   
   // Filter out any duplicates and add any missing common brands
