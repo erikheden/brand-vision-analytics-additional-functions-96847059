@@ -22,10 +22,10 @@ export const BarChartContent = ({
     return <div className="text-center py-10">No data available for the selected parameters.</div>;
   }
   
-  // Prepare series data for Highcharts
-  const series = selectedBrands.map(brand => {
+  // Prepare series data for Highcharts with proper typing
+  const series: Highcharts.SeriesOptionsType[] = selectedBrands.map(brand => {
     return {
-      type: 'column',
+      type: 'column' as const,
       name: brand,
       data: chartData.map(item => ({
         name: item.country,

@@ -43,8 +43,8 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
     return <div className="text-center py-8">No valid data found to display chart lines.</div>;
   }
 
-  // Create series data for Highcharts with explicit type
-  const series = lines.map(line => {
+  // Create series data for Highcharts with proper typing
+  const series: Highcharts.SeriesOptionsType[] = lines.map(line => {
     const seriesData = chartData.map(point => {
       return [
         point.year, // x value (year)
@@ -53,12 +53,12 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
     }).filter(point => point[1] !== null && point[1] !== undefined);
     
     return {
-      type: 'line',
+      type: 'line' as const,
       name: line.name,
       data: seriesData,
       color: line.color,
       lineWidth: 2,
-      dashStyle: line.strokeDasharray ? 'Dash' : 'Solid',
+      dashStyle: line.strokeDasharray ? ('Dash' as Highcharts.DashStyleValue) : ('Solid' as Highcharts.DashStyleValue),
       marker: {
         symbol: 'circle',
         radius: 4
