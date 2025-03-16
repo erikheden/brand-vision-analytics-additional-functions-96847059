@@ -24,7 +24,7 @@ export const normalizeBrandName = (brandName: string): string => {
   if (!brandName) return '';
   
   // Aggressively normalize the brand name to identify the same brand across countries
-  return brandName
+  let normalized = brandName
     .trim()
     .replace(/\s*\([A-Z]{1,3}\)\s*$/i, '') // Remove country codes in parentheses at the end: "Brand (SE)"
     .replace(/\s+-\s+[A-Z]{1,3}\s*$/i, '') // Remove formats like "- SE" at the end
@@ -36,6 +36,33 @@ export const normalizeBrandName = (brandName: string): string => {
     .replace(/-/g, ' ') // Replace hyphens with spaces
     .toLowerCase() // Convert to lowercase for case-insensitive comparison
     .trim(); // Final trim to remove any leading/trailing spaces
+  
+  // Add special case handling for specific brands known to be the same across countries
+  const specialCases: Record<string, string> = {
+    'klm': 'klm',
+    'klm royal dutch airlines': 'klm',
+    'mcdonalds': 'mcdonalds',
+    'mc donalds': 'mcdonalds',
+    'ikea': 'ikea',
+    'h and m': 'handm',
+    'hm': 'handm',
+    'h m': 'handm',
+    'handm': 'handm',
+    'h and m': 'handm',
+    'coca cola': 'cocacola',
+    'cocacola': 'cocacola',
+    'coke': 'cocacola',
+    'coca cola zero': 'cocacolazero',
+    'coca cola zero sugar': 'cocacolazero',
+    'pepsi': 'pepsi',
+    'pepsi max': 'pepsimax',
+    'pepsimax': 'pepsimax',
+    'mcdonalds': 'mcdonalds',
+    'mcdonald': 'mcdonalds'
+  };
+  
+  // Check if this normalized brand name has a special case mapping
+  return specialCases[normalized] || normalized;
 };
 
 /**

@@ -1,5 +1,5 @@
 
-import { CircleCheck } from "lucide-react";
+import { CircleCheck, AlertTriangle } from "lucide-react";
 import BrandSelection from "../BrandSelection";
 import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
 
@@ -28,18 +28,30 @@ const BrandSelectionSection = ({
         Select Brands to Compare
       </h3>
       <div className="mt-2">
-        <BrandSelection
-          brands={uniqueBrandNames}
-          selectedBrands={selectedBrands}
-          onBrandToggle={onBrandToggle}
-          onClearBrands={onClearBrands}
-        />
+        {uniqueBrandNames.length > 0 ? (
+          <BrandSelection
+            brands={uniqueBrandNames}
+            selectedBrands={selectedBrands}
+            onBrandToggle={onBrandToggle}
+            onClearBrands={onClearBrands}
+          />
+        ) : selectedCountries.length > 1 ? (
+          <div className="text-amber-600 bg-amber-50 p-4 rounded-md flex items-start gap-2">
+            <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="font-medium">No common brands found</p>
+              <p className="text-sm mt-1">
+                We couldn't find any brands that exist across all selected countries. 
+                Try selecting fewer countries or different combinations.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="text-gray-500 p-4 border border-dashed border-gray-300 rounded-md text-center">
+            Select at least one country to see available brands.
+          </div>
+        )}
       </div>
-      {selectedCountries.length > 1 && uniqueBrandNames.length === 0 && (
-        <div className="text-amber-600 bg-amber-50 p-3 rounded-md text-sm mt-2">
-          No common brands found across the selected countries. Try different country combinations.
-        </div>
-      )}
     </div>
   );
 };
