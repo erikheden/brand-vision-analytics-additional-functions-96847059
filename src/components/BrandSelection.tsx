@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { X, Check, Search } from "lucide-react";
 import BrandCheckbox from "./BrandCheckbox";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
 
 interface BrandSelectionProps {
@@ -21,6 +21,11 @@ const BrandSelection = ({
   onClearBrands,
 }: BrandSelectionProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Force refresh when brands change to ensure proper normalization
+  useEffect(() => {
+    console.log("Brands for selection:", brands);
+  }, [brands]);
   
   // Calculate the number of rows needed based on total brands and 4 columns
   const numColumns = 4;

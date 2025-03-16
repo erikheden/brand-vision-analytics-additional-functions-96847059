@@ -107,12 +107,15 @@ export const useBrandDiscovery = (
     
     // Get preferred display name for each normalized brand
     const preferredBrandNames = Array.from(normalizedBrands.entries())
-      .map(([normalizedName, variations]) => 
-        getPreferredBrandName(variations, normalizedName)
-      )
+      .map(([normalizedName, variations]) => {
+        const preferred = getPreferredBrandName(variations, normalizedName);
+        console.log(`Brand normalization: ${normalizedName} -> ${preferred} (from options: ${variations.join(', ')})`);
+        return preferred;
+      })
       .filter(Boolean)
       .sort();
-      
+    
+    console.log("Final preferred brand names:", preferredBrandNames);
     return preferredBrandNames;
   };
 

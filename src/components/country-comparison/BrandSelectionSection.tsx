@@ -18,6 +18,9 @@ const BrandSelectionSection = ({
   onBrandToggle,
   onClearBrands
 }: BrandSelectionSectionProps) => {
+  // Log the brand names to help debug capitalization issues
+  console.log("Brand selection section - unique brand names:", uniqueBrandNames);
+  
   return (
     <div className="space-y-2">
       <h3 className="text-lg font-medium flex items-center gap-2 text-[#34502b]">
