@@ -1,10 +1,11 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { BrandData } from "@/types/brand";
+import { normalizeBrandName, getPreferredBrandName } from "@/utils/industry/normalizeIndustry";
 
 /**
  * Fetches all brands data for a country (for market statistics calculation)
- * Prioritizes capitalized brand names
+ * Uses improved normalization to deduplicate brands
  */
 export const fetchAllBrandsData = async (
   country: string,
@@ -30,38 +31,46 @@ export const fetchAllBrandsData = async (
     ...(allBrandsDataWithFullName || [])
   ];
   
-  // Remove duplicates by prioritizing capitalized brand names
-  const uniqueBrands = new Map<string, Map<number, BrandData>>();
+  // Group by normalized brand name and year
+  const brandData = new Map<string, Map<number, BrandData[]>>();
   
   combinedData.forEach(entry => {
     if (!entry.Brand || entry.Year === null) return;
     
-    const normalizedBrand = entry.Brand.toLowerCase();
+    const normalizedBrand = normalizeBrandName(entry.Brand.toString());
     const year = Number(entry.Year);
     
-    if (!uniqueBrands.has(normalizedBrand)) {
-      uniqueBrands.set(normalizedBrand, new Map());
+    if (!brandData.has(normalizedBrand)) {
+      brandData.set(normalizedBrand, new Map());
     }
     
-    const brandYears = uniqueBrands.get(normalizedBrand)!;
+    const yearMap = brandData.get(normalizedBrand)!;
     
-    if (!brandYears.has(year) || 
-        // Prefer capitalized brand names
-        (entry.Brand.charAt(0) === entry.Brand.charAt(0).toUpperCase() && 
-         brandYears.get(year)?.Brand?.charAt(0) !== brandYears.get(year)?.Brand?.charAt(0)?.toUpperCase())) {
-      brandYears.set(year, entry);
+    if (!yearMap.has(year)) {
+      yearMap.set(year, []);
     }
+    
+    yearMap.get(year)!.push(entry);
   });
   
-  // Flatten the map of maps into a single array
-  const result: BrandData[] = [];
-  uniqueBrands.forEach(brandYears => {
-    brandYears.forEach(entry => {
-      result.push(entry);
+  // Process each group to select the best variant
+  const finalData: BrandData[] = [];
+  
+  brandData.forEach((yearMap, normalizedBrand) => {
+    yearMap.forEach((entries, year) => {
+      // Find preferred brand name among the variants for this normalized brand
+      const brandVariants = entries.map(e => e.Brand?.toString() || '');
+      const preferredName = getPreferredBrandName(brandVariants, normalizedBrand);
+      
+      // Select the entry with the preferred brand name, or the first one if not found
+      const preferredEntry = entries.find(e => e.Brand === preferredName) || entries[0];
+      
+      // Add the preferred entry to the final data set
+      finalData.push(preferredEntry);
     });
   });
   
-  return result;
+  return finalData;
 };
 
 /**

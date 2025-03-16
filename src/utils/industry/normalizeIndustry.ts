@@ -37,3 +37,41 @@ export const normalizeBrandName = (brandName: string): string => {
     .toLowerCase() // Convert to lowercase for case-insensitive comparison
     .trim(); // Final trim to remove any leading/trailing spaces
 };
+
+/**
+ * Get preferred brand display name 
+ * Selects the best version of a brand name from multiple variants,
+ * preferring capitalized versions.
+ */
+export const getPreferredBrandName = (
+  brands: string[], 
+  normalizedName: string
+): string => {
+  const candidates = brands.filter(
+    brand => normalizeBrandName(brand) === normalizedName
+  );
+  
+  if (candidates.length === 0) return '';
+  
+  // Sort to prioritize:
+  // 1. Capitalized first letter (Title case)
+  // 2. All uppercase
+  // 3. Other cases
+  return candidates.sort((a, b) => {
+    const aFirstCap = a.charAt(0) === a.charAt(0).toUpperCase();
+    const bFirstCap = b.charAt(0) === b.charAt(0).toUpperCase();
+    
+    // If one has first letter capitalized and the other doesn't, prioritize the capitalized one
+    if (aFirstCap && !bFirstCap) return -1;
+    if (!aFirstCap && bFirstCap) return 1;
+    
+    // If both/neither have first letter capitalized, check for ALL CAPS
+    const aAllCaps = a === a.toUpperCase();
+    const bAllCaps = b === b.toUpperCase();
+    if (aAllCaps && !bAllCaps) return -1;
+    if (!aAllCaps && bAllCaps) return 1;
+    
+    // If still tied, sort alphabetically
+    return a.localeCompare(b);
+  })[0];
+};

@@ -162,15 +162,37 @@ export const useSelectionData = (selectedCountry: string | string[], selectedInd
           allBrands = [...allBrands, ...(codeData || []), ...(nameData || [])];
         }
         
-        console.log(`Fetched ${allBrands.length} brands for ${countriesToQuery.join(', ')}:`, 
-          allBrands.slice(0, 5).map(b => ({ 
+        // Deduplicate brands using normalized names
+        const normalizedBrandMap = new Map<string, BrandData>();
+        
+        // Process each brand to find preferred versions
+        allBrands.forEach(brand => {
+          if (!brand.Brand) return;
+          
+          const normalizedName = normalizeBrandName(brand.Brand.toString());
+          
+          // If we haven't seen this normalized brand yet, or if this version has a capital letter
+          // and the current one doesn't, update the map
+          if (!normalizedBrandMap.has(normalizedName) || 
+              (brand.Brand.charAt(0) === brand.Brand.charAt(0).toUpperCase() && 
+               normalizedBrandMap.get(normalizedName)?.Brand?.charAt(0) !== 
+               normalizedBrandMap.get(normalizedName)?.Brand?.charAt(0)?.toUpperCase())) {
+            normalizedBrandMap.set(normalizedName, brand);
+          }
+        });
+        
+        // Convert back to array with preferred brand names
+        const dedupedBrands = Array.from(normalizedBrandMap.values());
+        
+        console.log(`Fetched ${allBrands.length} brands (${dedupedBrands.length} after deduplication) for ${countriesToQuery.join(', ')}:`, 
+          dedupedBrands.slice(0, 5).map(b => ({ 
             brand: b.Brand, 
             country: b.Country,
-            normalized: b.Brand ? normalizeBrandName(b.Brand) : null
+            normalized: b.Brand ? normalizeBrandName(b.Brand.toString()) : null
           }))
         );
         
-        return allBrands as BrandData[];
+        return dedupedBrands as BrandData[];
       } catch (err) {
         console.error("Exception in brands query:", err);
         return [];

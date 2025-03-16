@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { X, Check, Search } from "lucide-react";
 import BrandCheckbox from "./BrandCheckbox";
 import { useState } from "react";
+import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
 
 interface BrandSelectionProps {
   brands: string[];
@@ -46,10 +47,12 @@ const BrandSelection = ({
 
   const columnOrderedBrands = reorganizeBrandsIntoColumns(brands);
   
-  // Filter brands based on search query
-  const filteredBrands = columnOrderedBrands.filter(brand =>
-    brand.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter brands based on search query, using normalized comparison for better matching
+  const filteredBrands = columnOrderedBrands.filter(brand => {
+    const normalizedBrand = normalizeBrandName(brand);
+    const normalizedQuery = normalizeBrandName(searchQuery);
+    return normalizedBrand.includes(normalizedQuery);
+  });
 
   const handleSelectAll = () => {
     // If no brands are selected, select all filtered brands

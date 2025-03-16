@@ -1,6 +1,6 @@
 
 import { useSelectionData } from "@/hooks/useSelectionData";
-import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
+import { normalizeBrandName, getPreferredBrandName } from "@/utils/industry/normalizeIndustry";
 
 export const useBrandDiscovery = (
   selectedCountries: string[],
@@ -84,23 +84,36 @@ export const useBrandDiscovery = (
   // Get unique brand names from filtered list, prioritizing capitalized versions
   const getNormalizedUniqueBrands = () => {
     const commonBrands = getCommonBrands();
-    const brandMap = new Map<string, string>();
+    
+    // Group all brand variants by normalized name
+    const normalizedBrands = new Map<string, string[]>();
     
     commonBrands.forEach(brand => {
       if (!brand.Brand) return;
       
       const normalizedName = normalizeBrandName(brand.Brand);
       
-      // If we haven't seen this normalized brand yet, or the current name is capitalized
-      // and the stored one isn't, update the map
-      if (!brandMap.has(normalizedName) || 
-          (brand.Brand.charAt(0) === brand.Brand.charAt(0).toUpperCase() && 
-           brandMap.get(normalizedName)?.charAt(0) !== brandMap.get(normalizedName)?.charAt(0)?.toUpperCase())) {
-        brandMap.set(normalizedName, brand.Brand);
+      if (!normalizedBrands.has(normalizedName)) {
+        normalizedBrands.set(normalizedName, []);
+      }
+      
+      const variations = normalizedBrands.get(normalizedName)!;
+      const brandName = brand.Brand.toString();
+      
+      if (!variations.includes(brandName)) {
+        variations.push(brandName);
       }
     });
     
-    return Array.from(brandMap.values()).sort();
+    // Get preferred display name for each normalized brand
+    const preferredBrandNames = Array.from(normalizedBrands.entries())
+      .map(([normalizedName, variations]) => 
+        getPreferredBrandName(variations, normalizedName)
+      )
+      .filter(Boolean)
+      .sort();
+      
+    return preferredBrandNames;
   };
 
   return {

@@ -6,6 +6,7 @@ import IndustryTags from "./IndustryTags";
 import { useSelectionData } from "@/hooks/useSelectionData";
 import { useSelectionState } from "@/hooks/useSelectionState";
 import { ChevronUp } from "lucide-react";
+import { normalizeBrandName, getPreferredBrandName } from "@/utils/industry/normalizeIndustry";
 
 interface SelectionPanelProps {
   selectedCountry: string;
@@ -41,26 +42,36 @@ const SelectionPanel = ({
 
   // Deduplicate brand names with preference for capitalized versions
   const getUniquePreferredBrands = () => {
-    // Create a map to store best version of each brand by normalized name
-    const brandMap = new Map<string, string>();
+    // Create a map to store normalized brand names
+    const normalizedBrands = new Map<string, string[]>();
     
+    // Group all brand variations by their normalized name
     brands
       .filter(item => item.Brand && typeof item.Brand === 'string')
       .forEach(item => {
         const brand = item.Brand as string;
-        const normalizedBrand = brand.toLowerCase();
+        const normalizedBrand = normalizeBrandName(brand);
         
-        // If we haven't seen this brand before, or the current version has uppercase first letter 
-        // while the stored one doesn't, update the map
-        if (!brandMap.has(normalizedBrand) || 
-            (brand.charAt(0) === brand.charAt(0).toUpperCase() && 
-             brandMap.get(normalizedBrand)?.charAt(0) !== brandMap.get(normalizedBrand)?.charAt(0)?.toUpperCase())) {
-          brandMap.set(normalizedBrand, brand);
+        if (!normalizedBrands.has(normalizedBrand)) {
+          normalizedBrands.set(normalizedBrand, []);
+        }
+        
+        // Add this variation if it's not already in the list
+        const variations = normalizedBrands.get(normalizedBrand)!;
+        if (!variations.includes(brand)) {
+          variations.push(brand);
         }
       });
     
-    // Return the array of preferred brand names
-    return Array.from(brandMap.values()).sort();
+    // For each normalized name, get the preferred display version
+    const preferredBrandNames = Array.from(normalizedBrands.entries())
+      .map(([normalizedName, variations]) => 
+        getPreferredBrandName(variations, normalizedName)
+      )
+      .filter(Boolean)
+      .sort();
+    
+    return preferredBrandNames;
   };
 
   const uniqueBrandNames = getUniquePreferredBrands();

@@ -5,6 +5,7 @@ import { useSelectionData } from "@/hooks/useSelectionData";
 import CountrySelectionSection from "./country-comparison/CountrySelectionSection";
 import BrandSelectionSection from "./country-comparison/BrandSelectionSection";
 import { useBrandDiscovery } from "./country-comparison/useBrandDiscovery";
+import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
 
 interface CountryComparisonPanelProps {
   selectedCountries: string[];
@@ -34,7 +35,15 @@ const CountryComparisonPanel = ({
   
   const handleBrandToggle = (brand: string, checked: boolean) => {
     if (checked) {
-      setSelectedBrands([...selectedBrands, brand]);
+      // Check if this brand is already selected with a different capitalization
+      const normalizedNewBrand = normalizeBrandName(brand);
+      const alreadyExists = selectedBrands.some(
+        existingBrand => normalizeBrandName(existingBrand) === normalizedNewBrand
+      );
+      
+      if (!alreadyExists) {
+        setSelectedBrands([...selectedBrands, brand]);
+      }
     } else {
       setSelectedBrands(selectedBrands.filter(b => b !== brand));
     }
