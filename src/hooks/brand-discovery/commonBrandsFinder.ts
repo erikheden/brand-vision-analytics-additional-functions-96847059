@@ -134,8 +134,8 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
     console.log(brandSample);
     
     // Let's try a direct matching approach to find why we're missing some brands
-    const swedishBrandSet = new Set();
-    const norwegianBrandSet = new Set();
+    const swedishBrandSet = new Set<string>();
+    const norwegianBrandSet = new Set<string>();
     
     // Populate brand sets
     availableBrands.forEach(brand => {
