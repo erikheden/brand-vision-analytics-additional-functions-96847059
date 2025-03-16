@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import CountrySelect from "./CountrySelect";
 import BrandSelection from "./BrandSelection";
@@ -38,10 +39,31 @@ const SelectionPanel = ({
     }
   };
 
-  const uniqueBrandNames = [...new Set(brands
-    .map(item => item.Brand)
-    .filter((brand): brand is string => typeof brand === 'string' && brand !== null)
-  )].sort();
+  // Deduplicate brand names with preference for capitalized versions
+  const getUniquePreferredBrands = () => {
+    // Create a map to store best version of each brand by normalized name
+    const brandMap = new Map<string, string>();
+    
+    brands
+      .filter(item => item.Brand && typeof item.Brand === 'string')
+      .forEach(item => {
+        const brand = item.Brand as string;
+        const normalizedBrand = brand.toLowerCase();
+        
+        // If we haven't seen this brand before, or the current version has uppercase first letter 
+        // while the stored one doesn't, update the map
+        if (!brandMap.has(normalizedBrand) || 
+            (brand.charAt(0) === brand.charAt(0).toUpperCase() && 
+             brandMap.get(normalizedBrand)?.charAt(0) !== brandMap.get(normalizedBrand)?.charAt(0)?.toUpperCase())) {
+          brandMap.set(normalizedBrand, brand);
+        }
+      });
+    
+    // Return the array of preferred brand names
+    return Array.from(brandMap.values()).sort();
+  };
+
+  const uniqueBrandNames = getUniquePreferredBrands();
 
   return (
     <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl transition-all duration-300 hover:shadow-xl">

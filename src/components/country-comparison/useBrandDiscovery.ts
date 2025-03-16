@@ -1,3 +1,4 @@
+
 import { useSelectionData } from "@/hooks/useSelectionData";
 import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
 
@@ -80,7 +81,7 @@ export const useBrandDiscovery = (
     return commonBrandRecords;
   };
   
-  // Get unique brand names from filtered list
+  // Get unique brand names from filtered list, prioritizing capitalized versions
   const getNormalizedUniqueBrands = () => {
     const commonBrands = getCommonBrands();
     const brandMap = new Map<string, string>();
@@ -90,9 +91,11 @@ export const useBrandDiscovery = (
       
       const normalizedName = normalizeBrandName(brand.Brand);
       
-      // If we haven't seen this normalized brand yet, or the current name is shorter
-      // (preference for simpler names without country codes)
-      if (!brandMap.has(normalizedName) || brand.Brand.length < brandMap.get(normalizedName)!.length) {
+      // If we haven't seen this normalized brand yet, or the current name is capitalized
+      // and the stored one isn't, update the map
+      if (!brandMap.has(normalizedName) || 
+          (brand.Brand.charAt(0) === brand.Brand.charAt(0).toUpperCase() && 
+           brandMap.get(normalizedName)?.charAt(0) !== brandMap.get(normalizedName)?.charAt(0)?.toUpperCase())) {
         brandMap.set(normalizedName, brand.Brand);
       }
     });

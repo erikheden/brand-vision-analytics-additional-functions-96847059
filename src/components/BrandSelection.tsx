@@ -23,21 +23,22 @@ const BrandSelection = ({
   
   // Calculate the number of rows needed based on total brands and 4 columns
   const numColumns = 4;
-  const numRows = Math.ceil(brands.length / numColumns);
   
   // Reorganize brands into column-first order
   const reorganizeBrandsIntoColumns = (brands: string[]) => {
-    const sortedBrands = [...brands].sort();
     const result: string[] = new Array(brands.length);
-    const itemsPerColumn = Math.ceil(sortedBrands.length / numColumns);
+    const itemsPerColumn = Math.ceil(brands.length / numColumns);
     
-    for (let i = 0; i < sortedBrands.length; i++) {
+    for (let i = 0; i < brands.length; i++) {
       // Calculate position in the grid
       const column = Math.floor(i / itemsPerColumn);
       const row = i % itemsPerColumn;
       const newIndex = row * numColumns + column;
       
-      result[newIndex] = sortedBrands[i];
+      // Only set if the index is valid
+      if (newIndex < brands.length) {
+        result[newIndex] = brands[i];
+      }
     }
     
     return result.filter(brand => brand !== undefined);
