@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
 import { BrandData } from "@/types/brand";
@@ -28,6 +27,7 @@ export const findDirectBrandMatch = async (
 
 /**
  * Finds brands in a country that match the normalized name of the selected brand
+ * Prioritizes capitalized brands over lowercase ones
  */
 export const findNormalizedBrandMatches = async (
   country: string, 
@@ -51,14 +51,31 @@ export const findNormalizedBrandMatches = async (
   }
   
   // Find brands in this country that match the normalized selected brand
-  const matchingBrandNames = allBrandsInCountry
+  const matchingBrands = allBrandsInCountry
     ?.filter(item => item.Brand)
     .map(item => ({
       original: item.Brand as string,
       normalized: normalizeBrandName(item.Brand as string)
     }))
-    .filter(item => item.normalized === normalizedSelectedBrand)
-    .map(item => item.original) || [];
+    .filter(item => item.normalized === normalizedSelectedBrand) || [];
+  
+  // Sort matches to prioritize capitalized versions over lowercase
+  const sortedMatchingBrands = matchingBrands.sort((a, b) => {
+    // If first letter is uppercase in one but not the other, prioritize uppercase
+    const aIsCapitalized = a.original.charAt(0) === a.original.charAt(0).toUpperCase();
+    const bIsCapitalized = b.original.charAt(0) === b.original.charAt(0).toUpperCase();
+    
+    if (aIsCapitalized && !bIsCapitalized) return -1;
+    if (!aIsCapitalized && bIsCapitalized) return 1;
+    
+    // Otherwise, sort by original brand name
+    return a.original.localeCompare(b.original);
+  });
+  
+  // Take only the first match (prioritized by capitalization)
+  const matchingBrandNames = sortedMatchingBrands.length > 0 
+    ? [sortedMatchingBrands[0].original] 
+    : [];
   
   console.log(`Found ${matchingBrandNames.length} matching brands for "${selectedBrand}" in ${country}:`, matchingBrandNames);
   
@@ -67,7 +84,7 @@ export const findNormalizedBrandMatches = async (
     return [];
   }
   
-  // Query data for all matching brands
+  // Query data for the best matching brand
   let { data: brandData, error: dataError } = await supabase
     .from("SBI Ranking Scores 2011-2025")
     .select("*")
