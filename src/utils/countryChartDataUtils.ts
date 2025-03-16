@@ -13,11 +13,20 @@ export { processLineChartData, COUNTRY_COLORS, getBrandColor, BRAND_COLORS };
  * @returns The standardized score (z-score)
  */
 export const standardizeScore = (score: number, countryAverage: number, countryStdDev: number): number => {
-  if (countryStdDev === 0) return 0; // Avoid division by zero
+  // If we have only one data point or zero variance, we can't standardize properly
+  // In this case, return 0 (which represents exactly at the mean)
+  if (countryStdDev === 0 || isNaN(countryStdDev)) {
+    console.log(`Cannot standardize score ${score} with countryAverage=${countryAverage} and countryStdDev=${countryStdDev}. Returning 0.`);
+    return 0;
+  }
   
   // Calculate z-score: (value - mean) / standard deviation
   const zScore = (score - countryAverage) / countryStdDev;
   
   // Cap extreme values to stay within -3 to +3 standard deviations
-  return Math.max(-3, Math.min(3, zScore));
+  const cappedScore = Math.max(-3, Math.min(3, zScore));
+  
+  console.log(`Standardized score: ${score} → ${cappedScore.toFixed(2)} (avg=${countryAverage.toFixed(2)}, stdDev=${countryStdDev.toFixed(2)})`);
+  
+  return cappedScore;
 };

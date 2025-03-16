@@ -21,7 +21,7 @@ export const processLineChartData = (
   const allYears = new Set<number>();
   
   // First calculate country averages by year - we need this for standardization
-  const countryYearStats = new Map<string, Map<number, { mean: number; stdDev: number }>>();
+  const countryYearStats = new Map<string, Map<number, { mean: number; stdDev: number; count: number }>>();
   
   // Calculate stats for each country and year across ALL brands (not just selected ones)
   Object.entries(allCountriesData).forEach(([country, countryData]) => {
@@ -70,8 +70,8 @@ export const processLineChartData = (
       const variance = squaredDiffs.reduce((total, diff) => total + diff, 0) / scores.length;
       const stdDev = Math.sqrt(variance);
       
-      // Store statistics
-      yearMap.set(year, { mean, stdDev });
+      // Store statistics with count for reference
+      yearMap.set(year, { mean, stdDev, count: scores.length });
       
       console.log(`Country ${country}, Year ${year} stats: mean=${mean.toFixed(2)}, stdDev=${stdDev.toFixed(2)} (from ${scores.length} brands)`);
     });
@@ -123,11 +123,18 @@ export const processLineChartData = (
         if (standardized && countryYearStats.has(country)) {
           const yearStats = countryYearStats.get(country)!.get(year);
           
-          if (yearStats && yearStats.stdDev > 0) {
-            finalScore = standardizeScore(score, yearStats.mean, yearStats.stdDev);
-            console.log(`Standardized score for ${brand}/${country}/${year}: ${finalScore.toFixed(2)} (raw=${score}, country avg=${yearStats.mean.toFixed(2)}, stdDev=${yearStats.stdDev.toFixed(2)})`);
+          if (yearStats) {
+            // We need at least 2 data points to have meaningful standardization
+            if (yearStats.count >= 2 && yearStats.stdDev > 0) {
+              finalScore = standardizeScore(score, yearStats.mean, yearStats.stdDev);
+              console.log(`Standardized score for ${brand}/${country}/${year}: ${finalScore.toFixed(2)} (raw=${score}, country avg=${yearStats.mean.toFixed(2)}, stdDev=${yearStats.stdDev.toFixed(2)})`);
+            } else {
+              // If we don't have enough data points or variation, use 0 (at the mean)
+              console.warn(`Insufficient data for standardization in ${country}/${year}: ${yearStats.count} brands, stdDev=${yearStats.stdDev.toFixed(4)}`);
+              finalScore = 0;
+            }
           } else {
-            console.warn(`Missing or invalid year stats for ${country}/${year}`);
+            console.warn(`Missing year stats for ${country}/${year}`);
             // If we can't standardize, use 0 which represents exactly at average
             finalScore = 0;
           }
@@ -169,7 +176,7 @@ export const processLineChartData = (
     });
     
     return dataPoint;
-  });
+  }).sort((a, b) => a.year - b.year);
   
   // Filter out years with no meaningful data
   const filteredChartData = chartData.filter(point => {

@@ -15,7 +15,7 @@ export const useBarChartData = (
     const latestData: any[] = [];
     
     // For each country, calculate yearly averages first
-    const countryYearStats = new Map<string, Map<number, { mean: number; stdDev: number }>>();
+    const countryYearStats = new Map<string, Map<number, { mean: number; stdDev: number; count: number }>>();
     
     // Calculate country averages for each year
     Object.entries(allCountriesData).forEach(([country, countryData]) => {
@@ -59,7 +59,7 @@ export const useBarChartData = (
         const variance = squaredDiffs.reduce((total, diff) => total + diff, 0) / scores.length;
         const stdDev = Math.sqrt(variance);
         
-        yearStatsMap.set(year, { mean, stdDev });
+        yearStatsMap.set(year, { mean, stdDev, count: scores.length });
         
         console.log(`Country ${country}, Year ${year}: mean=${mean.toFixed(2)}, stdDev=${stdDev.toFixed(2)} (${scores.length} brands)`);
       });
@@ -99,14 +99,14 @@ export const useBarChartData = (
           if (standardized && countryYearStats.has(country)) {
             const yearStats = countryYearStats.get(country)?.get(year);
             
-            if (yearStats && yearStats.stdDev > 0) {
+            if (yearStats && yearStats.count >= 2 && yearStats.stdDev > 0) {
               // Standardize the score against country average
               score = standardizeScore(score, yearStats.mean, yearStats.stdDev);
               console.log(`Standardized bar score for ${brand} in ${country}, Year ${year}: ${score.toFixed(2)} (raw=${latest.Score}, mean=${yearStats.mean.toFixed(2)}, stdDev=${yearStats.stdDev.toFixed(2)})`);
             } else {
-              // If we can't standardize, use 0 (at the mean)
+              // If we can't standardize (e.g., only one brand or zero variance), use 0 (at the mean)
               score = 0;
-              console.warn(`Missing or invalid year stats for ${country}/${year}, using score=0`);
+              console.warn(`Insufficient data for standardization in ${country}/${year}: ${yearStats ? yearStats.count : 0} brands, stdDev=${yearStats ? yearStats.stdDev.toFixed(4) : 'N/A'}`);
             }
           }
           
