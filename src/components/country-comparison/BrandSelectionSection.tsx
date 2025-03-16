@@ -40,14 +40,14 @@ const BrandSelectionSection = ({
       <div className="mt-2">
         {uniqueBrandNames.length > 0 ? (
           <>
-            {usingFallbackBrands && selectedCountries.length >= 2 && (
+            {selectedCountries.length >= 2 && (
               <div className="mb-4 text-blue-600 bg-blue-50 p-4 rounded-md flex items-start gap-2">
                 <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="font-medium">Common brands across markets</p>
+                  <p className="font-medium">Common brands across selected markets</p>
                   <p className="text-sm mt-1">
-                    We're showing {brandsWithData} common brands that typically have data across the selected countries.
-                    For brand comparison charts, brands need data in at least 2 countries.
+                    Showing {uniqueBrandNames.length} brands that exist in {selectedCountries.length > 1 ? "all" : "the"} selected {selectedCountries.length === 1 ? "country" : "countries"}.
+                    {brandsWithData > 0 && ` ${brandsWithData} of these brands have comparable data.`}
                   </p>
                 </div>
               </div>
@@ -65,9 +65,9 @@ const BrandSelectionSection = ({
           <div className="text-amber-600 bg-amber-50 p-4 rounded-md flex items-start gap-2">
             <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="font-medium">No brands found</p>
+              <p className="font-medium">No common brands found</p>
               <p className="text-sm mt-1">
-                We couldn't find any brands that exist across the selected countries. 
+                We couldn't find any brands that exist across all the selected countries. 
                 Try selecting fewer countries or different combinations.
               </p>
             </div>
