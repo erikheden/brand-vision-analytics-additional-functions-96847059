@@ -34,20 +34,23 @@ const BrandSelection = ({
   // Calculate the number of rows needed based on total brands and 4 columns
   const numColumns = 4;
   
-  // Reorganize brands into column-first order
+  // Sort brands alphabetically and then reorganize into columns
   const reorganizeBrandsIntoColumns = (brands: string[]) => {
-    const result: string[] = new Array(brands.length);
-    const itemsPerColumn = Math.ceil(brands.length / numColumns);
+    // First sort the brands alphabetically
+    const sortedBrands = [...brands].sort((a, b) => a.localeCompare(b));
     
-    for (let i = 0; i < brands.length; i++) {
+    const result: string[] = new Array(sortedBrands.length);
+    const itemsPerColumn = Math.ceil(sortedBrands.length / numColumns);
+    
+    for (let i = 0; i < sortedBrands.length; i++) {
       // Calculate position in the grid
       const column = Math.floor(i / itemsPerColumn);
       const row = i % itemsPerColumn;
       const newIndex = row * numColumns + column;
       
       // Only set if the index is valid
-      if (newIndex < brands.length) {
-        result[newIndex] = brands[i];
+      if (newIndex < sortedBrands.length) {
+        result[newIndex] = sortedBrands[i];
       }
     }
     
@@ -135,3 +138,4 @@ const BrandSelection = ({
 };
 
 export default BrandSelection;
+
