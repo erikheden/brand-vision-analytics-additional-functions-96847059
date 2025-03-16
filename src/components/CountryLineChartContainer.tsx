@@ -2,6 +2,7 @@
 import React from "react";
 import { 
   LineChart, 
+  Line,
   XAxis, 
   YAxis, 
   CartesianGrid, 
@@ -99,7 +100,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
           />
           {standardized && <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" />}
           
-          {/* Render each line separately instead of using the component */}
+          {/* Render each line separately */}
           {lines.map(line => (
             <Line
               key={line.key}
