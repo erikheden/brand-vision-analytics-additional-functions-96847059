@@ -59,9 +59,11 @@ export const normalizeBrandName = (brandName: string): string => {
     'mcdonald': 'mcdonalds',
     // Adding more Nordic brands that appear in multiple countries
     'finnair': 'finnair',
-    'norwegian': 'norwegian',
+    'norwegian': 'norwegian', 
+    'norwegian air shuttle': 'norwegian',
     'sas': 'sas',
     'scandinavian airlines': 'sas',
+    'scandinavian airlines system': 'sas',
     'volvo': 'volvo',
     'nokia': 'nokia',
     'nordea': 'nordea',
@@ -110,7 +112,38 @@ export const normalizeBrandName = (brandName: string): string => {
     'primark': 'primark',
     'gap': 'gap',
     'levis': 'levis',
-    'levi strauss': 'levis'
+    'levi strauss': 'levis',
+    // Add more banking/financial services
+    'dnb': 'dnb',
+    'den norske bank': 'dnb',
+    'danske bank': 'danskebank',
+    'seb': 'seb',
+    'skandinaviska enskilda banken': 'seb',
+    'handelsbanken': 'handelsbanken',
+    'swedbank': 'swedbank',
+    'nordea bank': 'nordea',
+    // Add more telecom providers
+    'telia company': 'telia',
+    'telenor group': 'telenor',
+    'tele2': 'tele2',
+    'three': 'three',
+    '3': 'three',
+    // Add more retail chains
+    'coop': 'coop',
+    'ica': 'ica',
+    'rema 1000': 'rema1000',
+    'rema': 'rema1000',
+    'kiwi': 'kiwi',
+    'meny': 'meny',
+    'spar': 'spar',
+    'willys': 'willys',
+    'hemköp': 'hemkop',
+    'hemkop': 'hemkop',
+    'netto': 'netto',
+    'aldi': 'aldi',
+    'systembolaget': 'systembolaget',
+    'vinmonopolet': 'vinmonopolet',
+    'alko': 'alko'
   };
   
   // Check if this normalized brand name has a special case mapping

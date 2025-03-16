@@ -44,14 +44,11 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
     }
   });
   
-  // Log detailed information about brands in each country
-  console.log("Detailed brands by country:");
+  // Count total brands per country before filtering
+  console.log("Total normalized brands by country before intersection:");
   selectedCountries.forEach(country => {
     const brands = brandsByCountry.get(country);
     console.log(`${country} has ${brands?.size || 0} normalized brands`);
-    if (brands && brands.size > 0) {
-      console.log(`Sample brands in ${country}:`, Array.from(brands).slice(0, 10));
-    }
   });
   
   // Find brands that appear in ALL selected countries
@@ -97,6 +94,21 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
     console.log('Original brand names for these common brands:');
     console.log(originalBrandNames);
     console.log('-----------------------------------');
+    
+    // Additional diagnosis for Sweden-Norway
+    const swedenBrands = brandsByCountry.get('Sweden') || new Set<string>();
+    const norwayBrands = brandsByCountry.get('Norway') || new Set<string>();
+    
+    console.log(`Sweden has ${swedenBrands.size} normalized brands`);
+    console.log(`Norway has ${norwayBrands.size} normalized brands`);
+    
+    // Find brands that are in Sweden but not Norway
+    const onlyInSweden = Array.from(swedenBrands).filter(brand => !norwayBrands.has(brand)).slice(0, 20);
+    console.log(`First 20 brands only in Sweden: ${onlyInSweden}`);
+    
+    // Find brands that are in Norway but not Sweden
+    const onlyInNorway = Array.from(norwayBrands).filter(brand => !swedenBrands.has(brand)).slice(0, 20);
+    console.log(`First 20 brands only in Norway: ${onlyInNorway}`);
   }
   
   // Log information about brands that appear in all countries
@@ -108,6 +120,19 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
     const normalizedName = normalizeBrandName(brand.Brand.toString());
     return commonBrands.has(normalizedName);
   });
+  
+  // If we're not finding enough brands, let's see what's in availableBrands
+  if (commonBrandRecords.length < 100 && selectedCountries.includes('Sweden') && selectedCountries.includes('Norway')) {
+    console.log("Available brands count:", availableBrands.length);
+    console.log("First 20 available brands sample:");
+    
+    const brandSample = availableBrands
+      .filter(b => b.Brand && b.Country)
+      .slice(0, 20)
+      .map(b => ({ brand: b.Brand, country: b.Country, normalized: normalizeBrandName(b.Brand.toString()) }));
+    
+    console.log(brandSample);
+  }
   
   console.log("Common brand records found:", commonBrandRecords.length);
   return commonBrandRecords;
