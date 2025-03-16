@@ -1,20 +1,24 @@
 import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
 
 /**
- * Finds brands that appear in multiple countries
+ * Finds brands that appear in multiple countries using a simplified approach
  */
 export const findMultiCountryBrands = (selectedCountries: string[], availableBrands: any[]) => {
+  // If no countries selected, return empty array
   if (selectedCountries.length <= 0) {
     return [];
   }
   
+  // If only one country selected, return all its brands
   if (selectedCountries.length === 1) {
-    return availableBrands;
+    return availableBrands.filter(brand => 
+      brand.Country === selectedCountries[0] && brand.Brand
+    );
   }
   
   console.log(`Finding common brands for ${selectedCountries.length} countries: ${selectedCountries.join(', ')}`);
   
-  // Create a map of normalized brand names per country
+  // Create a map of brands per country using normalized brand names as keys
   const brandsByCountry = new Map<string, Set<string>>();
   
   // Initialize sets for each country
