@@ -83,4 +83,3 @@ const BrandSelectionSection = ({
 };
 
 export default BrandSelectionSection;
-
