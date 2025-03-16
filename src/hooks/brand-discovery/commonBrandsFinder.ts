@@ -81,6 +81,24 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
     });
   }
   
+  // Add detailed logging for specific country combinations
+  if (selectedCountries.includes('Sweden') && selectedCountries.includes('Norway')) {
+    console.log('-----------------------------------');
+    console.log('SPECIFIC ANALYSIS: SWEDEN AND NORWAY');
+    console.log(`Found ${commonBrands.size} brands that appear in both Sweden and Norway:`);
+    console.log(Array.from(commonBrands));
+    
+    // Get original brand names
+    const originalBrandNames = Array.from(commonBrands).map(normalizedName => {
+      const originals = normalizedToOriginals.get(normalizedName);
+      return Array.from(originals || []);
+    }).flat();
+    
+    console.log('Original brand names for these common brands:');
+    console.log(originalBrandNames);
+    console.log('-----------------------------------');
+  }
+  
   // Log information about brands that appear in all countries
   console.log(`Found ${commonBrands.size} brands that appear in ALL ${selectedCountries.length} selected countries`);
   
