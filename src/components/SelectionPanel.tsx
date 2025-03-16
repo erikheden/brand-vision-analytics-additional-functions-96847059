@@ -111,6 +111,7 @@ const SelectionPanel = ({
             <BrandSelection
               brands={uniqueBrandNames}
               selectedBrands={selectedBrands}
+              selectedCountries={[selectedCountry]} // Add the missing prop here
               onBrandToggle={handleBrandToggle}
               onClearBrands={handleClearBrands}
             />
