@@ -30,17 +30,47 @@ export const fetchCountryBrandData = async (
         return directMatches;
       }
       
+      // Try case variations first - these are the most likely to succeed
+      const caseVariations = [
+        selectedBrand.toLowerCase(),
+        selectedBrand.toUpperCase(),
+        selectedBrand.charAt(0).toUpperCase() + selectedBrand.slice(1).toLowerCase(), // Title Case
+      ];
+      
+      for (const variation of caseVariations) {
+        if (variation !== selectedBrand) { // Skip if same as original
+          const variationMatches = await findDirectBrandMatch(country, fullCountryName, variation);
+          if (variationMatches.length > 0) {
+            console.log(`Found match for "${selectedBrand}" using case variation "${variation}" in ${country}: ${variationMatches.length} records`);
+            return variationMatches.map(match => ({
+              ...match,
+              Brand: selectedBrand // Update brand name to original selected brand for consistency
+            }));
+          }
+        }
+      }
+      
       // Try more aggressive brand name variations for better matching
       // For example: "LEGO" could be "Lego", "LEGO Group", etc.
       const variations = [
-        selectedBrand,
-        selectedBrand.toLowerCase(),
-        selectedBrand.toUpperCase(),
         selectedBrand + " Group",
         selectedBrand + " Inc",
         selectedBrand + " Corporation",
         selectedBrand + " AB",
-        selectedBrand + " Co"
+        selectedBrand + " Co",
+        selectedBrand + " & Co",
+        selectedBrand + " AS",
+        selectedBrand + " A/S",
+        selectedBrand + " GmbH",
+        selectedBrand + " International",
+        selectedBrand + " Stores",
+        selectedBrand + " Retail",
+        selectedBrand.replace('&', 'and'),
+        selectedBrand.replace('and', '&'),
+        selectedBrand.replace(/-/g, ' '),
+        selectedBrand.replace(/\s+/g, '-'),
+        selectedBrand.replace(/\./g, ''),
+        selectedBrand.replace(/\s+/g, '')
       ];
       
       // Try each variation

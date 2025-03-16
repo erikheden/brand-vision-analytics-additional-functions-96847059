@@ -22,7 +22,7 @@ const BrandSelectionSection = ({
   console.log("Brand selection section - unique brand names:", uniqueBrandNames);
   
   // Check if using fallback brands (our standard list of common brands)
-  const usingFallbackBrands = uniqueBrandNames.length >= 30 && 
+  const usingFallbackBrands = uniqueBrandNames.length >= 25 && 
     uniqueBrandNames.includes("McDonald's") && 
     uniqueBrandNames.includes("Coca-Cola") &&
     uniqueBrandNames.includes("Zara");
@@ -43,7 +43,8 @@ const BrandSelectionSection = ({
                   <p className="font-medium">Using common international brands</p>
                   <p className="text-sm mt-1">
                     We're showing a list of common international brands that should be available 
-                    across all selected countries. Some brands may not have data for some countries.
+                    across all selected countries. Some brands may not have data for some countries,
+                    but the system will try to find the best matches possible.
                   </p>
                 </div>
               </div>

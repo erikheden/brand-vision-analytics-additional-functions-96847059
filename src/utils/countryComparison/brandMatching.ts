@@ -71,9 +71,10 @@ export const findNormalizedBrandMatches = async (
   if (matchingBrands.length === 0) {
     console.log(`No matching brands found for ${selectedBrand} in ${country}`);
     
-    // Try a partial match approach for better hit rates
+    // Try a more aggressive partial match approach for better hit rates
     const partialMatches = brandNames.filter(brandName => {
       const normalizedName = normalizeBrandName(brandName);
+      // Look for partial matches in BOTH directions
       return normalizedName.includes(normalizedSelectedBrand) || 
              normalizedSelectedBrand.includes(normalizedName);
     });
@@ -94,6 +95,33 @@ export const findNormalizedBrandMatches = async (
       if (dataError) {
         console.error(`Error fetching data for partial brand matches in ${country}:`, dataError);
         return [];
+      }
+      
+      // If we still have no data, try one last attempt with a broader search
+      if (!brandData || brandData.length === 0) {
+        console.log(`No data found for preferred brand "${preferredBrandName}". Trying broader search...`);
+        
+        // Try a very broad ILIKE search as a fallback
+        const searchTerm = normalizedSelectedBrand.length > 3 
+          ? normalizedSelectedBrand.substring(0, 4) // First 4 chars
+          : normalizedSelectedBrand;
+          
+        let { data: broadMatchData, error: broadMatchError } = await supabase
+          .from("SBI Ranking Scores 2011-2025")
+          .select("*")
+          .or(`Country.eq.${country},Country.eq.${fullCountryName}`)
+          .ilike('Brand', `%${searchTerm}%`)
+          .order('Year', { ascending: true });
+        
+        if (broadMatchError) {
+          console.error(`Error fetching broad match data in ${country}:`, broadMatchError);
+          return [];
+        }
+        
+        if (broadMatchData && broadMatchData.length > 0) {
+          console.log(`Found ${broadMatchData.length} results with broad search for "${searchTerm}" in ${country}`);
+          brandData = broadMatchData;
+        }
       }
       
       // Tag these records with the selected brand name for consistency

@@ -104,8 +104,9 @@ export const useBrandDiscovery = (
   const getNormalizedUniqueBrands = () => {
     const commonBrands = getCommonBrands();
     
-    // If no multi-country brands found or only a few, provide a list of universal brands
-    if ((commonBrands.length < 10) && selectedCountries.length >= 2) {
+    // Lower the threshold for fallback brands to ensure we always have options
+    // If fewer than 5 common brands found, use the fallback list
+    if ((commonBrands.length < 5) && selectedCountries.length >= 2) {
       console.log(`Few common brands found naturally (${commonBrands.length}) across ${selectedCountries.length} countries, adding known common brands as fallback`);
       
       // Common global/Nordic brands that should match across these countries
