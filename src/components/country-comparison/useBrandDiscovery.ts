@@ -1,4 +1,3 @@
-
 import { useSelectionData } from "@/hooks/useSelectionData";
 import { normalizeBrandName, getPreferredBrandName } from "@/utils/industry/normalizeIndustry";
 
@@ -12,7 +11,7 @@ export const useBrandDiscovery = (
     selectedIndustries
   );
   
-  // Get brands that appear in all selected countries using normalized comparison
+  // Get brands that appear in at least some of the selected countries
   const getCommonBrands = () => {
     if (selectedCountries.length <= 0) {
       return [];
@@ -63,38 +62,36 @@ export const useBrandDiscovery = (
       }
     });
     
-    // Find brands that appear in ALL selected countries
-    // First, get all unique normalized brand names
-    const allNormalizedBrands = new Set<string>();
-    brandsByCountry.forEach((brandSet) => {
-      brandSet.forEach(brand => allNormalizedBrands.add(brand));
+    // Find brands that appear in multiple countries (not necessarily ALL)
+    // First, count how many countries each brand appears in
+    const brandCountryCount = new Map<string, number>();
+    
+    // Count country occurrences for each brand
+    brandsByCountry.forEach((brandSet, country) => {
+      brandSet.forEach(normalizedBrand => {
+        const currentCount = brandCountryCount.get(normalizedBrand) || 0;
+        brandCountryCount.set(normalizedBrand, currentCount + 1);
+      });
     });
     
-    console.log("Total unique normalized brands across all countries:", allNormalizedBrands.size);
+    // Keep brands that appear in at least 2 countries
+    const multiCountryBrands = Array.from(brandCountryCount.entries())
+      .filter(([_, count]) => count >= 2)
+      .map(([brand, count]) => {
+        console.log(`Brand ${brand} appears in ${count}/${selectedCountries.length} countries`);
+        return brand;
+      });
     
-    // Then check which of these appear in all countries
-    const commonNormalizedBrands = Array.from(allNormalizedBrands).filter(normalizedBrand => {
-      const isCommon = Array.from(brandsByCountry.entries()).every(([_, brandSet]) => 
-        brandSet.has(normalizedBrand)
-      );
-      
-      if (isCommon) {
-        console.log(`Found common brand: ${normalizedBrand}`);
-      }
-      return isCommon;
-    });
+    console.log(`Found ${multiCountryBrands.length} brands that appear in multiple countries`);
     
-    console.log("Common normalized brands count:", commonNormalizedBrands.length);
-    console.log("Common normalized brands:", commonNormalizedBrands);
-    
-    // Get all brand records that match the common normalized names
+    // Get all brand records that match the multi-country normalized names
     const commonBrandRecords = availableBrands.filter(brand => {
       if (!brand.Brand) return false;
       const normalizedName = normalizeBrandName(brand.Brand.toString());
-      return commonNormalizedBrands.includes(normalizedName);
+      return multiCountryBrands.includes(normalizedName);
     });
     
-    console.log("Common brand records found:", commonBrandRecords.length);
+    console.log("Multi-country brand records found:", commonBrandRecords.length);
     return commonBrandRecords;
   };
   
@@ -102,7 +99,7 @@ export const useBrandDiscovery = (
   const getNormalizedUniqueBrands = () => {
     const commonBrands = getCommonBrands();
     
-    // If no common brands found, provide a list of universal brands that should be available across all countries
+    // If no multi-country brands found, provide a list of universal brands
     if (commonBrands.length === 0 && selectedCountries.length >= 2) {
       console.log(`No common brands found naturally across ${selectedCountries.length} countries, adding known common brands as fallback`);
       

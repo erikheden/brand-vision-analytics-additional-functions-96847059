@@ -60,7 +60,7 @@ const BrandSelectionSection = ({
             <div>
               <p className="font-medium">No common brands found</p>
               <p className="text-sm mt-1">
-                We couldn't find any brands that exist across all selected countries. 
+                We couldn't find any brands that exist across multiple selected countries. 
                 Try selecting fewer countries or different combinations.
               </p>
             </div>
