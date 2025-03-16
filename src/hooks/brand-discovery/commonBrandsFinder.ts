@@ -132,6 +132,52 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
       .map(b => ({ brand: b.Brand, country: b.Country, normalized: normalizeBrandName(b.Brand.toString()) }));
     
     console.log(brandSample);
+    
+    // Let's try a direct matching approach to find why we're missing some brands
+    const swedishBrandSet = new Set();
+    const norwegianBrandSet = new Set();
+    
+    // Populate brand sets
+    availableBrands.forEach(brand => {
+      if (!brand.Brand || !brand.Country) return;
+      const normalizedName = normalizeBrandName(brand.Brand.toString());
+      
+      if (brand.Country === 'Sweden') {
+        swedishBrandSet.add(normalizedName);
+      } else if (brand.Country === 'Norway') {
+        norwegianBrandSet.add(normalizedName);
+      }
+    });
+    
+    // Find intersection using Set operations
+    const swedishBrands = Array.from(swedishBrandSet);
+    const commonBrandsDirectMatch = swedishBrands.filter(brand => norwegianBrandSet.has(brand));
+    
+    console.log(`DIRECT SET MATCH: Found ${commonBrandsDirectMatch.length} common brands between Sweden and Norway`);
+    console.log("First 50 common brands from direct set matching:", commonBrandsDirectMatch.slice(0, 50));
+    
+    // Check data consistency
+    if (commonBrandsDirectMatch.length > commonBrands.size) {
+      console.log("WARNING: Direct matching found more brands than the algorithm!");
+      
+      // Find what brands are missing from our algorithm
+      const missingBrands = commonBrandsDirectMatch.filter(brand => !commonBrands.has(brand));
+      console.log(`Missing ${missingBrands.length} brands in algorithm that direct matching found:`);
+      console.log(missingBrands.slice(0, 30));
+      
+      // Add the missing brands to our results
+      missingBrands.forEach(brand => commonBrands.add(brand));
+      
+      // Recalculate brand records with the expanded set
+      const expandedBrandRecords = availableBrands.filter(brand => {
+        if (!brand.Brand) return false;
+        const normalizedName = normalizeBrandName(brand.Brand.toString());
+        return commonBrands.has(normalizedName);
+      });
+      
+      console.log(`After correction: found ${expandedBrandRecords.length} brand records`);
+      return expandedBrandRecords;
+    }
   }
   
   console.log("Common brand records found:", commonBrandRecords.length);
