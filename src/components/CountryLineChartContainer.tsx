@@ -43,7 +43,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
     return <div className="text-center py-8">No valid data found to display chart lines.</div>;
   }
 
-  // Create series data for Highcharts
+  // Create series data for Highcharts with explicit type
   const series = lines.map(line => {
     const seriesData = chartData.map(point => {
       return [
@@ -53,6 +53,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
     }).filter(point => point[1] !== null && point[1] !== undefined);
     
     return {
+      type: 'line',
       name: line.name,
       data: seriesData,
       color: line.color,

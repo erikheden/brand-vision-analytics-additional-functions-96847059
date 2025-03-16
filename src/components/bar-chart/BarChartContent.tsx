@@ -25,6 +25,7 @@ export const BarChartContent = ({
   // Prepare series data for Highcharts
   const series = selectedBrands.map(brand => {
     return {
+      type: 'column',
       name: brand,
       data: chartData.map(item => ({
         name: item.country,
