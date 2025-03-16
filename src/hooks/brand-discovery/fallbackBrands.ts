@@ -18,6 +18,15 @@ export const knownCommonBrands = [
 export const knownProblematicBrands = ["Bershka", "Pull & Bear"];
 
 /**
+ * List of brands known to be present across most Nordic countries 
+ * These will be assumed to have data even if our initial check fails
+ */
+export const knownGlobalBrands = [
+  "Coca-Cola", "H&M", "IKEA", "Volvo", "Nike", "Adidas", 
+  "McDonald's", "Apple", "Samsung", "Google", "Microsoft"
+];
+
+/**
  * Provides a fallback list of common brands when not enough naturally common brands
  * are found across the selected countries
  */

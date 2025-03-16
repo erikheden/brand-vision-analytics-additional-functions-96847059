@@ -44,11 +44,10 @@ const BrandSelectionSection = ({
               <div className="mb-4 text-blue-600 bg-blue-50 p-4 rounded-md flex items-start gap-2">
                 <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="font-medium">Using common international brands</p>
+                  <p className="font-medium">Common brands across markets</p>
                   <p className="text-sm mt-1">
-                    We're showing {brandsWithData} brands that have data across multiple countries.
-                    Some brands may not have data for all selected countries,
-                    but we'll highlight brands with available data.
+                    We're showing {brandsWithData} common brands that typically have data across Nordic countries.
+                    Global brands like Coca-Cola, H&M, and IKEA generally have data across all markets.
                   </p>
                 </div>
               </div>

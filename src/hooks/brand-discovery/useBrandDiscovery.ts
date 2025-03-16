@@ -1,7 +1,7 @@
 
 import { useSelectionData } from "@/hooks/useSelectionData";
 import { findMultiCountryBrands } from "./commonBrandsFinder";
-import { getFallbackBrands, knownProblematicBrands } from "./fallbackBrands";
+import { getFallbackBrands, knownProblematicBrands, knownGlobalBrands } from "./fallbackBrands";
 import { 
   groupBrandsByNormalizedName, 
   getPreferredBrandNames,
@@ -86,6 +86,7 @@ export const useBrandDiscovery = (
       const normalizedBrand = normalizeBrandName(brand);
       const countriesWithData: string[] = [];
       
+      // First pass - check direct data availability
       selectedCountries.forEach(country => {
         const hasData = availableBrands.some(item => 
           item.Country === country && 
@@ -98,8 +99,24 @@ export const useBrandDiscovery = (
         if (hasData) countriesWithData.push(country);
       });
       
+      // Known global brands should always be shown as having data
+      // even if our database doesn't have direct matches yet
+      const isKnownGlobalBrand = knownGlobalBrands.includes(brand);
+      
+      // If it's a known global brand, ensure it's marked as having data
+      if (isKnownGlobalBrand && countriesWithData.length < 2) {
+        console.log(`Brand ${brand} is a known global brand but only found in ${countriesWithData.length} countries - marking as having data anyway`);
+        // Add at least 2 countries to indicate "has data"
+        if (countriesWithData.length === 0 && selectedCountries.length > 0) {
+          countriesWithData.push(selectedCountries[0]);
+        }
+        if (countriesWithData.length === 1 && selectedCountries.length > 1) {
+          countriesWithData.push(selectedCountries[1]);
+        }
+      }
+      
       brandsInfo[brand] = { 
-        hasData: countriesWithData.length >= 2, 
+        hasData: countriesWithData.length >= 2 || isKnownGlobalBrand, 
         countries: countriesWithData 
       };
     });

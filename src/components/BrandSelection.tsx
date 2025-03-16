@@ -116,6 +116,7 @@ const BrandSelection = ({
           const dataInfo = brandsWithDataInfo[brand];
           const hasData = !dataInfo || dataInfo.hasData;
           const countries = dataInfo?.countries || [];
+          const limitedData = !hasData && countries.length > 0;
           
           return (
             <div key={brand} className="flex items-center">
@@ -123,10 +124,10 @@ const BrandSelection = ({
                 brand={brand}
                 isChecked={selectedBrands.includes(brand)}
                 onCheckedChange={(checked) => onBrandToggle(brand, checked)}
-                className={!hasData ? "opacity-50" : ""}
+                className={limitedData ? "opacity-70" : ""}
               />
               
-              {!hasData && countries.length > 0 && (
+              {limitedData && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -134,7 +135,8 @@ const BrandSelection = ({
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs">
-                        This brand only has data in {countries.length} country: {countries.join(', ')}
+                        Limited data available. This brand only has data in {countries.join(', ')}.
+                        Results may be incomplete.
                       </p>
                     </TooltipContent>
                   </Tooltip>
