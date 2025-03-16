@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Toggle } from "@/components/ui/toggle";
@@ -20,7 +21,7 @@ const CountryComparisonChart = ({
   selectedBrands
 }: CountryComparisonChartProps) => {
   const [standardized, setStandardized] = useState(false);
-  const [chartType, setChartType] = useState("line");
+  const [chartType, setChartType] = useState("bar"); // Changed default to "bar" instead of "line"
   
   const { data: allCountriesData, isLoading } = useMultiCountryChartData(selectedCountries, selectedBrands);
   
@@ -63,13 +64,13 @@ const CountryComparisonChart = ({
   return (
     <div className="space-y-6 mb-16">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <Tabs defaultValue="line" value={chartType} onValueChange={setChartType} className="w-full md:w-auto">
+        <Tabs defaultValue="bar" value={chartType} onValueChange={setChartType} className="w-full md:w-auto">
           <TabsList className="bg-[#34502b]/10">
-            <TabsTrigger value="line" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-              Line Chart
-            </TabsTrigger>
             <TabsTrigger value="bar" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
               Bar Chart
+            </TabsTrigger>
+            <TabsTrigger value="line" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+              Line Chart
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -105,15 +106,15 @@ const CountryComparisonChart = ({
       </div>
       
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
-        {chartType === "line" ? (
-          <CountryLineChart 
-            allCountriesData={allCountriesData} 
+        {chartType === "bar" ? (
+          <CountryBarChart 
+            allCountriesData={allCountriesData}
             selectedBrands={selectedBrands}
             standardized={standardized}
           />
         ) : (
-          <CountryBarChart 
-            allCountriesData={allCountriesData}
+          <CountryLineChart 
+            allCountriesData={allCountriesData} 
             selectedBrands={selectedBrands}
             standardized={standardized}
           />

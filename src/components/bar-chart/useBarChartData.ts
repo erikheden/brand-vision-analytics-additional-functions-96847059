@@ -145,22 +145,29 @@ export const useBarChartData = (
       }
     });
     
-    // Convert to array and sort by the first brand's score (high to low)
-    // This ensures the chart bars are sorted from highest to lowest values
+    // Convert to array for chart rendering
     const dataArray = Array.from(countryGroups.values());
     
+    // Sort countries by a more intuitive method: total brand score across all selected brands
     if (selectedBrands.length > 0 && dataArray.length > 0) {
-      const primaryBrand = selectedBrands[0];
-      
       dataArray.sort((a, b) => {
-        const scoreA = a[primaryBrand] !== undefined ? a[primaryBrand] : -Infinity;
-        const scoreB = b[primaryBrand] !== undefined ? b[primaryBrand] : -Infinity;
-        return scoreB - scoreA; // Sort high to low
+        // Calculate total score for country a
+        const totalScoreA = selectedBrands.reduce((sum, brand) => {
+          return sum + (typeof a[brand] === 'number' ? a[brand] : 0);
+        }, 0);
+        
+        // Calculate total score for country b
+        const totalScoreB = selectedBrands.reduce((sum, brand) => {
+          return sum + (typeof b[brand] === 'number' ? b[brand] : 0);
+        }, 0);
+        
+        // Sort high to low by total score
+        return totalScoreB - totalScoreA;
       });
       
-      console.log("Sorted chart data:", dataArray.map(item => ({
+      console.log("Sorted chart data by total brand scores:", dataArray.map(item => ({
         country: item.country, 
-        score: item[primaryBrand]
+        totalScore: selectedBrands.reduce((sum, brand) => sum + (typeof item[brand] === 'number' ? item[brand] : 0), 0)
       })));
     }
     
