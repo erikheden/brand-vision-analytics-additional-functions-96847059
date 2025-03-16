@@ -48,7 +48,6 @@ export const normalizeBrandName = (brandName: string): string => {
     'hm': 'handm',
     'h m': 'handm',
     'handm': 'handm',
-    'h and m': 'handm',
     'coca cola': 'cocacola',
     'cocacola': 'cocacola',
     'coke': 'cocacola',
@@ -57,8 +56,8 @@ export const normalizeBrandName = (brandName: string): string => {
     'pepsi': 'pepsi',
     'pepsi max': 'pepsimax',
     'pepsimax': 'pepsimax',
-    'mcdonalds': 'mcdonalds',
     'mcdonald': 'mcdonalds'
+    // Removed duplicate 'mcdonalds' entry
   };
   
   // Check if this normalized brand name has a special case mapping
