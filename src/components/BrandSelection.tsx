@@ -2,14 +2,16 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { X, Check, Search } from "lucide-react";
+import { X, Check, Search, AlertCircle } from "lucide-react";
 import BrandCheckbox from "./BrandCheckbox";
 import { useState, useEffect } from "react";
 import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface BrandSelectionProps {
   brands: string[];
   selectedBrands: string[];
+  brandsWithDataInfo?: Record<string, { hasData: boolean, countries: string[] }>;
   onBrandToggle: (brand: string, checked: boolean) => void;
   onClearBrands: () => void;
 }
@@ -17,6 +19,7 @@ interface BrandSelectionProps {
 const BrandSelection = ({
   brands,
   selectedBrands,
+  brandsWithDataInfo = {},
   onBrandToggle,
   onClearBrands,
 }: BrandSelectionProps) => {
@@ -62,8 +65,12 @@ const BrandSelection = ({
   const handleSelectAll = () => {
     // If no brands are selected, select all filtered brands
     if (selectedBrands.length === 0) {
+      // Only select brands that have data
       filteredBrands.forEach(brand => {
-        onBrandToggle(brand, true);
+        const info = brandsWithDataInfo[brand];
+        if (!info || info.hasData) {
+          onBrandToggle(brand, true);
+        }
       });
     } else {
       // If any brands are selected, clear all
@@ -84,7 +91,7 @@ const BrandSelection = ({
           {selectedBrands.length === 0 ? (
             <>
               <Check className="h-4 w-4 mr-1" />
-              Select all
+              Select all with data
             </>
           ) : (
             <>
@@ -105,14 +112,37 @@ const BrandSelection = ({
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 mt-6 max-h-[300px] overflow-y-auto">
-        {filteredBrands.map((brand) => (
-          <BrandCheckbox
-            key={brand}
-            brand={brand}
-            isChecked={selectedBrands.includes(brand)}
-            onCheckedChange={(checked) => onBrandToggle(brand, checked)}
-          />
-        ))}
+        {filteredBrands.map((brand) => {
+          const dataInfo = brandsWithDataInfo[brand];
+          const hasData = !dataInfo || dataInfo.hasData;
+          const countries = dataInfo?.countries || [];
+          
+          return (
+            <div key={brand} className="flex items-center">
+              <BrandCheckbox
+                brand={brand}
+                isChecked={selectedBrands.includes(brand)}
+                onCheckedChange={(checked) => onBrandToggle(brand, checked)}
+                className={!hasData ? "opacity-50" : ""}
+              />
+              
+              {!hasData && countries.length > 0 && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <AlertCircle className="h-4 w-4 text-amber-500 ml-1" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">
+                        This brand only has data in {countries.length} country: {countries.join(', ')}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

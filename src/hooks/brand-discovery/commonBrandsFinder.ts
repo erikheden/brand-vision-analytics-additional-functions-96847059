@@ -72,12 +72,14 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
     }
   });
   
-  // Keep brands that appear in at least 2 countries
+  // Keep ONLY brands that appear in at least 2 countries or all selected countries
+  // The threshold changes based on how many countries are selected
+  const minCountriesRequired = selectedCountries.length <= 3 ? 2 : Math.ceil(selectedCountries.length * 0.6);
   const multiCountryBrands = Array.from(brandCountryCount.entries())
-    .filter(([_, count]) => count >= 2)
+    .filter(([_, count]) => count >= minCountriesRequired)
     .map(([brand, _]) => brand);
   
-  console.log(`Found ${multiCountryBrands.length} brands that appear in multiple countries`);
+  console.log(`Found ${multiCountryBrands.length} brands that appear in at least ${minCountriesRequired} countries`);
   
   // Get all brand records that match the multi-country normalized names
   const commonBrandRecords = availableBrands.filter(brand => {

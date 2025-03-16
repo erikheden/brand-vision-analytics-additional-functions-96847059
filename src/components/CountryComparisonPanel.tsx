@@ -26,7 +26,7 @@ const CountryComparisonPanel = ({
   const { countries } = useSelectionData("", []);
   
   // Use the hook for brand discovery
-  const { uniqueBrandNames: discoveredBrandNames } = useBrandDiscovery(selectedCountries, selectedIndustries);
+  const { uniqueBrandNames: discoveredBrandNames, brandsWithDataInfo } = useBrandDiscovery(selectedCountries, selectedIndustries);
   
   // When countries change, reset selected brands
   useEffect(() => {
@@ -67,6 +67,7 @@ const CountryComparisonPanel = ({
             uniqueBrandNames={discoveredBrandNames}
             selectedBrands={selectedBrands}
             selectedCountries={selectedCountries}
+            brandsWithDataInfo={brandsWithDataInfo}
             onBrandToggle={handleBrandToggle}
             onClearBrands={handleClearBrands}
           />

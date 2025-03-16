@@ -7,6 +7,7 @@ interface BrandSelectionSectionProps {
   uniqueBrandNames: string[];
   selectedBrands: string[];
   selectedCountries: string[];
+  brandsWithDataInfo?: Record<string, { hasData: boolean, countries: string[] }>;
   onBrandToggle: (brand: string, checked: boolean) => void;
   onClearBrands: () => void;
 }
@@ -15,17 +16,20 @@ const BrandSelectionSection = ({
   uniqueBrandNames,
   selectedBrands,
   selectedCountries,
+  brandsWithDataInfo = {},
   onBrandToggle,
   onClearBrands
 }: BrandSelectionSectionProps) => {
   // Log the brand names to help debug capitalization issues
   console.log("Brand selection section - unique brand names:", uniqueBrandNames);
   
+  // Count brands that have data across multiple countries
+  const brandsWithData = Object.values(brandsWithDataInfo).filter(info => info.hasData).length;
+  
   // Check if using fallback brands (our standard list of common brands)
-  const usingFallbackBrands = uniqueBrandNames.length >= 25 && 
+  const usingFallbackBrands = uniqueBrandNames.length >= 10 && 
     uniqueBrandNames.includes("McDonald's") && 
-    uniqueBrandNames.includes("Coca-Cola") &&
-    uniqueBrandNames.includes("Zara");
+    uniqueBrandNames.includes("Coca-Cola");
   
   return (
     <div className="space-y-2">
@@ -42,9 +46,9 @@ const BrandSelectionSection = ({
                 <div>
                   <p className="font-medium">Using common international brands</p>
                   <p className="text-sm mt-1">
-                    We're showing a list of common international brands that should be available 
-                    across all selected countries. Some brands may not have data for some countries,
-                    but the system will try to find the best matches possible.
+                    We're showing {brandsWithData} brands that have data across multiple countries.
+                    Some brands may not have data for all selected countries,
+                    but we'll highlight brands with available data.
                   </p>
                 </div>
               </div>
@@ -52,6 +56,7 @@ const BrandSelectionSection = ({
             <BrandSelection
               brands={uniqueBrandNames}
               selectedBrands={selectedBrands}
+              brandsWithDataInfo={brandsWithDataInfo}
               onBrandToggle={onBrandToggle}
               onClearBrands={onClearBrands}
             />

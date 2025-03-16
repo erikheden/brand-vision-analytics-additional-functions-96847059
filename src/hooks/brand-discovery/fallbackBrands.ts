@@ -8,9 +8,14 @@ export const knownCommonBrands = [
   "Apple", "Samsung", "Netflix", "Google", "Microsoft",
   "BMW", "Audi", "Volkswagen", "Toyota", "SAS",
   "Finnair", "Norwegian", "Telia", "Telenor", "Nordea",
-  "Zara", "Mango", "Bershka", "Pull & Bear", "Lidl",
-  "Burger King", "Subway", "Starbucks", "Amazon", "LEGO"
+  "Zara", "Mango", "Lidl", "Burger King", "Subway", 
+  "Starbucks", "Amazon", "LEGO"
 ];
+
+/**
+ * List of brands known to have data issues in some countries
+ */
+export const knownProblematicBrands = ["Bershka", "Pull & Bear"];
 
 /**
  * Provides a fallback list of common brands when not enough naturally common brands
@@ -18,11 +23,13 @@ export const knownCommonBrands = [
  */
 export const getFallbackBrands = (commonBrandsCount: number, selectedCountriesCount: number) => {
   // Lower the threshold for fallback brands to ensure we always have options
-  // If fewer than 5 common brands found, use the fallback list
-  if ((commonBrandsCount < 5) && selectedCountriesCount >= 2) {
+  // If fewer than 10 common brands found, use the fallback list
+  if ((commonBrandsCount < 10) && selectedCountriesCount >= 2) {
     console.log(`Few common brands found naturally (${commonBrandsCount}) across ${selectedCountriesCount} countries, adding known common brands as fallback`);
     console.log(`Adding ${knownCommonBrands.length} known common brands as fallback`);
-    return knownCommonBrands;
+    
+    // Filter out problematic brands
+    return knownCommonBrands.filter(brand => !knownProblematicBrands.includes(brand));
   }
   
   return null; // No fallback needed
