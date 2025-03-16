@@ -1,5 +1,6 @@
 
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
+import { standardizeScore } from "@/utils/countryChartDataUtils";
 
 /**
  * Processes data for the country comparison line chart
@@ -22,32 +23,82 @@ export const processLineChartData = (
   // Prepare data structure for each brand and country
   const brandCountryData: Map<string, Map<string, Map<number, number>>> = new Map();
   
-  // Process data from each country
+  // First calculate country averages by year
+  const countryYearAverages: Map<string, Map<number, { sum: number; count: number; mean: number; squaredDiffs: number[]; stdDev: number }>> = new Map();
+  
+  // Process data from each country to calculate averages first
+  Object.entries(allCountriesData).forEach(([country, countryData]) => {
+    if (!countryData || countryData.length === 0) return;
+    
+    console.log(`Pre-processing country averages for ${country}: ${countryData.length} entries`);
+    
+    if (!countryYearAverages.has(country)) {
+      countryYearAverages.set(country, new Map());
+    }
+    
+    const yearAveragesMap = countryYearAverages.get(country)!;
+    
+    // First pass: calculate means for each year
+    countryData.forEach(item => {
+      if (item.Year === null || item.Score === null) return;
+      
+      const year = Number(item.Year);
+      const score = Number(item.Score);
+      
+      if (isNaN(score)) return;
+      
+      if (!yearAveragesMap.has(year)) {
+        yearAveragesMap.set(year, { sum: 0, count: 0, mean: 0, squaredDiffs: [], stdDev: 0 });
+      }
+      
+      const stats = yearAveragesMap.get(year)!;
+      stats.sum += score;
+      stats.count++;
+    });
+    
+    // Calculate means
+    yearAveragesMap.forEach((stats, year) => {
+      if (stats.count > 0) {
+        stats.mean = stats.sum / stats.count;
+      }
+    });
+    
+    // Second pass: calculate squared differences for std dev
+    countryData.forEach(item => {
+      if (item.Year === null || item.Score === null) return;
+      
+      const year = Number(item.Year);
+      const score = Number(item.Score);
+      
+      if (isNaN(score)) return;
+      
+      if (yearAveragesMap.has(year)) {
+        const stats = yearAveragesMap.get(year)!;
+        const diff = score - stats.mean;
+        stats.squaredDiffs.push(diff * diff);
+      }
+    });
+    
+    // Calculate standard deviations
+    yearAveragesMap.forEach(stats => {
+      if (stats.squaredDiffs.length > 0) {
+        const avgSquaredDiff = stats.squaredDiffs.reduce((sum, val) => sum + val, 0) / stats.squaredDiffs.length;
+        stats.stdDev = Math.sqrt(avgSquaredDiff);
+      }
+    });
+    
+    console.log(`Calculated yearly averages for ${country}:`, 
+      Array.from(yearAveragesMap.entries()).map(([year, stats]) => 
+        `${year}: mean=${stats.mean.toFixed(2)}, stdDev=${stats.stdDev.toFixed(2)} (${stats.count} brands)`
+      )
+    );
+  });
+  
+  // Now process the actual data for the selected brands
   Object.entries(allCountriesData).forEach(([country, countryData]) => {
     if (!countryData || countryData.length === 0) return;
     
     console.log(`Processing data for ${country}: ${countryData.length} entries`);
-    
-    // For standardization, we'll need market statistics per year
-    const marketStatsByYear: Map<number, { mean: number; stdDev: number }> = new Map();
-    
-    if (standardized && Array.isArray((countryData as any).marketData)) {
-      const marketData = (countryData as any).marketData;
-      
-      // Group market data by year
-      const marketDataByYear = new Map<number, any[]>();
-      marketData.forEach((item: any) => {
-        if (item.Year === null || item.Score === null) return;
-        
-        const year = Number(item.Year);
-        if (!marketDataByYear.has(year)) {
-          marketDataByYear.set(year, []);
-        }
-        marketDataByYear.get(year)?.push(item);
-      });
-      
-      calculateMarketStats(marketDataByYear, marketStatsByYear);
-    }
     
     // Process data for each brand
     selectedBrands.forEach(brand => {
@@ -82,13 +133,17 @@ export const processLineChartData = (
         }
         const countryMap = brandMap.get(country)!;
         
-        // Calculate score (standardized or raw)
+        // Get the year's statistics for this country
         let finalScore = score;
         
-        if (standardized && marketStatsByYear.has(year)) {
-          const stats = marketStatsByYear.get(year)!;
-          if (stats.stdDev > 0) {
-            finalScore = (score - stats.mean) / stats.stdDev;
+        if (standardized && countryYearAverages.has(country)) {
+          const yearStats = countryYearAverages.get(country)!.get(year);
+          
+          if (yearStats && yearStats.stdDev > 0) {
+            finalScore = standardizeScore(score, yearStats.mean, yearStats.stdDev);
+            console.log(`Standardized score for ${brand}/${country}/${year}: ${finalScore.toFixed(2)} (raw=${score}, country avg=${yearStats.mean.toFixed(2)}, stdDev=${yearStats.stdDev.toFixed(2)})`);
+          } else {
+            console.warn(`Missing or invalid year stats for ${country}/${year}`);
           }
         }
         

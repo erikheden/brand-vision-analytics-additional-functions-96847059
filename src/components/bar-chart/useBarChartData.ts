@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { BrandData } from "@/types/brand";
 import { getFullCountryName } from "@/components/CountrySelect";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
+import { standardizeScore } from "@/utils/countryChartDataUtils";
 
 export const useBarChartData = (
   allCountriesData: MultiCountryData,
@@ -13,7 +14,58 @@ export const useBarChartData = (
   const processedData = useMemo(() => {
     const latestData: any[] = [];
     
-    // For each country, get the 2025 (or latest) data for each brand
+    // For each country, calculate yearly averages first
+    const countryYearStatistics = new Map<string, Map<number, { mean: number; stdDev: number }>>();
+    
+    // Calculate country averages for each year
+    Object.entries(allCountriesData).forEach(([country, countryData]) => {
+      if (!countryData || countryData.length === 0) return;
+      
+      if (!countryYearStatistics.has(country)) {
+        countryYearStatistics.set(country, new Map());
+      }
+      
+      const yearStatsMap = countryYearStatistics.get(country)!;
+      
+      // Group all scores by year
+      const allBrandsYearData = new Map<number, number[]>();
+      
+      // Add all scores (not just selected brands) to calculate proper country average
+      if (Array.isArray(countryData)) {
+        countryData.forEach(item => {
+          if (item.Year === null || item.Score === null) return;
+          
+          const year = Number(item.Year);
+          const score = Number(item.Score);
+          
+          if (isNaN(score)) return;
+          
+          if (!allBrandsYearData.has(year)) {
+            allBrandsYearData.set(year, []);
+          }
+          
+          allBrandsYearData.get(year)?.push(score);
+        });
+      }
+      
+      // Calculate mean and standard deviation for each year
+      allBrandsYearData.forEach((scores, year) => {
+        if (scores.length === 0) return;
+        
+        const sum = scores.reduce((total, score) => total + score, 0);
+        const mean = sum / scores.length;
+        
+        const squaredDiffs = scores.map(score => Math.pow(score - mean, 2));
+        const variance = squaredDiffs.reduce((total, diff) => total + diff, 0) / scores.length;
+        const stdDev = Math.sqrt(variance);
+        
+        yearStatsMap.set(year, { mean, stdDev });
+        
+        console.log(`Country ${country}, Year ${year}: mean=${mean.toFixed(2)}, stdDev=${stdDev.toFixed(2)} (${scores.length} brands)`);
+      });
+    });
+    
+    // Now process the data for selected brands
     Object.entries(allCountriesData).forEach(([country, countryData]) => {
       if (!countryData || countryData.length === 0) return;
       
@@ -38,28 +90,19 @@ export const useBarChartData = (
         // Get 2025 data or latest data if 2025 is not available
         const latest = brandData.find(item => item.Year === 2025) || brandData[0];
         
-        if (latest && latest.Score !== null) {
-          // Calculate standardized score if needed
+        if (latest && latest.Score !== null && latest.Year !== null) {
+          // Get raw score
           let score = latest.Score;
+          const year = latest.Year;
           
-          if (standardized && Array.isArray((countryData as any).marketData)) {
-            // Get market data for the same year
-            const marketDataForYear = (countryData as any).marketData
-              .filter((item: any) => item.Year === latest.Year);
+          // Get statistics for this country and year
+          if (standardized && countryYearStatistics.has(country)) {
+            const yearStats = countryYearStatistics.get(country)?.get(year);
             
-            if (marketDataForYear.length > 0) {
-              // Calculate mean and standard deviation
-              const validScores = marketDataForYear
-                .map((item: any) => item.Score)
-                .filter((score: any) => score !== null && !isNaN(score));
-              
-              const mean = validScores.reduce((sum: number, val: number) => sum + val, 0) / validScores.length;
-              const stdDev = Math.sqrt(
-                validScores.reduce((sum: number, val: number) => sum + Math.pow(val - mean, 2), 0) / validScores.length
-              );
-              
-              // Standardize the score
-              score = stdDev === 0 ? 0 : (latest.Score - mean) / stdDev;
+            if (yearStats) {
+              // Standardize the score against country average
+              score = standardizeScore(score, yearStats.mean, yearStats.stdDev);
+              console.log(`Standardized bar score for ${brand} in ${country}, Year ${year}: ${score.toFixed(2)} (raw=${latest.Score}, mean=${yearStats.mean.toFixed(2)}, stdDev=${yearStats.stdDev.toFixed(2)})`);
             }
           }
           
