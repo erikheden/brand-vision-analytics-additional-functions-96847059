@@ -21,10 +21,11 @@ const BrandSelectionSection = ({
   // Log the brand names to help debug capitalization issues
   console.log("Brand selection section - unique brand names:", uniqueBrandNames);
   
-  // Check if using fallback brands (our standard list of 25 brands)
-  const usingFallbackBrands = uniqueBrandNames.length === 25 && 
+  // Check if using fallback brands (our standard list of common brands)
+  const usingFallbackBrands = uniqueBrandNames.length === 26 && 
     uniqueBrandNames.includes("McDonald's") && 
-    uniqueBrandNames.includes("Coca-Cola");
+    uniqueBrandNames.includes("Coca-Cola") &&
+    uniqueBrandNames.includes("Zara");
   
   return (
     <div className="space-y-2">

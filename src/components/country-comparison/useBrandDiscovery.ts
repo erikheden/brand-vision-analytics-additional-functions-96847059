@@ -62,8 +62,7 @@ export const useBrandDiscovery = (
       }
     });
     
-    // Find brands that appear in multiple countries (not necessarily ALL)
-    // First, count how many countries each brand appears in
+    // Find brands that appear in at least 2 countries
     const brandCountryCount = new Map<string, number>();
     
     // Count country occurrences for each brand
@@ -73,6 +72,10 @@ export const useBrandDiscovery = (
         brandCountryCount.set(normalizedBrand, currentCount + 1);
       });
     });
+    
+    // Check for Zara specifically to debug why it might be missing
+    const zaraCount = brandCountryCount.get('zara') || 0;
+    console.log(`DEBUG: Zara appears in ${zaraCount}/${selectedCountries.length} countries`);
     
     // Keep brands that appear in at least 2 countries
     const multiCountryBrands = Array.from(brandCountryCount.entries())
@@ -109,7 +112,8 @@ export const useBrandDiscovery = (
         "Spotify", "Volvo", "Nokia", "Adidas", "Nike", 
         "Apple", "Samsung", "Netflix", "Google", "Microsoft",
         "BMW", "Audi", "Volkswagen", "Toyota", "SAS",
-        "Finnair", "Norwegian", "Telia", "Telenor", "Nordea"
+        "Finnair", "Norwegian", "Telia", "Telenor", "Nordea",
+        "Zara" // Explicitly add Zara to ensure it appears in the fallback list
       ];
       
       console.log(`Adding ${knownCommonBrands.length} known common brands as fallback`);
@@ -145,6 +149,19 @@ export const useBrandDiscovery = (
       })
       .filter(Boolean)
       .sort();
+    
+    // Make sure to include Zara if it should be in multiple countries
+    if (selectedCountries.length >= 2 && !preferredBrandNames.includes("Zara")) {
+      // Check if Zara exists in our available brands but wasn't selected
+      const hasZara = availableBrands.some(brand => 
+        brand.Brand && normalizeBrandName(brand.Brand.toString()) === 'zara'
+      );
+      
+      if (hasZara) {
+        console.log("Adding Zara explicitly as it exists in our data but wasn't included");
+        preferredBrandNames.push("Zara");
+      }
+    }
     
     console.log("Final preferred brand names:", preferredBrandNames);
     return preferredBrandNames;

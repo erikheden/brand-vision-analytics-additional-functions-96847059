@@ -90,7 +90,27 @@ export const normalizeBrandName = (brandName: string): string => {
     'toyota': 'toyota',
     'netflix': 'netflix',
     'xbox': 'xbox',
-    'playstation': 'playstation'
+    'playstation': 'playstation',
+    // Add Zara and similar fashion retailers that might be missing
+    'zara': 'zara',
+    'zarahome': 'zarahome',
+    'zara home': 'zarahome',
+    'mango': 'mango',
+    'bershka': 'bershka',
+    'pull and bear': 'pullandbear',
+    'pull & bear': 'pullandbear',
+    'pullandbear': 'pullandbear',
+    'massimo dutti': 'massimodutti',
+    'massimodutti': 'massimodutti',
+    'uniqlo': 'uniqlo',
+    'cos': 'cos',
+    'monki': 'monki',
+    'weekday': 'weekday',
+    'arket': 'arket',
+    'primark': 'primark',
+    'gap': 'gap',
+    'levis': 'levis',
+    'levi strauss': 'levis'
   };
   
   // Check if this normalized brand name has a special case mapping
