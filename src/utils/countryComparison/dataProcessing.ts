@@ -111,8 +111,14 @@ export const processLineChartData = (
         if (dataPoint.Year === null) return;
         
         // Only process points with actual scores
-        const score = dataPoint.Score === null ? 0 : Number(dataPoint.Score);
+        const score = dataPoint.Score === null ? null : Number(dataPoint.Score);
         const year = Number(dataPoint.Year);
+        
+        // Skip zero or null scores - they will create gaps in the chart
+        if (score === 0 || score === null) {
+          console.log(`Skipping zero/null score for ${brand}/${country}/${year}`);
+          return;
+        }
         
         // Add year to all years set
         allYears.add(year);
@@ -169,7 +175,7 @@ export const processLineChartData = (
         if (score !== undefined) {
           dataPoint[dataKey] = score;
         } else {
-          // For years where we have no data, set to null to allow line connection
+          // For years where we have no data, set to null to allow line breaks
           dataPoint[dataKey] = null;
         }
       });

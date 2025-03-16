@@ -46,11 +46,13 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
   // Create series data for Highcharts with proper typing
   const series: Highcharts.SeriesOptionsType[] = lines.map(line => {
     const seriesData = chartData.map(point => {
-      return [
-        point.year, // x value (year)
-        point[line.dataKey] // y value (score)
-      ];
-    }).filter(point => point[1] !== null && point[1] !== undefined);
+      // Only include points that have a non-zero value
+      const value = point[line.dataKey];
+      if (value === null || value === undefined || value === 0) {
+        return [point.year, null]; // Use null to create a break in the line
+      }
+      return [point.year, value];
+    });
     
     return {
       type: 'line' as const,
@@ -145,7 +147,7 @@ const CountryLineChartContainer: React.FC<CountryLineChartContainerProps> = ({
     },
     plotOptions: {
       line: {
-        connectNulls: true
+        connectNulls: false, // This is the key change - don't connect over null values
       },
       series: {
         marker: {
