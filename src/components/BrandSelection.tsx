@@ -1,11 +1,10 @@
-
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { X, Check, Search } from "lucide-react";
 import BrandCheckbox from "./BrandCheckbox";
 import { useState, useEffect } from "react";
-import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
+import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
 interface BrandSelectionProps {
   brands: string[];
@@ -26,29 +25,23 @@ const BrandSelection = ({
 }: BrandSelectionProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Force refresh when brands change to ensure proper normalization
   useEffect(() => {
     console.log("Brands for selection:", brands);
   }, [brands]);
   
-  // Calculate the number of rows needed based on total brands and 4 columns
   const numColumns = 4;
   
-  // Sort brands alphabetically and then reorganize into columns
   const reorganizeBrandsIntoColumns = (brands: string[]) => {
-    // First sort the brands alphabetically
     const sortedBrands = [...brands].sort((a, b) => a.localeCompare(b));
     
     const result: string[] = new Array(sortedBrands.length);
     const itemsPerColumn = Math.ceil(sortedBrands.length / numColumns);
     
     for (let i = 0; i < sortedBrands.length; i++) {
-      // Calculate position in the grid
       const column = Math.floor(i / itemsPerColumn);
       const row = i % itemsPerColumn;
       const newIndex = row * numColumns + column;
       
-      // Only set if the index is valid
       if (newIndex < sortedBrands.length) {
         result[newIndex] = sortedBrands[i];
       }
@@ -59,7 +52,6 @@ const BrandSelection = ({
 
   const columnOrderedBrands = reorganizeBrandsIntoColumns(brands);
   
-  // Filter brands based on search query, using normalized comparison for better matching
   const filteredBrands = columnOrderedBrands.filter(brand => {
     const normalizedBrand = normalizeBrandName(brand);
     const normalizedQuery = normalizeBrandName(searchQuery);
@@ -67,9 +59,7 @@ const BrandSelection = ({
   });
 
   const handleSelectAll = () => {
-    // If no brands are selected, select all filtered brands
     if (selectedBrands.length === 0) {
-      // Only select brands that have data
       filteredBrands.forEach(brand => {
         const info = brandsWithDataInfo[brand];
         if (!info || info.hasData) {
@@ -77,12 +67,10 @@ const BrandSelection = ({
         }
       });
     } else {
-      // If any brands are selected, clear all
       onClearBrands();
     }
   };
 
-  // Count brands with data
   const brandsWithDataCount = Object.values(brandsWithDataInfo).filter(info => info.hasData).length;
 
   return (

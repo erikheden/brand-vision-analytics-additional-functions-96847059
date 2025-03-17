@@ -1,9 +1,8 @@
-
 import { getFullCountryName } from "@/components/CountrySelect";
 import { BrandData } from "@/types/brand";
 import { findDirectBrandMatch, findNormalizedBrandMatches } from "./brandMatching";
 import { fetchAllBrandsData, createProjections } from "./marketDataUtils";
-import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
+import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
 /**
  * Fetches brand data for a specific country

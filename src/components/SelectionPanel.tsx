@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import CountrySelect from "./CountrySelect";
 import BrandSelection from "./BrandSelection";
@@ -6,7 +5,8 @@ import IndustryTags from "./IndustryTags";
 import { useSelectionData } from "@/hooks/useSelectionData";
 import { useSelectionState } from "@/hooks/useSelectionState";
 import { ChevronUp } from "lucide-react";
-import { normalizeBrandName, getPreferredBrandName } from "@/utils/industry/normalizeIndustry";
+import { normalizeBrandName } from "@/utils/industry/brandNormalization";
+import { getPreferredBrandName } from "@/utils/industry/brandSelection";
 
 interface SelectionPanelProps {
   selectedCountry: string;

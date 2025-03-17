@@ -4,9 +4,9 @@ import TrendComparisonWidget from './TrendComparisonWidget';
 import { 
   calculateIndustryAverages, 
   getBrandIndustry, 
-  normalizeIndustryName,
   calculatePerformancePercentage
 } from '@/utils/industry';
+import { normalizeIndustryName } from '@/utils/industry/industryNormalization';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 

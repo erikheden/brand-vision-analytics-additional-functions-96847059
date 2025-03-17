@@ -1,7 +1,6 @@
-
 import { CircleCheck, AlertTriangle, Info } from "lucide-react";
 import BrandSelection from "../BrandSelection";
-import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
+import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
 interface BrandSelectionSectionProps {
   uniqueBrandNames: string[];

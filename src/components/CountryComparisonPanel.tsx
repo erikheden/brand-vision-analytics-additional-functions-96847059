@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useSelectionData } from "@/hooks/useSelectionData";
 import CountrySelectionSection from "./country-comparison/CountrySelectionSection";
 import BrandSelectionSection from "./country-comparison/BrandSelectionSection";
 import { useBrandDiscovery } from "@/hooks/brand-discovery";
-import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
+import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
 interface CountryComparisonPanelProps {
   selectedCountries: string[];

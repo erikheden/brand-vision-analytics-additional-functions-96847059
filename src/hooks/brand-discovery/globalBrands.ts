@@ -1,4 +1,4 @@
-import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
+import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
 /**
  * Adds well-known global brands that should be available in all countries

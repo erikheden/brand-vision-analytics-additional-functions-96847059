@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { normalizeBrandName, getPreferredBrandName } from "@/utils/industry/normalizeIndustry";
+import { normalizeBrandName } from "@/utils/industry/brandNormalization";
+import { getPreferredBrandName } from "@/utils/industry/brandSelection";
 import { BrandData } from "@/types/brand";
 
 /**

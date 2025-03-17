@@ -1,7 +1,7 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { BrandData } from "@/types/brand";
-import { normalizeBrandName, getPreferredBrandName } from "@/utils/industry/normalizeIndustry";
+import { normalizeBrandName } from "@/utils/industry/brandNormalization";
+import { getPreferredBrandName } from "@/utils/industry/brandSelection";
 
 /**
  * Fetches all brands data for a country (for market statistics calculation)

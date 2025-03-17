@@ -1,9 +1,8 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandData } from "@/types/brand";
 import { getFullCountryName } from "@/components/CountrySelect";
-import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
+import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
 export const useBrandsQuery = (
   selectedCountry: string | string[], 

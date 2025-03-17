@@ -1,4 +1,3 @@
-
 import { useSelectionData } from "@/hooks/useSelectionData";
 import { findMultiCountryBrands } from "./commonBrandsFinder";
 import { getFallbackBrands, knownProblematicBrands, knownGlobalBrands } from "./fallbackBrands";
@@ -7,7 +6,7 @@ import {
   getPreferredBrandNames,
   ensureImportantBrands
 } from "./brandNormalization";
-import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
+import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
 export const useBrandDiscovery = (
   selectedCountries: string[],

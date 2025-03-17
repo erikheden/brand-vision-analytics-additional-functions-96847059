@@ -1,4 +1,5 @@
-import { normalizeBrandName } from "@/utils/industry/normalizeIndustry";
+
+import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 import { addWellKnownGlobalBrands } from "./globalBrands";
 import { findCloseMatches } from "./brandMatching";
 
