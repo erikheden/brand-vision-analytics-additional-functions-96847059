@@ -10,6 +10,7 @@ import {
   ProcessedBarDataPoint,
   ChartDataPoint
 } from "@/utils/bar-chart/dataProcessing";
+import { useMarketData } from "@/hooks/useMarketData";
 
 export interface BarChartData {
   chartData: ChartDataPoint[];
@@ -22,8 +23,11 @@ export const useBarChartData = (
   selectedBrands: string[],
   standardized: boolean
 ): BarChartData => {
-  // Calculate country-year statistics for standardization
-  const countryYearStats = useYearStatistics(allCountriesData);
+  // Get full market data for better standardization
+  const { marketData, isLoading: isLoadingMarketData } = useMarketData(Object.keys(allCountriesData));
+  
+  // Calculate country-year statistics for standardization based on full market data
+  const countryYearStats = useYearStatistics(marketData || allCountriesData);
   
   // Process the data for 2025 (or latest year) comparison
   const processedData = useMemo(() => {
@@ -31,9 +35,10 @@ export const useBarChartData = (
       allCountriesData,
       selectedBrands,
       standardized,
-      countryYearStats
+      countryYearStats,
+      marketData
     );
-  }, [allCountriesData, selectedBrands, standardized, countryYearStats]);
+  }, [allCountriesData, selectedBrands, standardized, countryYearStats, marketData]);
   
   // Organize data for the bar chart
   const chartData = useMemo(() => {

@@ -27,11 +27,15 @@ export const processBarChartData = (
   allCountriesData: Record<string, BrandData[]>,
   selectedBrands: string[],
   standardized: boolean,
-  yearStats: Map<string, Map<number, { mean: number; stdDev: number; count: number }>>
+  yearStats: Map<string, Map<number, { mean: number; stdDev: number; count: number }>>,
+  marketData?: Record<string, BrandData[]>
 ): ProcessedBarDataPoint[] => {
   const latestData: ProcessedBarDataPoint[] = [];
   
-  // Now process the data for selected brands
+  // Use market data instead of selected data for statistics if available
+  const dataForStats = marketData || allCountriesData;
+  
+  // Process the data for selected brands
   Object.entries(allCountriesData).forEach(([country, countryData]) => {
     if (!countryData || countryData.length === 0) return;
     

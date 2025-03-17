@@ -10,7 +10,7 @@ export { processLineChartData, COUNTRY_COLORS, getBrandColor, BRAND_COLORS };
  * @param score The raw score to standardize
  * @param countryAverage The average score for the country and year
  * @param countryStdDev The standard deviation for the country and year
- * @returns The standardized score (z-score) or null if standardization is not possible
+ * @returns The standardized score (z-score) or a scaled difference if stdDev is zero
  */
 export const standardizeScore = (score: number, countryAverage: number, countryStdDev: number): number | null => {
   // If we have zero variance, we can't standardize properly in the traditional way
@@ -27,7 +27,8 @@ export const standardizeScore = (score: number, countryAverage: number, countryS
       return scaledDifference;
     }
     
-    return score > 0 ? 1 : 0; // If average is 0, just show positive values as slightly positive
+    // If average is 0, just show positive values as slightly positive
+    return score > 0 ? 1 : 0; 
   }
   
   // Calculate z-score: (value - mean) / standard deviation

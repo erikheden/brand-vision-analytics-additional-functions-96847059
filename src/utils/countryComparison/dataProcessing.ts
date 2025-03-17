@@ -1,5 +1,7 @@
+
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
 import { standardizeScore } from "@/utils/countryChartDataUtils";
+import { BrandData } from "@/types/brand";
 
 /**
  * Processes data for the country comparison line chart
@@ -7,7 +9,8 @@ import { standardizeScore } from "@/utils/countryChartDataUtils";
 export const processLineChartData = (
   allCountriesData: MultiCountryData,
   selectedBrands: string[],
-  standardized: boolean
+  standardized: boolean,
+  marketData?: MultiCountryData
 ) => {
   // If there's no data, return empty array
   if (Object.keys(allCountriesData).length === 0) {
@@ -19,11 +22,14 @@ export const processLineChartData = (
   // Collect all years from all countries
   const allYears = new Set<number>();
   
+  // Use market data for statistics if available, otherwise use selected data
+  const dataForStats = marketData || allCountriesData;
+  
   // First calculate country averages by year - we need this for standardization
   const countryYearStats = new Map<string, Map<number, { mean: number; stdDev: number; count: number }>>();
   
   // Calculate stats for each country and year across ALL brands (not just selected ones)
-  Object.entries(allCountriesData).forEach(([country, countryData]) => {
+  Object.entries(dataForStats).forEach(([country, countryData]) => {
     if (!countryData || countryData.length === 0) return;
     
     // Initialize stats map for this country
