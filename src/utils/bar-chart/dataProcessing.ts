@@ -67,14 +67,16 @@ export const processBarChartData = (
           if (yearStatsForCountry) {
             const stats = yearStatsForCountry.get(year);
             
-            if (stats && stats.count >= 2 && stats.stdDev > 0) {
-              // Standardize the score against country average
-              score = standardizeScore(score, stats.mean, stats.stdDev);
-              console.log(`Standardized bar score for ${brand} in ${country}, Year ${year}: ${score.toFixed(2)} (raw=${latest.Score}, mean=${stats.mean.toFixed(2)}, stdDev=${stats.stdDev.toFixed(2)})`);
-            } else {
-              // If we can't standardize (e.g., only one brand or zero variance), use 0 (at the mean)
-              score = 0;
-              console.warn(`Insufficient data for standardization in ${country}/${year}: ${stats ? stats.count : 0} brands, stdDev=${stats ? stats.stdDev.toFixed(4) : 'N/A'}`);
+            if (stats) {
+              // Use our improved standardization function that handles edge cases
+              const standardizedScore = standardizeScore(score, stats.mean, stats.stdDev);
+              if (standardizedScore !== null) {
+                score = standardizedScore;
+                console.log(`Standardized bar score for ${brand} in ${country}, Year ${year}: ${score.toFixed(2)} (raw=${latest.Score}, mean=${stats.mean.toFixed(2)}, stdDev=${stats.stdDev.toFixed(2)})`);
+              } else {
+                // This shouldn't happen now with our improved function
+                console.warn(`Failed to standardize score for ${brand} in ${country}, Year ${year}`);
+              }
             }
           }
         }
