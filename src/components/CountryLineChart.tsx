@@ -12,7 +12,7 @@ import {
   ReferenceLine 
 } from "recharts";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
-import { processLineChartData } from "@/utils/countryChartDataUtils";
+import { processLineChartData } from "@/utils/countryComparison/dataProcessing";
 import { getFullCountryName } from "@/components/CountrySelect";
 import { useMarketData } from "@/hooks/useMarketData";
 import { getBrandColor } from "@/utils/countryChartDataUtils";
