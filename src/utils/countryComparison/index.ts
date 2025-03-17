@@ -5,3 +5,6 @@ export * from './dataProcessing';
 export * from './fetchCountryBrandData';
 export * from './brandMatching';
 export * from './marketDataUtils';
+export * from './brandVariationUtils';
+export * from './brandMatchingStrategies';
+export * from './brandDataProcessor';
