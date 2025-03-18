@@ -15,7 +15,7 @@ import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
 import { processLineChartData } from "@/utils/countryComparison/dataProcessing";
 import { getFullCountryName } from "@/components/CountrySelect";
 import { useMarketData } from "@/hooks/useMarketData";
-import { getBrandColor } from "@/utils/countryChartDataUtils";
+import { getBrandColor } from "@/utils/countryComparison/chartColors";
 
 interface CountryLineChartProps {
   allCountriesData: MultiCountryData;
@@ -141,7 +141,7 @@ const CountryLineChart = ({
               type="monotone"
               dataKey={key}
               name={key}
-              stroke={getBrandColor(brand, index)}
+              stroke={getBrandColor(brand)}
               activeDot={{ r: 6 }}
               strokeWidth={2}
               connectNulls={false}
