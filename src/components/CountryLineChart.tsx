@@ -16,7 +16,6 @@ import { processLineChartData } from "@/utils/countryComparison/dataProcessing";
 import { getFullCountryName } from "@/components/CountrySelect";
 import { useMarketData } from "@/hooks/useMarketData";
 import { getBrandColor } from "@/utils/countryComparison/chartColors";
-import { useCountryLineChart } from "@/hooks/useCountryLineChart";
 
 interface CountryLineChartProps {
   allCountriesData: MultiCountryData;
@@ -43,14 +42,49 @@ const CountryLineChart = ({
   if (chartData.length === 0) {
     return <div className="text-center py-10">No data available for the selected parameters.</div>;
   }
-
-  // Use our new hook to generate optimized chart configuration
-  const { lines, yAxisDomain } = useCountryLineChart(
-    chartData,
-    selectedBrands,
-    allCountriesData,
-    standardized
-  );
+  
+  // Generate all possible brand-country combinations for the legend
+  const brandCountryCombinations: { brand: string; country: string; key: string }[] = [];
+  
+  selectedBrands.forEach(brand => {
+    Object.keys(allCountriesData).forEach(country => {
+      const hasData = chartData.some(point => point[`${brand}-${country}`] !== undefined);
+      if (hasData) {
+        brandCountryCombinations.push({
+          brand,
+          country,
+          key: `${brand}-${country}`
+        });
+      }
+    });
+  });
+  
+  // Calculate Y-axis domain
+  const allValues: number[] = [];
+  chartData.forEach(point => {
+    Object.keys(point).forEach(key => {
+      if (key !== 'year' && point[key] !== null && typeof point[key] === 'number') {
+        allValues.push(point[key] as number);
+      }
+    });
+  });
+  
+  // Determine min and max values for the domain
+  const minValue = Math.min(...allValues);
+  const maxValue = Math.max(...allValues);
+  
+  // Set domain with 10% padding
+  let yDomain: [number, number];
+  
+  if (standardized) {
+    // For standardized scores, use fixed domain around zero
+    yDomain = [-3, 3];
+  } else {
+    // For raw scores, calculate from data
+    const range = maxValue - minValue;
+    const padding = range * 0.1;
+    yDomain = [Math.max(0, minValue - padding), maxValue + padding];
+  }
   
   return (
     <div className="w-full h-[500px]">
@@ -73,7 +107,7 @@ const CountryLineChart = ({
             padding={{ left: 20, right: 20 }}
           />
           <YAxis 
-            domain={yAxisDomain}
+            domain={yDomain}
             label={{ 
               value: standardized ? 'Standardized Score' : 'Score', 
               angle: -90, 
@@ -101,19 +135,16 @@ const CountryLineChart = ({
           
           {standardized && <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" />}
           
-          {/* Render lines using the generated configuration */}
-          {lines.map((line) => (
+          {brandCountryCombinations.map(({ brand, country, key }, index) => (
             <Line
-              key={line.key}
+              key={key}
               type="monotone"
-              dataKey={line.dataKey}
-              name={line.name}
-              stroke={line.color}
-              strokeOpacity={line.opacity}
-              strokeDasharray={line.strokeDasharray}
+              dataKey={key}
+              name={key}
+              stroke={getBrandColor(brand)}
               activeDot={{ r: 6 }}
               strokeWidth={2}
-              connectNulls={true}
+              connectNulls={false}
               dot={{ r: 4 }}
             />
           ))}
