@@ -110,6 +110,7 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
         }
       })),
       color: '#34502b',
+      // Use the proper typing for dashStyle by casting to the correct Highcharts type
       dashStyle: 'Dash' as Highcharts.DashStyleValue,
       marker: {
         symbol: 'diamond',
@@ -117,7 +118,7 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
       },
       lineWidth: 1.5,
       zIndex: 1
-    });
+    } as Highcharts.SeriesLineOptions); // Cast to SeriesLineOptions to ensure proper typing
   }
 
   const options: Highcharts.Options = {
