@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -79,7 +80,7 @@ const BrandSelection = ({
         <Label>Select Brands</Label>
         <div className="flex gap-2 items-center">
           <span className="text-xs text-muted-foreground">
-            {filteredBrands.length} brands total, {brandsWithDataCount} with data
+            {filteredBrands.length} brands total
           </span>
           <Button
             variant="outline"
