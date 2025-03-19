@@ -1,8 +1,11 @@
+
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
 import { createBarChartOptions } from '@/utils/chartConfigs';
 import { BAR_COLOR, FONT_FAMILY } from '@/utils/constants';
+import { useEffect, useState } from 'react';
+import { getAverageScore } from '@/utils/countryComparison/averageScoreUtils';
 
 interface BrandBarChartProps {
   chartData: any[];
@@ -22,6 +25,7 @@ const BrandBarChart = ({
   marketDataCount = 0
 }: BrandBarChartProps) => {
   const baseOptions = createBarChartOptions(FONT_FAMILY);
+  const [averageScore, setAverageScore] = useState<number | null>(null);
   
   // Specifically filter for 2025 data first
   const data2025 = chartData.filter(point => point.year === 2025);
@@ -38,7 +42,27 @@ const BrandBarChart = ({
   const displayYear = dataToUse[0]?.year || latestYear;
   const isProjected = dataToUse[0]?.Projected;
   
+  // Get country from the first data point (all points should have same country)
+  const country = dataToUse[0]?.country || '';
+  
   console.log("Using data year for bar chart:", displayYear, "Projected:", isProjected);
+  
+  // Extract average score from the chart data if available
+  useEffect(() => {
+    if (chartData.length > 0 && !standardized) {
+      // Check if averageScores are attached to the chart data
+      const averageScores = (chartData as any).averageScores;
+      if (averageScores && country) {
+        const countryAvg = getAverageScore(averageScores, country, displayYear);
+        setAverageScore(countryAvg);
+        console.log(`Bar chart average score for ${country}/${displayYear}:`, countryAvg);
+      } else {
+        setAverageScore(null);
+      }
+    } else {
+      setAverageScore(null);
+    }
+  }, [chartData, country, displayYear, standardized]);
   
   // Sort brands by their score values
   const seriesData = selectedBrands.map(brand => {
@@ -91,7 +115,24 @@ const BrandBarChart = ({
           fontFamily: FONT_FAMILY,
         }
       },
-      gridLineColor: 'rgba(52, 80, 43, 0.1)'
+      gridLineColor: 'rgba(52, 80, 43, 0.1)',
+      // Add plotLines for average score when showing raw scores
+      plotLines: !standardized && averageScore ? [{
+        value: averageScore,
+        color: '#34502b',
+        dashStyle: 'Dash',
+        width: 1.5,
+        label: {
+          text: `Country Average: ${averageScore.toFixed(2)}`,
+          align: 'right',
+          style: {
+            color: '#34502b',
+            fontFamily: FONT_FAMILY,
+            fontStyle: 'italic'
+          }
+        },
+        zIndex: 5
+      }] : undefined
     },
     xAxis: {
       type: 'category',
@@ -112,7 +153,17 @@ const BrandBarChart = ({
         const value = standardized ? 
           `${this.y?.toFixed(2)} SD from market mean` : 
           this.y?.toFixed(2);
-        return `<b>${this.key}</b>: ${value}`;
+        
+        let tooltipText = `<b>${this.key}</b>: ${value}`;
+        
+        // Add average score info if available and not standardized
+        if (!standardized && averageScore !== null) {
+          const diff = (this.y as number) - averageScore;
+          const diffText = diff >= 0 ? `+${diff.toFixed(2)}` : `${diff.toFixed(2)}`;
+          tooltipText += `<br/><span style="font-size: 0.9em; font-style: italic;">Difference from average: ${diffText}</span>`;
+        }
+        
+        return tooltipText;
       },
       backgroundColor: 'white',
       style: {

@@ -1,3 +1,4 @@
+
 // Import the utility for getting average scores
 import { getAverageScore } from "@/utils/countryComparison/averageScoreUtils";
 import { BrandData } from "@/types/brand";
@@ -14,6 +15,7 @@ export interface ProcessedBarDataPoint {
 
 export interface ChartDataPoint {
   name: string;
+  country: string;
   [key: string]: number | string;
 }
 
@@ -113,7 +115,7 @@ export const organizeChartData = (
   
   processedData.forEach(item => {
     if (!groupedData[item.country]) {
-      groupedData[item.country] = { name: item.country };
+      groupedData[item.country] = { name: item.country, country: item.country };
     }
     
     groupedData[item.country][item.brand] = item.score;

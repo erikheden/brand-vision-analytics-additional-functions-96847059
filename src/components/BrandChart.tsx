@@ -4,6 +4,8 @@ import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
 import { createChartOptions } from '@/utils/chartConfigs';
 import { FONT_FAMILY } from '@/utils/constants';
+import { useEffect, useState } from 'react';
+import { getAverageScore } from '@/utils/countryComparison/averageScoreUtils';
 
 interface BrandChartProps {
   chartData: any[];
@@ -15,8 +17,41 @@ interface BrandChartProps {
 
 const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standardized }: BrandChartProps) => {
   const baseOptions = createChartOptions(FONT_FAMILY);
+  const [yearlyAverages, setYearlyAverages] = useState<{year: number, average: number}[]>([]);
   
   const latestYearToShow = 2025;
+  
+  // Get country from the first data point (all points should have same country)
+  const country = chartData.length > 0 && chartData[0].country 
+    ? chartData[0].country 
+    : '';
+  
+  // Extract average scores for each year
+  useEffect(() => {
+    if (chartData.length > 0 && !standardized && country) {
+      // Check if averageScores are attached to the chart data
+      const averageScores = (chartData as any).averageScores;
+      
+      if (averageScores) {
+        // Get all years from the chart data
+        const years = chartData.map(point => point.year);
+        const uniqueYears = [...new Set(years)].sort((a, b) => a - b);
+        
+        // Get average score for each year
+        const averagesByYear = uniqueYears.map(year => {
+          const avgScore = getAverageScore(averageScores, country, year);
+          return {year, average: avgScore !== null ? avgScore : 0};
+        }).filter(item => item.average > 0);
+        
+        setYearlyAverages(averagesByYear);
+        console.log("Yearly average scores for line chart:", averagesByYear);
+      } else {
+        setYearlyAverages([]);
+      }
+    } else {
+      setYearlyAverages([]);
+    }
+  }, [chartData, country, standardized]);
   
   const series = selectedBrands.map((brand, index) => {
     const brandColor = chartConfig[brand]?.color || '#333333';
@@ -57,6 +92,26 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
       connectNulls: false
     };
   });
+  
+  // Add average score series if not standardized
+  if (!standardized && yearlyAverages.length > 0) {
+    series.push({
+      type: 'line' as const,
+      name: 'Country Average',
+      data: yearlyAverages.map(item => ({
+        x: item.year,
+        y: item.average
+      })),
+      color: '#34502b',
+      dashStyle: 'Dash' as Highcharts.DashStyleValue,
+      marker: {
+        symbol: 'diamond',
+        radius: 3
+      },
+      lineWidth: 1.5,
+      zIndex: 1
+    });
+  }
 
   const options: Highcharts.Options = {
     ...baseOptions,
@@ -120,20 +175,50 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
         
         const pointYear = tooltipContext.x;
         
-        const pointsHtml = points.map(point => {
+        // Find average for this year if available
+        let averageForYear: number | null = null;
+        if (!standardized && yearlyAverages.length > 0) {
+          const yearAverage = yearlyAverages.find(item => item.year === pointYear);
+          if (yearAverage) {
+            averageForYear = yearAverage.average;
+          }
+        }
+        
+        let pointsHtml = points.map(point => {
+          // Skip the average line in the individual points section
+          if (point.series.name === 'Country Average') return '';
+          
           const color = point.series.color;
           const value = standardized ? 
             `${point.y?.toFixed(2)} SD` : 
             point.y?.toFixed(2);
           
+          // Add difference from average if available
+          let diffText = '';
+          if (!standardized && averageForYear !== null && point.series.name !== 'Country Average') {
+            const diff = (point.y as number) - averageForYear;
+            diffText = `<span style="font-size: 0.85em; margin-left: 5px; color: ${diff >= 0 ? '#34502b' : '#b74134'}">(${diff >= 0 ? '+' : ''}${diff.toFixed(2)})</span>`;
+          }
+          
           return `
             <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
               <div style="width: 10px; height: 10px; background-color: ${color}; border-radius: 50%;"></div>
               <span style="color: #34502b;">${point.series.name}:</span>
-              <span style="font-weight: bold; color: #34502b;">${value}</span>
+              <span style="font-weight: bold; color: #34502b;">${value}${diffText}</span>
             </div>
           `;
         }).join('');
+        
+        // Add average line info if available
+        if (!standardized && averageForYear !== null) {
+          pointsHtml = `
+            <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0; border-top: 1px dotted #34502b; padding-top: 4px;">
+              <div style="width: 10px; height: 1px; background-color: #34502b; border-radius: 0;"></div>
+              <span style="color: #34502b; font-style: italic;">Country Average:</span>
+              <span style="font-weight: bold; color: #34502b;">${averageForYear.toFixed(2)}</span>
+            </div>
+          ` + pointsHtml;
+        }
         
         const yearLabel = `${pointYear}`;
         

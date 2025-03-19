@@ -22,8 +22,15 @@ const ChartSection = ({
 }: ChartSectionProps) => {
   const [standardized, setStandardized] = useState(false);
   const {
-    data: scores = []
+    data: scores = [],
+    isLoading
   } = useChartData(selectedCountry, selectedBrands);
+
+  if (isLoading) {
+    return <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+      <div className="text-center py-10">Loading data...</div>
+    </Card>;
+  }
 
   if (scores.length === 0) {
     return <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
@@ -43,6 +50,15 @@ const ChartSection = ({
   };
   
   const chartData = processChartData(scores, standardized);
+  
+  // Copy average scores to chartData for access in child components
+  if (hasAverageScores) {
+    Object.defineProperty(chartData, 'averageScores', {
+      value: averageScores,
+      enumerable: false
+    });
+  }
+  
   const chartConfig = createChartConfig(selectedBrands);
 
   // Always use 2025 as the target year for comparison

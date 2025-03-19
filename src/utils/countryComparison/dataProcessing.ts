@@ -129,6 +129,11 @@ export const processLineChartData = (
           // For years where we have no data, set to null to allow line breaks
           dataPoint[dataKey] = null;
         }
+        
+        // Store country information with each data point
+        if (!dataPoint.country) {
+          dataPoint.country = country;
+        }
       });
     });
     

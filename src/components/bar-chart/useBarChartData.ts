@@ -42,8 +42,19 @@ export const useBarChartData = (
   
   // Organize data for the bar chart
   const chartData = useMemo(() => {
-    return organizeChartData(processedData, selectedBrands);
-  }, [processedData, selectedBrands]);
+    const organized = organizeChartData(processedData, selectedBrands);
+    
+    // Copy average scores to chartData for access in child components
+    const averageScores = (allCountriesData as any).averageScores;
+    if (averageScores) {
+      Object.defineProperty(organized, 'averageScores', {
+        value: averageScores,
+        enumerable: false
+      });
+    }
+    
+    return organized;
+  }, [processedData, selectedBrands, allCountriesData]);
   
   // Calculate the chart year (most common year in the data)
   const chartYear = useMemo(() => {
