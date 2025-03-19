@@ -1,4 +1,3 @@
-
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
@@ -11,7 +10,7 @@ interface BrandBarChartProps {
   chartConfig: any;
   standardized: boolean;
   latestYear?: number;
-  marketDataCount?: number;
+  marketDataCount?: string | number;
 }
 
 const BrandBarChart = ({ 
@@ -52,9 +51,11 @@ const BrandBarChart = ({
   }).sort((a, b) => b.y - a.y);
 
   // Display the actual number of brands used for standardization
-  const marketComparisonText = marketDataCount > 0 
-    ? `vs ${marketDataCount} brands` 
-    : 'Market Standardized';
+  const marketComparisonText = typeof marketDataCount === 'string'
+    ? marketDataCount
+    : marketDataCount > 0 
+      ? `vs ${marketDataCount} brands` 
+      : 'Market Standardized';
 
   // Create a more informative title based on standardization and market data
   const titleText = standardized 
