@@ -1,3 +1,4 @@
+
 import { CircleCheck, AlertTriangle, Info } from "lucide-react";
 import BrandSelection from "../BrandSelection";
 import { normalizeBrandName } from "@/utils/industry/brandNormalization";
@@ -45,7 +46,7 @@ const BrandSelectionSection = ({
                 <div>
                   <p className="font-medium">Common brands across selected markets</p>
                   <p className="text-sm mt-1">
-                    Showing {uniqueBrandNames.length} brands that exist in {selectedCountries.length > 1 ? "all" : "the"} selected {selectedCountries.length === 1 ? "country" : "countries"}.
+                    Showing {uniqueBrandNames.length} brands that exist in at least 2 selected countries.
                     {brandsWithData > 0 && ` ${brandsWithData} of these brands have comparable data.`}
                   </p>
                 </div>
@@ -66,7 +67,7 @@ const BrandSelectionSection = ({
             <div>
               <p className="font-medium">No common brands found</p>
               <p className="text-sm mt-1">
-                We couldn't find any brands that exist across all the selected countries. 
+                We couldn't find any brands that exist across the selected countries. 
                 Try selecting fewer countries or different combinations.
               </p>
             </div>

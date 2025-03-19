@@ -1,4 +1,3 @@
-
 import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 import { addWellKnownGlobalBrands } from "./globalBrands";
 import { findCloseMatches } from "./brandMatching";
@@ -66,54 +65,106 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
     }
   });
   
-  // Step 3: Find the intersection of brand names that appear in ALL selected countries
-  let commonNormalizedNames: Set<string> | null = null;
+  // NEW APPROACH: Find brands that exist in ANY of the selected countries
+  // This is more inclusive than requiring brands to exist in ALL countries
+  const allNormalizedNames = new Set<string>();
+  const brandCountries = new Map<string, Set<string>>();
   
+  // Collect all normalized brand names across all countries
   selectedCountries.forEach(country => {
     const countryBrands = brandNamesByCountry.get(country);
-    
-    if (!countryBrands) return;
-    
-    if (commonNormalizedNames === null) {
-      // First country - start with all its brands
-      commonNormalizedNames = new Set(countryBrands);
-    } else {
-      // Subsequent countries - keep only brands that exist in both sets
-      commonNormalizedNames = new Set(
-        [...commonNormalizedNames].filter(brand => countryBrands.has(brand))
-      );
+    if (countryBrands) {
+      countryBrands.forEach(brand => {
+        allNormalizedNames.add(brand);
+        
+        // Track which countries each brand appears in
+        if (!brandCountries.has(brand)) {
+          brandCountries.set(brand, new Set());
+        }
+        brandCountries.get(brand)?.add(country);
+      });
     }
   });
   
-  if (!commonNormalizedNames || commonNormalizedNames.size === 0) {
-    console.log("No common brands found across selected countries");
-    console.log("First country set size:", brandNamesByCountry.get(selectedCountries[0])?.size);
-    console.log("Second country set size:", brandNamesByCountry.get(selectedCountries[1])?.size);
+  // Filter to only include brands that appear in at least 2 countries
+  const multiCountryBrands = Array.from(allNormalizedNames)
+    .filter(brand => (brandCountries.get(brand)?.size || 0) >= 2);
+  
+  console.log(`Found ${multiCountryBrands.length} brands that exist in at least 2 of the selected countries`);
+  
+  // If we found very few common brands, fall back to the original intersection approach
+  if (multiCountryBrands.length < 10) {
+    console.log("Falling back to original intersection approach");
     
-    // Let's try logging some sample normalized names from each set to see what we're working with
-    const set1 = brandNamesByCountry.get(selectedCountries[0]);
-    const set2 = brandNamesByCountry.get(selectedCountries[1]);
+    // Step 3: Find the intersection of brand names that appear in ALL selected countries
+    let commonNormalizedNames: Set<string> | null = null;
     
-    if (set1 && set2) {
-      // Find names that are close matches but not exact
-      const closeMatches = findCloseMatches(set1, set2);
-      console.log("Potential close matches that didn't intersect:", closeMatches.slice(0, 10));
+    selectedCountries.forEach(country => {
+      const countryBrands = brandNamesByCountry.get(country);
+      
+      if (!countryBrands) return;
+      
+      if (commonNormalizedNames === null) {
+        // First country - start with all its brands
+        commonNormalizedNames = new Set(countryBrands);
+      } else {
+        // Subsequent countries - keep only brands that exist in both sets
+        commonNormalizedNames = new Set(
+          [...commonNormalizedNames].filter(brand => countryBrands.has(brand))
+        );
+      }
+    });
+    
+    if (!commonNormalizedNames || commonNormalizedNames.size === 0) {
+      console.log("No common brands found across selected countries");
+      console.log("First country set size:", brandNamesByCountry.get(selectedCountries[0])?.size);
+      console.log("Second country set size:", brandNamesByCountry.get(selectedCountries[1])?.size);
+      
+      // Let's try logging some sample normalized names from each set to see what we're working with
+      const set1 = brandNamesByCountry.get(selectedCountries[0]);
+      const set2 = brandNamesByCountry.get(selectedCountries[1]);
+      
+      if (set1 && set2) {
+        // Find names that are close matches but not exact
+        const closeMatches = findCloseMatches(set1, set2);
+        console.log("Potential close matches that didn't intersect:", closeMatches.slice(0, 10));
+      }
+      
+      // No common brands found, add in well-known global brands
+      return addWellKnownGlobalBrands(
+        new Map<string, any>(),  // Start with empty map
+        selectedCountries, 
+        availableBrands,
+        true // Force add brands from the global list even if none found naturally
+      );
     }
-    
-    // No common brands found, add in well-known global brands
-    return addWellKnownGlobalBrands(
-      new Map<string, any>(),  // Start with empty map
-      selectedCountries, 
-      availableBrands,
-      true // Force add brands from the global list even if none found naturally
-    );
   }
   
-  console.log(`Found ${commonNormalizedNames.size} common normalized brand names`);
-  console.log("Common normalized names:", Array.from(commonNormalizedNames).slice(0, 10));
+  // Use either multiCountryBrands (brands in 2+ countries) or commonNormalizedNames (brands in ALL countries)
+  const normalizedNamesToUse = multiCountryBrands.length >= 10 ? multiCountryBrands : 
+                              Array.from(commonNormalizedNames || []);
   
-  // Step 4: Get the original brand records for these common normalized names
-  const uniqueRecords = getUniqueBrandRecords(commonNormalizedNames, selectedCountries, brandRecordsByCountry);
+  console.log(`Using ${normalizedNamesToUse.length} brand names`);
+  
+  // Step 4: Get the original brand records for these normalized names
+  const uniqueRecords = new Map<string, any>();
+  
+  // For each common normalized brand name, find all matching brand records
+  normalizedNamesToUse.forEach(normalizedName => {
+    selectedCountries.forEach(country => {
+      const countryRecords = brandRecordsByCountry.get(country)?.get(normalizedName) || [];
+      
+      if (countryRecords.length > 0) {
+        // If multiple records exist for this brand in this country, use the one with highest score
+        const bestRecord = countryRecords.reduce((best, current) => {
+          return (!best.Score || (current.Score && current.Score > best.Score)) ? current : best;
+        }, countryRecords[0]);
+        
+        const key = `${normalizedName}-${country}`;
+        uniqueRecords.set(key, bestRecord);
+      }
+    });
+  });
   
   // If we found very few brands and there are at least 2 countries selected,
   // add some well-known global brands that should be present in all countries
@@ -122,6 +173,7 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
     return addWellKnownGlobalBrands(uniqueRecords, selectedCountries, availableBrands);
   }
   
+  console.log(`Found ${uniqueRecords.size} unique brand records across countries`);
   return Array.from(uniqueRecords.values());
 };
 
