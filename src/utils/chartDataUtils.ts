@@ -44,7 +44,7 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
     console.warn("Standardization requested but no average scores available - falling back to raw scores");
   }
   
-  console.log(`Processing chart data with ${scores.length} selected data points`);
+  console.log(`Processing chart data with ${scores.length} selected data points, standardized = ${standardized}`);
   console.log(`Average scores available: ${hasAverageScores ? 'Yes' : 'No'}`);
   
   // Group scores by year and country
@@ -66,7 +66,10 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
 
   return Object.entries(yearGroups).map(([year, yearScores]) => {
     const yearNum = parseInt(year);
-    const result: ChartDataPoint = { year: yearNum, country };
+    const result: ChartDataPoint = { 
+      year: yearNum, 
+      country  // Ensure country is always included in the result
+    };
     
     // Check if this is projected data
     const hasProjectedData = yearScores.some(score => score.Projected);
@@ -117,6 +120,9 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
         result[score.Brand] = score.Score;
       });
     }
+    
+    // Log the processed data point for debugging
+    console.log(`Processed data point for year ${yearNum}: ${Object.keys(result).length} brands, standardized: ${standardized}`);
 
     return result;
   }).sort((a, b) => a.year - b.year);

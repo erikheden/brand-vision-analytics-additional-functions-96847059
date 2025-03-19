@@ -46,6 +46,7 @@ const BrandBarChart = ({
   const country = dataToUse[0]?.country || '';
   
   console.log("Using data year for bar chart:", displayYear, "Projected:", isProjected);
+  console.log("Bar chart data:", dataToUse);
   
   // Extract average score from the chart data if available
   useEffect(() => {
@@ -67,10 +68,11 @@ const BrandBarChart = ({
   // Sort brands by their score values
   const seriesData = selectedBrands.map(brand => {
     const scoreValue = dataToUse[0]?.[brand] || 0;
+    console.log(`Brand ${brand} score: ${scoreValue}`);
     return {
       name: brand,
       y: scoreValue,
-      color: BAR_COLOR
+      color: chartConfig[brand]?.color || BAR_COLOR
     };
   }).sort((a, b) => b.y - a.y);
 

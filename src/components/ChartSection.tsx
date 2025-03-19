@@ -31,11 +31,16 @@ const ChartSection = ({
   // Process chart data when scores or standardization changes
   useEffect(() => {
     if (scores.length > 0) {
+      console.log("Processing chart data with standardized =", standardized);
+      console.log("Raw scores before processing:", scores.slice(0, 3));
+      
       const data = processChartData(scores, standardized);
+      console.log("Processed data sample:", data.slice(0, 3));
       
       // Copy average scores to processed data for access in child components
       const averageScores = (scores as any).averageScores;
       if (averageScores) {
+        console.log("Attaching average scores to processed data");
         Object.defineProperty(data, 'averageScores', {
           value: averageScores,
           enumerable: false
@@ -82,6 +87,7 @@ const ChartSection = ({
   const targetYear = 2025;
 
   const handleToggleStandardized = (pressed: boolean) => {
+    console.log("Standardized toggle pressed, new value:", pressed);
     setStandardized(pressed);
   };
 

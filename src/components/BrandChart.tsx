@@ -95,21 +95,25 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
   
   // Add average score series if not standardized
   if (!standardized && yearlyAverages.length > 0) {
-    // Ensure all required properties are explicitly defined
-    const averageScoreSeries = {
+    // Add the average score as a new series with correct typing
+    const averageData = yearlyAverages.map(item => ({
+      x: item.year,
+      y: item.average,
+      marker: {
+        fillColor: '#34502b',
+        lineWidth: 2,
+        lineColor: '#ffffff',
+        radius: 4
+      }
+    }));
+
+    // Make sure to define all required properties explicitly
+    series.push({
       type: 'line' as const,
       name: 'Country Average',
-      data: yearlyAverages.map(item => ({
-        x: item.year,
-        y: item.average,
-        marker: {
-          fillColor: '#34502b',
-          lineWidth: 2,
-          lineColor: '#ffffff',
-          radius: 4
-        }
-      })),
+      data: averageData,
       color: '#34502b',
+      // Use the proper typing for dashStyle
       dashStyle: 'Dash' as Highcharts.DashStyleValue,
       marker: {
         symbol: 'diamond',
@@ -118,9 +122,7 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
       lineWidth: 1.5,
       zIndex: 1,
       connectNulls: false
-    };
-    
-    series.push(averageScoreSeries);
+    });
   }
 
   const options: Highcharts.Options = {
