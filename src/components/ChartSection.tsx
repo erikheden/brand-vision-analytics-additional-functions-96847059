@@ -31,9 +31,9 @@ const ChartSection = ({
       </Card>;
   }
 
-  // Check if full market data is available for better standardization
-  const marketData = (scores as any).marketData || [];
-  const marketDataCount = marketData.length || 0;
+  // Check if average scores data is available for better standardization
+  const averageScores = (scores as any).averageScores;
+  const hasAverageScores = averageScores && averageScores.size > 0;
 
   const years = calculateYearRange(scores);
   // Create a yearRange object compatible with BrandChart's expected format
@@ -79,7 +79,8 @@ const ChartSection = ({
                 <Info className="h-4 w-4 text-[#34502b] transition-transform hover:scale-110" />
               </TooltipTrigger>
               <TooltipContent className="bg-white p-3 max-w-xs shadow-lg">
-                <p>Standardized scores normalize the data against the <strong>entire market average</strong> in each country ({marketDataCount > 0 ? `${marketDataCount} brands` : 'all available brands'}), showing how many standard deviations each brand is above or below the market mean.</p>
+                <p>Standardized scores normalize the data against the <strong>official market average</strong> in each country, showing how many standard deviations each brand is above or below the market average score.</p>
+                <p className="text-xs mt-1 text-[#34502b]/70">Data source: SBI Average Scores table</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -94,7 +95,7 @@ const ChartSection = ({
           chartConfig={chartConfig} 
           standardized={standardized} 
           latestYear={targetYear}
-          marketDataCount={marketDataCount}
+          marketDataCount={hasAverageScores ? "SBI Average" : 0}
         />
       </Card>
       

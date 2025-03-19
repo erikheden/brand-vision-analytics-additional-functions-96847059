@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandData } from "@/types/brand";
 import { countryMapping, getFullCountryName } from "@/components/CountrySelect";
+import { fetchAverageScores } from "@/utils/countryComparison/averageScoreUtils";
 
 export const useChartData = (selectedCountry: string, selectedBrands: string[]) => {
   return useQuery({
@@ -42,28 +43,10 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
           console.error("Error fetching with full country name:", errorWithFullName);
         }
         
-        // ADDITIONAL QUERY: Get ALL brands for this country to calculate market averages properly
-        let { data: allBrandsDataWithCode } = await supabase
-          .from("SBI Ranking Scores 2011-2025")
-          .select("*")
-          .eq("Country", selectedCountry)
-          .order('Year', { ascending: true });
-          
-        let { data: allBrandsDataWithFullName } = await supabase
-          .from("SBI Ranking Scores 2011-2025")
-          .select("*")
-          .eq("Country", fullCountryName)
-          .order('Year', { ascending: true });
+        // NEW: Fetch average scores instead of all brands data
+        const averageScores = await fetchAverageScores([selectedCountry, fullCountryName]);
         
-        // Store all brands data for market statistics calculation
-        const allBrandsData = [
-          ...(allBrandsDataWithCode || []),
-          ...(allBrandsDataWithFullName || [])
-        ];
-        
-        console.log("Total brands in market for statistics:", allBrandsData.length);
-        
-        // Combine both result sets (for selected brands) and remove duplicates
+        // Combine both result sets and remove duplicates
         const combinedData = [
           ...(dataWithCode || []), 
           ...(dataWithFullName || [])
@@ -82,10 +65,10 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         
         const finalData = Array.from(uniqueEntries.values());
         
-        // Store market data for standardization
-        // This attaches the full market data as a property of the array
-        Object.defineProperty(finalData, 'marketData', {
-          value: allBrandsData,
+        // Store average scores data for standardization
+        // This attaches the average scores as a property of the array
+        Object.defineProperty(finalData, 'averageScores', {
+          value: averageScores,
           enumerable: false
         });
         

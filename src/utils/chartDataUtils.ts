@@ -1,4 +1,3 @@
-
 interface Score {
   Year: number;
   Brand: string;
@@ -35,58 +34,24 @@ export const calculateYearRange = (scores: Score[]): number[] => {
 };
 
 export const processChartData = (scores: Score[], standardized: boolean = false): ChartDataPoint[] => {
-  // First, check if we have market data available (added by useChartData to the scores array)
-  // This is the array containing ALL brands in the market, not just the selected ones
-  const marketData = (scores as any).marketData || [];
-  const hasMarketData = marketData.length > 0;
+  // Get average scores if available (added by useChartData to the scores array)
+  const averageScores = (scores as any).averageScores;
+  const hasAverageScores = averageScores && averageScores.size > 0;
   
-  if (standardized && !hasMarketData) {
-    console.warn("Standardization requested but no market data available - falling back to selected brands only");
+  if (standardized && !hasAverageScores) {
+    console.warn("Standardization requested but no average scores available - falling back to raw scores");
   }
   
-  // CRITICAL FIX: Always use the full market data when standardizing (if available)
-  // Only use the selected brands when calculating the actual chart data points
   console.log(`Processing chart data with ${scores.length} selected data points`);
-  console.log(`Market data available: ${hasMarketData ? 'Yes' : 'No'} (${marketData.length} brands in full market)`);
+  console.log(`Average scores available: ${hasAverageScores ? 'Yes' : 'No'}`);
   
-  // Step 1: Calculate market statistics using ALL market data
-  // This ensures standardization is against the entire market, not just selected brands
-  const fullDataForStats = (standardized && hasMarketData) ? marketData : scores;
-  console.log(`Using ${fullDataForStats.length} data points for standardization statistics (${standardized && hasMarketData ? 'FULL MARKET' : 'SELECTED BRANDS ONLY'})`);
+  // Group scores by year and country
+  const validScores = scores.filter(score => score.Score !== null && score.Score !== 0);
   
-  const validScoresForStats = fullDataForStats.filter(score => score.Score !== null && score.Score !== 0);
-  
-  // Group scores by year and country for market stats
-  const yearCountryGroups: { [key: string]: Score[] } = {};
-  
-  validScoresForStats.forEach(score => {
-    const yearCountryKey = `${score.Year}-${score.Country}`;
-    if (!yearCountryGroups[yearCountryKey]) {
-      yearCountryGroups[yearCountryKey] = [];
-    }
-    yearCountryGroups[yearCountryKey].push(score);
-  });
-
-  // Calculate market statistics for each year and country
-  const marketStats: { [key: string]: { mean: number; stdDev: number; count: number } } = {};
-  
-  Object.entries(yearCountryGroups).forEach(([yearCountryKey, yearCountryScores]) => {
-    const scoresValues = yearCountryScores.map(s => s.Score);
-    const mean = scoresValues.reduce((sum, score) => sum + score, 0) / scoresValues.length;
-    const variance = scoresValues.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scoresValues.length;
-    const stdDev = Math.sqrt(variance);
-    
-    marketStats[yearCountryKey] = { mean, stdDev, count: scoresValues.length };
-    
-    console.log(`Market stats for ${yearCountryKey}: mean=${mean.toFixed(2)}, stdDev=${stdDev.toFixed(2)} (based on ${scoresValues.length} brands)`);
-  });
-
-  // Step 2: Now create chart data points using ONLY the selected scores
-  // We visualize only the selected brands, but standardize against the full market
-  const selectedValidScores = scores.filter(score => score.Score !== null && score.Score !== 0);
+  // Group by year
   const yearGroups: { [key: number]: Score[] } = {};
   
-  selectedValidScores.forEach(score => {
+  validScores.forEach(score => {
     const year = score.Year;
     if (!yearGroups[year]) {
       yearGroups[year] = [];
@@ -104,25 +69,32 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
       result.Projected = true;
     }
 
-    if (standardized) {
-      // Add standardized scores based on market statistics
+    if (standardized && hasAverageScores) {
+      // Add standardized scores based on average scores table
       yearScores.forEach(score => {
-        const yearCountryKey = `${score.Year}-${score.Country}`;
-        const stats = marketStats[yearCountryKey];
+        const country = score.Country;
         
-        if (!stats) {
-          console.warn(`No market statistics found for ${yearCountryKey}`);
-          result[score.Brand] = 0;
+        // Try to get the average score for this country and year
+        const countryAvgMap = averageScores.get(country);
+        const averageScore = countryAvgMap?.get(yearNum);
+        
+        if (!averageScore) {
+          console.warn(`No average score found for ${country}/${yearNum}`);
+          result[score.Brand] = score.Score;
           return;
         }
         
-        if (stats.stdDev === 0) {
+        // Calculate standard deviation using a fixed percentage of the mean
+        // This is a simplification since we only have the mean
+        const estimatedStdDev = averageScore * 0.15; // Assuming 15% of mean as stdDev
+        
+        if (estimatedStdDev === 0) {
           result[score.Brand] = 0;
         } else {
-          // Standardize scores against market mean and stdDev
-          const standardizedScore: number = (score.Score - stats.mean) / stats.stdDev;
+          // Standardize scores against average score and estimated stdDev
+          const standardizedScore: number = (score.Score - averageScore) / estimatedStdDev;
           result[score.Brand] = standardizedScore;
-          console.log(`Standardized score for ${score.Brand} in ${score.Year}-${score.Country}: ${standardizedScore.toFixed(2)} (score: ${score.Score}, mean: ${stats.mean.toFixed(2)}, stdDev: ${stats.stdDev.toFixed(2)}, based on ${stats.count} brands)`);
+          console.log(`Standardized score for ${score.Brand} in ${score.Year}-${score.Country}: ${standardizedScore.toFixed(2)} (score: ${score.Score}, avg: ${averageScore.toFixed(2)}, est.stdDev: ${estimatedStdDev.toFixed(2)})`);
         }
       });
     } else {

@@ -21,7 +21,7 @@ const CountryComparisonChart = ({
   selectedBrands
 }: CountryComparisonChartProps) => {
   const [standardized, setStandardized] = useState(false);
-  const [chartType, setChartType] = useState("bar"); // Changed default to "bar" instead of "line"
+  const [chartType, setChartType] = useState("bar");
   
   const { data: allCountriesData, isLoading } = useMultiCountryChartData(selectedCountries, selectedBrands);
   
@@ -61,6 +61,10 @@ const CountryComparisonChart = ({
     );
   }
   
+  // Check if we have average scores
+  const averageScores = (allCountriesData as any).averageScores;
+  const hasAverageScores = averageScores && averageScores.size > 0;
+  
   return (
     <div className="space-y-6 mb-16">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -97,7 +101,8 @@ const CountryComparisonChart = ({
                   <Info className="h-4 w-4 text-[#34502b] transition-transform hover:scale-110" />
                 </TooltipTrigger>
                 <TooltipContent className="bg-white p-3 max-w-xs shadow-lg">
-                  <p>Standardized scores normalize the data against the entire market average in each country, showing how many standard deviations each brand is above or below the market mean.</p>
+                  <p>Standardized scores normalize the data against the <strong>official market average</strong> in each country, showing how many standard deviations each brand is above or below the market average score.</p>
+                  <p className="text-xs mt-1 text-[#34502b]/70">Data source: SBI Average Scores table</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

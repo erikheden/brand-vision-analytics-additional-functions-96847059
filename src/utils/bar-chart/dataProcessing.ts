@@ -1,186 +1,153 @@
-
+// Import the utility for getting average scores
+import { getAverageScore } from "@/utils/countryComparison/averageScoreUtils";
 import { BrandData } from "@/types/brand";
-import { getFullCountryName } from "@/components/CountrySelect";
-import { standardizeScore } from "@/utils/countryChartDataUtils";
+import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
 
-// Type for the processed data points in the bar chart
 export interface ProcessedBarDataPoint {
-  country: string;
   brand: string;
-  countryCode: string;
+  country: string;
   score: number;
+  rawScore: number;
   year: number;
   projected: boolean;
 }
 
-// Type for the final chart data point structure
 export interface ChartDataPoint {
-  country: string;
-  countryCode: string;
-  [brandName: string]: string | number | boolean | undefined;
+  name: string;
+  [key: string]: number | string;
 }
 
 /**
- * Processes the raw country data into a format suitable for bar charts
+ * Process data for bar chart
  */
 export const processBarChartData = (
-  allCountriesData: Record<string, BrandData[]>,
+  allCountriesData: MultiCountryData,
   selectedBrands: string[],
   standardized: boolean,
-  yearStats: Map<string, Map<number, { mean: number; stdDev: number; count: number }>>,
-  marketData?: Record<string, BrandData[]>
+  countryYearStats?: Map<string, Map<number, { mean: number; stdDev: number; count: number }>>,
+  marketData?: MultiCountryData
 ): ProcessedBarDataPoint[] => {
-  const latestData: ProcessedBarDataPoint[] = [];
+  const processedData: ProcessedBarDataPoint[] = [];
   
-  // Use market data instead of selected data for statistics if available
-  const dataForStats = marketData || allCountriesData;
+  // Get average scores if available
+  const averageScores = (allCountriesData as any).averageScores;
+  const hasAverageScores = averageScores && averageScores.size > 0;
   
-  // Process the data for selected brands
+  if (standardized && !hasAverageScores) {
+    console.warn("Standardization requested but no average scores available in bar chart data");
+  }
+  
+  // Simplify common data determination
+  const targetYear = 2025; // Using 2025 as the default target year
+  
+  // Process each country's data
   Object.entries(allCountriesData).forEach(([country, countryData]) => {
     if (!countryData || countryData.length === 0) return;
     
-    // Group by brand
-    const brandGroups = new Map<string, BrandData[]>();
-    countryData.forEach(item => {
-      if (!item.Brand) return;
-      if (!brandGroups.has(item.Brand)) {
-        brandGroups.set(item.Brand, []);
-      }
-      brandGroups.get(item.Brand)?.push(item);
-    });
-    
-    // For each brand, get the latest (2025 if available) data
+    // For each selected brand
     selectedBrands.forEach(brand => {
-      const brandData = brandGroups.get(brand);
-      if (!brandData || brandData.length === 0) return;
+      // Find data for this brand in this country 
+      const brandData = countryData
+        .filter(item => item.Brand === brand)
+        .sort((a, b) => (b.Year || 0) - (a.Year || 0)); // Sort by year, latest first
       
-      // Sort by year to find the latest data
-      brandData.sort((a, b) => (b.Year || 0) - (a.Year || 0));
+      if (brandData.length === 0) return;
       
-      // Get 2025 data or latest data if 2025 is not available
-      const latest = brandData.find(item => item.Year === 2025) || brandData[0];
+      // Get the most recent data point (prioritize 2025 if available)
+      const dataFor2025 = brandData.find(item => item.Year === targetYear);
+      const latestData = dataFor2025 || brandData[0]; // Use 2025 or most recent
       
-      if (latest && latest.Score !== null && latest.Year !== null) {
-        // Get raw score
-        let score = latest.Score;
-        const year = latest.Year;
+      // Skip if no valid score
+      if (!latestData.Score) return;
+      
+      // Get raw score
+      const rawScore = Number(latestData.Score);
+      
+      // Calculate standardized score if needed
+      let score = rawScore;
+      let year = Number(latestData.Year);
+      
+      if (standardized && hasAverageScores) {
+        // Get average score from the pre-computed data
+        const averageScore = getAverageScore(averageScores, country, year);
         
-        // Get statistics for this country and year
-        if (standardized && yearStats.has(country)) {
-          const yearStatsForCountry = yearStats.get(country);
-          if (yearStatsForCountry) {
-            const stats = yearStatsForCountry.get(year);
-            
-            if (stats) {
-              // Use our improved standardization function that handles edge cases
-              const standardizedScore = standardizeScore(score, stats.mean, stats.stdDev);
-              if (standardizedScore !== null) {
-                score = standardizedScore;
-                console.log(`Standardized bar score for ${brand} in ${country}, Year ${year}: ${score.toFixed(2)} (raw=${latest.Score}, mean=${stats.mean.toFixed(2)}, stdDev=${stats.stdDev.toFixed(2)})`);
-              } else {
-                // This shouldn't happen now with our improved function
-                console.warn(`Failed to standardize score for ${brand} in ${country}, Year ${year}`);
-              }
-            }
+        if (averageScore !== null) {
+          // Calculate standard deviation as a percentage of average (simplified approach)
+          const estimatedStdDev = averageScore * 0.15; // 15% of average as stdDev estimate
+          
+          if (estimatedStdDev > 0) {
+            score = (rawScore - averageScore) / estimatedStdDev;
+            console.log(`Bar chart: Standardized score for ${brand}/${country}/${year}: ${score.toFixed(2)} (raw=${rawScore}, avg=${averageScore.toFixed(2)})`);
+          } else {
+            console.warn(`Zero standard deviation for ${country}/${year}, using raw score`);
           }
+        } else {
+          console.warn(`No average score found for ${country}/${year}, using raw score`);
         }
-        
-        // Add to the dataset with country as the x-axis category
-        latestData.push({
-          country: getFullCountryName(country),
-          brand: brand,
-          countryCode: country,
-          score: score,
-          year: latest.Year,
-          projected: latest.Projected || false
-        });
       }
+      
+      // Add to processed data
+      processedData.push({
+        brand,
+        country,
+        score,
+        rawScore,
+        year,
+        projected: Boolean(latestData.Projected)
+      });
     });
   });
   
-  return latestData;
+  return processedData;
 };
 
 /**
- * Organizes data for the bar chart by grouping and sorting
+ * Organizes processed data into a format suitable for the bar chart.
  */
 export const organizeChartData = (
   processedData: ProcessedBarDataPoint[],
   selectedBrands: string[]
 ): ChartDataPoint[] => {
-  // Group by country
-  const countryGroups = new Map<string, ChartDataPoint>();
+  // Group data by country
+  const groupedData: { [country: string]: ChartDataPoint } = {};
   
   processedData.forEach(item => {
-    if (!countryGroups.has(item.country)) {
-      countryGroups.set(item.country, { 
-        country: item.country, 
-        countryCode: item.countryCode 
-      });
+    if (!groupedData[item.country]) {
+      groupedData[item.country] = { name: item.country };
     }
     
-    const countryGroup = countryGroups.get(item.country)!;
-    countryGroup[item.brand] = item.score;
-    
-    // Add a flag for projected data
-    if (item.projected) {
-      countryGroup[`${item.brand}_projected`] = true;
-    }
+    groupedData[item.country][item.brand] = item.score;
   });
   
-  // Convert to array for chart rendering
-  const dataArray = Array.from(countryGroups.values());
-  
-  // Sort countries by total brand score across all selected brands
-  if (selectedBrands.length > 0 && dataArray.length > 0) {
-    dataArray.sort((a, b) => {
-      // Calculate total score for country a
-      const totalScoreA = selectedBrands.reduce((sum, brand) => {
-        return sum + (typeof a[brand] === 'number' ? a[brand] as number : 0);
-      }, 0);
-      
-      // Calculate total score for country b
-      const totalScoreB = selectedBrands.reduce((sum, brand) => {
-        return sum + (typeof b[brand] === 'number' ? b[brand] as number : 0);
-      }, 0);
-      
-      // Sort high to low by total score
-      return totalScoreB - totalScoreA;
-    });
-    
-    console.log("Sorted chart data by total brand scores:", dataArray.map(item => ({
-      country: item.country, 
-      totalScore: selectedBrands.reduce((sum, brand) => sum + (typeof item[brand] === 'number' ? item[brand] as number : 0), 0)
-    })));
-  }
-  
-  return dataArray;
+  // Convert grouped data into an array
+  return Object.values(groupedData);
 };
 
 /**
- * Calculates the most common year in the chart data
+ * Calculates the most common year in the processed data.
  */
-export const calculateMostCommonYear = (processedData: ProcessedBarDataPoint[]): number => {
-  if (processedData.length === 0) return 2025; // Default
+export const calculateMostCommonYear = (
+  processedData: ProcessedBarDataPoint[]
+): number => {
+  const yearCounts: { [year: number]: number } = {};
   
-  // Find the most common year in the data
-  const yearCounts: Record<number, number> = {};
   processedData.forEach(item => {
-    if (item.year) {
-      yearCounts[item.year] = (yearCounts[item.year] || 0) + 1;
-    }
+    const year = item.year;
+    yearCounts[year] = (yearCounts[year] || 0) + 1;
   });
   
-  // Find the year with the most data points
-  let mostCommonYear = 2025;
-  let highestCount = 0;
+  let mostCommonYear = 0;
+  let maxCount = 0;
   
-  Object.entries(yearCounts).forEach(([year, count]) => {
-    if (count > highestCount) {
-      highestCount = count;
-      mostCommonYear = parseInt(year);
+  for (const year in yearCounts) {
+    if (yearCounts.hasOwnProperty(year)) {
+      const count = yearCounts[year];
+      if (count > maxCount) {
+        maxCount = count;
+        mostCommonYear = parseInt(year);
+      }
     }
-  });
+  }
   
-  return mostCommonYear;
+  return mostCommonYear || new Date().getFullYear();
 };

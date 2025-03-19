@@ -1,35 +1,79 @@
 
-import { useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { BrandData } from "@/types/brand";
-import { fetchCountryBrandData } from "@/utils/countryComparison/fetchCountryBrandData";
+import { getFullCountryName } from "@/components/CountrySelect";
+import { fetchAverageScores } from "@/utils/countryComparison/averageScoreUtils";
 
-// Type to represent data for multiple countries
 export type MultiCountryData = Record<string, BrandData[]>;
 
-export const useMultiCountryChartData = (selectedCountries: string[], selectedBrands: string[]) => {
-  const results = useQueries({
-    queries: selectedCountries.map(country => ({
-      queryKey: ["scores", country, selectedBrands],
-      queryFn: async () => fetchCountryBrandData(country, selectedBrands),
-      enabled: !!country && selectedBrands.length > 0
-    }))
+export const useMultiCountryChartData = (
+  selectedCountries: string[],
+  selectedBrands: string[]
+) => {
+  return useQuery({
+    queryKey: ["multi-country-scores", selectedCountries, selectedBrands],
+    queryFn: async () => {
+      if (selectedCountries.length === 0 || selectedBrands.length === 0) {
+        return null;
+      }
+      
+      console.log("Fetching multi-country data for countries:", selectedCountries);
+      
+      try {
+        // For each country, get the data for the selected brands
+        const countriesData: MultiCountryData = {};
+        
+        // Also get full country names for each code
+        const fullCountryNames = selectedCountries.map(getFullCountryName);
+        const allCountryFormats = [...selectedCountries, ...fullCountryNames];
+        
+        // Fetch all data for the selected countries and brands in one query
+        const { data, error } = await supabase
+          .from("SBI Ranking Scores 2011-2025")
+          .select("*")
+          .in("Country", allCountryFormats)
+          .in("Brand", selectedBrands);
+          
+        if (error) {
+          console.error("Error fetching multi-country data:", error);
+          return null;
+        }
+        
+        if (!data || data.length === 0) {
+          console.warn("No data found for the selected countries and brands");
+          return {};
+        }
+        
+        // NEW: Fetch average scores
+        const averageScores = await fetchAverageScores(allCountryFormats);
+        
+        // Group data by country
+        for (const country of selectedCountries) {
+          const fullName = getFullCountryName(country);
+          
+          // Filter data for this country (both code and full name)
+          const countryData = data.filter(
+            item => item.Country === country || item.Country === fullName
+          );
+          
+          if (countryData.length > 0) {
+            countriesData[country] = countryData;
+          }
+        }
+        
+        // Add average scores as a non-enumerable property
+        Object.defineProperty(countriesData, 'averageScores', {
+          value: averageScores,
+          enumerable: false
+        });
+        
+        return countriesData;
+      } catch (err) {
+        console.error("Exception in multi-country data fetch:", err);
+        return null;
+      }
+    },
+    enabled: selectedCountries.length > 0 && selectedBrands.length > 0
   });
-  
-  // Check if all queries are completed
-  const isLoading = results.some(result => result.isLoading);
-  
-  // Combine data from all countries
-  const allCountriesData: MultiCountryData = {};
-  
-  // Build the data object with country keys
-  results.forEach((result, index) => {
-    if (result.data && !result.isLoading) {
-      allCountriesData[selectedCountries[index]] = result.data;
-    }
-  });
-  
-  return {
-    data: allCountriesData,
-    isLoading
-  };
 };
