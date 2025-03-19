@@ -1,4 +1,3 @@
-
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
@@ -95,9 +94,11 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
   
   // Add average score series if not standardized
   if (!standardized && yearlyAverages.length > 0) {
-    series.push({
+    // The issue is here - we need to ensure all required properties are explicitly set
+    // and we need to apply the type casting correctly
+    const averageScoreSeries = {
       type: 'line' as const,
-      name: 'Country Average',
+      name: 'Country Average', // Explicitly provide name property
       data: yearlyAverages.map(item => ({
         x: item.year,
         y: item.average,
@@ -110,15 +111,18 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
         }
       })),
       color: '#34502b',
-      // Use the proper typing for dashStyle by casting to the correct Highcharts type
       dashStyle: 'Dash' as Highcharts.DashStyleValue,
       marker: {
         symbol: 'diamond',
         radius: 3
       },
       lineWidth: 1.5,
-      zIndex: 1
-    } as Highcharts.SeriesLineOptions); // Cast to SeriesLineOptions to ensure proper typing
+      zIndex: 1,
+      connectNulls: false // Add this required property
+    };
+    
+    // Push the series without type casting
+    series.push(averageScoreSeries);
   }
 
   const options: Highcharts.Options = {
