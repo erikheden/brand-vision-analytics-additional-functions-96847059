@@ -93,29 +93,31 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   console.log(`Found ${multiCountryBrands.length} brands that exist in at least 2 of the selected countries`);
   
   // If we found very few common brands, fall back to the original intersection approach
+  let intersectionBrands: Set<string> | null = null;
+  
   if (multiCountryBrands.length < 10) {
     console.log("Falling back to original intersection approach");
     
     // Step 3: Find the intersection of brand names that appear in ALL selected countries
-    let commonNormalizedNames: Set<string> | null = null;
+    intersectionBrands = null;
     
     selectedCountries.forEach(country => {
       const countryBrands = brandNamesByCountry.get(country);
       
       if (!countryBrands) return;
       
-      if (commonNormalizedNames === null) {
+      if (intersectionBrands === null) {
         // First country - start with all its brands
-        commonNormalizedNames = new Set(countryBrands);
+        intersectionBrands = new Set(countryBrands);
       } else {
         // Subsequent countries - keep only brands that exist in both sets
-        commonNormalizedNames = new Set(
-          [...commonNormalizedNames].filter(brand => countryBrands.has(brand))
+        intersectionBrands = new Set(
+          [...intersectionBrands].filter(brand => countryBrands.has(brand))
         );
       }
     });
     
-    if (!commonNormalizedNames || commonNormalizedNames.size === 0) {
+    if (!intersectionBrands || intersectionBrands.size === 0) {
       console.log("No common brands found across selected countries");
       console.log("First country set size:", brandNamesByCountry.get(selectedCountries[0])?.size);
       console.log("Second country set size:", brandNamesByCountry.get(selectedCountries[1])?.size);
@@ -140,9 +142,9 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
     }
   }
   
-  // Use either multiCountryBrands (brands in 2+ countries) or commonNormalizedNames (brands in ALL countries)
+  // Use either multiCountryBrands (brands in 2+ countries) or intersectionBrands (brands in ALL countries)
   const normalizedNamesToUse = multiCountryBrands.length >= 10 ? multiCountryBrands : 
-                              Array.from(commonNormalizedNames || []);
+                              (intersectionBrands ? Array.from(intersectionBrands) : []);
   
   console.log(`Using ${normalizedNamesToUse.length} brand names`);
   
