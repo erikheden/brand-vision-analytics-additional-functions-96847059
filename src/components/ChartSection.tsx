@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
 import { calculateYearRange, processChartData, createChartConfig } from "@/utils/chartDataUtils";
@@ -10,6 +10,7 @@ import BrandBarChart from "./BrandBarChart";
 import EmptyChartState from "./EmptyChartState";
 import TrendComparisonContainer from "./TrendComparisonContainer";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 interface ChartSectionProps {
   selectedCountry: string;
@@ -21,10 +22,36 @@ const ChartSection = ({
   selectedBrands
 }: ChartSectionProps) => {
   const [standardized, setStandardized] = useState(false);
+  const [processedData, setProcessedData] = useState<any[]>([]);
   const {
     data: scores = [],
     isLoading
   } = useChartData(selectedCountry, selectedBrands);
+
+  // Process chart data when scores or standardization changes
+  useEffect(() => {
+    if (scores.length > 0) {
+      const data = processChartData(scores, standardized);
+      
+      // Copy average scores to processed data for access in child components
+      const averageScores = (scores as any).averageScores;
+      if (averageScores) {
+        Object.defineProperty(data, 'averageScores', {
+          value: averageScores,
+          enumerable: false
+        });
+      }
+      
+      setProcessedData(data);
+      
+      // Show toast notification when standardization changes
+      if (standardized) {
+        toast.info("Showing standardized scores (relative to market average)");
+      }
+    } else {
+      setProcessedData([]);
+    }
+  }, [scores, standardized]);
 
   if (isLoading) {
     return <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
@@ -49,20 +76,14 @@ const ChartSection = ({
     latest: years[years.length - 1]
   };
   
-  const chartData = processChartData(scores, standardized);
-  
-  // Copy average scores to chartData for access in child components
-  if (hasAverageScores) {
-    Object.defineProperty(chartData, 'averageScores', {
-      value: averageScores,
-      enumerable: false
-    });
-  }
-  
   const chartConfig = createChartConfig(selectedBrands);
 
   // Always use 2025 as the target year for comparison
   const targetYear = 2025;
+
+  const handleToggleStandardized = (pressed: boolean) => {
+    setStandardized(pressed);
+  };
 
   return <div className="space-y-6">
       {/* Industry Comparison Widgets - Now first */}
@@ -79,7 +100,7 @@ const ChartSection = ({
           <div className="relative flex items-center">
             <Toggle 
               pressed={standardized} 
-              onPressedChange={setStandardized} 
+              onPressedChange={handleToggleStandardized} 
               aria-label="Toggle standardized scores" 
               className="border border-[#34502b]/30 relative bg-[#f0d2b0] font-semibold transition-all duration-300 hover:bg-[#e5c7a5]"
             >
@@ -106,7 +127,7 @@ const ChartSection = ({
       {/* Bar Chart */}
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
         <BrandBarChart 
-          chartData={chartData} 
+          chartData={processedData} 
           selectedBrands={selectedBrands} 
           chartConfig={chartConfig} 
           standardized={standardized} 
@@ -118,7 +139,7 @@ const ChartSection = ({
       {/* Line Chart */}
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 shadow-md hover:shadow-lg transition-all duration-300 rounded-xl py-[31px]">
         <BrandChart 
-          chartData={chartData} 
+          chartData={processedData} 
           selectedBrands={selectedBrands} 
           yearRange={yearRange} 
           chartConfig={chartConfig} 

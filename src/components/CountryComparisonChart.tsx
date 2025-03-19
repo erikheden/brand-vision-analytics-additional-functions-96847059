@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Toggle } from "@/components/ui/toggle";
 import { Check, Info, Sparkles } from "lucide-react";
@@ -10,6 +10,7 @@ import { getFullCountryName } from "@/components/CountrySelect";
 import CountryBarChart from "./CountryBarChart";
 import CountryLineChart from "./CountryLineChart";
 import EmptyChartState from "./EmptyChartState";
+import { toast } from "sonner";
 
 interface CountryComparisonChartProps {
   selectedCountries: string[];
@@ -24,6 +25,13 @@ const CountryComparisonChart = ({
   const [chartType, setChartType] = useState("bar");
   
   const { data: allCountriesData, isLoading } = useMultiCountryChartData(selectedCountries, selectedBrands);
+  
+  // Show toast notification when standardization changes
+  useEffect(() => {
+    if (standardized) {
+      toast.info("Showing standardized scores (relative to market average)");
+    }
+  }, [standardized]);
   
   if (isLoading) {
     return (
@@ -65,6 +73,10 @@ const CountryComparisonChart = ({
   const averageScores = (allCountriesData as any).averageScores;
   const hasAverageScores = averageScores && averageScores.size > 0;
   
+  const handleToggleStandardized = (pressed: boolean) => {
+    setStandardized(pressed);
+  };
+  
   return (
     <div className="space-y-6 mb-16">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -85,7 +97,7 @@ const CountryComparisonChart = ({
             <div className="relative flex items-center">
               <Toggle 
                 pressed={standardized} 
-                onPressedChange={setStandardized} 
+                onPressedChange={handleToggleStandardized}
                 aria-label="Toggle standardized scores" 
                 className="border border-[#34502b]/30 relative bg-[#f0d2b0] font-semibold transition-all duration-300 hover:bg-[#e5c7a5]"
               >

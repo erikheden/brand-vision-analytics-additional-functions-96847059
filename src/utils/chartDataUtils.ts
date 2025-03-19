@@ -12,7 +12,8 @@ interface Score {
 interface ChartDataPoint {
   year: number;
   Projected?: boolean;
-  [key: string]: number | boolean | undefined;
+  country?: string;
+  [key: string]: number | boolean | string | undefined;
 }
 
 // Updated to return an array of years instead of YearRange object
@@ -60,9 +61,12 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
     yearGroups[year].push(score);
   });
 
+  // Get country from the first valid score (should be the same for all scores)
+  const country = validScores.length > 0 ? validScores[0].Country : '';
+
   return Object.entries(yearGroups).map(([year, yearScores]) => {
     const yearNum = parseInt(year);
-    const result: ChartDataPoint = { year: yearNum };
+    const result: ChartDataPoint = { year: yearNum, country };
     
     // Check if this is projected data
     const hasProjectedData = yearScores.some(score => score.Projected);

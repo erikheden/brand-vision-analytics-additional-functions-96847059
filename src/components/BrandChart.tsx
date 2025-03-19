@@ -1,3 +1,4 @@
+
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
@@ -94,15 +95,13 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
   
   // Add average score series if not standardized
   if (!standardized && yearlyAverages.length > 0) {
-    // The issue is here - we need to ensure all required properties are explicitly set
-    // and we need to apply the type casting correctly
+    // Ensure all required properties are explicitly defined
     const averageScoreSeries = {
       type: 'line' as const,
-      name: 'Country Average', // Explicitly provide name property
+      name: 'Country Average',
       data: yearlyAverages.map(item => ({
         x: item.year,
         y: item.average,
-        // Add marker property to match the expected type
         marker: {
           fillColor: '#34502b',
           lineWidth: 2,
@@ -118,10 +117,9 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
       },
       lineWidth: 1.5,
       zIndex: 1,
-      connectNulls: false // Add this required property
+      connectNulls: false
     };
     
-    // Push the series without type casting
     series.push(averageScoreSeries);
   }
 
