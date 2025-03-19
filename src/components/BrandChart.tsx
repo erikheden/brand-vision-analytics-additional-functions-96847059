@@ -100,7 +100,14 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
       name: 'Country Average',
       data: yearlyAverages.map(item => ({
         x: item.year,
-        y: item.average
+        y: item.average,
+        // Add marker property to match the expected type
+        marker: {
+          fillColor: '#34502b',
+          lineWidth: 2,
+          lineColor: '#ffffff',
+          radius: 4
+        }
       })),
       color: '#34502b',
       dashStyle: 'Dash' as Highcharts.DashStyleValue,
