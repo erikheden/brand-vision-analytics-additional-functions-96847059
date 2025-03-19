@@ -14,8 +14,7 @@ export const fetchAverageScores = async (
     // Query the SBI Average Scores table for selected countries
     const { data, error } = await supabase
       .from("SBI Average Scores")
-      .select("*")
-      .in("country", countries);
+      .select("*");
       
     if (error) {
       console.error("Error fetching average scores:", error);
@@ -65,14 +64,21 @@ export const getAverageScore = (
   country: string,
   year: number
 ): number | null => {
-  if (!averageScores.has(country)) {
-    return null;
+  // Try to find average score for the exact country
+  if (averageScores.has(country)) {
+    const yearScores = averageScores.get(country)!;
+    if (yearScores.has(year)) {
+      return yearScores.get(year)!;
+    }
   }
   
-  const yearScores = averageScores.get(country)!;
-  if (!yearScores.has(year)) {
-    return null;
+  // If no exact match, try case-insensitive matching
+  for (const [key, yearScores] of averageScores.entries()) {
+    if (key.toLowerCase() === country.toLowerCase() && yearScores.has(year)) {
+      return yearScores.get(year)!;
+    }
   }
   
-  return yearScores.get(year)!;
+  // No match found
+  return null;
 };

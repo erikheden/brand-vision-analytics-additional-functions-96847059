@@ -1,3 +1,4 @@
+
 interface Score {
   Year: number;
   Brand: string;
@@ -74,12 +75,21 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
       yearScores.forEach(score => {
         const country = score.Country;
         
-        // Try to get the average score for this country and year
-        const countryAvgMap = averageScores.get(country);
-        const averageScore = countryAvgMap?.get(yearNum);
+        // Try to get the average score for this country and year from averageScores
+        let averageScore = null;
+        for (const [countryKey, yearMap] of averageScores.entries()) {
+          if (
+            (countryKey === country || 
+             countryKey.toLowerCase() === country.toLowerCase()) && 
+             yearMap.has(yearNum)
+          ) {
+            averageScore = yearMap.get(yearNum);
+            break;
+          }
+        }
         
-        if (!averageScore) {
-          console.warn(`No average score found for ${country}/${yearNum}`);
+        if (averageScore === null) {
+          console.warn(`No average score found for ${country}/${yearNum}, using raw score`);
           result[score.Brand] = score.Score;
           return;
         }

@@ -43,8 +43,15 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
           console.error("Error fetching with full country name:", errorWithFullName);
         }
         
-        // NEW: Fetch average scores instead of all brands data
-        const averageScores = await fetchAverageScores([selectedCountry, fullCountryName]);
+        // Fetch average scores for standardization
+        const countryFormats = [selectedCountry, fullCountryName];
+        const averageScores = await fetchAverageScores(countryFormats);
+        
+        console.log("Average scores fetched:", 
+          Array.from(averageScores.entries()).map(([country, yearMap]) => 
+            `${country}: ${Array.from(yearMap.entries()).length} years`
+          )
+        );
         
         // Combine both result sets and remove duplicates
         const combinedData = [
