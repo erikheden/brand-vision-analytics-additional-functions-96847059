@@ -62,15 +62,48 @@ const BrandSelection = ({
   const handleSelectAll = () => {
     if (selectedBrands.length === 0) {
       filteredBrands.forEach(brand => {
+        // Only select brands that have data (or brands without explicit data info)
         const info = brandsWithDataInfo[brand];
         if (!info || info.hasData) {
-          onBrandToggle(brand, true);
+          if (!selectedBrands.includes(brand)) {
+            onBrandToggle(brand, true);
+          }
         }
       });
     } else {
       onClearBrands();
     }
   };
+
+  // Special case handling for hotel brands like Airbnb
+  useEffect(() => {
+    // If this is a special brand like Airbnb that might be miscategorized in data
+    // This ensures brands like Airbnb are always included when their industry is selected
+    const specialBrandMappings: Record<string, string[]> = {
+      "Hotels": ["Airbnb", "airbnb", "AirBnB"],
+      "Hotels & Accommodations": ["Airbnb", "airbnb", "AirBnB"]
+    };
+    
+    // Check if we need to perform special handling
+    Object.entries(specialBrandMappings).forEach(([industry, specialBrands]) => {
+      // If we're displaying brands and some are already selected (indicating an industry selection)
+      if (brands.length > 0 && selectedBrands.length > 0) {
+        // Check if we have special brands that should be included
+        const missingSpecialBrands = specialBrands.filter(specialBrand => 
+          brands.some(brand => normalizeBrandName(brand) === normalizeBrandName(specialBrand)) && 
+          !selectedBrands.some(selected => normalizeBrandName(selected) === normalizeBrandName(specialBrand))
+        );
+        
+        // If we found special brands that should be included, add them
+        missingSpecialBrands.forEach(missingBrand => {
+          const brandToAdd = brands.find(b => normalizeBrandName(b) === normalizeBrandName(missingBrand));
+          if (brandToAdd) {
+            onBrandToggle(brandToAdd, true);
+          }
+        });
+      }
+    });
+  }, [brands, selectedBrands, onBrandToggle]);
 
   const brandsWithDataCount = Object.values(brandsWithDataInfo).filter(info => info.hasData).length;
 

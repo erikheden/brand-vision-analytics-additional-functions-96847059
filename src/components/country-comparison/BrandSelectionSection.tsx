@@ -28,8 +28,8 @@ const BrandSelectionSection = ({
   
   // Check if using fallback brands (our standard list of common brands)
   const usingFallbackBrands = uniqueBrandNames.length >= 10 && 
-    uniqueBrandNames.includes("McDonald's") && 
-    uniqueBrandNames.includes("Coca-Cola");
+    uniqueBrandNames.some(brand => normalizeBrandName(brand) === normalizeBrandName("McDonald's")) && 
+    uniqueBrandNames.some(brand => normalizeBrandName(brand) === normalizeBrandName("Coca-Cola"));
   
   return (
     <div className="space-y-2">

@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getFullCountryName } from "@/components/CountrySelect";
+import { normalizeIndustryName } from "@/utils/industry/industryNormalization";
 
 export const useIndustriesQuery = (selectedCountry: string | string[]) => {
   return useQuery({
@@ -53,9 +54,27 @@ export const useIndustriesQuery = (selectedCountry: string | string[]) => {
         
         console.log("Industries raw data:", combinedData);
         
-        // Extract unique industries, filter out nulls, and sort them
-        const uniqueIndustries = [...new Set(combinedData.map(item => item.industry).filter(Boolean))].sort();
-        console.log("Unique industries:", uniqueIndustries);
+        // Map to normalize industry names and then group by normalized name
+        const industryMap = new Map<string, string>();
+        
+        combinedData.forEach(item => {
+          if (!item.industry) return;
+          
+          const normalizedName = normalizeIndustryName(item.industry);
+          
+          // Only add if we haven't seen this normalized name yet,
+          // or if the current one starts with a capital letter and the stored one doesn't
+          if (!industryMap.has(normalizedName) || 
+              (item.industry.charAt(0) === item.industry.charAt(0).toUpperCase() && 
+               industryMap.get(normalizedName)?.charAt(0) !== industryMap.get(normalizedName)?.charAt(0)?.toUpperCase())) {
+            industryMap.set(normalizedName, item.industry);
+          }
+        });
+        
+        // Extract unique industries with preferred capitalization
+        const uniqueIndustries = Array.from(industryMap.values()).sort();
+        
+        console.log("Unique industries after normalization:", uniqueIndustries);
         
         return uniqueIndustries;
       } catch (err) {
