@@ -91,7 +91,7 @@ const BrandSelection = ({
             {selectedBrands.length === 0 ? (
               <>
                 <Check className="h-4 w-4 mr-1" />
-                Select all with data
+                Select all
               </>
             ) : (
               <>
