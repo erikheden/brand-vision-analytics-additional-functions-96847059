@@ -107,14 +107,13 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
       }
     }));
 
-    // Make sure to define all required properties explicitly
-    series.push({
-      type: 'line' as const,
+    // Use type assertion to allow adding Highcharts-specific properties
+    const averageSeriesOptions: Highcharts.SeriesLineOptions = {
+      type: 'line',
       name: 'Country Average',
       data: averageData,
       color: '#34502b',
-      // Use the proper typing for dashStyle
-      dashStyle: 'Dash' as Highcharts.DashStyleValue,
+      dashStyle: 'Dash',
       marker: {
         symbol: 'diamond',
         radius: 3
@@ -122,7 +121,10 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
       lineWidth: 1.5,
       zIndex: 1,
       connectNulls: false
-    });
+    };
+
+    // Push to series after type assertion
+    (series as Highcharts.SeriesOptionsType[]).push(averageSeriesOptions);
   }
 
   const options: Highcharts.Options = {
