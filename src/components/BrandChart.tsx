@@ -37,13 +37,57 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
     }
   }
 
-  // Create complete chart options
+  // Create complete chart options with modifications for standardized mode
   const options = createBrandChartOptions(
     yearRange,
     series,
     standardized,
     yearlyAverages
   );
+  
+  // Add a special plot line at zero for standardized scores
+  if (standardized && options.yAxis && typeof options.yAxis !== 'boolean') {
+    const yAxis = Array.isArray(options.yAxis) ? options.yAxis[0] : options.yAxis;
+    yAxis.plotLines = [{
+      value: 0,
+      color: '#666',
+      width: 1,
+      dashStyle: 'Dash',
+      label: {
+        text: 'Market Average',
+        align: 'right',
+        style: {
+          fontStyle: 'italic',
+          color: '#666'
+        }
+      }
+    }];
+    
+    // Update y-axis labels for standardized values
+    yAxis.labels = {
+      ...yAxis.labels,
+      format: '{value}σ'
+    };
+    
+    // Update y-axis title for standardized view
+    yAxis.title = {
+      ...yAxis.title,
+      text: 'Standard Deviations from Market Mean'
+    };
+    
+    // Update tooltip formatter for standardized values
+    if (options.tooltip) {
+      const origFormatter = options.tooltip.formatter;
+      options.tooltip.formatter = function() {
+        // @ts-ignore - this is complex to type correctly
+        const result = origFormatter ? origFormatter.call(this) : undefined;
+        if (typeof result === 'string') {
+          return result.replace(/(\d+\.\d+)/, '$1σ');
+        }
+        return result;
+      };
+    }
+  }
 
   return (
     <ChartContainer config={chartConfig} className="h-[500px] w-full">

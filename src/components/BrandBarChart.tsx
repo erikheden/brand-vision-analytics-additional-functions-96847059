@@ -76,6 +76,72 @@ const BrandBarChart = ({
     };
   }).sort((a, b) => b.y - a.y);
 
+  // Determine y-axis configuration based on standardization
+  const yAxisConfig = standardized ? {
+    title: {
+      text: 'Standard Deviations from Market Mean',
+      style: {
+        color: '#34502b',
+        fontFamily: FONT_FAMILY,
+      }
+    },
+    labels: {
+      format: '{value}σ',
+      style: {
+        color: '#34502b',
+        fontFamily: FONT_FAMILY,
+      }
+    },
+    // For standardized scores, show a 0 line
+    plotLines: [{
+      value: 0,
+      color: '#34502b',
+      dashStyle: 'Dash',
+      width: 1.5,
+      label: {
+        text: 'Market Average',
+        align: 'right',
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY,
+          fontStyle: 'italic'
+        }
+      },
+      zIndex: 5
+    }]
+  } : {
+    title: {
+      text: 'Score',
+      style: {
+        color: '#34502b',
+        fontFamily: FONT_FAMILY,
+      }
+    },
+    labels: {
+      style: {
+        color: '#34502b',
+        fontFamily: FONT_FAMILY,
+      }
+    },
+    // For raw scores, show the average if available
+    plotLines: averageScore ? [{
+      value: averageScore,
+      color: '#34502b',
+      dashStyle: 'Dash',
+      width: 1.5,
+      label: {
+        text: `Country Average: ${averageScore.toFixed(2)}`,
+        align: 'right',
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY,
+          fontStyle: 'italic'
+        }
+      },
+      zIndex: 5
+    }] : undefined
+  };
+
   // Display the actual number of brands used for standardization
   const marketComparisonText = typeof marketDataCount === 'string'
     ? marketDataCount
@@ -104,37 +170,8 @@ const BrandBarChart = ({
     },
     yAxis: {
       ...baseOptions.yAxis,
-      title: {
-        text: standardized ? 'Standard Deviations from Market Mean' : 'Score',
-        style: {
-          color: '#34502b',
-          fontFamily: FONT_FAMILY,
-        }
-      },
-      labels: {
-        style: {
-          color: '#34502b',
-          fontFamily: FONT_FAMILY,
-        }
-      },
+      ...yAxisConfig,
       gridLineColor: 'rgba(52, 80, 43, 0.1)',
-      // Add plotLines for average score when showing raw scores
-      plotLines: !standardized && averageScore ? [{
-        value: averageScore,
-        color: '#34502b',
-        dashStyle: 'Dash',
-        width: 1.5,
-        label: {
-          text: `Country Average: ${averageScore.toFixed(2)}`,
-          align: 'right',
-          style: {
-            color: '#34502b',
-            fontFamily: FONT_FAMILY,
-            fontStyle: 'italic'
-          }
-        },
-        zIndex: 5
-      }] : undefined
     },
     xAxis: {
       type: 'category',
@@ -152,20 +189,21 @@ const BrandBarChart = ({
     },
     tooltip: {
       formatter: function() {
-        const value = standardized ? 
-          `${this.y?.toFixed(2)} SD from market mean` : 
-          this.y?.toFixed(2);
-        
-        let tooltipText = `<b>${this.key}</b>: ${value}`;
-        
-        // Add average score info if available and not standardized
-        if (!standardized && averageScore !== null) {
-          const diff = (this.y as number) - averageScore;
-          const diffText = diff >= 0 ? `+${diff.toFixed(2)}` : `${diff.toFixed(2)}`;
-          tooltipText += `<br/><span style="font-size: 0.9em; font-style: italic;">Difference from average: ${diffText}</span>`;
+        if (standardized) {
+          const value = `${this.y?.toFixed(2)}σ`;
+          return `<b>${this.key}</b>: ${value} from market average`;
+        } else {
+          let tooltipText = `<b>${this.key}</b>: ${this.y?.toFixed(2)}`;
+          
+          // Add average score info if available and not standardized
+          if (averageScore !== null) {
+            const diff = (this.y as number) - averageScore;
+            const diffText = diff >= 0 ? `+${diff.toFixed(2)}` : `${diff.toFixed(2)}`;
+            tooltipText += `<br/><span style="font-size: 0.9em; font-style: italic;">Difference from average: ${diffText}</span>`;
+          }
+          
+          return tooltipText;
         }
-        
-        return tooltipText;
       },
       backgroundColor: 'white',
       style: {
