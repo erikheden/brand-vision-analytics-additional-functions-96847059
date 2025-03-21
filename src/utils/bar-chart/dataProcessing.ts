@@ -3,6 +3,7 @@
 import { getAverageScore } from "@/utils/countryComparison/averageScoreUtils";
 import { BrandData } from "@/types/brand";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
+import { standardizeScore } from "@/utils/countryChartDataUtils";
 
 export interface ProcessedBarDataPoint {
   brand: string;
@@ -70,16 +71,20 @@ export const processBarChartData = (
       let year = Number(latestData.Year);
       
       if (standardized && hasAverageScores) {
-        // Get average score from the pre-computed data
+        // Get average score from the official "SBI Average Scores" table
         const averageScore = getAverageScore(averageScores, country, year);
         
         if (averageScore !== null) {
-          // Calculate standard deviation as a percentage of average (simplified approach)
-          const estimatedStdDev = averageScore * 0.15; // 15% of average as stdDev estimate
+          // Calculate standard deviation as a percentage of average
+          const estimatedStdDev = averageScore * 0.15; // Using 15% of average as stdDev estimate
           
           if (estimatedStdDev > 0) {
-            score = (rawScore - averageScore) / estimatedStdDev;
-            console.log(`Bar chart: Standardized score for ${brand}/${country}/${year}: ${score.toFixed(2)} (raw=${rawScore}, avg=${averageScore.toFixed(2)})`);
+            // Use the standardizeScore utility for consistent standardization
+            const standardizedValue = standardizeScore(rawScore, averageScore, estimatedStdDev);
+            if (standardizedValue !== null) {
+              score = standardizedValue;
+              console.log(`Bar chart: Standardized score for ${brand}/${country}/${year}: ${score.toFixed(2)} (raw=${rawScore}, avg=${averageScore.toFixed(2)})`);
+            }
           } else {
             console.warn(`Zero standard deviation for ${country}/${year}, using raw score`);
           }

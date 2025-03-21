@@ -36,10 +36,10 @@ const BrandBarChartContent: React.FC<BrandBarChartContentProps> = ({
   // Create the series data (now sorted high to low)
   const seriesData = prepareSeriesData(dataToUse, selectedBrands, chartConfig);
 
-  // Create the y-axis configuration
+  // Create the y-axis configuration with proper market average handling
   const yAxisConfig = createYAxisConfig(standardized, averageScore);
 
-  // Create the chart title
+  // Create the chart title with appropriate market data indicator
   const titleText = createChartTitle(displayYear, standardized, marketDataCount);
 
   // Create the chart options

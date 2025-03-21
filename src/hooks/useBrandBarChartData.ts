@@ -36,9 +36,9 @@ export const useBrandBarChartData = ({
   const isProjected = dataToUse[0]?.Projected || false;
   const country = dataToUse[0]?.country || '';
   
-  // Calculate average score if available and not in standardized mode
+  // Calculate average score from official SBI Average Scores table
   useEffect(() => {
-    if (chartData.length > 0 && !standardized) {
+    if (chartData.length > 0) {
       const averageScores = (chartData as any).averageScores;
       if (averageScores && country) {
         const countryAvg = getAverageScore(averageScores, country, displayYear);
