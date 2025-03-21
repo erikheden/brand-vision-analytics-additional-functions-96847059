@@ -83,7 +83,7 @@ export const processBarChartData = (
         const latestYear = yearsWithAvg[0];
         const avgScore = countryAvgs.get(latestYear);
         
-        if (avgScore !== undefined) {
+        if (avgScore !== undefined && typeof avgScore === 'number') {
           // Add market average as a special brand
           processedData.push({
             brand: "Market Average",
