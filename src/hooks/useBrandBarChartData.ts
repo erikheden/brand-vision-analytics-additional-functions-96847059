@@ -50,7 +50,7 @@ export const useBrandBarChartData = ({
     } else {
       setAverageScore(null);
     }
-  }, [chartData, country, displayYear, standardized]);
+  }, [chartData, country, displayYear]);
 
   return {
     dataToUse,

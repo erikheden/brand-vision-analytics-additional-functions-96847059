@@ -25,12 +25,19 @@ const BrandBarChart = ({
   const {
     dataToUse,
     displayYear,
+    isProjected,
+    country,
     averageScore
   } = useBrandBarChartData({
     chartData,
     latestYear,
     standardized
   });
+
+  // Log the use of market average
+  if (averageScore !== null) {
+    console.log(`Using market average for ${country} in ${displayYear}: ${averageScore}`);
+  }
 
   return (
     <ChartContainer config={chartConfig} className="h-[400px] w-full">
