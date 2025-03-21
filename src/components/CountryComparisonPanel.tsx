@@ -49,6 +49,28 @@ const CountryComparisonPanel = ({
     }
   };
 
+  const handleBatchToggle = (brands: string[], checked: boolean) => {
+    if (checked) {
+      // Add all the brands that aren't already selected
+      const brandsToAdd = brands.filter(brand => {
+        const normalizedNewBrand = normalizeBrandName(brand);
+        const alreadyExists = selectedBrands.some(
+          existingBrand => normalizeBrandName(existingBrand) === normalizedNewBrand
+        );
+        return !alreadyExists;
+      });
+      
+      if (brandsToAdd.length > 0) {
+        setSelectedBrands([...selectedBrands, ...brandsToAdd]);
+      }
+    } else {
+      // Remove all the specified brands
+      setSelectedBrands(selectedBrands.filter(brand => 
+        !brands.includes(brand)
+      ));
+    }
+  };
+
   const handleClearBrands = () => {
     setSelectedBrands([]);
   };
@@ -69,6 +91,7 @@ const CountryComparisonPanel = ({
             selectedCountries={selectedCountries}
             brandsWithDataInfo={brandsWithDataInfo}
             onBrandToggle={handleBrandToggle}
+            onBatchToggle={handleBatchToggle}
             onClearBrands={handleClearBrands}
           />
         )}

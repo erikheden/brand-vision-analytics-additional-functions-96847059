@@ -41,6 +41,16 @@ const SelectionPanel = ({
     }
   };
 
+  const handleBatchToggle = (brands: string[], checked: boolean) => {
+    if (checked) {
+      // Add all the brands at once
+      setSelectedBrands([...selectedBrands, ...brands.filter(b => !selectedBrands.includes(b))]);
+    } else {
+      // Remove all the specified brands
+      setSelectedBrands(selectedBrands.filter(b => !brands.includes(b)));
+    }
+  };
+
   // Deduplicate brand names with preference for capitalized versions
   const getUniquePreferredBrands = () => {
     // Create a map to store normalized brand names
@@ -114,6 +124,7 @@ const SelectionPanel = ({
               selectedBrands={selectedBrands}
               selectedCountries={[selectedCountry]}
               onBrandToggle={handleBrandToggle}
+              onBatchToggle={handleBatchToggle}
               onClearBrands={handleClearBrands}
             />
           </>

@@ -9,6 +9,7 @@ interface BrandSelectionSectionProps {
   selectedCountries: string[];
   brandsWithDataInfo?: Record<string, { hasData: boolean, countries: string[] }>;
   onBrandToggle: (brand: string, checked: boolean) => void;
+  onBatchToggle?: (brands: string[], checked: boolean) => void;
   onClearBrands: () => void;
 }
 
@@ -18,6 +19,7 @@ const BrandSelectionSection = ({
   selectedCountries,
   brandsWithDataInfo = {},
   onBrandToggle,
+  onBatchToggle,
   onClearBrands
 }: BrandSelectionSectionProps) => {
   // Log the brand names to help debug capitalization issues
@@ -58,6 +60,7 @@ const BrandSelectionSection = ({
               selectedCountries={selectedCountries}
               brandsWithDataInfo={brandsWithDataInfo}
               onBrandToggle={onBrandToggle}
+              onBatchToggle={onBatchToggle}
               onClearBrands={onClearBrands}
             />
           </>

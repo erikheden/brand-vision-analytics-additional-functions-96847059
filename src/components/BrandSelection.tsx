@@ -14,6 +14,8 @@ interface BrandSelectionProps {
   brandsWithDataInfo?: Record<string, { hasData: boolean, countries: string[] }>;
   onBrandToggle: (brand: string, checked: boolean) => void;
   onClearBrands: () => void;
+  // Add a new batch toggle prop that can handle multiple brands at once
+  onBatchToggle?: (brands: string[], checked: boolean) => void;
 }
 
 const BrandSelection = ({
@@ -23,6 +25,7 @@ const BrandSelection = ({
   brandsWithDataInfo = {},
   onBrandToggle,
   onClearBrands,
+  onBatchToggle
 }: BrandSelectionProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   
@@ -67,49 +70,60 @@ const BrandSelection = ({
     );
     
     if (allVisibleBrandsSelected) {
-      // If all visible brands are selected, deselect them
-      const newSelectedBrands = selectedBrands.filter(brand => 
-        !currentlyVisibleBrands.includes(brand)
-      );
-      
-      if (newSelectedBrands.length === 0) {
-        onClearBrands();
-      } else {
-        // Create a new array of brands to select
+      // If all visible brands are selected, deselect them all at once
+      if (onBatchToggle) {
+        // Use the batch toggle if available
         const brandsToDeselect = currentlyVisibleBrands.filter(brand => 
           selectedBrands.includes(brand)
         );
-        
-        // Pass the complete new selection state rather than triggering individual toggles
-        const updatedSelection = selectedBrands.filter(brand => 
-          !brandsToDeselect.includes(brand)
+        onBatchToggle(brandsToDeselect, false);
+      } else {
+        // Fallback to one-by-one if batch toggle not available
+        const newSelectedBrands = selectedBrands.filter(brand => 
+          !currentlyVisibleBrands.includes(brand)
         );
         
-        // Update with the new selection all at once
-        onClearBrands();
-        if (updatedSelection.length > 0) {
-          updatedSelection.forEach(brand => {
+        if (newSelectedBrands.length === 0) {
+          onClearBrands();
+        } else {
+          // Clear and then add all remaining brands back
+          onClearBrands();
+          newSelectedBrands.forEach(brand => {
             onBrandToggle(brand, true);
           });
         }
       }
     } else {
       // Select all visible brands at once
-      const brandsToAdd = filteredBrands.filter(brand => 
-        !selectedBrands.includes(brand)
-      );
-      
-      // Add all the new brands at once
-      if (brandsToAdd.length > 0) {
-        const newSelection = [...selectedBrands, ...brandsToAdd];
+      if (onBatchToggle) {
+        // Use batch toggle if available
+        const brandsToAdd = filteredBrands.filter(brand => 
+          !selectedBrands.includes(brand)
+        );
+        onBatchToggle(brandsToAdd, true);
+      } else {
+        // First clear, then add all brands in one batch
+        const allBrands = [...selectedBrands];
         
-        // Clear first to avoid duplicate callbacks
+        // Add all the new visible brands
+        filteredBrands.forEach(brand => {
+          if (!allBrands.includes(brand)) {
+            allBrands.push(brand);
+          }
+        });
+        
+        // Clear everything first
         onClearBrands();
         
-        // Then add all brands in the new selection
-        newSelection.forEach(brand => {
-          onBrandToggle(brand, true);
-        });
+        // Then add all brands
+        console.log("Adding all brands in one batch:", allBrands.length);
+        
+        // Use a timeout to ensure the clear operation completes first
+        setTimeout(() => {
+          allBrands.forEach(brand => {
+            onBrandToggle(brand, true);
+          });
+        }, 0);
       }
     }
   };
