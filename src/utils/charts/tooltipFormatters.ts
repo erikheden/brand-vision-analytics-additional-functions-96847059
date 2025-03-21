@@ -6,7 +6,7 @@ import { FONT_FAMILY } from '@/utils/constants';
  */
 export const createTooltipContainer = (title: string, content: string, additionalInfo: string = '') => {
   return `
-    <div style="font-family: '${FONT_FAMILY}'; padding: 8px; background: #ffffff; border: 1px solid rgba(52, 80, 43, 0.2); border-radius: 4px;">
+    <div style="font-family: '${FONT_FAMILY}'; padding: 8px; background: #ffffff; border: 1px solid rgba(52, 80, 43, 0.2); border-radius: 4px; min-width: 120px;">
       <div style="font-weight: bold; margin-bottom: 8px; color: #34502b;">${title}</div>
       ${content}
       ${additionalInfo}

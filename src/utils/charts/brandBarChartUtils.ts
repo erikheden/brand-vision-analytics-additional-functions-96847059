@@ -1,6 +1,6 @@
-
 import Highcharts from 'highcharts';
 import { FONT_FAMILY } from '@/utils/constants';
+import { createTooltipContainer, createTooltipPoint, createAverageScoreDisplay, formatDifferenceText } from '@/utils/charts/tooltipFormatters';
 
 /**
  * Create y-axis configuration with plot lines for average scores 
@@ -53,7 +53,7 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
  * Create a tooltip formatter function that displays brand scores
  */
 export const createTooltipFormatter = (standardized: boolean, averageScore: number | null) => {
-  // Fix: Use a more generic typing approach that works with Highcharts
+  // Use a more generic typing approach that works with Highcharts
   return function(this: any) {
     const tooltipContext = this as {
       points?: Array<{
@@ -61,8 +61,26 @@ export const createTooltipFormatter = (standardized: boolean, averageScore: numb
         series: { name: string; color: string };
       }>;
       x?: any;
+      point?: {
+        name: string;
+        y: number | null;
+        color: string;
+      };
     };
     
+    // Handle single point hover (column chart case)
+    if (tooltipContext.point && tooltipContext.point.y !== null) {
+      const point = tooltipContext.point;
+      const diff = averageScore !== null ? formatDifferenceText(point.y, averageScore) : '';
+      
+      return createTooltipContainer(
+        point.name,
+        createTooltipPoint('Score', point.y.toFixed(2), point.color, diff),
+        averageScore !== null ? createAverageScoreDisplay(averageScore) : ''
+      );
+    }
+    
+    // Handle multi-series hover (original implementation)
     if (!tooltipContext.points) return '';
     
     const sortedPoints = [...tooltipContext.points].sort((a, b) => 
@@ -70,45 +88,27 @@ export const createTooltipFormatter = (standardized: boolean, averageScore: numb
     );
 
     const pointsHtml = sortedPoints.map(point => {
+      const name = point.series.name;
       const color = point.series.color;
-      const value = point.y?.toFixed(2);
+      const value = point.y;
       
-      // Add comparison to average if available
-      let comparisonHtml = '';
-      if (averageScore !== null && point.y !== null) {
-        const diff = point.y - averageScore;
-        const diffText = diff >= 0 ? `+${diff.toFixed(2)}` : `${diff.toFixed(2)}`;
-        const diffColor = diff >= 0 ? '#34802b' : '#c44';
-        comparisonHtml = `<span style="margin-left: 5px; color: ${diffColor};">(${diffText})</span>`;
-      }
+      // Skip if no value
+      if (value === null || value === undefined) return '';
       
-      return `
-        <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
-          <div style="width: 10px; height: 10px; background-color: ${color}; border-radius: 50%;"></div>
-          <span style="color: #34502b;">${point.series.name}:</span>
-          <span style="font-weight: bold; color: #34502b;">${value}${comparisonHtml}</span>
-        </div>
-      `;
+      // Calculate difference from average if available
+      const diff = averageScore !== null ? formatDifferenceText(value, averageScore) : '';
+      
+      return createTooltipPoint(name, value, color, diff);
     }).join('');
 
     // Add average line info if available
-    let averageHtml = '';
-    if (averageScore !== null) {
-      averageHtml = `
-        <div style="margin-top: 8px; padding-top: 4px; border-top: 1px dotted #34502b;">
-          <span style="color: #34502b; font-style: italic;">Market Average:</span>
-          <span style="font-weight: bold; color: #34502b; margin-left: 5px;">${averageScore.toFixed(2)}</span>
-        </div>
-      `;
-    }
+    const averageHtml = averageScore !== null ? createAverageScoreDisplay(averageScore) : '';
 
-    return `
-      <div style="font-family: '${FONT_FAMILY}'; padding: 8px; background: white; border-radius: 4px;">
-        <div style="font-weight: bold; margin-bottom: 8px; color: #34502b;">${tooltipContext.x}</div>
-        ${pointsHtml}
-        ${averageHtml}
-      </div>
-    `;
+    return createTooltipContainer(
+      tooltipContext.x || 'Brand Score',
+      pointsHtml,
+      averageHtml
+    );
   };
 };
 

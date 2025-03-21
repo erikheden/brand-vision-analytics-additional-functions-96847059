@@ -73,17 +73,33 @@ const BrandBarChartContent: React.FC<BrandBarChartContentProps> = ({
       enabled: false
     },
     tooltip: {
+      useHTML: true,
       formatter: createTooltipFormatter(false, averageScore),
       backgroundColor: 'white',
+      borderColor: 'rgba(52, 80, 43, 0.2)',
+      borderRadius: 4,
+      borderWidth: 1,
       style: {
         color: '#34502b',
         fontFamily: FONT_FAMILY
       }
     },
+    plotOptions: {
+      column: {
+        borderRadius: 3,
+        pointPadding: 0.2,
+        groupPadding: 0.1
+      },
+      series: {
+        borderWidth: 0,
+        animation: true
+      }
+    },
     series: [{
       type: 'column',
       name: 'Score',
-      data: seriesData
+      data: seriesData,
+      colorByPoint: true
     }]
   };
 
