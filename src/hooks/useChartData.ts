@@ -44,7 +44,7 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
           console.error("Error fetching with full country name:", errorWithFullName);
         }
         
-        // Fetch market data for standardization
+        // Fetch ALL market data for standardization, not just selected brands
         let { data: marketData, error: marketError } = await supabase
           .from("SBI Ranking Scores 2011-2025")
           .select("*")
@@ -54,6 +54,8 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         if (marketError) {
           console.error("Error fetching market data:", marketError);
           marketData = [];
+        } else {
+          console.log(`Fetched ${marketData.length} total market data points for standardization`);
         }
         
         // Fetch average scores for standardization
@@ -85,10 +87,11 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         
         const finalData = Array.from(uniqueEntries.values());
         
-        // Calculate country-year statistics for standardization
-        // Using a utility function instead of a hook
+        // Calculate country-year statistics for standardization using ALL market data
         const marketDataObj = { [selectedCountry]: marketData || [] };
         const countryYearStats = calculateYearStatistics(marketDataObj);
+        
+        console.log(`Generated statistics for ${countryYearStats.size} countries with market data`);
         
         // Store average scores and statistics data for standardization
         // Attach as non-enumerable properties of the array

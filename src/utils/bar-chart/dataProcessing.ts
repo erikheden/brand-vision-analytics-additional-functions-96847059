@@ -1,3 +1,4 @@
+
 // Import the utility for getting average scores
 import { getAverageScore } from "@/utils/countryComparison/averageScoreUtils";
 import { BrandData } from "@/types/brand";
@@ -35,8 +36,8 @@ export const processBarChartData = (
   const averageScores = (allCountriesData as any).averageScores;
   const hasAverageScores = averageScores && averageScores.size > 0;
   
-  if (standardized && !hasAverageScores) {
-    console.warn("Standardization requested but no average scores available in bar chart data");
+  if (standardized && !hasAverageScores && !countryYearStats) {
+    console.warn("Standardization requested but no statistics available in bar chart data");
   }
   
   // Simplify common data determination
@@ -69,22 +70,42 @@ export const processBarChartData = (
       let score = rawScore;
       let year = Number(latestData.Year);
       
-      if (standardized && hasAverageScores) {
-        // Get average score from the official "SBI Average Scores" table
-        const averageScore = getAverageScore(averageScores, country, year);
+      if (standardized) {
+        // Try to use country-year statistics from market data first
+        let standardizedValue = null;
         
-        if (averageScore !== null) {
-          // Calculate standard deviation as a percentage of average
-          const estimatedStdDev = averageScore * 0.15; // Using 15% of average as stdDev estimate
-          
-          // Use the standardizeScore utility for consistent standardization
-          const standardizedValue = standardizeScore(rawScore, averageScore, estimatedStdDev);
-          if (standardizedValue !== null) {
-            score = standardizedValue;
-            console.log(`Bar chart: Standardized score for ${brand}/${country}/${year}: ${score.toFixed(2)} (raw=${rawScore.toFixed(2)}, avg=${averageScore.toFixed(2)})`);
+        if (countryYearStats && countryYearStats.has(country)) {
+          const yearStats = countryYearStats.get(country);
+          if (yearStats && yearStats.has(year)) {
+            const stats = yearStats.get(year);
+            if (stats && stats.count >= 2 && stats.stdDev > 0) {
+              standardizedValue = standardizeScore(rawScore, stats.mean, stats.stdDev);
+              if (standardizedValue !== null) {
+                score = standardizedValue;
+                console.log(`Bar chart: Standardized score for ${brand}/${country}/${year} using market stats: ${score.toFixed(2)} (raw=${rawScore.toFixed(2)}, mean=${stats.mean.toFixed(2)}, stdDev=${stats.stdDev.toFixed(2)})`);
+              }
+            }
           }
-        } else {
-          console.warn(`No average score found for ${country}/${year}, using raw score`);
+        }
+        
+        // Fall back to average scores if market statistics aren't available
+        if (standardizedValue === null && hasAverageScores) {
+          // Get average score from the official "SBI Average Scores" table
+          const averageScore = getAverageScore(averageScores, country, year);
+          
+          if (averageScore !== null) {
+            // Calculate standard deviation as a percentage of average
+            const estimatedStdDev = Math.max(averageScore * 0.15, 1); // Using 15% of average as stdDev estimate
+            
+            // Use the standardizeScore utility for consistent standardization
+            standardizedValue = standardizeScore(rawScore, averageScore, estimatedStdDev);
+            if (standardizedValue !== null) {
+              score = standardizedValue;
+              console.log(`Bar chart: Standardized score for ${brand}/${country}/${year} using average: ${score.toFixed(2)} (raw=${rawScore.toFixed(2)}, avg=${averageScore.toFixed(2)})`);
+            }
+          } else {
+            console.warn(`No average score found for ${country}/${year}, using raw score`);
+          }
         }
       }
       

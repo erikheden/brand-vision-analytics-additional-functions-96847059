@@ -32,8 +32,8 @@ export const useProcessedChartData = (
       const countryYearStats = (scores as any).countryYearStats;
       const hasCountryStats = countryYearStats && countryYearStats.size > 0;
       
-      if (standardized && !hasCountryStats) {
-        console.warn("Standardization requested but no country statistics available");
+      if (standardized && !hasCountryStats && !hasAverageScores) {
+        console.warn("Standardization requested but no country statistics or average scores available");
         toast.warning("Limited standardization - using estimated values");
       }
       

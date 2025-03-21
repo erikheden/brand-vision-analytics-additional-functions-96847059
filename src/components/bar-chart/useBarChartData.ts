@@ -28,8 +28,9 @@ export const useBarChartData = (
   
   // Calculate country-year statistics for standardization using the utility function (not hook)
   const countryYearStats = useMemo(() => {
-    return calculateYearStatistics(marketData || allCountriesData);
-  }, [marketData, allCountriesData]);
+    // Use full market data for standardization, not just selected brands
+    return calculateYearStatistics(marketData || {});
+  }, [marketData]);
   
   // Process the data for 2025 (or latest year) comparison
   const processedData = useMemo(() => {

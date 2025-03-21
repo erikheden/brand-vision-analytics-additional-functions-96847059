@@ -12,7 +12,10 @@ export const calculateYearStatistics = (allCountriesData: Record<string, BrandDa
   
   // Process data for each country
   Object.entries(allCountriesData).forEach(([country, countryData]) => {
-    if (!countryData || countryData.length === 0) return;
+    if (!countryData || countryData.length === 0) {
+      console.warn(`No data for country: ${country}`);
+      return;
+    }
     
     if (!countryYearStats.has(country)) {
       countryYearStats.set(country, new Map());
@@ -26,12 +29,12 @@ export const calculateYearStatistics = (allCountriesData: Record<string, BrandDa
     // Add all valid scores to calculate proper country statistics
     if (Array.isArray(countryData)) {
       countryData.forEach(item => {
-        if (item.Year === null || item.Score === null) return;
+        if (item.Year === null || item.Score === null || item.Score === 0) return;
         
         const year = Number(item.Year);
         const score = Number(item.Score);
         
-        if (isNaN(score)) return;
+        if (isNaN(score) || isNaN(year)) return;
         
         if (!scoresByYear.has(year)) {
           scoresByYear.set(year, []);
@@ -58,9 +61,12 @@ export const calculateYearStatistics = (allCountriesData: Record<string, BrandDa
       const variance = squaredDiffs.reduce((total, diff) => total + diff, 0) / scores.length;
       const stdDev = Math.sqrt(variance);
       
-      yearStatsMap.set(year, { mean, stdDev, count: scores.length });
+      // Ensure non-zero standard deviation to avoid division by zero in z-score calculation
+      const finalStdDev = stdDev < 0.001 ? 1.0 : stdDev;
       
-      console.log(`Country ${country}, Year ${year}: mean=${mean.toFixed(2)}, stdDev=${stdDev.toFixed(2)} (${scores.length} brands)`);
+      yearStatsMap.set(year, { mean, stdDev: finalStdDev, count: scores.length });
+      
+      console.log(`Country ${country}, Year ${year}: mean=${mean.toFixed(2)}, stdDev=${finalStdDev.toFixed(2)} (${scores.length} brands)`);
     });
   });
   
