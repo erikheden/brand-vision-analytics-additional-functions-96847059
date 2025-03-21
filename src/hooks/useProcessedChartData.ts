@@ -18,8 +18,8 @@ export const useProcessedChartData = (
       console.log("Raw scores before processing:", scores.slice(0, 3));
       
       // Get average scores to attach to processed data
-      const averageScores = (scores as any).averageScores;
-      const hasAverageScores = averageScores && averageScores.size > 0;
+      const averageScores = scores.averageScores;
+      const hasAverageScores = averageScores && typeof averageScores.get === 'function' && averageScores.size > 0;
       
       if (hasAverageScores) {
         console.log("Average scores found in raw data:", 
@@ -36,7 +36,7 @@ export const useProcessedChartData = (
       console.log("Processed data sample:", data.slice(0, 3));
       
       // Copy metadata to processed data for access in child components
-      if (averageScores) {
+      if (hasAverageScores) {
         console.log("Attaching average scores to processed data");
         Object.defineProperty(data, 'averageScores', {
           value: averageScores,

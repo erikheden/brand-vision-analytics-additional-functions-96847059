@@ -17,22 +17,20 @@ export const useAverageScores = (
   return useMemo(() => {
     // Check if there's data and a country specified
     if (!chartData || chartData.length === 0 || !country) {
-      console.log("No chart data or no country specified");
+      console.log("No chart data or no country specified for averages");
       return [];
     }
     
     // Get the averageScores property from chartData
-    const averageScores = (chartData as any).averageScores as Map<string, Map<number, number>> | undefined;
+    const averageScores = (chartData as any).averageScores;
     
-    if (!averageScores) {
-      console.log("No average scores property found in chart data");
+    if (!averageScores || typeof averageScores.get !== 'function') {
+      console.log("No valid average scores property found in chart data");
       return [];
     }
     
-    console.log("Average scores property found:", 
-      Array.from(averageScores.entries()).map(([country, yearMap]) => 
-        `${country}: ${Array.from(yearMap.entries()).length} years`
-      )
+    console.log("Available countries in average scores:", 
+      Array.from(averageScores.keys()).join(', ')
     );
     
     // Try exact match first
@@ -40,9 +38,11 @@ export const useAverageScores = (
     
     // If not found, try case-insensitive match
     if (!countryAverages) {
+      const countryLower = country.toLowerCase();
       for (const [key, value] of averageScores.entries()) {
-        if (key.toLowerCase() === country.toLowerCase()) {
+        if (key.toLowerCase() === countryLower) {
           countryAverages = value;
+          console.log(`Found average scores for country '${key}' using case-insensitive match`);
           break;
         }
       }
@@ -56,8 +56,8 @@ export const useAverageScores = (
     // Convert to array format
     const yearlyAverages = Array.from(countryAverages.entries())
       .map(([year, average]) => ({
-        year,
-        average
+        year: Number(year),
+        average: Number(average)
       }))
       .sort((a, b) => a.year - b.year);
     

@@ -63,7 +63,20 @@ export const createAverageScoreSeries = (
   
   console.log("Creating market average series with data:", yearlyAverages);
   
-  const averageData = yearlyAverages.map(item => ({
+  // Filter out any invalid data points
+  const validAverages = yearlyAverages.filter(item => 
+    typeof item.year === 'number' && 
+    !isNaN(item.year) && 
+    typeof item.average === 'number' && 
+    !isNaN(item.average)
+  );
+  
+  if (validAverages.length === 0) {
+    console.log("No valid data points for market average series");
+    return null;
+  }
+  
+  const averageData = validAverages.map(item => ({
     x: item.year,
     y: item.average,
     marker: {
