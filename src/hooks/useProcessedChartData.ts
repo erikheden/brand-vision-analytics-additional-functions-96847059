@@ -46,11 +46,13 @@ export const useProcessedChartData = (
       // Copy metadata to processed data for access in child components
       if (hasAverageScores) {
         console.log("Attaching average scores to processed data");
-        Object.defineProperty(data, 'averageScores', {
-          value: averageScores,
-          enumerable: false,
-          configurable: true
-        });
+        // Set directly as a property rather than using Object.defineProperty
+        data.averageScores = averageScores;
+      }
+      
+      // Also copy countryYearStats if available
+      if (scores.countryYearStats) {
+        data.countryYearStats = scores.countryYearStats;
       }
       
       setProcessedData(data);

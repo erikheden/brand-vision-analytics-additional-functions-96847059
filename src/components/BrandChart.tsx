@@ -27,8 +27,14 @@ const BrandChart = ({
   
   console.log("BrandChart rendering with country:", country);
   console.log("ChartData length:", chartData.length);
-  console.log("Average scores property exists:", !!(chartData as any).averageScores);
-  console.log("Properties on chartData:", Object.getOwnPropertyNames(chartData));
+  console.log("Average scores property exists:", !!(chartData.averageScores));
+  
+  // Log all properties on chartData to help debug
+  const propertyNames = Object.getOwnPropertyNames(chartData);
+  console.log("Properties on chartData:", propertyNames);
+  
+  // Log property descriptors to check if averageScores is non-enumerable
+  console.log("Has own property 'averageScores':", chartData.hasOwnProperty('averageScores'));
   
   // Debug: Display a sample of the chart data for troubleshooting
   if (chartData.length > 0) {

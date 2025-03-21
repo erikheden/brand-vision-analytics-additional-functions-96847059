@@ -26,6 +26,10 @@ export const useAverageScores = (
       return [];
     }
     
+    console.log(`Checking average scores for country: ${country}`);
+    console.log(`chartData length: ${chartData.length}`);
+    console.log(`chartData averageScores exists: ${!!chartData.averageScores}`);
+    
     // Get the averageScores property from chartData
     const averageScores = chartData.averageScores;
     
@@ -36,9 +40,10 @@ export const useAverageScores = (
       console.log("Chart data properties:", Object.getOwnPropertyNames(chartData));
       console.log("Has averageScores:", Object.getOwnPropertyNames(chartData).includes('averageScores'));
       
-      // Try to access potential non-enumerable property
-      const descriptors = Object.getOwnPropertyDescriptors(chartData);
-      console.log("Has non-enumerable averageScores:", 'averageScores' in descriptors);
+      if (chartData.length > 0) {
+        // Log sample data point
+        console.log("Sample data point:", chartData[0]);
+      }
       
       return [];
     }

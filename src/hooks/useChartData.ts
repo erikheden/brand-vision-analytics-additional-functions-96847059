@@ -100,18 +100,9 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         
         console.log(`Generated statistics for ${countryYearStats.size} countries with market data`);
         
-        // Explicitly attach average scores to the array
-        Object.defineProperty(finalData, 'averageScores', {
-          value: averageScores,
-          enumerable: false,
-          configurable: true
-        });
-        
-        Object.defineProperty(finalData, 'countryYearStats', {
-          value: countryYearStats,
-          enumerable: false,
-          configurable: true
-        });
+        // Instead of setting non-enumerable properties, add properties directly to the array
+        finalData.averageScores = averageScores;
+        finalData.countryYearStats = countryYearStats;
         
         // Add debug logging to verify if properties are correctly attached
         console.log("Average scores attached to finalData:", !!finalData.averageScores);
@@ -155,7 +146,13 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
           .filter(Boolean);
         
         // Combine actual data with any needed projections and cast to our extended type
-        return [...finalData, ...projectedData] as ExtendedBrandDataArray;
+        const resultData = [...finalData, ...projectedData] as ExtendedBrandDataArray;
+        
+        // Make sure to copy the properties to the final result
+        resultData.averageScores = finalData.averageScores;
+        resultData.countryYearStats = finalData.countryYearStats;
+        
+        return resultData;
       } catch (err) {
         console.error("Exception in chart data query:", err);
         return [] as ExtendedBrandDataArray;
