@@ -7,8 +7,8 @@ export const useBrandSelection = (
   brands: string[],
   selectedBrands: string[],
   onBrandToggle: (brand: string, checked: boolean) => void,
-  onBatchToggle?: (brands: string[], checked: boolean) => void,
-  onClearBrands: () => void
+  onClearBrands: () => void,
+  onBatchToggle?: (brands: string[], checked: boolean) => void
 ) => {
   const [searchQuery, setSearchQuery] = useState("");
   

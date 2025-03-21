@@ -1,6 +1,9 @@
 
-import { CircleCheck, AlertTriangle, Info } from "lucide-react";
 import BrandSelection from "../BrandSelection";
+import BrandSectionHeader from "./BrandSectionHeader";
+import InfoMessage from "./InfoMessage";
+import NoBrandsAlert from "./NoBrandsAlert";
+import EmptyStateMessage from "./EmptyStateMessage";
 import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
 interface BrandSelectionSectionProps {
@@ -35,24 +38,15 @@ const BrandSelectionSection = ({
   
   return (
     <div className="space-y-2">
-      <h3 className="text-lg font-medium flex items-center gap-2 text-[#34502b]">
-        <CircleCheck className="h-5 w-5" />
-        Select Brands to Compare
-      </h3>
+      <BrandSectionHeader />
       <div className="mt-2">
         {uniqueBrandNames.length > 0 ? (
           <>
             {selectedCountries.length >= 2 && (
-              <div className="mb-4 text-blue-600 bg-blue-50 p-4 rounded-md flex items-start gap-2">
-                <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium">Common brands across selected markets</p>
-                  <p className="text-sm mt-1">
-                    Showing {uniqueBrandNames.length} brands that exist in at least 2 selected countries.
-                    {brandsWithData > 0 && ` ${brandsWithData} of these brands have comparable data.`}
-                  </p>
-                </div>
-              </div>
+              <InfoMessage 
+                uniqueBrandCount={uniqueBrandNames.length} 
+                brandsWithData={brandsWithData} 
+              />
             )}
             <BrandSelection
               brands={uniqueBrandNames}
@@ -65,20 +59,9 @@ const BrandSelectionSection = ({
             />
           </>
         ) : selectedCountries.length > 1 ? (
-          <div className="text-amber-600 bg-amber-50 p-4 rounded-md flex items-start gap-2">
-            <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="font-medium">No common brands found</p>
-              <p className="text-sm mt-1">
-                We couldn't find any brands that exist across the selected countries. 
-                Try selecting fewer countries or different combinations.
-              </p>
-            </div>
-          </div>
+          <NoBrandsAlert />
         ) : (
-          <div className="text-gray-500 p-4 border border-dashed border-gray-300 rounded-md text-center">
-            Select at least one country to see available brands.
-          </div>
+          <EmptyStateMessage />
         )}
       </div>
     </div>
