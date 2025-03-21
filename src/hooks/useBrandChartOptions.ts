@@ -25,9 +25,10 @@ export const useBrandChartOptions = ({
       yearlyAverages
     );
     
-    // Add a special plot line at zero for standardized scores
     if (standardized && options.yAxis && typeof options.yAxis !== 'boolean') {
       const yAxis = Array.isArray(options.yAxis) ? options.yAxis[0] : options.yAxis;
+      
+      // Add a special plot line at zero for standardized scores
       yAxis.plotLines = [{
         value: 0,
         color: '#666',
@@ -66,6 +67,29 @@ export const useBrandChartOptions = ({
           }
           return result;
         };
+      }
+    } else {
+      // Ensure regular view doesn't have any standardized elements
+      if (options.yAxis && typeof options.yAxis !== 'boolean') {
+        const yAxis = Array.isArray(options.yAxis) ? options.yAxis[0] : options.yAxis;
+        
+        // Remove the sigma symbol from labels
+        yAxis.labels = {
+          ...yAxis.labels,
+          format: undefined
+        };
+        
+        // Reset the y-axis title
+        yAxis.title = {
+          ...yAxis.title,
+          text: 'Score'
+        };
+        
+        // Only add plot lines for country average if we have data
+        if (yearlyAverages && yearlyAverages.length > 0) {
+          // Country average plot lines will be handled by the average series
+          yAxis.plotLines = undefined;
+        }
       }
     }
     

@@ -1,4 +1,3 @@
-
 import Highcharts from 'highcharts';
 import { FONT_FAMILY } from '@/utils/constants';
 

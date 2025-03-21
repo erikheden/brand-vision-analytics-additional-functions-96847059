@@ -108,7 +108,15 @@ const CountryHighchartsContainer: React.FC<CountryHighchartsContainerProps> = ({
         value: 0,
         color: '#666',
         dashStyle: 'Dash',
-        width: 1
+        width: 1,
+        label: {
+          text: 'Market Average',
+          align: 'right' as Highcharts.AlignValue,
+          style: {
+            fontStyle: 'italic',
+            color: '#666'
+          }
+        }
       }] : undefined
     },
     tooltip: {
