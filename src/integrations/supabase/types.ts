@@ -221,33 +221,6 @@ export type Database = {
         }
         Relationships: []
       }
-      "NEW SBI Ranking Scores 2011-2024": {
-        Row: {
-          Brand: string | null
-          Country: string | null
-          industry: string | null
-          "Row ID": number
-          Score: number | null
-          Year: number | null
-        }
-        Insert: {
-          Brand?: string | null
-          Country?: string | null
-          industry?: string | null
-          "Row ID": number
-          Score?: number | null
-          Year?: number | null
-        }
-        Update: {
-          Brand?: string | null
-          Country?: string | null
-          industry?: string | null
-          "Row ID"?: number
-          Score?: number | null
-          Year?: number | null
-        }
-        Relationships: []
-      }
       "SBI Average Scores": {
         Row: {
           country: string | null

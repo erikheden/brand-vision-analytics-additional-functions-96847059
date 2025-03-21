@@ -1,11 +1,9 @@
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import SelectionPanel from "@/components/SelectionPanel";
 import ChartSection from "@/components/ChartSection";
-import { Button } from "@/components/ui/button";
-import { Globe } from "lucide-react";
+
 const Index = () => {
-  const navigate = useNavigate();
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const handleLogoClick = () => {
@@ -26,11 +24,6 @@ const Index = () => {
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <h1 className="text-2xl font-semibold text-[#34502b]">Sustainable Brand Index Dashboard</h1>
-              
-              <Button onClick={() => navigate('/country-comparison')} className="bg-[#34502b] hover:bg-[#34502b]/90 text-white flex items-center gap-2">
-                <Globe className="h-4 w-4" />
-                Cross-Country Comparison
-              </Button>
             </div>
             
             <SelectionPanel selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} selectedBrands={selectedBrands} setSelectedBrands={setSelectedBrands} />

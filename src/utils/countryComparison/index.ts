@@ -1,10 +1,4 @@
 
-// Re-export all country comparison utilities
+// Re-export utility functions that might still be used elsewhere
 export * from './chartColors';
-export * from './dataProcessing';
-export * from './fetchCountryBrandData';
-export * from './brandMatching';
 export * from './marketDataUtils';
-export * from './brandVariationUtils';
-export * from './brandMatchingStrategies';
-export * from './brandDataProcessor';
