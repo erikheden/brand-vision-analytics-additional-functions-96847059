@@ -1,4 +1,3 @@
-
 import Highcharts from 'highcharts';
 import { FONT_FAMILY } from '@/utils/constants';
 
@@ -121,11 +120,10 @@ export const createChartTitle = (
   standardized: boolean,
   marketDataCount: string | number = 0
 ) => {
-  const yearText = year === 2025 ? '2025 (Projected)' : year;
   const standardizedText = standardized ? 'Standardized ' : '';
-  const marketCountText = marketDataCount ? ` (${marketDataCount} markets)` : '';
+  const marketCountText = marketDataCount ? ` (${marketDataCount})` : '';
   
-  return `${standardizedText}Brand Performance ${yearText}${marketCountText}`;
+  return `${standardizedText}Brand Performance ${year}${marketCountText}`;
 };
 
 /**
