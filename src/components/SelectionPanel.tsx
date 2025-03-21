@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import CountrySelect from "./CountrySelect";
 import BrandSelection from "./BrandSelection";
@@ -111,7 +112,7 @@ const SelectionPanel = ({
             <BrandSelection
               brands={uniqueBrandNames}
               selectedBrands={selectedBrands}
-              selectedCountries={[selectedCountry]} // Add the missing prop here
+              selectedCountries={[selectedCountry]}
               onBrandToggle={handleBrandToggle}
               onClearBrands={handleClearBrands}
             />

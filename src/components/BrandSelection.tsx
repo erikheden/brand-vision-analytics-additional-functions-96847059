@@ -60,7 +60,7 @@ const BrandSelection = ({
   });
 
   const handleSelectAll = () => {
-    const currentlyVisibleBrands = new Set(filteredBrands);
+    const currentlyVisibleBrands = filteredBrands;
     
     const allVisibleBrandsSelected = filteredBrands.every(brand => 
       selectedBrands.includes(brand)
@@ -69,23 +69,48 @@ const BrandSelection = ({
     if (allVisibleBrandsSelected) {
       // If all visible brands are selected, deselect them
       const newSelectedBrands = selectedBrands.filter(brand => 
-        !currentlyVisibleBrands.has(brand)
+        !currentlyVisibleBrands.includes(brand)
       );
       
       if (newSelectedBrands.length === 0) {
         onClearBrands();
       } else {
-        filteredBrands.forEach(brand => {
-          onBrandToggle(brand, false);
-        });
+        // Create a new array of brands to select
+        const brandsToDeselect = currentlyVisibleBrands.filter(brand => 
+          selectedBrands.includes(brand)
+        );
+        
+        // Pass the complete new selection state rather than triggering individual toggles
+        const updatedSelection = selectedBrands.filter(brand => 
+          !brandsToDeselect.includes(brand)
+        );
+        
+        // Update with the new selection all at once
+        onClearBrands();
+        if (updatedSelection.length > 0) {
+          updatedSelection.forEach(brand => {
+            onBrandToggle(brand, true);
+          });
+        }
       }
     } else {
-      // Select all visible brands regardless of data status
-      filteredBrands.forEach(brand => {
-        if (!selectedBrands.includes(brand)) {
+      // Select all visible brands at once
+      const brandsToAdd = filteredBrands.filter(brand => 
+        !selectedBrands.includes(brand)
+      );
+      
+      // Add all the new brands at once
+      if (brandsToAdd.length > 0) {
+        const newSelection = [...selectedBrands, ...brandsToAdd];
+        
+        // Clear first to avoid duplicate callbacks
+        onClearBrands();
+        
+        // Then add all brands in the new selection
+        newSelection.forEach(brand => {
           onBrandToggle(brand, true);
-        }
-      });
+        });
+      }
     }
   };
 
