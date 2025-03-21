@@ -32,7 +32,7 @@ export const processBarChartData = (
   const processedData: ProcessedBarDataPoint[] = [];
   
   // Get average scores if available
-  const averageScores = (allCountriesData as any).averageScores;
+  const averageScores = (allCountriesData as any).averageScores as Map<string, Map<number, number>> | undefined;
   
   // Simplify common data determination
   const targetYear = 2025; // Using 2025 as the default target year
@@ -76,25 +76,27 @@ export const processBarChartData = (
     // Add market average if available
     if (averageScores && averageScores.has(country)) {
       const countryAvgs = averageScores.get(country);
-      // Find the latest year with average data
-      const yearsWithAvg = Array.from(countryAvgs.keys()).sort((a, b) => b - a);
-      
-      if (yearsWithAvg.length > 0) {
-        const latestYear = yearsWithAvg[0];
-        const avgScore = countryAvgs.get(latestYear);
+      if (countryAvgs) {
+        // Find the latest year with average data
+        const yearsWithAvg = Array.from(countryAvgs.keys()).sort((a, b) => b - a);
         
-        if (avgScore !== undefined && typeof avgScore === 'number') {
-          // Add market average as a special brand
-          processedData.push({
-            brand: "Market Average",
-            country,
-            score: avgScore,
-            rawScore: avgScore,
-            year: latestYear,
-            projected: false
-          });
+        if (yearsWithAvg.length > 0) {
+          const latestYear = yearsWithAvg[0];
+          const avgScore = countryAvgs.get(latestYear);
           
-          console.log(`Added market average for ${country}: ${avgScore} (year: ${latestYear})`);
+          if (avgScore !== undefined && typeof avgScore === 'number') {
+            // Add market average as a special brand
+            processedData.push({
+              brand: "Market Average",
+              country,
+              score: avgScore,
+              rawScore: avgScore,
+              year: latestYear,
+              projected: false
+            });
+            
+            console.log(`Added market average for ${country}: ${avgScore} (year: ${latestYear})`);
+          }
         }
       }
     }
