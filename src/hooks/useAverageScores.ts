@@ -26,6 +26,15 @@ export const useAverageScores = (
     
     if (!averageScores || typeof averageScores.get !== 'function') {
       console.log("No valid average scores property found in chart data");
+      // Additional debug info
+      console.log("Chart data type:", typeof chartData);
+      console.log("Chart data properties:", Object.getOwnPropertyNames(chartData));
+      console.log("Has averageScores:", Object.getOwnPropertyNames(chartData).includes('averageScores'));
+      
+      // Try to access potential non-enumerable property
+      const descriptors = Object.getOwnPropertyDescriptors(chartData);
+      console.log("Has non-enumerable averageScores:", 'averageScores' in descriptors);
+      
       return [];
     }
     

@@ -106,6 +106,10 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
           configurable: true
         });
         
+        // Add debug logging to verify if properties are correctly attached
+        console.log("Average scores attached to finalData:", !!finalData.averageScores);
+        console.log("averageScores size:", finalData.averageScores ? finalData.averageScores.size : 0);
+        
         // If no data is found, return an empty array
         if (finalData.length === 0) {
           console.warn("No chart data found for the selected brands and country.");

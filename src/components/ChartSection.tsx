@@ -26,8 +26,15 @@ const ChartSection = ({
     isLoading
   } = useChartData(selectedCountry, selectedBrands);
   
+  // Debug: Log the scores data and properties to check if averageScores exists
+  console.log("Scores data received:", scores.length > 0 ? "Yes" : "No");
+  console.log("Scores has averageScores property:", !!(scores as any).averageScores);
+  
   // Process chart data using the extracted hook
   const processedData = useProcessedChartData(scores, standardized);
+  
+  // Debug: Check processed data too
+  console.log("Processed data has averageScores:", !!(processedData as any).averageScores);
 
   if (isLoading) {
     return <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
@@ -44,6 +51,7 @@ const ChartSection = ({
   // Check if average scores data is available for averages line
   const averageScores = (scores as any).averageScores;
   const hasAverageScores = averageScores && averageScores.size > 0;
+  console.log("Has average scores in ChartSection:", hasAverageScores);
 
   const years = calculateYearRange(scores);
   // Create a yearRange object compatible with BrandChart's expected format

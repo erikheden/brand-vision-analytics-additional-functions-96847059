@@ -28,6 +28,12 @@ const BrandChart = ({
   console.log("BrandChart rendering with country:", country);
   console.log("ChartData length:", chartData.length);
   console.log("Average scores property exists:", !!(chartData as any).averageScores);
+  console.log("Properties on chartData:", Object.getOwnPropertyNames(chartData));
+  
+  // Debug: Display a sample of the chart data for troubleshooting
+  if (chartData.length > 0) {
+    console.log("Sample chart data point:", chartData[0]);
+  }
   
   // Use the hook to extract yearly averages
   const yearlyAverages = useAverageScores(chartData, country, false);
