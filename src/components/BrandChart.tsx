@@ -5,8 +5,14 @@ import { useAverageScores } from '@/hooks/useAverageScores';
 import { createBrandSeries, createAverageScoreSeries } from '@/utils/charts/createChartSeries';
 import BrandChartContent from './brand-chart/BrandChartContent';
 
+// Define an interface that extends Array to include the averageScores property
+interface ChartDataWithAverages extends Array<any> {
+  averageScores?: Map<string, Map<number, number>>;
+  countryYearStats?: Map<string, Map<number, { mean: number; stdDev: number }>>;
+}
+
 interface BrandChartProps {
-  chartData: any[];
+  chartData: ChartDataWithAverages;
   selectedBrands: string[];
   yearRange: { earliest: number; latest: number };
   chartConfig: any;
