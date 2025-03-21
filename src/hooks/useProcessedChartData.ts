@@ -3,10 +3,17 @@ import { useState, useEffect } from "react";
 import { processChartData } from "@/utils/chartDataUtils";
 
 /**
+ * Interface for scores array that may have averageScores as a property
+ */
+interface ScoresArray extends Array<any> {
+  averageScores?: Map<string, Map<number, number>>;
+}
+
+/**
  * Hook to process chart data
  */
 export const useProcessedChartData = (
-  scores: any[], 
+  scores: ScoresArray, 
   standardized: boolean = false // Kept for compatibility, but will be ignored
 ) => {
   const [processedData, setProcessedData] = useState<any[]>([]);
