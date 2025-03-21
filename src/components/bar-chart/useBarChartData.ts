@@ -2,7 +2,7 @@
 import { useMemo } from "react";
 import { BrandData } from "@/types/brand";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
-import { useYearStatistics } from "@/hooks/bar-chart/useYearStatistics";
+import { calculateYearStatistics } from "@/utils/statistics/yearStatistics";
 import { 
   processBarChartData, 
   organizeChartData, 
@@ -26,8 +26,10 @@ export const useBarChartData = (
   // Get full market data for better standardization
   const { marketData, isLoading: isLoadingMarketData } = useMarketData(Object.keys(allCountriesData));
   
-  // Calculate country-year statistics for standardization based on full market data
-  const countryYearStats = useYearStatistics(marketData || allCountriesData);
+  // Calculate country-year statistics for standardization using the utility function (not hook)
+  const countryYearStats = useMemo(() => {
+    return calculateYearStatistics(marketData || allCountriesData);
+  }, [marketData, allCountriesData]);
   
   // Process the data for 2025 (or latest year) comparison
   const processedData = useMemo(() => {

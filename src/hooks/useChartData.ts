@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BrandData } from "@/types/brand";
 import { countryMapping, getFullCountryName } from "@/components/CountrySelect";
 import { fetchAverageScores } from "@/utils/countryComparison/averageScoreUtils";
-import useYearStatistics from "@/hooks/bar-chart/useYearStatistics";
+import { calculateYearStatistics } from "@/utils/statistics/yearStatistics";
 
 export const useChartData = (selectedCountry: string, selectedBrands: string[]) => {
   return useQuery({
@@ -86,8 +86,9 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         const finalData = Array.from(uniqueEntries.values());
         
         // Calculate country-year statistics for standardization
-        const marketDataObj = { [selectedCountry]: marketData };
-        const countryYearStats = useYearStatistics(marketDataObj);
+        // Using a utility function instead of a hook
+        const marketDataObj = { [selectedCountry]: marketData || [] };
+        const countryYearStats = calculateYearStatistics(marketDataObj);
         
         // Store average scores and statistics data for standardization
         // Attach as non-enumerable properties of the array
