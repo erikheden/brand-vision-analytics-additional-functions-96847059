@@ -96,7 +96,7 @@ const BrandBarChart = ({
     plotLines: [{
       value: 0,
       color: '#34502b',
-      dashStyle: 'Dash',
+      dashStyle: 'Dash' as Highcharts.DashStyleValue, // Fix: Use type assertion to valid DashStyleValue 
       width: 1.5,
       label: {
         text: 'Market Average',
@@ -127,7 +127,7 @@ const BrandBarChart = ({
     plotLines: averageScore ? [{
       value: averageScore,
       color: '#34502b',
-      dashStyle: 'Dash',
+      dashStyle: 'Dash' as Highcharts.DashStyleValue, // Fix: Use type assertion to valid DashStyleValue
       width: 1.5,
       label: {
         text: `Country Average: ${averageScore.toFixed(2)}`,

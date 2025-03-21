@@ -52,7 +52,7 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
       value: 0,
       color: '#666',
       width: 1,
-      dashStyle: 'Dash',
+      dashStyle: 'Dash' as Highcharts.DashStyleValue, // Fix: Use type assertion to valid DashStyleValue
       label: {
         text: 'Market Average',
         align: 'right',

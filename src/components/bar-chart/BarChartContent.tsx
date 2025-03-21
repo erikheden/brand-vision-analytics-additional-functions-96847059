@@ -89,7 +89,7 @@ export const BarChartContent = ({
       plotLines: standardized ? [{
         value: 0,
         color: '#666',
-        dashStyle: 'Dash',
+        dashStyle: 'Dash' as Highcharts.DashStyleValue, // Fix: Use type assertion to valid DashStyleValue
         width: 1
       }] : undefined
     },
