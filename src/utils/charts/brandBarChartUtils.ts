@@ -1,3 +1,4 @@
+
 import Highcharts from 'highcharts';
 import { FONT_FAMILY } from '@/utils/constants';
 
@@ -17,7 +18,9 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
       style: {
         color: '#34502b',
         fontFamily: FONT_FAMILY
-      }
+      },
+      // Only apply format for standardized view
+      format: standardized ? '{value:.1f}σ' : undefined
     },
     gridLineColor: 'rgba(52, 80, 43, 0.1)'
   };
@@ -58,6 +61,9 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
       },
       zIndex: 5
     }];
+  } else {
+    // Ensure no plot lines for regular view without average
+    yAxisConfig.plotLines = undefined;
   }
 
   return yAxisConfig;

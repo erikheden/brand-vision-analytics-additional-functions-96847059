@@ -1,3 +1,4 @@
+
 import Highcharts from 'highcharts';
 import { createChartOptions } from '@/utils/chartConfigs';
 import { FONT_FAMILY } from '@/utils/constants';
@@ -115,9 +116,26 @@ export const createBrandChartOptions = (
         style: {
           color: '#34502b',
           fontFamily: FONT_FAMILY
-        }
+        },
+        // Only apply sigma format for standardized view
+        format: standardized ? '{value}σ' : undefined
       },
-      gridLineColor: 'rgba(52, 80, 43, 0.1)'
+      gridLineColor: 'rgba(52, 80, 43, 0.1)',
+      // Only add the plot line in standardized view
+      plotLines: standardized ? [{
+        value: 0,
+        color: '#666',
+        width: 1,
+        dashStyle: 'Dash' as Highcharts.DashStyleValue,
+        label: {
+          text: 'Market Average',
+          align: 'right' as Highcharts.AlignValue,
+          style: {
+            fontStyle: 'italic',
+            color: '#666'
+          }
+        }
+      }] : undefined
     },
     xAxis: {
       ...baseOptions.xAxis,

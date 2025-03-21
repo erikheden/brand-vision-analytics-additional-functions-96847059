@@ -97,6 +97,7 @@ const CountryHighchartsContainer: React.FC<CountryHighchartsContainerProps> = ({
         }
       },
       labels: {
+        // Only apply sigma format for standardized view
         format: standardized ? '{value:.1f}σ' : '{value:.0f}',
         style: {
           color: '#34502b',
@@ -104,6 +105,7 @@ const CountryHighchartsContainer: React.FC<CountryHighchartsContainerProps> = ({
         }
       },
       gridLineColor: 'rgba(52, 80, 43, 0.1)',
+      // Only add the market average line for standardized view
       plotLines: standardized ? [{
         value: 0,
         color: '#666',
