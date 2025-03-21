@@ -6,11 +6,17 @@ import { countryMapping, getFullCountryName } from "@/components/CountrySelect";
 import { fetchAverageScores } from "@/utils/countryComparison/averageScoreUtils";
 import { calculateYearStatistics } from "@/utils/statistics/yearStatistics";
 
+// Define an interface for our extended array with averageScores
+interface ExtendedBrandDataArray extends Array<BrandData> {
+  averageScores?: Map<string, Map<number, number>>;
+  countryYearStats?: Map<string, Map<number, { mean: number; stdDev: number }>>;
+}
+
 export const useChartData = (selectedCountry: string, selectedBrands: string[]) => {
   return useQuery({
     queryKey: ["scores", selectedCountry, selectedBrands],
     queryFn: async () => {
-      if (!selectedCountry || selectedBrands.length === 0) return [];
+      if (!selectedCountry || selectedBrands.length === 0) return [] as ExtendedBrandDataArray;
       
       console.log("Fetching chart data for country:", selectedCountry, "and brands:", selectedBrands);
       
@@ -85,7 +91,8 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
           }
         });
         
-        const finalData = Array.from(uniqueEntries.values());
+        // Cast to our extended array type
+        const finalData = Array.from(uniqueEntries.values()) as ExtendedBrandDataArray;
         
         // Calculate country-year statistics for standardization using ALL market data
         const marketDataObj = { [selectedCountry]: marketData || [] };
@@ -113,7 +120,7 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         // If no data is found, return an empty array
         if (finalData.length === 0) {
           console.warn("No chart data found for the selected brands and country.");
-          return [];
+          return [] as ExtendedBrandDataArray;
         }
         
         // Check if we have 2025 data for each selected brand
@@ -147,11 +154,11 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
           })
           .filter(Boolean);
         
-        // Combine actual data with any needed projections
-        return [...finalData, ...projectedData] as BrandData[];
+        // Combine actual data with any needed projections and cast to our extended type
+        return [...finalData, ...projectedData] as ExtendedBrandDataArray;
       } catch (err) {
         console.error("Exception in chart data query:", err);
-        return [];
+        return [] as ExtendedBrandDataArray;
       }
     },
     enabled: !!selectedCountry && selectedBrands.length > 0

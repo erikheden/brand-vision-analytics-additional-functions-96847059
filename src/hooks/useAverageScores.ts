@@ -6,11 +6,16 @@ export interface YearlyAverage {
   average: number;
 }
 
+// Define interface for chart data with averageScores property
+interface ChartDataWithAverages extends Array<any> {
+  averageScores?: Map<string, Map<number, number>>;
+}
+
 /**
  * Extract yearly average scores from chart data
  */
 export const useAverageScores = (
-  chartData: any[],
+  chartData: ChartDataWithAverages,
   country: string,
   standardized: boolean // kept for API compatibility but ignored
 ): YearlyAverage[] => {
@@ -22,7 +27,7 @@ export const useAverageScores = (
     }
     
     // Get the averageScores property from chartData
-    const averageScores = (chartData as any).averageScores;
+    const averageScores = chartData.averageScores;
     
     if (!averageScores || typeof averageScores.get !== 'function') {
       console.log("No valid average scores property found in chart data");

@@ -7,6 +7,7 @@ import { processChartData } from "@/utils/chartDataUtils";
  */
 interface ScoresArray extends Array<any> {
   averageScores?: Map<string, Map<number, number>>;
+  countryYearStats?: Map<string, Map<number, { mean: number; stdDev: number }>>;
 }
 
 /**
@@ -16,7 +17,7 @@ export const useProcessedChartData = (
   scores: ScoresArray, 
   standardized: boolean = false // Kept for compatibility, but will be ignored
 ) => {
-  const [processedData, setProcessedData] = useState<any[]>([]);
+  const [processedData, setProcessedData] = useState<ScoresArray>([]);
   
   // Process chart data when scores change
   useEffect(() => {
@@ -39,7 +40,7 @@ export const useProcessedChartData = (
       }
       
       // Always use non-standardized processing (ignore standardized parameter)
-      const data = processChartData(scores, false);
+      const data = processChartData(scores, false) as ScoresArray;
       console.log("Processed data sample:", data.slice(0, 3));
       
       // Copy metadata to processed data for access in child components
