@@ -68,7 +68,8 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
  * Create a tooltip formatter function that displays brand scores
  */
 export const createTooltipFormatter = (standardized: boolean, averageScore: number | null) => {
-  return function(this: Highcharts.TooltipFormatterCallbackFunction['this']) {
+  // Fix: Define the type with the correct context type
+  return function(this: Highcharts.TooltipFormatterContextObject) {
     if (!this.points) return '';
     
     const sortedPoints = [...this.points].sort((a, b) => 
