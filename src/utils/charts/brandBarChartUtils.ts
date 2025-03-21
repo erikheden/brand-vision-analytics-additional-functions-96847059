@@ -131,7 +131,7 @@ export const prepareSeriesData = (
   selectedBrands: string[], 
   chartConfig: any
 ) => {
-  return selectedBrands
+  const seriesItems = selectedBrands
     .map(brand => {
       const brandData = data.find(d => d[brand] !== undefined && d[brand] !== null);
       if (!brandData) return null;
@@ -144,4 +144,7 @@ export const prepareSeriesData = (
       };
     })
     .filter(item => item !== null);
+    
+  // Sort the items by value, high to low
+  return seriesItems.sort((a, b) => (b?.y ?? 0) - (a?.y ?? 0));
 };

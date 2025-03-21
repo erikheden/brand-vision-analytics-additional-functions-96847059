@@ -33,7 +33,7 @@ const BrandBarChartContent: React.FC<BrandBarChartContentProps> = ({
   const baseOptions = createBarChartOptions(FONT_FAMILY);
   const dataToUse = chartData.filter(point => point.year === displayYear);
 
-  // Create the series data
+  // Create the series data (now sorted high to low)
   const seriesData = prepareSeriesData(dataToUse, selectedBrands, chartConfig);
 
   // Create the y-axis configuration
