@@ -1,4 +1,3 @@
-
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { createTooltipFormatter } from "@/components/ChartTooltip";
@@ -89,7 +88,7 @@ export const BarChartContent = ({
       plotLines: standardized ? [{
         value: 0,
         color: '#666',
-        dashStyle: 'Dash' as Highcharts.DashStyleValue, // Fix: Use type assertion to valid DashStyleValue
+        dashStyle: 'Dash' as Highcharts.DashStyleValue,
         width: 1
       }] : undefined
     },

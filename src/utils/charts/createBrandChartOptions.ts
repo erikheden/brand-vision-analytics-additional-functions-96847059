@@ -1,4 +1,3 @@
-
 import Highcharts from 'highcharts';
 import { createChartOptions } from '@/utils/chartConfigs';
 import { FONT_FAMILY } from '@/utils/constants';
@@ -94,7 +93,7 @@ export const createBrandChartOptions = (
     chart: {
       ...baseOptions.chart,
       type: 'line',
-      backgroundColor: '#ffffff', // Changed from #f5f5f5 to white
+      backgroundColor: '#ffffff',
     },
     title: {
       text: standardized ? 'Standardized Brand Score Trends' : 'Brand Score Trends',

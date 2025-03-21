@@ -1,4 +1,3 @@
-
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { ChartContainer } from "@/components/ui/chart";
@@ -52,10 +51,10 @@ const BrandChart = ({ chartData, selectedBrands, yearRange, chartConfig, standar
       value: 0,
       color: '#666',
       width: 1,
-      dashStyle: 'Dash' as Highcharts.DashStyleValue, // Fix: Use type assertion to valid DashStyleValue
+      dashStyle: 'Dash' as Highcharts.DashStyleValue,
       label: {
         text: 'Market Average',
-        align: 'right',
+        align: 'right' as Highcharts.AlignValue,
         style: {
           fontStyle: 'italic',
           color: '#666'
