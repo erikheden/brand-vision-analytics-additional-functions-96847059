@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
 import { calculateYearRange, createChartConfig } from "@/utils/chartDataUtils";
 import { useProcessedChartData } from "@/hooks/useProcessedChartData";
-import StandardizedToggle from "./StandardizedToggle";
 import EmptyChartState from "./EmptyChartState";
 import TrendComparisonContainer from "./TrendComparisonContainer";
 import LineChartDisplay from "./LineChartDisplay";
@@ -19,7 +18,8 @@ const ChartSection = ({
   selectedCountry,
   selectedBrands
 }: ChartSectionProps) => {
-  const [standardized, setStandardized] = useState(false);
+  // Always set standardized to false since we're removing that functionality
+  const standardized = false;
   
   const {
     data: scores = [],
@@ -41,13 +41,9 @@ const ChartSection = ({
       </Card>;
   }
 
-  // Check if average scores data is available for better standardization
+  // Check if average scores data is available for averages line
   const averageScores = (scores as any).averageScores;
   const hasAverageScores = averageScores && averageScores.size > 0;
-  
-  if (standardized && !hasAverageScores) {
-    console.warn("Standardized view requested but no average scores available");
-  }
 
   const years = calculateYearRange(scores);
   // Create a yearRange object compatible with BrandChart's expected format
@@ -64,12 +60,6 @@ const ChartSection = ({
         scores={scores} 
         selectedBrands={selectedBrands} 
         comparisonYear={2025} 
-      />
-      
-      {/* Standardized toggle */}
-      <StandardizedToggle 
-        standardized={standardized} 
-        onToggle={setStandardized} 
       />
       
       {/* Bar Chart */}

@@ -23,7 +23,7 @@ export const createTooltipFormatter = (standardized: boolean, yearlyAverages: {y
     
     // Find average for this year if available
     let averageForYear: number | null = null;
-    if (!standardized && yearlyAverages.length > 0) {
+    if (yearlyAverages.length > 0) {
       const yearAverage = yearlyAverages.find(item => item.year === pointYear);
       if (yearAverage) {
         averageForYear = yearAverage.average;
@@ -32,16 +32,14 @@ export const createTooltipFormatter = (standardized: boolean, yearlyAverages: {y
     
     let pointsHtml = points.map(point => {
       // Skip the average line in the individual points section
-      if (point.series.name === 'Country Average') return '';
+      if (point.series.name === 'Market Average') return '';
       
       const color = point.series.color;
-      const value = standardized ? 
-        `${point.y?.toFixed(2)} SD` : 
-        point.y?.toFixed(2);
+      const value = point.y?.toFixed(2);
       
       // Add difference from average if available
       let diffText = '';
-      if (!standardized && averageForYear !== null && point.series.name !== 'Country Average') {
+      if (averageForYear !== null && point.series.name !== 'Market Average') {
         const diff = (point.y as number) - averageForYear;
         diffText = `<span style="font-size: 0.85em; margin-left: 5px; color: ${diff >= 0 ? '#34502b' : '#b74134'}">(${diff >= 0 ? '+' : ''}${diff.toFixed(2)})</span>`;
       }
@@ -56,11 +54,11 @@ export const createTooltipFormatter = (standardized: boolean, yearlyAverages: {y
     }).join('');
     
     // Add average line info if available
-    if (!standardized && averageForYear !== null) {
+    if (averageForYear !== null) {
       pointsHtml = `
         <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0; border-top: 1px dotted #34502b; padding-top: 4px;">
           <div style="width: 10px; height: 1px; background-color: #34502b; border-radius: 0;"></div>
-          <span style="color: #34502b; font-style: italic;">Country Average:</span>
+          <span style="color: #34502b; font-style: italic;">Market Average:</span>
           <span style="font-weight: bold; color: #34502b;">${averageForYear.toFixed(2)}</span>
         </div>
       ` + pointsHtml;
@@ -83,7 +81,7 @@ export const createTooltipFormatter = (standardized: boolean, yearlyAverages: {y
 export const createBrandChartOptions = (
   yearRange: { earliest: number; latest: number },
   series: Highcharts.SeriesOptionsType[],
-  standardized: boolean,
+  standardized: boolean, // Kept for API compatibility but ignored
   yearlyAverages: {year: number, average: number}[]
 ): Highcharts.Options => {
   const baseOptions = createChartOptions(FONT_FAMILY);
@@ -97,7 +95,7 @@ export const createBrandChartOptions = (
       backgroundColor: '#ffffff',
     },
     title: {
-      text: standardized ? 'Standardized Brand Score Trends' : 'Brand Score Trends',
+      text: 'Brand Score Trends',
       style: {
         color: '#34502b',
         fontFamily: FONT_FAMILY
@@ -106,7 +104,7 @@ export const createBrandChartOptions = (
     yAxis: {
       ...baseOptions.yAxis,
       title: {
-        text: standardized ? 'Standardized Score' : 'Score',
+        text: 'Score',
         style: {
           color: '#34502b',
           fontFamily: FONT_FAMILY
@@ -116,26 +114,9 @@ export const createBrandChartOptions = (
         style: {
           color: '#34502b',
           fontFamily: FONT_FAMILY
-        },
-        // Only apply sigma format for standardized view
-        format: standardized ? '{value}σ' : undefined
-      },
-      gridLineColor: 'rgba(52, 80, 43, 0.1)',
-      // Only add the plot line in standardized view
-      plotLines: standardized ? [{
-        value: 0,
-        color: '#666',
-        width: 1,
-        dashStyle: 'Dash' as Highcharts.DashStyleValue,
-        label: {
-          text: 'Market Average',
-          align: 'right' as Highcharts.AlignValue,
-          style: {
-            fontStyle: 'italic',
-            color: '#666'
-          }
         }
-      }] : undefined
+      },
+      gridLineColor: 'rgba(52, 80, 43, 0.1)'
     },
     xAxis: {
       ...baseOptions.xAxis,
@@ -154,7 +135,7 @@ export const createBrandChartOptions = (
     tooltip: {
       shared: true,
       useHTML: true,
-      formatter: createTooltipFormatter(standardized, yearlyAverages)
+      formatter: createTooltipFormatter(false, yearlyAverages)
     },
     series
   };

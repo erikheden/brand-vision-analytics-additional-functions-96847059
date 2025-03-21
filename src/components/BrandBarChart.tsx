@@ -8,7 +8,7 @@ interface BrandBarChartProps {
   chartData: any[];
   selectedBrands: string[];
   chartConfig: any;
-  standardized: boolean;
+  standardized: boolean; // Kept for API compatibility but always treated as false
   latestYear?: number;
   marketDataCount?: string | number;
 }
@@ -17,7 +17,7 @@ const BrandBarChart = ({
   chartData, 
   selectedBrands, 
   chartConfig, 
-  standardized, 
+  standardized, // Always treated as false
   latestYear = 2025,
   marketDataCount = 0
 }: BrandBarChartProps) => {
@@ -31,7 +31,7 @@ const BrandBarChart = ({
   } = useBrandBarChartData({
     chartData,
     latestYear,
-    standardized
+    standardized: false // Always pass false here
   });
 
   // Log the use of market average
@@ -45,7 +45,7 @@ const BrandBarChart = ({
         chartData={dataToUse.length > 0 ? dataToUse : chartData}
         selectedBrands={selectedBrands}
         chartConfig={chartConfig}
-        standardized={standardized}
+        standardized={false}
         displayYear={displayYear}
         averageScore={averageScore}
         marketDataCount={marketDataCount}

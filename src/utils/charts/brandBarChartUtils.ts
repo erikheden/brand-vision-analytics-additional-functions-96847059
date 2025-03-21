@@ -8,7 +8,7 @@ import { FONT_FAMILY } from '@/utils/constants';
 export const createYAxisConfig = (standardized: boolean, averageScore: number | null) => {
   const yAxisConfig: Highcharts.YAxisOptions = {
     title: {
-      text: standardized ? 'Standardized Score (σ)' : 'Score',
+      text: 'Score',
       style: {
         color: '#34502b',
         fontFamily: FONT_FAMILY
@@ -18,41 +18,15 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
       style: {
         color: '#34502b',
         fontFamily: FONT_FAMILY
-      },
-      // Only apply format for standardized view
-      format: standardized ? '{value:.1f}σ' : undefined
+      }
     },
     gridLineColor: 'rgba(52, 80, 43, 0.1)'
   };
 
-  // For standardized view, always use fixed domain of [-3, 3]
-  if (standardized) {
-    yAxisConfig.min = -3;
-    yAxisConfig.max = 3;
-  }
-
-  // Add plot line for average if available
-  if (!standardized && averageScore !== null) {
+  // Add plot line for market average if available
+  if (averageScore !== null) {
     yAxisConfig.plotLines = [{
       value: averageScore,
-      color: '#34502b',
-      dashStyle: 'Dash' as Highcharts.DashStyleValue,
-      width: 1,
-      label: {
-        text: 'Selection Average',
-        align: 'right' as Highcharts.AlignValue,
-        style: {
-          color: '#34502b',
-          fontFamily: FONT_FAMILY,
-          fontStyle: 'italic'
-        }
-      },
-      zIndex: 5
-    }];
-  } else if (standardized) {
-    // Add zero line for standardized view (indicating market average)
-    yAxisConfig.plotLines = [{
-      value: 0,
       color: '#34502b',
       dashStyle: 'Dash' as Highcharts.DashStyleValue,
       width: 1,
@@ -68,7 +42,7 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
       zIndex: 5
     }];
   } else {
-    // Ensure no plot lines for regular view without average
+    // Ensure no plot lines when no average is available
     yAxisConfig.plotLines = undefined;
   }
 
@@ -97,13 +71,11 @@ export const createTooltipFormatter = (standardized: boolean, averageScore: numb
 
     const pointsHtml = sortedPoints.map(point => {
       const color = point.series.color;
-      const value = standardized ? 
-        `${point.y?.toFixed(2)}σ` : 
-        point.y?.toFixed(2);
+      const value = point.y?.toFixed(2);
       
-      // Add comparison to average if available and not in standardized mode
+      // Add comparison to average if available
       let comparisonHtml = '';
-      if (!standardized && averageScore !== null && point.y !== null) {
+      if (averageScore !== null && point.y !== null) {
         const diff = point.y - averageScore;
         const diffText = diff >= 0 ? `+${diff.toFixed(2)}` : `${diff.toFixed(2)}`;
         const diffColor = diff >= 0 ? '#34802b' : '#c44';
@@ -119,22 +91,13 @@ export const createTooltipFormatter = (standardized: boolean, averageScore: numb
       `;
     }).join('');
 
-    // Add average line info if available and not in standardized mode
+    // Add average line info if available
     let averageHtml = '';
-    if (!standardized && averageScore !== null) {
+    if (averageScore !== null) {
       averageHtml = `
         <div style="margin-top: 8px; padding-top: 4px; border-top: 1px dotted #34502b;">
-          <span style="color: #34502b; font-style: italic;">Selection Average:</span>
+          <span style="color: #34502b; font-style: italic;">Market Average:</span>
           <span style="font-weight: bold; color: #34502b; margin-left: 5px;">${averageScore.toFixed(2)}</span>
-        </div>
-      `;
-    } else if (standardized) {
-      averageHtml = `
-        <div style="margin-top: 8px; padding-top: 4px; border-top: 1px dotted #34502b;">
-          <span style="color: #34502b; font-style: italic;">Market Average (0σ)</span>
-          <span style="font-size: 0.8em; display: block; color: #666; margin-top: 2px;">
-            Values show standard deviations from market average
-          </span>
         </div>
       `;
     }
@@ -154,13 +117,11 @@ export const createTooltipFormatter = (standardized: boolean, averageScore: numb
  */
 export const createChartTitle = (
   year: number, 
-  standardized: boolean,
+  standardized: boolean, // Kept for API compatibility but ignored
   marketDataCount: string | number = 0
 ) => {
-  const standardizedText = standardized ? 'Standardized ' : '';
   const marketCountText = marketDataCount ? ` (${marketDataCount})` : '';
-  
-  return `${standardizedText}Brand Performance ${year}${marketCountText}`;
+  return `Brand Performance ${year}${marketCountText}`;
 };
 
 /**

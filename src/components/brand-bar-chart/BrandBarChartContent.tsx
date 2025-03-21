@@ -15,7 +15,7 @@ interface BrandBarChartContentProps {
   chartData: any[];
   selectedBrands: string[];
   chartConfig: any;
-  standardized: boolean;
+  standardized: boolean; // Kept for API compatibility but ignored
   displayYear: number;
   averageScore: number | null;
   marketDataCount?: string | number;
@@ -25,7 +25,7 @@ const BrandBarChartContent: React.FC<BrandBarChartContentProps> = ({
   chartData,
   selectedBrands,
   chartConfig,
-  standardized,
+  standardized, // Always treated as false
   displayYear,
   averageScore,
   marketDataCount = 0
@@ -37,10 +37,10 @@ const BrandBarChartContent: React.FC<BrandBarChartContentProps> = ({
   const seriesData = prepareSeriesData(dataToUse, selectedBrands, chartConfig);
 
   // Create the y-axis configuration with proper market average handling
-  const yAxisConfig = createYAxisConfig(standardized, averageScore);
+  const yAxisConfig = createYAxisConfig(false, averageScore);
 
   // Create the chart title with appropriate market data indicator
-  const titleText = createChartTitle(displayYear, standardized, marketDataCount);
+  const titleText = createChartTitle(displayYear, false, marketDataCount);
 
   // Create the chart options
   const options: Highcharts.Options = {
@@ -73,7 +73,7 @@ const BrandBarChartContent: React.FC<BrandBarChartContentProps> = ({
       enabled: false
     },
     tooltip: {
-      formatter: createTooltipFormatter(standardized, averageScore),
+      formatter: createTooltipFormatter(false, averageScore),
       backgroundColor: 'white',
       style: {
         color: '#34502b',

@@ -10,7 +10,7 @@ interface BrandChartProps {
   selectedBrands: string[];
   yearRange: { earliest: number; latest: number };
   chartConfig: any;
-  standardized: boolean;
+  standardized: boolean; // Kept for API compatibility but will be ignored
 }
 
 const BrandChart = ({ 
@@ -18,7 +18,7 @@ const BrandChart = ({
   selectedBrands, 
   yearRange, 
   chartConfig, 
-  standardized 
+  standardized  // Always treated as false
 }: BrandChartProps) => {
   // Get country from the first data point (all points should have same country)
   const country = chartData.length > 0 && chartData[0].country 
@@ -26,7 +26,7 @@ const BrandChart = ({
     : '';
   
   // Use the hook to extract yearly averages
-  const yearlyAverages = useAverageScores(chartData, country, standardized);
+  const yearlyAverages = useAverageScores(chartData, country, false);
   
   // Create series for the brands
   const brandSeries = createBrandSeries(chartData, selectedBrands, chartConfig);
@@ -34,7 +34,7 @@ const BrandChart = ({
   // Create and add the average score series if available
   const series = [...brandSeries];
   
-  if (!standardized && yearlyAverages.length > 0) {
+  if (yearlyAverages.length > 0) {
     const averageSeries = createAverageScoreSeries(yearlyAverages);
     if (averageSeries) {
       // Push to series after type assertion
@@ -47,7 +47,7 @@ const BrandChart = ({
       <BrandChartContent
         yearRange={yearRange}
         series={series}
-        standardized={standardized}
+        standardized={false}
         yearlyAverages={yearlyAverages}
       />
     </ChartContainer>

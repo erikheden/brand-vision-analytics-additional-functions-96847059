@@ -3,7 +3,6 @@
 import { getAverageScore } from "@/utils/countryComparison/averageScoreUtils";
 import { BrandData } from "@/types/brand";
 import { MultiCountryData } from "@/hooks/useMultiCountryChartData";
-import { standardizeScore } from "@/utils/countryChartDataUtils";
 
 export interface ProcessedBarDataPoint {
   brand: string;
@@ -26,7 +25,7 @@ export interface ChartDataPoint {
 export const processBarChartData = (
   allCountriesData: MultiCountryData,
   selectedBrands: string[],
-  standardized: boolean,
+  standardized: boolean, // Kept for API compatibility but ignored
   countryYearStats?: Map<string, Map<number, { mean: number; stdDev: number; count: number }>>,
   marketData?: MultiCountryData
 ): ProcessedBarDataPoint[] => {
@@ -34,11 +33,6 @@ export const processBarChartData = (
   
   // Get average scores if available
   const averageScores = (allCountriesData as any).averageScores;
-  const hasAverageScores = averageScores && averageScores.size > 0;
-  
-  if (standardized && !hasAverageScores && !countryYearStats) {
-    console.warn("Standardization requested but no statistics available in bar chart data");
-  }
   
   // Simplify common data determination
   const targetYear = 2025; // Using 2025 as the default target year
@@ -65,49 +59,8 @@ export const processBarChartData = (
       
       // Get raw score
       const rawScore = Number(latestData.Score);
-      
-      // Calculate standardized score if needed
-      let score = rawScore;
-      let year = Number(latestData.Year);
-      
-      if (standardized) {
-        // Try to use country-year statistics from market data first
-        let standardizedValue = null;
-        
-        if (countryYearStats && countryYearStats.has(country)) {
-          const yearStats = countryYearStats.get(country);
-          if (yearStats && yearStats.has(year)) {
-            const stats = yearStats.get(year);
-            if (stats && stats.count >= 2 && stats.stdDev > 0) {
-              standardizedValue = standardizeScore(rawScore, stats.mean, stats.stdDev);
-              if (standardizedValue !== null) {
-                score = standardizedValue;
-                console.log(`Bar chart: Standardized score for ${brand}/${country}/${year} using market stats: ${score.toFixed(2)} (raw=${rawScore.toFixed(2)}, mean=${stats.mean.toFixed(2)}, stdDev=${stats.stdDev.toFixed(2)})`);
-              }
-            }
-          }
-        }
-        
-        // Fall back to average scores if market statistics aren't available
-        if (standardizedValue === null && hasAverageScores) {
-          // Get average score from the official "SBI Average Scores" table
-          const averageScore = getAverageScore(averageScores, country, year);
-          
-          if (averageScore !== null) {
-            // Calculate standard deviation as a percentage of average
-            const estimatedStdDev = Math.max(averageScore * 0.15, 1); // Using 15% of average as stdDev estimate
-            
-            // Use the standardizeScore utility for consistent standardization
-            standardizedValue = standardizeScore(rawScore, averageScore, estimatedStdDev);
-            if (standardizedValue !== null) {
-              score = standardizedValue;
-              console.log(`Bar chart: Standardized score for ${brand}/${country}/${year} using average: ${score.toFixed(2)} (raw=${rawScore.toFixed(2)}, avg=${averageScore.toFixed(2)})`);
-            }
-          } else {
-            console.warn(`No average score found for ${country}/${year}, using raw score`);
-          }
-        }
-      }
+      const score = rawScore; // Always use raw score (no standardization)
+      const year = Number(latestData.Year);
       
       // Add to processed data
       processedData.push({
