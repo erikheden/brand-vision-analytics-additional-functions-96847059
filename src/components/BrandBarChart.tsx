@@ -1,10 +1,8 @@
-import Highcharts from 'highcharts';
-import HighchartsReact from 'highcharts-react-official';
+
+import React from 'react';
 import { ChartContainer } from "@/components/ui/chart";
-import { createBarChartOptions } from '@/utils/chartConfigs';
-import { BAR_COLOR, FONT_FAMILY } from '@/utils/constants';
-import { useEffect, useState } from 'react';
-import { getAverageScore } from '@/utils/countryComparison/averageScoreUtils';
+import { useBrandBarChartData } from '@/hooks/useBrandBarChartData';
+import BrandBarChartContent from './brand-bar-chart/BrandBarChartContent';
 
 interface BrandBarChartProps {
   chartData: any[];
@@ -23,193 +21,28 @@ const BrandBarChart = ({
   latestYear = 2025,
   marketDataCount = 0
 }: BrandBarChartProps) => {
-  const baseOptions = createBarChartOptions(FONT_FAMILY);
-  const [averageScore, setAverageScore] = useState<number | null>(null);
-  
-  const data2025 = chartData.filter(point => point.year === 2025);
-  const dataToUse = data2025.length > 0 
-    ? data2025 
-    : chartData.length > 0 
-      ? [chartData.reduce((latest, current) => 
-          latest.year > current.year ? latest : current, chartData[0])] 
-      : [];
-      
-  const displayYear = dataToUse[0]?.year || latestYear;
-  const isProjected = dataToUse[0]?.Projected;
-  const country = dataToUse[0]?.country || '';
-  
-  console.log("Using data year for bar chart:", displayYear, "Projected:", isProjected);
-  console.log("Bar chart data:", dataToUse);
-  
-  useEffect(() => {
-    if (chartData.length > 0 && !standardized) {
-      const averageScores = (chartData as any).averageScores;
-      if (averageScores && country) {
-        const countryAvg = getAverageScore(averageScores, country, displayYear);
-        setAverageScore(countryAvg);
-        console.log(`Bar chart average score for ${country}/${displayYear}:`, countryAvg);
-      } else {
-        setAverageScore(null);
-      }
-    } else {
-      setAverageScore(null);
-    }
-  }, [chartData, country, displayYear, standardized]);
-  
-  const seriesData = selectedBrands.map(brand => {
-    const scoreValue = dataToUse[0]?.[brand] || 0;
-    console.log(`Brand ${brand} score: ${scoreValue}`);
-    return {
-      name: brand,
-      y: scoreValue,
-      color: chartConfig[brand]?.color || BAR_COLOR
-    };
-  }).sort((a, b) => b.y - a.y);
-
-  const yAxisConfig = standardized ? {
-    title: {
-      text: 'Standard Deviations from Market Mean',
-      style: {
-        color: '#34502b',
-        fontFamily: FONT_FAMILY,
-      }
-    },
-    labels: {
-      format: '{value}σ',
-      style: {
-        color: '#34502b',
-        fontFamily: FONT_FAMILY,
-      }
-    },
-    plotLines: [{
-      value: 0,
-      color: '#34502b',
-      dashStyle: 'Dash' as Highcharts.DashStyleValue,
-      width: 1.5,
-      label: {
-        text: 'Market Average',
-        align: 'right' as Highcharts.AlignValue,
-        style: {
-          color: '#34502b',
-          fontFamily: FONT_FAMILY,
-          fontStyle: 'italic'
-        }
-      },
-      zIndex: 5
-    }]
-  } : {
-    title: {
-      text: 'Score',
-      style: {
-        color: '#34502b',
-        fontFamily: FONT_FAMILY,
-      }
-    },
-    labels: {
-      style: {
-        color: '#34502b',
-        fontFamily: FONT_FAMILY,
-      }
-    },
-    plotLines: averageScore ? [{
-      value: averageScore,
-      color: '#34502b',
-      dashStyle: 'Dash' as Highcharts.DashStyleValue,
-      width: 1.5,
-      label: {
-        text: `Country Average: ${averageScore.toFixed(2)}`,
-        align: 'right' as Highcharts.AlignValue,
-        style: {
-          color: '#34502b',
-          fontFamily: FONT_FAMILY,
-          fontStyle: 'italic'
-        }
-      },
-      zIndex: 5
-    }] : undefined
-  };
-
-  const marketComparisonText = typeof marketDataCount === 'string'
-    ? marketDataCount
-    : marketDataCount > 0 
-      ? `vs ${marketDataCount} brands` 
-      : 'Market Standardized';
-
-  const titleText = standardized 
-    ? `${displayYear} Market-Relative Brand Scores (${marketComparisonText})`
-    : `${displayYear} Brand Scores Comparison`;
-
-  const options: Highcharts.Options = {
-    ...baseOptions,
-    chart: {
-      ...baseOptions.chart,
-      type: 'column',
-      backgroundColor: 'white',
-    },
-    title: {
-      text: titleText,
-      style: {
-        color: '#34502b',
-        fontFamily: FONT_FAMILY
-      }
-    },
-    yAxis: {
-      ...baseOptions.yAxis,
-      ...yAxisConfig,
-      gridLineColor: 'rgba(52, 80, 43, 0.1)',
-    },
-    xAxis: {
-      type: 'category',
-      labels: {
-        style: {
-          color: '#34502b',
-          fontFamily: FONT_FAMILY,
-        }
-      },
-      lineColor: '#34502b',
-      gridLineColor: 'rgba(52, 80, 43, 0.1)'
-    },
-    legend: {
-      enabled: false
-    },
-    tooltip: {
-      formatter: function() {
-        if (standardized) {
-          const value = `${this.y?.toFixed(2)}σ`;
-          return `<b>${this.key}</b>: ${value} from market average`;
-        } else {
-          let tooltipText = `<b>${this.key}</b>: ${this.y?.toFixed(2)}`;
-          
-          if (averageScore !== null) {
-            const diff = (this.y as number) - averageScore;
-            const diffText = diff >= 0 ? `+${diff.toFixed(2)}` : `${diff.toFixed(2)}`;
-            tooltipText += `<br/><span style="font-size: 0.9em; font-style: italic;">Difference from average: ${diffText}</span>`;
-          }
-          
-          return tooltipText;
-        }
-      },
-      backgroundColor: 'white',
-      style: {
-        color: '#34502b',
-        fontFamily: FONT_FAMILY
-      }
-    },
-    series: [{
-      type: 'column',
-      name: 'Score',
-      data: seriesData
-    }]
-  };
+  // Use our custom hook to handle data processing and state
+  const {
+    dataToUse,
+    displayYear,
+    averageScore
+  } = useBrandBarChartData({
+    chartData,
+    latestYear,
+    standardized
+  });
 
   return (
     <ChartContainer config={chartConfig} className="h-[400px] w-full">
-      <div>
-        <HighchartsReact
-          highcharts={Highcharts}
-          options={options}
-        />
-      </div>
+      <BrandBarChartContent
+        chartData={dataToUse.length > 0 ? dataToUse : chartData}
+        selectedBrands={selectedBrands}
+        chartConfig={chartConfig}
+        standardized={standardized}
+        displayYear={displayYear}
+        averageScore={averageScore}
+        marketDataCount={marketDataCount}
+      />
     </ChartContainer>
   );
 };
