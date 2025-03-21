@@ -1,3 +1,4 @@
+
 import Highcharts from 'highcharts';
 import { FONT_FAMILY } from '@/utils/constants';
 
@@ -7,7 +8,7 @@ import { FONT_FAMILY } from '@/utils/constants';
 export const createYAxisConfig = (standardized: boolean, averageScore: number | null) => {
   const yAxisConfig: Highcharts.YAxisOptions = {
     title: {
-      text: standardized ? 'Standardized Score' : 'Score',
+      text: standardized ? 'Standardized Score (σ)' : 'Score',
       style: {
         color: '#34502b',
         fontFamily: FONT_FAMILY
@@ -32,7 +33,7 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
       dashStyle: 'Dash' as Highcharts.DashStyleValue,
       width: 1,
       label: {
-        text: 'Country Average',
+        text: 'Market Average',
         align: 'right' as Highcharts.AlignValue,
         style: {
           color: '#34502b',
@@ -94,19 +95,40 @@ export const createTooltipFormatter = (standardized: boolean, averageScore: numb
         `${point.y?.toFixed(2)}σ` : 
         point.y?.toFixed(2);
       
+      // Add comparison to average if available and not in standardized mode
+      let comparisonHtml = '';
+      if (!standardized && averageScore !== null && point.y !== null) {
+        const diff = point.y - averageScore;
+        const diffText = diff >= 0 ? `+${diff.toFixed(2)}` : `${diff.toFixed(2)}`;
+        const diffColor = diff >= 0 ? '#34802b' : '#c44';
+        comparisonHtml = `<span style="margin-left: 5px; color: ${diffColor};">(${diffText})</span>`;
+      }
+      
       return `
         <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
           <div style="width: 10px; height: 10px; background-color: ${color}; border-radius: 50%;"></div>
           <span style="color: #34502b;">${point.series.name}:</span>
-          <span style="font-weight: bold; color: #34502b;">${value}</span>
+          <span style="font-weight: bold; color: #34502b;">${value}${comparisonHtml}</span>
         </div>
       `;
     }).join('');
+
+    // Add average line info if available and not in standardized mode
+    let averageHtml = '';
+    if (!standardized && averageScore !== null) {
+      averageHtml = `
+        <div style="margin-top: 8px; padding-top: 4px; border-top: 1px dotted #34502b;">
+          <span style="color: #34502b; font-style: italic;">Market Average:</span>
+          <span style="font-weight: bold; color: #34502b; margin-left: 5px;">${averageScore.toFixed(2)}</span>
+        </div>
+      `;
+    }
 
     return `
       <div style="font-family: '${FONT_FAMILY}'; padding: 8px; background: white; border-radius: 4px;">
         <div style="font-weight: bold; margin-bottom: 8px; color: #34502b;">${tooltipContext.x}</div>
         ${pointsHtml}
+        ${averageHtml}
       </div>
     `;
   };

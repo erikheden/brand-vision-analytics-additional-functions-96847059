@@ -1,4 +1,3 @@
-
 // Import the utility for getting average scores
 import { getAverageScore } from "@/utils/countryComparison/averageScoreUtils";
 import { BrandData } from "@/types/brand";
@@ -78,15 +77,11 @@ export const processBarChartData = (
           // Calculate standard deviation as a percentage of average
           const estimatedStdDev = averageScore * 0.15; // Using 15% of average as stdDev estimate
           
-          if (estimatedStdDev > 0) {
-            // Use the standardizeScore utility for consistent standardization
-            const standardizedValue = standardizeScore(rawScore, averageScore, estimatedStdDev);
-            if (standardizedValue !== null) {
-              score = standardizedValue;
-              console.log(`Bar chart: Standardized score for ${brand}/${country}/${year}: ${score.toFixed(2)} (raw=${rawScore}, avg=${averageScore.toFixed(2)})`);
-            }
-          } else {
-            console.warn(`Zero standard deviation for ${country}/${year}, using raw score`);
+          // Use the standardizeScore utility for consistent standardization
+          const standardizedValue = standardizeScore(rawScore, averageScore, estimatedStdDev);
+          if (standardizedValue !== null) {
+            score = standardizedValue;
+            console.log(`Bar chart: Standardized score for ${brand}/${country}/${year}: ${score.toFixed(2)} (raw=${rawScore.toFixed(2)}, avg=${averageScore.toFixed(2)})`);
           }
         } else {
           console.warn(`No average score found for ${country}/${year}, using raw score`);

@@ -87,13 +87,14 @@ export const processLineChartData = (
             // Calculate standard deviation as a percentage of average (simplified approach)
             const estimatedStdDev = averageScore * 0.15; // 15% of average as stdDev estimate
             
-            if (estimatedStdDev > 0) {
-              const standardizedValue = (score - averageScore) / estimatedStdDev;
+            // Use the standardizeScore utility for consistent standardization
+            const standardizedValue = standardizeScore(score, averageScore, estimatedStdDev);
+            if (standardizedValue !== null) {
               finalScore = standardizedValue;
-              console.log(`Standardized score for ${brand}/${country}/${year}: ${standardizedValue.toFixed(2)} (raw=${score}, avg=${averageScore.toFixed(2)})`);
+              console.log(`Line chart: Standardized score for ${brand}/${country}/${year}: ${standardizedValue.toFixed(2)} (raw=${score.toFixed(2)}, avg=${averageScore.toFixed(2)})`);
             }
           } else {
-            console.warn(`No average score found for ${country}/${year}`);
+            console.warn(`No average score found for ${country}/${year}, using raw score`);
           }
         }
         
