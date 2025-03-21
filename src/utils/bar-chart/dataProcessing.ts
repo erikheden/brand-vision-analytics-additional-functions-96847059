@@ -72,6 +72,32 @@ export const processBarChartData = (
         projected: Boolean(latestData.Projected)
       });
     });
+    
+    // Add market average if available
+    if (averageScores && averageScores.has(country)) {
+      const countryAvgs = averageScores.get(country);
+      // Find the latest year with average data
+      const yearsWithAvg = Array.from(countryAvgs.keys()).sort((a, b) => b - a);
+      
+      if (yearsWithAvg.length > 0) {
+        const latestYear = yearsWithAvg[0];
+        const avgScore = countryAvgs.get(latestYear);
+        
+        if (avgScore !== undefined) {
+          // Add market average as a special brand
+          processedData.push({
+            brand: "Market Average",
+            country,
+            score: avgScore,
+            rawScore: avgScore,
+            year: latestYear,
+            projected: false
+          });
+          
+          console.log(`Added market average for ${country}: ${avgScore} (year: ${latestYear})`);
+        }
+      }
+    }
   });
   
   return processedData;

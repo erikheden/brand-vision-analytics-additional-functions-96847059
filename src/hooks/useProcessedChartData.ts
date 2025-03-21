@@ -21,7 +21,7 @@ export const useProcessedChartData = (
       const averageScores = (scores as any).averageScores;
       const hasAverageScores = averageScores && averageScores.size > 0;
       
-      // Always use non-standardized processing
+      // Always use non-standardized processing (ignore standardized parameter)
       const data = processChartData(scores, false);
       console.log("Processed data sample:", data.slice(0, 3));
       
