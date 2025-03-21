@@ -68,11 +68,19 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
  * Create a tooltip formatter function that displays brand scores
  */
 export const createTooltipFormatter = (standardized: boolean, averageScore: number | null) => {
-  // Fix: Use the proper type for the tooltip formatter context
-  return function(this: Highcharts.TooltipFormatterContextObject) {
-    if (!this.points) return '';
+  // Fix: Use a more generic typing approach that works with Highcharts
+  return function(this: any) {
+    const tooltipContext = this as {
+      points?: Array<{
+        y: number | null;
+        series: { name: string; color: string };
+      }>;
+      x?: any;
+    };
     
-    const sortedPoints = [...this.points].sort((a, b) => 
+    if (!tooltipContext.points) return '';
+    
+    const sortedPoints = [...tooltipContext.points].sort((a, b) => 
       ((b.y ?? 0) - (a.y ?? 0)) as number
     );
 
@@ -93,7 +101,7 @@ export const createTooltipFormatter = (standardized: boolean, averageScore: numb
 
     return `
       <div style="font-family: '${FONT_FAMILY}'; padding: 8px; background: white; border-radius: 4px;">
-        <div style="font-weight: bold; margin-bottom: 8px; color: #34502b;">${this.x}</div>
+        <div style="font-weight: bold; margin-bottom: 8px; color: #34502b;">${tooltipContext.x}</div>
         ${pointsHtml}
       </div>
     `;
