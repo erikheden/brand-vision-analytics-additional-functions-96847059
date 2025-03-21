@@ -15,13 +15,25 @@ export const useAverageScores = (
   standardized: boolean // kept for API compatibility but ignored
 ): YearlyAverage[] => {
   return useMemo(() => {
-    // Check if there's an averageScores property attached to the data
-    const averageScores = (chartData as any).averageScores as Map<string, Map<number, number>> | undefined;
-    
-    if (!averageScores || !country) {
-      console.log("No average scores found or no country specified");
+    // Check if there's data and a country specified
+    if (!chartData || chartData.length === 0 || !country) {
+      console.log("No chart data or no country specified");
       return [];
     }
+    
+    // Get the averageScores property from chartData
+    const averageScores = (chartData as any).averageScores as Map<string, Map<number, number>> | undefined;
+    
+    if (!averageScores) {
+      console.log("No average scores property found in chart data");
+      return [];
+    }
+    
+    console.log("Average scores property found:", 
+      Array.from(averageScores.entries()).map(([country, yearMap]) => 
+        `${country}: ${Array.from(yearMap.entries()).length} years`
+      )
+    );
     
     // Try exact match first
     let countryAverages = averageScores.get(country);

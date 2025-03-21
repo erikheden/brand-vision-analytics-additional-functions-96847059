@@ -58,8 +58,8 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
           console.log(`Fetched ${marketData.length} total market data points for standardization`);
         }
         
-        // Fetch average scores for standardization
-        const countryFormats = [selectedCountry, fullCountryName];
+        // Fetch average scores for market average line
+        const countryFormats = [selectedCountry, fullCountryName].filter(Boolean);
         const averageScores = await fetchAverageScores(countryFormats);
         
         console.log("Average scores fetched:", 
@@ -93,16 +93,17 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         
         console.log(`Generated statistics for ${countryYearStats.size} countries with market data`);
         
-        // Store average scores and statistics data for standardization
-        // Attach as non-enumerable properties of the array
+        // Explicitly attach average scores to the array
         Object.defineProperty(finalData, 'averageScores', {
           value: averageScores,
-          enumerable: false
+          enumerable: false,
+          configurable: true
         });
         
         Object.defineProperty(finalData, 'countryYearStats', {
           value: countryYearStats,
-          enumerable: false
+          enumerable: false,
+          configurable: true
         });
         
         // If no data is found, return an empty array

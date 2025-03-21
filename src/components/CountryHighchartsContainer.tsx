@@ -82,6 +82,9 @@ const CountryHighchartsContainer: React.FC<CountryHighchartsContainerProps> = ({
     };
   });
   
+  console.log("Market average series:", marketAverageSeries.length > 0 ? 
+    marketAverageSeries.map(s => s.name) : "None");
+  
   // Combine all series
   const series = [...regularSeries, ...marketAverageSeries];
   

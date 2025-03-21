@@ -56,7 +56,10 @@ export const createBrandSeries = (
 export const createAverageScoreSeries = (
   yearlyAverages: {year: number, average: number}[]
 ): Highcharts.SeriesLineOptions | null => {
-  if (yearlyAverages.length === 0) return null;
+  if (!yearlyAverages || yearlyAverages.length === 0) {
+    console.log("Cannot create market average series: no data provided");
+    return null;
+  }
   
   console.log("Creating market average series with data:", yearlyAverages);
   

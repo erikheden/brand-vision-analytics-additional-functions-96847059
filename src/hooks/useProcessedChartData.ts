@@ -21,6 +21,16 @@ export const useProcessedChartData = (
       const averageScores = (scores as any).averageScores;
       const hasAverageScores = averageScores && averageScores.size > 0;
       
+      if (hasAverageScores) {
+        console.log("Average scores found in raw data:", 
+          Array.from(averageScores.entries()).map(([country, yearMap]) => 
+            `${country}: ${Array.from(yearMap.entries()).length} years`
+          )
+        );
+      } else {
+        console.log("No average scores found in raw data");
+      }
+      
       // Always use non-standardized processing (ignore standardized parameter)
       const data = processChartData(scores, false);
       console.log("Processed data sample:", data.slice(0, 3));
@@ -30,7 +40,8 @@ export const useProcessedChartData = (
         console.log("Attaching average scores to processed data");
         Object.defineProperty(data, 'averageScores', {
           value: averageScores,
-          enumerable: false
+          enumerable: false,
+          configurable: true
         });
       }
       
