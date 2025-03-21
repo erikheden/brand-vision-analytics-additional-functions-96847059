@@ -37,8 +37,8 @@ const BrandSelection = ({
     brands,
     selectedBrands,
     onBrandToggle,
-    onBatchToggle,
-    onClearBrands
+    onClearBrands,
+    onBatchToggle
   );
 
   return (
