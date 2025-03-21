@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -66,6 +67,7 @@ const BrandSelection = ({
     );
     
     if (allVisibleBrandsSelected) {
+      // If all visible brands are selected, deselect them
       const newSelectedBrands = selectedBrands.filter(brand => 
         !currentlyVisibleBrands.has(brand)
       );
@@ -78,9 +80,9 @@ const BrandSelection = ({
         });
       }
     } else {
+      // Select all visible brands regardless of data status
       filteredBrands.forEach(brand => {
-        const info = brandsWithDataInfo[brand];
-        if (!selectedBrands.includes(brand) && (!info || info.hasData)) {
+        if (!selectedBrands.includes(brand)) {
           onBrandToggle(brand, true);
         }
       });
