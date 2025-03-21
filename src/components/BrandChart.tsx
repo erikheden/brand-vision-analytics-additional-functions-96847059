@@ -40,8 +40,7 @@ const BrandChart = ({
     console.log("Adding market average series to BrandChart");
     const averageSeries = createAverageScoreSeries(yearlyAverages);
     if (averageSeries) {
-      // Push to series after type assertion
-      (series as Highcharts.SeriesOptionsType[]).push(averageSeries);
+      series.push(averageSeries as Highcharts.SeriesOptionsType);
     }
   } else {
     console.log("No yearly averages available for market average line");

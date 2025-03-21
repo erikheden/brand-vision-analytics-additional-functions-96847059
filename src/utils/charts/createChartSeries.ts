@@ -71,7 +71,6 @@ export const createAverageScoreSeries = (
     }
   }));
 
-  // Return properly typed series options with enhanced styling for the market average line
   return {
     type: 'line',
     name: 'Market Average',

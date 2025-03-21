@@ -173,7 +173,7 @@ const CountryHighchartsContainer: React.FC<CountryHighchartsContainerProps> = ({
     },
     plotOptions: {
       line: {
-        connectNulls: false, // This is the key change - don't connect over null values
+        connectNulls: false,
       },
       series: {
         marker: {
