@@ -33,7 +33,7 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
       dashStyle: 'Dash' as Highcharts.DashStyleValue,
       width: 1,
       label: {
-        text: 'Market Average',
+        text: 'Selection Average',
         align: 'right' as Highcharts.AlignValue,
         style: {
           color: '#34502b',
@@ -51,7 +51,7 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
       dashStyle: 'Dash' as Highcharts.DashStyleValue,
       width: 1,
       label: {
-        text: 'Market Average',
+        text: 'Selection Average',
         align: 'right' as Highcharts.AlignValue,
         style: {
           color: '#34502b',
@@ -118,7 +118,7 @@ export const createTooltipFormatter = (standardized: boolean, averageScore: numb
     if (!standardized && averageScore !== null) {
       averageHtml = `
         <div style="margin-top: 8px; padding-top: 4px; border-top: 1px dotted #34502b;">
-          <span style="color: #34502b; font-style: italic;">Market Average:</span>
+          <span style="color: #34502b; font-style: italic;">Selection Average:</span>
           <span style="font-weight: bold; color: #34502b; margin-left: 5px;">${averageScore.toFixed(2)}</span>
         </div>
       `;

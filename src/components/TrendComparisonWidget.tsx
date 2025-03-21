@@ -43,19 +43,19 @@ const TrendComparisonWidget = ({
       case 'outperforming':
         return {
           icon: <TrendingUp className="h-5 w-5 text-green-600" />,
-          label: 'Outperforming industry average',
+          label: 'Outperforming selection average',
           color: 'text-green-600'
         };
       case 'underperforming':
         return {
           icon: <TrendingDown className="h-5 w-5 text-amber-600" />,
-          label: 'Below industry average',
+          label: 'Below selection average',
           color: 'text-amber-600'
         };
       case 'average':
         return {
           icon: <Minus className="h-5 w-5 text-gray-600" />,
-          label: 'At industry average',
+          label: 'At selection average',
           color: 'text-gray-600'
         };
       default:
@@ -71,7 +71,7 @@ const TrendComparisonWidget = ({
     <Card className="p-4 bg-white border-2 border-[#34502b]/20 shadow-md hover:shadow-lg transition-all duration-300">
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
-          <div className="text-sm text-gray-500">Industry Comparison ({year})</div>
+          <div className="text-sm text-gray-500">Selection Comparison ({year})</div>
           <div className="font-semibold text-[#34502b]">{brandName}</div>
         </div>
         <TooltipProvider>
@@ -92,7 +92,7 @@ const TrendComparisonWidget = ({
                     <br/>
                     <span className="font-medium">Brand score: {brandScore?.toFixed(2)}</span>
                     <br/>
-                    <span className="font-medium">Industry average: {industryAverage?.toFixed(2)}</span>
+                    <span className="font-medium">Selection average: {industryAverage?.toFixed(2)}</span>
                     {brandsInIndustry > 0 && (
                       <>
                         <br/>
@@ -106,7 +106,7 @@ const TrendComparisonWidget = ({
                         <br/>
                         <span className="font-medium">
                           {performancePercentage > 0 ? '+' : ''}
-                          {performancePercentage.toFixed(2)}% vs. industry
+                          {performancePercentage.toFixed(2)}% vs. selection
                         </span>
                       </>
                     )}
@@ -122,7 +122,7 @@ const TrendComparisonWidget = ({
         <div className="mt-4">
           <div className="flex justify-between text-xs text-gray-500 mb-1">
             <span>0</span>
-            <span>Industry Avg: {industryAverage.toFixed(1)}</span>
+            <span>Selection Avg: {industryAverage.toFixed(1)}</span>
             <span>100</span>
           </div>
           <div className="w-full h-2 bg-gray-200 rounded-full relative">

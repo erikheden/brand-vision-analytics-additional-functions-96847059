@@ -3,13 +3,12 @@ import { useMemo } from 'react';
 import { calculateIndustryAverages } from '@/utils/industry';
 
 /**
- * Hook to calculate industry averages from market data
+ * Hook to calculate selection averages from the selected brands data
  */
 export const useIndustryAverages = (marketData: any[]) => {
-  // Calculate industry averages using ALL brands, completely independent of selected brands
-  // Using useMemo to prevent recalculation on every render
+  // Calculate selection averages using only the selected brands in the dataset
   return useMemo(() => {
-    console.log("Recalculating industry averages with ALL brands");
+    console.log("Calculating selection averages based on selected brands");
     return calculateIndustryAverages(marketData);
   }, [marketData]);  // Only depend on marketData array
 };
