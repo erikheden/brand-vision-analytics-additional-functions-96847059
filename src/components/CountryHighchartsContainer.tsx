@@ -23,8 +23,15 @@ const CountryHighchartsContainer: React.FC<CountryHighchartsContainerProps> = ({
   maxYear,
   standardized
 }) => {
+  // Separate regular lines from market average lines
+  const regularLines = lines.filter(line => !line.name.includes("Market Average"));
+  const marketAverageLines = lines.filter(line => line.name.includes("Market Average"));
+  
+  console.log("Regular lines:", regularLines.length);
+  console.log("Market average lines:", marketAverageLines.length);
+  
   // Create series data for Highcharts with proper typing
-  const series: Highcharts.SeriesOptionsType[] = lines.map(line => {
+  const regularSeries: Highcharts.SeriesOptionsType[] = regularLines.map(line => {
     const seriesData = chartData.map(point => {
       // Only include points that have a non-zero and non-null value
       const value = point[line.dataKey];
@@ -48,6 +55,35 @@ const CountryHighchartsContainer: React.FC<CountryHighchartsContainerProps> = ({
       opacity: line.opacity
     };
   });
+  
+  // Create market average series with special styling
+  const marketAverageSeries: Highcharts.SeriesOptionsType[] = marketAverageLines.map(line => {
+    const seriesData = chartData.map(point => {
+      const value = point[line.dataKey];
+      if (value === null || value === undefined || value === 0) {
+        return [point.year, null];
+      }
+      return [point.year, value];
+    });
+    
+    return {
+      type: 'line' as const,
+      name: line.name,
+      data: seriesData,
+      color: '#34502b',
+      lineWidth: 1.5,
+      dashStyle: 'Dash' as Highcharts.DashStyleValue,
+      marker: {
+        symbol: 'diamond',
+        radius: 3
+      },
+      opacity: 0.8,
+      zIndex: 1
+    };
+  });
+  
+  // Combine all series
+  const series = [...regularSeries, ...marketAverageSeries];
   
   // Configure the Highcharts options
   const options: Highcharts.Options = {

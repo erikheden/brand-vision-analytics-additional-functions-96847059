@@ -22,7 +22,7 @@ export const processLineChartData = (
   console.log("Processing data for line chart with countries:", Object.keys(allCountriesData));
   
   // Get average scores if available
-  const averageScores = (allCountriesData as any).averageScores;
+  const averageScores = (allCountriesData as any).averageScores as Map<string, Map<number, number>> | undefined;
   const hasAverageScores = averageScores && averageScores.size > 0;
   
   // Get country-year statistics if available

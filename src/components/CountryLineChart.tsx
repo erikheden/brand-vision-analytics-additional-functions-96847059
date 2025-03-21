@@ -46,24 +46,42 @@ const CountryLineChart = ({
   // Generate all possible brand-country combinations for the legend
   const brandCountryCombinations: { brand: string; country: string; key: string }[] = [];
   
-  selectedBrands.forEach(brand => {
-    Object.keys(allCountriesData).forEach(country => {
-      const hasData = chartData.some(point => point[`${brand}-${country}`] !== undefined);
-      if (hasData) {
-        brandCountryCombinations.push({
-          brand,
-          country,
-          key: `${brand}-${country}`
-        });
+  // Separate regular brands from "Market Average"
+  const regularBrands: { brand: string; country: string; key: string }[] = [];
+  const marketAverages: { brand: string; country: string; key: string }[] = [];
+  
+  // Process all data keys to identify brands and market averages
+  chartData.forEach(point => {
+    Object.keys(point).forEach(key => {
+      if (key !== 'year' && key !== 'country' && point[key] !== undefined) {
+        const [brand, country] = key.split('-');
+        
+        const combinationExists = brandCountryCombinations.some(
+          combo => combo.key === key
+        );
+        
+        if (!combinationExists) {
+          const newCombo = { brand, country, key };
+          brandCountryCombinations.push(newCombo);
+          
+          if (brand === "Market Average") {
+            marketAverages.push(newCombo);
+          } else {
+            regularBrands.push(newCombo);
+          }
+        }
       }
     });
   });
+  
+  console.log("Regular brands:", regularBrands);
+  console.log("Market averages:", marketAverages);
   
   // Calculate Y-axis domain
   const allValues: number[] = [];
   chartData.forEach(point => {
     Object.keys(point).forEach(key => {
-      if (key !== 'year' && point[key] !== null && typeof point[key] === 'number') {
+      if (key !== 'year' && key !== 'country' && point[key] !== null && typeof point[key] === 'number') {
         allValues.push(point[key] as number);
       }
     });
@@ -142,7 +160,8 @@ const CountryLineChart = ({
             style: { fill: '#666', textAnchor: 'start' }
           }} />}
           
-          {brandCountryCombinations.map(({ brand, country, key }, index) => (
+          {/* Render regular brand lines */}
+          {regularBrands.map(({ brand, country, key }) => (
             <Line
               key={key}
               type="monotone"
@@ -153,6 +172,21 @@ const CountryLineChart = ({
               strokeWidth={2}
               connectNulls={false}
               dot={{ r: 4 }}
+            />
+          ))}
+          
+          {/* Render market average lines with different style */}
+          {marketAverages.map(({ country, key }) => (
+            <Line
+              key={key}
+              type="monotone"
+              dataKey={key}
+              name={key}
+              stroke="#34502b"
+              strokeDasharray="5 5"
+              strokeWidth={1.5}
+              connectNulls={false}
+              dot={{ r: 3 }}
             />
           ))}
         </LineChart>

@@ -58,6 +58,8 @@ export const createAverageScoreSeries = (
 ): Highcharts.SeriesLineOptions | null => {
   if (yearlyAverages.length === 0) return null;
   
+  console.log("Creating market average series with data:", yearlyAverages);
+  
   const averageData = yearlyAverages.map(item => ({
     x: item.year,
     y: item.average,

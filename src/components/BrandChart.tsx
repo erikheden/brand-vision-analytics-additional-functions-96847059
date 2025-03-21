@@ -27,6 +27,7 @@ const BrandChart = ({
   
   // Use the hook to extract yearly averages
   const yearlyAverages = useAverageScores(chartData, country, false);
+  console.log("Yearly averages for BrandChart:", yearlyAverages);
   
   // Create series for the brands
   const brandSeries = createBrandSeries(chartData, selectedBrands, chartConfig);
@@ -34,12 +35,16 @@ const BrandChart = ({
   // Create and add the average score series if available
   const series = [...brandSeries];
   
+  // Only add market average if we have data
   if (yearlyAverages.length > 0) {
+    console.log("Adding market average series to BrandChart");
     const averageSeries = createAverageScoreSeries(yearlyAverages);
     if (averageSeries) {
       // Push to series after type assertion
       (series as Highcharts.SeriesOptionsType[]).push(averageSeries);
     }
+  } else {
+    console.log("No yearly averages available for market average line");
   }
 
   return (
