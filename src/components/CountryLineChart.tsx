@@ -69,27 +69,29 @@ const CountryLineChart = ({
     });
   });
   
-  // Determine min and max values for the domain
-  const minValue = Math.min(...allValues);
-  const maxValue = Math.max(...allValues);
-  
-  // Set domain with 10% padding
+  // Determine domain for y-axis
   let yDomain: [number, number];
   
   if (standardized) {
-    // For standardized scores, use fixed domain around zero
+    // For standardized scores, use fixed domain of [-3, 3] standard deviations
     yDomain = [-3, 3];
   } else {
-    // For raw scores, calculate from data
-    const range = maxValue - minValue;
-    const padding = range * 0.1;
-    yDomain = [Math.max(0, minValue - padding), maxValue + padding];
+    // For raw scores, calculate from data with padding
+    if (allValues.length === 0) {
+      yDomain = [0, 100]; // Default range if no values
+    } else {
+      const minValue = Math.min(...allValues);
+      const maxValue = Math.max(...allValues);
+      const range = maxValue - minValue;
+      const padding = range * 0.1;
+      yDomain = [Math.max(0, minValue - padding), maxValue + padding];
+    }
   }
   
   return (
     <div className="w-full h-[500px]">
       <h3 className="text-center text-lg font-medium text-[#34502b] mb-2">
-        Brand Performance Trends Across Countries
+        {standardized ? "Standardized Brand Performance Across Countries" : "Brand Performance Trends Across Countries"}
       </h3>
       <ResponsiveContainer width="100%" height="90%">
         <LineChart
@@ -109,17 +111,18 @@ const CountryLineChart = ({
           <YAxis 
             domain={yDomain}
             label={{ 
-              value: standardized ? 'Standardized Score' : 'Score', 
+              value: standardized ? 'Standardized Score (σ)' : 'Score', 
               angle: -90, 
               position: 'insideLeft',
               style: { textAnchor: 'middle' }
             }}
+            tickFormatter={(value) => standardized ? `${value}σ` : value}
           />
           <Tooltip 
             formatter={(value: number, name: string) => {
               const [brand, country] = name.split("-");
               return [
-                `${value.toFixed(2)}${standardized ? ' std' : ''}`, 
+                `${value.toFixed(2)}${standardized ? 'σ' : ''}`, 
                 `${brand} (${getFullCountryName(country)})`
               ];
             }}
@@ -133,7 +136,11 @@ const CountryLineChart = ({
             wrapperStyle={{ paddingTop: 10 }}
           />
           
-          {standardized && <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" />}
+          {standardized && <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" label={{
+            value: 'Market Average',
+            position: 'right',
+            style: { fill: '#666', textAnchor: 'start' }
+          }} />}
           
           {brandCountryCombinations.map(({ brand, country, key }, index) => (
             <Line

@@ -24,8 +24,12 @@ export const processLineChartData = (
   const averageScores = (allCountriesData as any).averageScores;
   const hasAverageScores = averageScores && averageScores.size > 0;
   
-  if (standardized && !hasAverageScores) {
-    console.warn("Standardization requested but no average scores available - falling back to raw scores");
+  // Get country-year statistics if available
+  const countryYearStats = (allCountriesData as any).countryYearStats;
+  const hasCountryStats = countryYearStats && countryYearStats.size > 0;
+  
+  if (standardized && !hasCountryStats && !hasAverageScores) {
+    console.warn("Standardization requested but no statistics available - will compute from data");
   }
   
   // Collect all years from all countries
@@ -33,6 +37,57 @@ export const processLineChartData = (
   
   // Prepare data structure for each brand and country
   const brandCountryData: Map<string, Map<string, Map<number, number | null>>> = new Map();
+  
+  // Calculate country-year statistics for standardization if not already available
+  const computedStats = new Map<string, Map<number, { mean: number; stdDev: number; count: number }>>();
+  
+  if (standardized && !hasCountryStats) {
+    // First pass - collect scores by country and year for statistics calculation
+    Object.entries(allCountriesData).forEach(([country, countryData]) => {
+      if (!countryData || countryData.length === 0) return;
+      
+      const scoresByYear = new Map<number, number[]>();
+      
+      countryData.forEach(item => {
+        if (item.Year === null || item.Score === null || item.Score === 0) return;
+        
+        const year = Number(item.Year);
+        
+        if (!scoresByYear.has(year)) {
+          scoresByYear.set(year, []);
+        }
+        
+        scoresByYear.get(year)!.push(Number(item.Score));
+      });
+      
+      computedStats.set(country, new Map());
+      const countryStats = computedStats.get(country)!;
+      
+      // Calculate statistics for each year
+      scoresByYear.forEach((scores, year) => {
+        if (scores.length < 2) {
+          console.warn(`Not enough data points for ${country}/${year}: ${scores.length} brands`);
+          return;
+        }
+        
+        // Calculate mean
+        const sum = scores.reduce((total, score) => total + score, 0);
+        const mean = sum / scores.length;
+        
+        // Calculate standard deviation
+        const squaredDiffs = scores.map(score => Math.pow(score - mean, 2));
+        const variance = squaredDiffs.reduce((total, diff) => total + diff, 0) / scores.length;
+        const stdDev = Math.sqrt(variance);
+        
+        countryStats.set(year, { mean, stdDev, count: scores.length });
+        
+        console.log(`Computed stats for ${country}/${year}: mean=${mean.toFixed(2)}, stdDev=${stdDev.toFixed(2)} (${scores.length} brands)`);
+      });
+    });
+  }
+  
+  // Get the statistics to use (either pre-computed or just calculated)
+  const statsToUse = hasCountryStats ? countryYearStats : computedStats;
   
   // Process the data for the selected brands
   Object.entries(allCountriesData).forEach(([country, countryData]) => {
@@ -77,24 +132,48 @@ export const processLineChartData = (
         // Add year to all years set
         allYears.add(year);
         
-        // For standardized scores, use the average scores
+        // For standardized scores, use statistics for standardization
         let finalScore: number | null = score;
         
-        if (standardized && hasAverageScores) {
-          const averageScore = getAverageScore(averageScores, country, year);
+        if (standardized) {
+          // Try to get country-year statistics
+          let yearStats = null;
           
-          if (averageScore !== null) {
-            // Calculate standard deviation as a percentage of average (simplified approach)
-            const estimatedStdDev = averageScore * 0.15; // 15% of average as stdDev estimate
+          if (statsToUse.has(country)) {
+            const countryStats = statsToUse.get(country);
+            if (countryStats && countryStats.has(year)) {
+              yearStats = countryStats.get(year);
+            }
+          }
+          
+          if (yearStats && yearStats.count >= 2 && yearStats.stdDev > 0) {
+            // Standardize using country-year statistics
+            const standardizedValue = standardizeScore(score, yearStats.mean, yearStats.stdDev);
             
-            // Use the standardizeScore utility for consistent standardization
-            const standardizedValue = standardizeScore(score, averageScore, estimatedStdDev);
             if (standardizedValue !== null) {
               finalScore = standardizedValue;
-              console.log(`Line chart: Standardized score for ${brand}/${country}/${year}: ${standardizedValue.toFixed(2)} (raw=${score.toFixed(2)}, avg=${averageScore.toFixed(2)})`);
+              console.log(`Line chart: Standardized score for ${brand}/${country}/${year}: ${standardizedValue.toFixed(2)} (raw=${score.toFixed(2)}, mean=${yearStats.mean.toFixed(2)}, stdDev=${yearStats.stdDev.toFixed(2)})`);
+            } else {
+              console.warn(`Failed to standardize score for ${brand}/${country}/${year}, using raw value`);
+            }
+          } else if (hasAverageScores) {
+            // Fallback to average scores if available
+            const averageScore = getAverageScore(averageScores, country, year);
+            
+            if (averageScore !== null) {
+              // Use simplified standardization with estimated stdDev
+              const estimatedStdDev = averageScore * 0.15; // 15% of average as stdDev estimate
+              
+              const standardizedValue = standardizeScore(score, averageScore, estimatedStdDev);
+              if (standardizedValue !== null) {
+                finalScore = standardizedValue;
+                console.log(`Line chart: Estimated standardization for ${brand}/${country}/${year}: ${standardizedValue.toFixed(2)} (raw=${score.toFixed(2)}, avg=${averageScore.toFixed(2)}, est.stdDev=${estimatedStdDev.toFixed(2)})`);
+              }
+            } else {
+              console.warn(`No average score found for ${country}/${year}, using raw score`);
             }
           } else {
-            console.warn(`No average score found for ${country}/${year}, using raw score`);
+            console.warn(`Insufficient data for standardization of ${brand}/${country}/${year}, using raw value`);
           }
         }
         

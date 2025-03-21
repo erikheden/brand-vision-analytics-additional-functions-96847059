@@ -25,6 +25,12 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
     gridLineColor: 'rgba(52, 80, 43, 0.1)'
   };
 
+  // For standardized view, always use fixed domain of [-3, 3]
+  if (standardized) {
+    yAxisConfig.min = -3;
+    yAxisConfig.max = 3;
+  }
+
   // Add plot line for average if available
   if (!standardized && averageScore !== null) {
     yAxisConfig.plotLines = [{
@@ -44,14 +50,14 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
       zIndex: 5
     }];
   } else if (standardized) {
-    // Add zero line for standardized view
+    // Add zero line for standardized view (indicating market average)
     yAxisConfig.plotLines = [{
       value: 0,
       color: '#34502b',
       dashStyle: 'Dash' as Highcharts.DashStyleValue,
       width: 1,
       label: {
-        text: 'Selection Average',
+        text: 'Market Average',
         align: 'right' as Highcharts.AlignValue,
         style: {
           color: '#34502b',
@@ -120,6 +126,15 @@ export const createTooltipFormatter = (standardized: boolean, averageScore: numb
         <div style="margin-top: 8px; padding-top: 4px; border-top: 1px dotted #34502b;">
           <span style="color: #34502b; font-style: italic;">Selection Average:</span>
           <span style="font-weight: bold; color: #34502b; margin-left: 5px;">${averageScore.toFixed(2)}</span>
+        </div>
+      `;
+    } else if (standardized) {
+      averageHtml = `
+        <div style="margin-top: 8px; padding-top: 4px; border-top: 1px dotted #34502b;">
+          <span style="color: #34502b; font-style: italic;">Market Average (0σ)</span>
+          <span style="font-size: 0.8em; display: block; color: #666; margin-top: 2px;">
+            Values show standard deviations from market average
+          </span>
         </div>
       `;
     }

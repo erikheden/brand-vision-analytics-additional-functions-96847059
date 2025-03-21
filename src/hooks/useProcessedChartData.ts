@@ -1,7 +1,14 @@
 
 import { useState, useEffect } from "react";
 import { processChartData } from "@/utils/chartDataUtils";
+import { standardizeScore } from "@/utils/countryChartDataUtils";
 import { toast } from "sonner";
+
+interface Statistics {
+  mean: number;
+  stdDev: number;
+  count: number;
+}
 
 /**
  * Hook to process chart data and handle standardization
@@ -18,24 +25,35 @@ export const useProcessedChartData = (
       console.log("Processing chart data with standardized =", standardized);
       console.log("Raw scores before processing:", scores.slice(0, 3));
       
-      // Get average scores if available (should be attached by useChartData)
+      // Get average scores and statistics if available
       const averageScores = (scores as any).averageScores;
       const hasAverageScores = averageScores && averageScores.size > 0;
       
-      if (standardized && !hasAverageScores) {
-        console.warn("Standardization requested but no average scores available");
-        toast.warning("Limited standardization - using estimated market average");
+      const countryYearStats = (scores as any).countryYearStats;
+      const hasCountryStats = countryYearStats && countryYearStats.size > 0;
+      
+      if (standardized && !hasCountryStats) {
+        console.warn("Standardization requested but no country statistics available");
+        toast.warning("Limited standardization - using estimated values");
       }
       
       // Process data with standardization flag
       const data = processChartData(scores, standardized);
       console.log("Processed data sample:", data.slice(0, 3));
       
-      // Copy average scores to processed data for access in child components
+      // Copy metadata to processed data for access in child components
       if (averageScores) {
         console.log("Attaching average scores to processed data");
         Object.defineProperty(data, 'averageScores', {
           value: averageScores,
+          enumerable: false
+        });
+      }
+      
+      if (countryYearStats) {
+        console.log("Attaching country-year stats to processed data");
+        Object.defineProperty(data, 'countryYearStats', {
+          value: countryYearStats,
           enumerable: false
         });
       }

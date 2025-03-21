@@ -10,31 +10,25 @@ export { processLineChartData, COUNTRY_COLORS, getBrandColor, BRAND_COLORS };
  * @param score The raw score to standardize
  * @param countryAverage The average score for the country and year
  * @param countryStdDev The standard deviation for the country and year
- * @returns The standardized score (z-score) or a scaled difference if stdDev is zero
+ * @returns The standardized score (z-score) or null if standardization isn't possible
  */
 export const standardizeScore = (score: number, countryAverage: number, countryStdDev: number): number | null => {
-  // If average is missing, can't standardize
-  if (countryAverage === null || countryAverage === undefined) {
+  // Skip standardization if score is missing
+  if (score === null || score === undefined || isNaN(score)) {
+    return null;
+  }
+  
+  // Skip standardization if average is missing
+  if (countryAverage === null || countryAverage === undefined || isNaN(countryAverage)) {
     console.warn(`Cannot standardize score ${score}: missing country average`);
     return null;
   }
   
-  // If we have zero variance, we can't standardize properly in the traditional way
+  // Skip standardization if there is insufficient variance
+  // (prevents division by zero and meaningless standardization)
   if (countryStdDev === 0 || isNaN(countryStdDev) || countryStdDev < 0.001) {
-    console.log(`Cannot standardize score ${score.toFixed(2)} with countryAverage=${countryAverage.toFixed(2)} and countryStdDev=${countryStdDev} using z-score`);
-    
-    // Instead of returning null, calculate the percent difference from the mean
-    // This allows us to still see how the brand compares to the market average
-    if (countryAverage > 0) {
-      const percentDifference = (score - countryAverage) / countryAverage;
-      // Scale the percent difference to make it similar to Z-score range (-3 to +3)
-      const scaledDifference = Math.max(-3, Math.min(3, percentDifference * 3));
-      console.log(`Using percent difference instead: ${score.toFixed(2)} → ${scaledDifference.toFixed(2)} (${(percentDifference * 100).toFixed(2)}% from avg=${countryAverage.toFixed(2)})`);
-      return scaledDifference;
-    }
-    
-    // If average is 0, just show positive values as slightly positive
-    return score > 0 ? 1 : 0; 
+    console.warn(`Cannot standardize score ${score.toFixed(2)} with countryAverage=${countryAverage.toFixed(2)} and countryStdDev=${countryStdDev}: insufficient variance`);
+    return null;
   }
   
   // Calculate z-score: (value - mean) / standard deviation

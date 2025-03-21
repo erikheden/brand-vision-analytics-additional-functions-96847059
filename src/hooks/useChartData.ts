@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BrandData } from "@/types/brand";
 import { countryMapping, getFullCountryName } from "@/components/CountrySelect";
 import { fetchAverageScores } from "@/utils/countryComparison/averageScoreUtils";
+import useYearStatistics from "@/hooks/bar-chart/useYearStatistics";
 
 export const useChartData = (selectedCountry: string, selectedBrands: string[]) => {
   return useQuery({
@@ -43,6 +44,18 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
           console.error("Error fetching with full country name:", errorWithFullName);
         }
         
+        // Fetch market data for standardization
+        let { data: marketData, error: marketError } = await supabase
+          .from("SBI Ranking Scores 2011-2025")
+          .select("*")
+          .or(`Country.eq.${selectedCountry},Country.eq.${fullCountryName}`)
+          .order('Year', { ascending: true });
+          
+        if (marketError) {
+          console.error("Error fetching market data:", marketError);
+          marketData = [];
+        }
+        
         // Fetch average scores for standardization
         const countryFormats = [selectedCountry, fullCountryName];
         const averageScores = await fetchAverageScores(countryFormats);
@@ -72,10 +85,19 @@ export const useChartData = (selectedCountry: string, selectedBrands: string[]) 
         
         const finalData = Array.from(uniqueEntries.values());
         
-        // Store average scores data for standardization
-        // This attaches the average scores as a property of the array
+        // Calculate country-year statistics for standardization
+        const marketDataObj = { [selectedCountry]: marketData };
+        const countryYearStats = useYearStatistics(marketDataObj);
+        
+        // Store average scores and statistics data for standardization
+        // Attach as non-enumerable properties of the array
         Object.defineProperty(finalData, 'averageScores', {
           value: averageScores,
+          enumerable: false
+        });
+        
+        Object.defineProperty(finalData, 'countryYearStats', {
+          value: countryYearStats,
           enumerable: false
         });
         
