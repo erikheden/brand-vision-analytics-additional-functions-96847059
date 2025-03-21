@@ -44,6 +44,10 @@ const ChartSection = ({
   // Check if average scores data is available for better standardization
   const averageScores = (scores as any).averageScores;
   const hasAverageScores = averageScores && averageScores.size > 0;
+  
+  if (standardized && !hasAverageScores) {
+    console.warn("Standardized view requested but no average scores available");
+  }
 
   const years = calculateYearRange(scores);
   // Create a yearRange object compatible with BrandChart's expected format

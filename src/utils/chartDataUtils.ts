@@ -64,7 +64,7 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
   // Get country from the first valid score (should be the same for all scores)
   const country = validScores.length > 0 ? validScores[0].Country : '';
 
-  return Object.entries(yearGroups).map(([year, yearScores]) => {
+  const processedPoints = Object.entries(yearGroups).map(([year, yearScores]) => {
     const yearNum = parseInt(year);
     const result: ChartDataPoint = { 
       year: yearNum, 
@@ -109,7 +109,7 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
           result[score.Brand] = 0;
         } else {
           // Standardize scores against average score and estimated stdDev
-          const standardizedScore: number = (score.Score - averageScore) / estimatedStdDev;
+          const standardizedScore = (score.Score - averageScore) / estimatedStdDev;
           result[score.Brand] = standardizedScore;
           console.log(`Standardized score for ${score.Brand} in ${score.Year}-${score.Country}: ${standardizedScore.toFixed(2)} (score: ${score.Score}, avg: ${averageScore.toFixed(2)}, est.stdDev: ${estimatedStdDev.toFixed(2)})`);
         }
@@ -122,10 +122,12 @@ export const processChartData = (scores: Score[], standardized: boolean = false)
     }
     
     // Log the processed data point for debugging
-    console.log(`Processed data point for year ${yearNum}: ${Object.keys(result).length} brands, standardized: ${standardized}`);
+    console.log(`Processed data point for year ${yearNum}: ${Object.keys(result).length - 2} brands, standardized: ${standardized}`);
 
     return result;
   }).sort((a, b) => a.year - b.year);
+
+  return processedPoints;
 };
 
 export const getBrandColors = () => [

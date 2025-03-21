@@ -22,11 +22,11 @@ export const fetchAverageScores = async (
     }
     
     if (!data || data.length === 0) {
-      console.warn("No average scores found for selected countries");
+      console.warn("No average scores found in database");
       return new Map();
     }
     
-    console.log(`Found ${data.length} average score entries`);
+    console.log(`Found ${data.length} average score entries in database`);
     
     // Organize data by country and year
     const countryYearScores = new Map<string, Map<number, number>>();
@@ -80,5 +80,6 @@ export const getAverageScore = (
   }
   
   // No match found
+  console.warn(`No average score found for ${country}, ${year}`);
   return null;
 };

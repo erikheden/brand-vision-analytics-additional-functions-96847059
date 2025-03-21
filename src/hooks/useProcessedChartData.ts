@@ -18,11 +18,20 @@ export const useProcessedChartData = (
       console.log("Processing chart data with standardized =", standardized);
       console.log("Raw scores before processing:", scores.slice(0, 3));
       
+      // Get average scores if available (should be attached by useChartData)
+      const averageScores = (scores as any).averageScores;
+      const hasAverageScores = averageScores && averageScores.size > 0;
+      
+      if (standardized && !hasAverageScores) {
+        console.warn("Standardization requested but no average scores available");
+        toast.warning("Limited standardization - using estimated market average");
+      }
+      
+      // Process data with standardization flag
       const data = processChartData(scores, standardized);
       console.log("Processed data sample:", data.slice(0, 3));
       
       // Copy average scores to processed data for access in child components
-      const averageScores = (scores as any).averageScores;
       if (averageScores) {
         console.log("Attaching average scores to processed data");
         Object.defineProperty(data, 'averageScores', {

@@ -35,7 +35,7 @@ export const useCountryLineChart = (
       // Check all keys in the data point that might be brand-country combinations
       Object.keys(dataPoint).forEach(key => {
         // Skip year and non-data keys
-        if (key === 'year' || typeof dataPoint[key] !== 'number') return;
+        if (key === 'year' || key === 'country' || typeof dataPoint[key] !== 'number') return;
         
         const value = dataPoint[key];
         if (value !== undefined && value !== null && !isNaN(value)) {
