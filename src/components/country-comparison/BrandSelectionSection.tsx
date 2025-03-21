@@ -1,6 +1,6 @@
 
 import BrandSelection from "../BrandSelection";
-import BrandSectionHeader from "./BrandSectionHeader";
+import CompactBrandSectionHeader from "./CompactBrandSectionHeader";
 import InfoMessage from "./InfoMessage";
 import NoBrandsAlert from "./NoBrandsAlert";
 import EmptyStateMessage from "./EmptyStateMessage";
@@ -36,33 +36,40 @@ const BrandSelectionSection = ({
     uniqueBrandNames.some(brand => normalizeBrandName(brand) === normalizeBrandName("McDonald's")) && 
     uniqueBrandNames.some(brand => normalizeBrandName(brand) === normalizeBrandName("Coca-Cola"));
   
+  // Determine what content to show based on available brands and selected countries
+  const renderBrandSelection = () => {
+    if (uniqueBrandNames.length > 0) {
+      return (
+        <>
+          {selectedCountries.length >= 2 && (
+            <InfoMessage 
+              uniqueBrandCount={uniqueBrandNames.length} 
+              brandsWithData={brandsWithData} 
+            />
+          )}
+          <BrandSelection
+            brands={uniqueBrandNames}
+            selectedBrands={selectedBrands}
+            selectedCountries={selectedCountries}
+            brandsWithDataInfo={brandsWithDataInfo}
+            onBrandToggle={onBrandToggle}
+            onBatchToggle={onBatchToggle}
+            onClearBrands={onClearBrands}
+          />
+        </>
+      );
+    } else if (selectedCountries.length > 1) {
+      return <NoBrandsAlert />;
+    } else {
+      return <EmptyStateMessage />;
+    }
+  };
+  
   return (
     <div className="space-y-2">
-      <BrandSectionHeader />
+      <CompactBrandSectionHeader />
       <div className="mt-2">
-        {uniqueBrandNames.length > 0 ? (
-          <>
-            {selectedCountries.length >= 2 && (
-              <InfoMessage 
-                uniqueBrandCount={uniqueBrandNames.length} 
-                brandsWithData={brandsWithData} 
-              />
-            )}
-            <BrandSelection
-              brands={uniqueBrandNames}
-              selectedBrands={selectedBrands}
-              selectedCountries={selectedCountries}
-              brandsWithDataInfo={brandsWithDataInfo}
-              onBrandToggle={onBrandToggle}
-              onBatchToggle={onBatchToggle}
-              onClearBrands={onClearBrands}
-            />
-          </>
-        ) : selectedCountries.length > 1 ? (
-          <NoBrandsAlert />
-        ) : (
-          <EmptyStateMessage />
-        )}
+        {renderBrandSelection()}
       </div>
     </div>
   );
