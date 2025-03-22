@@ -8,7 +8,6 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import CountryComparison from "./pages/CountryComparison";
 
 const queryClient = new QueryClient();
 
@@ -26,7 +25,6 @@ const App = () => (
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<Index />} />
-              <Route path="/country-comparison" element={<CountryComparison />} />
             </Route>
           </Routes>
         </BrowserRouter>
