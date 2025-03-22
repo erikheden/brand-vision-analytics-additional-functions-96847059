@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-// Update the type to include "reset" as a possible value
+// Define AuthMode type to include all possible values
 type AuthMode = "signin" | "signup" | "reset";
 
 export function AuthForm() {
