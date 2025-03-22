@@ -43,7 +43,7 @@ const UserMenu = () => {
       <DropdownMenuTrigger asChild>
         <Button 
           variant="outline" 
-          className="bg-white/10 text-white border-white hover:bg-white/90 hover:text-[#34502b] font-medium"
+          className="bg-white/80 text-white border-white hover:bg-white/90 hover:text-[#34502b] font-medium"
         >
           <User className="mr-2 h-4 w-4" />
           <span className="text-white group-hover:text-[#34502b]">{user.email?.split('@')[0]}</span>
