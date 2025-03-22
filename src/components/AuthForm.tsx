@@ -75,7 +75,11 @@ export function AuthForm() {
     <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
       <div className="text-center">
         <h1 className="text-2xl font-bold text-[#34502b]">
-          {mode === "signin" ? "Sign In" : mode === "signup" ? "Create Account" : "Reset Password"}
+          {mode === "signin" 
+            ? "Sign In" 
+            : mode === "signup" 
+            ? "Create Account" 
+            : "Reset Password"}
         </h1>
         <p className="mt-2 text-sm text-gray-600">
           {mode === "signin"
