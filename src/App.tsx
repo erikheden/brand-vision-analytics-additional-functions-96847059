@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import CountryComparison from "./pages/CountryComparison";
 
 const queryClient = new QueryClient();
 
@@ -18,8 +20,14 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            {/* Public routes */}
             <Route path="/auth" element={<Auth />} />
+            
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<Index />} />
+              <Route path="/country-comparison" element={<CountryComparison />} />
+            </Route>
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

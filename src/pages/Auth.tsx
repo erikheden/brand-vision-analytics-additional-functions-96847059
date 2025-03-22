@@ -1,24 +1,25 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import AuthForm, { AuthMode } from "@/components/auth/AuthForm";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const Auth = () => {
   const [mode, setMode] = useState<AuthMode>("signin");
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const checkUser = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        navigate("/");
-      }
-    };
-    
-    checkUser();
-  }, [navigate]);
+    // Redirect if already authenticated
+    if (!loading && user) {
+      navigate("/");
+    }
+  }, [user, loading, navigate]);
+
+  // Don't render anything while checking auth
+  if (loading) {
+    return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
