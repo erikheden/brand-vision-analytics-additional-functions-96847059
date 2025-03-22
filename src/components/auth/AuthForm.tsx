@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export type AuthMode = "signin" | "signup" | "reset";
+export type AuthMode = "signin" | "signup" | "reset" | "update";
 
 interface AuthFormProps {
   mode: AuthMode;
@@ -55,6 +54,15 @@ const AuthForm = ({ mode, setMode }: AuthFormProps) => {
         if (error) throw error;
         setResetSent(true);
         toast.success("Password reset link sent to your email");
+      }
+      else if (mode === "update") {
+        const { error } = await supabase.auth.updateUser({
+          email,
+          password
+        });
+        
+        if (error) throw error;
+        toast.success("Password updated successfully");
       }
     } catch (error: any) {
       setError(error.message || "An error occurred");
@@ -133,7 +141,8 @@ const AuthForm = ({ mode, setMode }: AuthFormProps) => {
           {loading ? "Processing..." : 
             mode === "signin" ? "Sign In" : 
             mode === "signup" ? "Sign Up" : 
-            "Reset Password"}
+            mode === "reset" ? "Reset Password" : 
+            "Update Password"}
         </Button>
         
         <div className="text-center space-y-2 pt-2">
@@ -185,6 +194,18 @@ const AuthForm = ({ mode, setMode }: AuthFormProps) => {
               </button>
             </p>
           )}
+          
+          {mode === "update" && (
+            <p className="text-sm text-gray-600">
+              <button
+                type="button"
+                className="text-[#34502b] hover:underline"
+                onClick={() => setMode("signin")}
+              >
+                Back to sign in
+              </button>
+            </p>
+          )}
         </div>
       </form>
     );
@@ -195,7 +216,8 @@ const AuthForm = ({ mode, setMode }: AuthFormProps) => {
       <h2 className="text-2xl font-semibold text-center mb-6 text-[#34502b]">
         {mode === "signin" ? "Sign In" : 
          mode === "signup" ? "Create Account" : 
-         "Reset Password"}
+         mode === "reset" ? "Reset Password" : 
+         "Update Password"}
       </h2>
       {renderForm()}
     </div>

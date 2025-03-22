@@ -1,11 +1,8 @@
-
 import { useState } from "react";
-import AuthForm from "@/components/auth/AuthForm";
+import AuthForm, { AuthMode } from "@/components/auth/AuthForm";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
-
-type AuthMode = "signin" | "signup" | "reset";
 
 const Auth = () => {
   const [mode, setMode] = useState<AuthMode>("signin");
