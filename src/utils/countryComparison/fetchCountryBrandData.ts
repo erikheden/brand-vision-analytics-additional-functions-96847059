@@ -197,18 +197,23 @@ export const fetchCountryBrandData = async (
     } else if (marketAverages && marketAverages.length > 0) {
       console.log(`Found ${marketAverages.length} market average records for ${country}`);
       
-      // Transform market average data to match BrandData format - explicitly casting to AverageMatchBrand
-      const formattedAverages: AverageMatchBrand[] = marketAverages.map(avg => ({
-        "Row ID": -1 * avg.year, // Use negative IDs for average data
-        Year: avg.year,
-        Brand: "Market Average",
-        Country: country,
-        Score: avg.score,
-        industry: "All Industries",
-        isMarketAverage: true,
-        OriginalBrand: "Market Average",
-        matchType: "average" as const
-      }));
+      // Transform market average data to match BrandData format
+      const formattedAverages: BrandData[] = marketAverages.map(avg => {
+        // Create an object that explicitly follows the AverageMatchBrand interface
+        const averageBrand: AverageMatchBrand = {
+          "Row ID": -1 * avg.year, // Use negative IDs for average data
+          Year: avg.year,
+          Brand: "Market Average",
+          Country: country,
+          Score: avg.score,
+          industry: "All Industries",
+          isMarketAverage: true,
+          OriginalBrand: "Market Average",
+          matchType: "average"
+        };
+        
+        return averageBrand;
+      });
       
       // Add the market averages to our results
       allBrandData.push(...formattedAverages);
