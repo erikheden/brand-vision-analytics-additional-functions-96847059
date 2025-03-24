@@ -1,20 +1,15 @@
 
-// Add this file if it doesn't exist already.
-// This file should contain functions for normalizing brand names.
-
 /**
  * Normalizes a brand name by removing special characters, converting to lowercase, etc.
  */
 export const normalizeBrandName = (name: string): string => {
   if (!name) return '';
   
+  // Standardize the input first
   let normalized = name.toString().trim().toLowerCase();
   
-  // Remove special characters except for apostrophes in names like "McDonald's"
-  normalized = normalized.replace(/[^\w\s'&-]/g, '');
-  
-  // Special case replacements
-  const specialReplacements: Record<string, string> = {
+  // Special case replacements - direct mapping table for known variants
+  const specialCases: Record<string, string> = {
     'mcdonalds': 'mcdonalds',
     'mcdonald\'s': 'mcdonalds',
     'coca cola': 'cocacola',
@@ -23,36 +18,42 @@ export const normalizeBrandName = (name: string): string => {
     'h & m': 'hm',
     'the body shop': 'bodyshop',
     'nordic choice': 'nordicchoice',
-    'nordisk_choice': 'nordicchoice',
-    'nordic-choice': 'nordicchoice',
+    'scandic hotel': 'scandic',
+    'scandic hotels': 'scandic',
     'clarion': 'clarionhotel',
     'clarion hotel': 'clarionhotel',
     'strawberry': 'strawberry', 
     'strawberry hotels': 'strawberry',
     'strawberry hotels & resorts': 'strawberry',
     'strawberry hospitality': 'strawberry',
-    'strawberry group': 'strawberry'
+    'strawberry group': 'strawberry',
+    'ikea': 'ikea',
+    'volvo': 'volvo',
+    'volvo cars': 'volvo',
+    'volkswagen': 'volkswagen',
+    'vw': 'volkswagen',
+    'bmw': 'bmw',
+    'mercedes': 'mercedes',
+    'mercedes-benz': 'mercedes',
+    'tesla': 'tesla',
+    'tesla motors': 'tesla',
+    'apple': 'apple'
   };
   
-  // Check for special replacements
-  for (const [key, value] of Object.entries(specialReplacements)) {
-    if (normalized === key) {
-      return value;
-    }
+  // Check for direct matches in our special cases map
+  if (specialCases[normalized]) {
+    return specialCases[normalized];
   }
   
-  // Special handling for additional variants of challenging brand names
-  if (normalized.includes('strawberry')) {
-    return 'strawberry';
-  }
+  // Handle partial matches for some tricky names
+  if (normalized.includes('mcdonald')) return 'mcdonalds';
+  if (normalized.includes('coca') && normalized.includes('cola')) return 'cocacola';
+  if (normalized.includes('strawberry')) return 'strawberry';
+  if (normalized.includes('clarion')) return 'clarionhotel';
+  if (normalized.includes('nordic') && normalized.includes('choice')) return 'nordicchoice';
   
-  if (normalized.includes('mcdonalds') || normalized.includes('mcdonald')) {
-    return 'mcdonalds';
-  }
-  
-  if (normalized.includes('cocacola') || normalized.includes('coca cola') || normalized.includes('coca-cola')) {
-    return 'cocacola';
-  }
+  // Remove special characters except apostrophes and spaces for now
+  normalized = normalized.replace(/[^\w\s']/g, '');
   
   // Remove spaces and multiple consecutive spaces
   normalized = normalized.replace(/\s+/g, '');
@@ -61,7 +62,7 @@ export const normalizeBrandName = (name: string): string => {
 };
 
 /**
- * Gets a special brand name for a normalized name if it exists
+ * Gets a standardized brand name for display purposes
  */
 export const getSpecialBrandName = (normalizedName: string): string | null => {
   const specialBrandMappings: Record<string, string> = {
@@ -71,7 +72,14 @@ export const getSpecialBrandName = (normalizedName: string): string | null => {
     'bodyshop': 'The Body Shop',
     'nordicchoice': 'Nordic Choice',
     'clarionhotel': 'Clarion Hotel',
-    'strawberry': 'Strawberry'
+    'strawberry': 'Strawberry',
+    'ikea': 'IKEA',
+    'volvo': 'Volvo',
+    'volkswagen': 'Volkswagen',
+    'bmw': 'BMW',
+    'mercedes': 'Mercedes-Benz',
+    'tesla': 'Tesla',
+    'apple': 'Apple'
   };
   
   return specialBrandMappings[normalizedName] || null;
