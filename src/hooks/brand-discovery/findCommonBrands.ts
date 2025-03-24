@@ -1,4 +1,5 @@
 
+
 import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 import { addWellKnownGlobalBrands } from "./globalBrands";
 import { findBrandIntersection, findBrandsInMultipleCountries } from "./brandIntersection";
@@ -93,3 +94,4 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   console.log(`Found ${uniqueRecords.size} unique brand records across countries`);
   return Array.from(uniqueRecords.values());
 };
+
