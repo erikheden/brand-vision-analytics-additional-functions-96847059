@@ -1,6 +1,6 @@
 
 import { getFullCountryName } from "@/components/CountrySelect";
-import { BrandData } from "@/types/brand";
+import { BrandData, AverageMatchBrand } from "@/types/brand";
 import { normalizeBrandName, getSpecialBrandName } from "@/utils/industry/brandNormalization";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -197,8 +197,8 @@ export const fetchCountryBrandData = async (
     } else if (marketAverages && marketAverages.length > 0) {
       console.log(`Found ${marketAverages.length} market average records for ${country}`);
       
-      // Transform market average data to match BrandData format
-      const formattedAverages = marketAverages.map(avg => ({
+      // Transform market average data to match BrandData format - explicitly casting to AverageMatchBrand
+      const formattedAverages: AverageMatchBrand[] = marketAverages.map(avg => ({
         "Row ID": -1 * avg.year, // Use negative IDs for average data
         Year: avg.year,
         Brand: "Market Average",
