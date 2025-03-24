@@ -293,92 +293,228 @@ export type Database = {
         }
         Relationships: []
       }
-      STBY_Respondents_ANSWERS: {
+      swe_brand_areas_rated: {
         Row: {
-          Answer: string | null
-          Language: string | null
-          Question: string | null
-          "Response ID": number
-          row_id: number
-          Status: string | null
+          area: string | null
+          brand: string | null
+          rating_type: string | null
+          respondent_id: number | null
         }
         Insert: {
-          Answer?: string | null
-          Language?: string | null
-          Question?: string | null
-          "Response ID": number
-          row_id?: number
-          Status?: string | null
+          area?: string | null
+          brand?: string | null
+          rating_type?: string | null
+          respondent_id?: number | null
         }
         Update: {
-          Answer?: string | null
-          Language?: string | null
-          Question?: string | null
-          "Response ID"?: number
-          row_id?: number
-          Status?: string | null
+          area?: string | null
+          brand?: string | null
+          rating_type?: string | null
+          respondent_id?: number | null
         }
         Relationships: []
       }
-      STBY_Respondents_NO: {
+      swe_brand_perceptions: {
         Row: {
-          Language: string | null
-          "Response ID": number
-          Status: string | null
+          brand: string | null
+          perception: string | null
+          perception_type: string | null
+          respondent_id: number
         }
         Insert: {
-          Language?: string | null
-          "Response ID": number
-          Status?: string | null
+          brand?: string | null
+          perception?: string | null
+          perception_type?: string | null
+          respondent_id: number
         }
         Update: {
-          Language?: string | null
-          "Response ID"?: number
-          Status?: string | null
+          brand?: string | null
+          perception?: string | null
+          perception_type?: string | null
+          respondent_id?: number
+        }
+        Relationships: []
+      }
+      swe_company_priorities: {
+        Row: {
+          priority_area: string | null
+          respondent_id: number | null
+        }
+        Insert: {
+          priority_area?: string | null
+          respondent_id?: number | null
+        }
+        Update: {
+          priority_area?: string | null
+          respondent_id?: number | null
+        }
+        Relationships: []
+      }
+      swe_concept_familiarity: {
+        Row: {
+          concept: string | null
+          familiarity: string | null
+          respondent_id: number | null
+        }
+        Insert: {
+          concept?: string | null
+          familiarity?: string | null
+          respondent_id?: number | null
+        }
+        Update: {
+          concept?: string | null
+          familiarity?: string | null
+          respondent_id?: number | null
+        }
+        Relationships: []
+      }
+      swe_customer_status_fixed: {
+        Row: {
+          question: string | null
+          respondent_id: number | null
+          response: string | null
+        }
+        Insert: {
+          question?: string | null
+          respondent_id?: number | null
+          response?: string | null
+        }
+        Update: {
+          question?: string | null
+          respondent_id?: number | null
+          response?: string | null
+        }
+        Relationships: []
+      }
+      swe_discussion_topics: {
+        Row: {
+          respondent_id: number | null
+          topic: string | null
+        }
+        Insert: {
+          respondent_id?: number | null
+          topic?: string | null
+        }
+        Update: {
+          respondent_id?: number | null
+          topic?: string | null
+        }
+        Relationships: []
+      }
+      swe_hotel_expectations: {
+        Row: {
+          item: string | null
+          respondent_id: number | null
+          response_type: string | null
+        }
+        Insert: {
+          item?: string | null
+          respondent_id?: number | null
+          response_type?: string | null
+        }
+        Update: {
+          item?: string | null
+          respondent_id?: number | null
+          response_type?: string | null
+        }
+        Relationships: []
+      }
+      swe_industry_impact: {
+        Row: {
+          impact_rating: string | null
+          industry: string | null
+          respondent_id: number | null
+        }
+        Insert: {
+          impact_rating?: string | null
+          industry?: string | null
+          respondent_id?: number | null
+        }
+        Update: {
+          impact_rating?: string | null
+          industry?: string | null
+          respondent_id?: number | null
+        }
+        Relationships: []
+      }
+      swe_interests: {
+        Row: {
+          interest: string | null
+          respondent_id: number | null
+        }
+        Insert: {
+          interest?: string | null
+          respondent_id?: number | null
+        }
+        Update: {
+          interest?: string | null
+          respondent_id?: number | null
+        }
+        Relationships: []
+      }
+      swe_respondents: {
+        Row: {
+          age: number | null
+          children_in_household: string | null
+          country: string | null
+          country_live_in: string | null
+          education_level: string | null
+          frequency_discussion_sustainability: string | null
+          gender: string | null
+          occupation: string | null
+          residence_type: string | null
+          respondent_id: number | null
+          sustainability_impact_on_purchase: string | null
+        }
+        Insert: {
+          age?: number | null
+          children_in_household?: string | null
+          country?: string | null
+          country_live_in?: string | null
+          education_level?: string | null
+          frequency_discussion_sustainability?: string | null
+          gender?: string | null
+          occupation?: string | null
+          residence_type?: string | null
+          respondent_id?: number | null
+          sustainability_impact_on_purchase?: string | null
+        }
+        Update: {
+          age?: number | null
+          children_in_household?: string | null
+          country?: string | null
+          country_live_in?: string | null
+          education_level?: string | null
+          frequency_discussion_sustainability?: string | null
+          gender?: string | null
+          occupation?: string | null
+          residence_type?: string | null
+          respondent_id?: number | null
+          sustainability_impact_on_purchase?: string | null
+        }
+        Relationships: []
+      }
+      swe_text_responses: {
+        Row: {
+          question: string | null
+          respondent_id: number | null
+          response: string | null
+        }
+        Insert: {
+          question?: string | null
+          respondent_id?: number | null
+          response?: string | null
+        }
+        Update: {
+          question?: string | null
+          respondent_id?: number | null
+          response?: string | null
         }
         Relationships: []
       }
     }
     Views: {
-      answer_distribution: {
-        Row: {
-          Answer: string | null
-          percentage: number | null
-          Question: string | null
-          response_count: number | null
-        }
-        Relationships: []
-      }
-      language_response_summary: {
-        Row: {
-          Language: string | null
-          respondent_count: number | null
-          total_answers: number | null
-          unique_questions: number | null
-        }
-        Relationships: []
-      }
-      question_response_summary: {
-        Row: {
-          all_answers: string[] | null
-          most_common_answer: string | null
-          Question: string | null
-          total_responses: number | null
-          unique_answers: number | null
-          unique_respondents: number | null
-        }
-        Relationships: []
-      }
-      respondent_completion: {
-        Row: {
-          Language: string | null
-          questions_answered: number | null
-          "Response ID": number | null
-          Status: string | null
-          unique_questions_answered: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never
