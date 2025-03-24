@@ -1,4 +1,3 @@
-
 /**
  * Aggressively normalizes brand names to handle different country variants
  * This is vital for cross-country brand comparison
@@ -336,3 +335,41 @@ export const getBrandNameVariations = (brandName: string): string[] => {
   return [...new Set(variations)];
 };
 
+/**
+ * Returns common abbreviations and alternate names for a brand
+ */
+export const getSpecialBrandName = (normalizedName: string): string | null => {
+  const specialBrandMappings: Record<string, string> = {
+    'mcdonalds': 'McDonald\'s',
+    'cocacola': 'Coca-Cola',
+    'handm': 'H&M',
+    'sas': 'SAS',
+    'ikea': 'IKEA',
+    'bmw': 'BMW',
+    'volvo': 'Volvo',
+    'tesla': 'Tesla',
+    'clarionhotel': 'Clarion Hotel',
+    'scandic': 'Scandic',
+    'strawberry': 'Strawberry',
+    'nordicchoice': 'Nordic Choice',
+    'spotify': 'Spotify',
+    'netflix': 'Netflix',
+    'apple': 'Apple',
+    'microsoft': 'Microsoft',
+    'google': 'Google',
+    'samsung': 'Samsung',
+    'amazon': 'Amazon',
+    'starbucks': 'Starbucks',
+    'adidas': 'Adidas',
+    'nike': 'Nike',
+    'burgerking': 'Burger King',
+    'volkswagen': 'Volkswagen',
+    'toyota': 'Toyota',
+    'finnair': 'Finnair',
+    'norwegian': 'Norwegian',
+    'telenor': 'Telenor',
+    'telia': 'Telia'
+  };
+  
+  return specialBrandMappings[normalizedName] || null;
+};

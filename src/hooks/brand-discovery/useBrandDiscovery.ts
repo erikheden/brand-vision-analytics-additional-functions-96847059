@@ -1,11 +1,12 @@
 
 import { useSelectionData } from "@/hooks/useSelectionData";
-import { findMultiCountryBrands } from "./commonBrandsFinder";
+import { findMultiCountryBrands } from "./findCommonBrands";
 import { getFallbackBrands, knownProblematicBrands, knownGlobalBrands } from "./fallbackBrands";
 import { 
   groupBrandsByNormalizedName, 
   getPreferredBrandNames,
-  ensureImportantBrands
+  ensureImportantBrands,
+  getSpecialBrandName
 } from "./brandNormalization";
 import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
@@ -21,6 +22,7 @@ export const useBrandDiscovery = (
   
   // Get brands that appear in the selected countries
   const getCommonBrands = () => {
+    console.log(`Getting common brands for ${selectedCountries.length} countries with ${availableBrands.length} available brands`);
     const commonBrands = findMultiCountryBrands(selectedCountries, availableBrands);
     
     // Filter out known problematic brands
@@ -33,6 +35,7 @@ export const useBrandDiscovery = (
   // Get unique brand names from filtered list, prioritizing capitalized versions
   const getNormalizedUniqueBrands = () => {
     const commonBrands = getCommonBrands();
+    console.log(`Found ${commonBrands.length} common brands after filtering problematic ones`);
     
     // If we didn't find any brands at all, fallback to global brands
     if (commonBrands.length === 0) {
@@ -66,6 +69,7 @@ export const useBrandDiscovery = (
     
     // Group all brand variants by normalized name
     const normalizedBrands = groupBrandsByNormalizedName(commonBrands);
+    console.log(`Grouped into ${normalizedBrands.size} normalized brand groups`);
     
     // Get preferred display name for each normalized brand
     const preferredBrandNames = getPreferredBrandNames(normalizedBrands);

@@ -38,6 +38,7 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
     if (!brand.Brand || !brand.Country) return;
     
     const country = brand.Country;
+    // Check if this is one of our selected countries
     if (selectedCountries.includes(country)) {
       const normalizedBrandName = normalizeBrandName(brand.Brand.toString());
       
@@ -56,11 +57,21 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   selectedCountries.forEach(country => {
     const brandNames = brandNamesByCountry.get(country);
     console.log(`${country} has ${brandNames?.size || 0} normalized brands`);
+    
+    // Debug: Log a sample of brands from each country for verification
+    if (brandNames && brandNames.size > 0) {
+      const sampleBrands = Array.from(brandNames).slice(0, 5);
+      console.log(`Sample brands from ${country}:`, sampleBrands);
+    }
   });
   
   // Find brands that exist in at least 2 countries
   const multiCountryBrands = findBrandsInMultipleCountries(brandNamesByCountry, selectedCountries, 2);
   console.log(`Found ${multiCountryBrands.length} brands that appear in at least 2 countries`);
+  
+  if (multiCountryBrands.length > 0) {
+    console.log("Sample common brands:", multiCountryBrands.slice(0, 10));
+  }
   
   // Use multiCountryBrands to get original records
   const uniqueRecords = getUniqueBrandRecords(multiCountryBrands, selectedCountries, brandRecordsByCountry);

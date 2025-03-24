@@ -1,88 +1,85 @@
 import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
 /**
- * Utility functions for finding brands that exist across multiple countries
- */
-
-/**
- * Finds the intersection of brand names that appear in ALL selected countries
+ * Finds the intersection of brand names across all selected countries
  */
 export const findBrandIntersection = (
   brandNamesByCountry: Map<string, Set<string>>,
   selectedCountries: string[]
-): Set<string> => {
-  if (selectedCountries.length === 0) {
-    return new Set<string>();
-  }
+): string[] => {
+  if (selectedCountries.length === 0) return [];
   
-  // Start with the first country's brand names
+  // Start with all brands from the first country
   const firstCountry = selectedCountries[0];
   const firstCountryBrands = brandNamesByCountry.get(firstCountry) || new Set<string>();
   
-  // Use a set to track the intersection
-  const intersection = new Set<string>(firstCountryBrands);
+  // Intersect with each subsequent country
+  const commonBrands = new Set(firstCountryBrands);
   
-  // For each additional country, keep only the brands that exist in both sets
   for (let i = 1; i < selectedCountries.length; i++) {
     const country = selectedCountries[i];
     const countryBrands = brandNamesByCountry.get(country) || new Set<string>();
     
-    // Remove brands from intersection that don't exist in this country
-    for (const brand of intersection) {
+    // Keep only brands that are in both sets
+    for (const brand of commonBrands) {
       if (!countryBrands.has(brand)) {
-        intersection.delete(brand);
+        commonBrands.delete(brand);
       }
     }
   }
   
-  return intersection;
+  return Array.from(commonBrands);
 };
 
 /**
- * Finds brands that exist in at least N countries (default: 2)
- * This is more flexible than a strict intersection and can find more common brands
+ * Finds brands that appear in at least the specified number of countries
  */
 export const findBrandsInMultipleCountries = (
   brandNamesByCountry: Map<string, Set<string>>,
   selectedCountries: string[],
-  minCountryCount: number = 2
+  minCountryCount: number
 ): string[] => {
-  if (selectedCountries.length < minCountryCount) {
-    return [];
-  }
-  
-  // Create a map to count brand appearances across countries
-  const brandCountMap = new Map<string, number>();
-  const brandCountries = new Map<string, string[]>();
+  if (selectedCountries.length < minCountryCount) return [];
   
   // Count how many countries each brand appears in
+  const brandCountryCount = new Map<string, number>();
+  const allBrandNames = new Set<string>();
+  
+  // First collect all unique brand names across all countries
   selectedCountries.forEach(country => {
-    const brands = brandNamesByCountry.get(country) || new Set<string>();
-    
-    brands.forEach(brand => {
-      // Increment the count for this brand
-      const currentCount = brandCountMap.get(brand) || 0;
-      brandCountMap.set(brand, currentCount + 1);
-      
-      // Track which countries this brand appears in
-      if (!brandCountries.has(brand)) {
-        brandCountries.set(brand, []);
+    const countryBrands = brandNamesByCountry.get(country) || new Set<string>();
+    countryBrands.forEach(brand => allBrandNames.add(brand));
+  });
+  
+  // Then count appearances for each brand
+  allBrandNames.forEach(brand => {
+    let count = 0;
+    selectedCountries.forEach(country => {
+      const countryBrands = brandNamesByCountry.get(country) || new Set<string>();
+      if (countryBrands.has(brand)) {
+        count++;
       }
-      brandCountries.get(brand)?.push(country);
     });
+    brandCountryCount.set(brand, count);
   });
   
-  // Filter for brands that appear in at least minCountryCount countries
-  const multiCountryBrands = [...brandCountMap.entries()]
-    .filter(([_, count]) => count >= minCountryCount)
-    .map(([brand, _]) => brand);
+  // Filter brands that appear in at least minCountryCount countries
+  const result = Array.from(allBrandNames).filter(brand => 
+    (brandCountryCount.get(brand) || 0) >= minCountryCount
+  );
   
-  // Debug log to see brands and their counts
-  multiCountryBrands.forEach(brand => {
-    const count = brandCountMap.get(brand) || 0;
-    const countries = brandCountries.get(brand) || [];
-    console.log(`Brand "${brand}" appears in ${count} countries: ${countries.join(', ')}`);
-  });
+  // Sort by frequency (most common first)
+  result.sort((a, b) => 
+    (brandCountryCount.get(b) || 0) - (brandCountryCount.get(a) || 0)
+  );
   
-  return multiCountryBrands;
+  // Debug: Log some of the country counts for verification
+  if (result.length > 0) {
+    const sampleCounts = result.slice(0, 5).map(brand => 
+      `${brand}: ${brandCountryCount.get(brand)} countries`
+    );
+    console.log("Sample brand country counts:", sampleCounts);
+  }
+  
+  return result;
 };
