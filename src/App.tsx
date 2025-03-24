@@ -8,7 +8,6 @@ import { AuthProvider } from "@/context/AuthContext";
 import { UserNavbar } from "@/components/UserNavbar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import CountryComparisonPage from "@/pages/CountryComparison";
 
 const queryClient = new QueryClient();
 
@@ -24,14 +23,6 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
-                  <Route 
-                    path="/country-comparison" 
-                    element={
-                      <ProtectedRoute>
-                        <CountryComparisonPage />
-                      </ProtectedRoute>
-                    } 
-                  />
                 </Routes>
               </main>
               <Toaster position="top-center" richColors />

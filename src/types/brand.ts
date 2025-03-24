@@ -1,51 +1,23 @@
 
-export interface BaseBrandData {
-  Brand: string | null;
-  Country: string | null;
-  industry: string | null;
+// Define the possible match types that can be used in brand data
+export type MatchType = "exact" | "normalized" | "partial" | "special" | "average" | "sql-match";
+
+// Base brand data interface with common properties
+export interface BrandData {
   "Row ID": number;
-  Score: number | null;
   Year: number | null;
-  Projected?: boolean;
+  Brand: string;
+  Country: string | null;
+  Score: number | null;
+  industry: string | null;
+  OriginalBrand?: string;
+  matchType?: MatchType;
   isMarketAverage?: boolean;
+  Projected?: boolean;
 }
 
-// Define specific types for each match type
-export interface ExactMatchBrand extends BaseBrandData {
-  matchType: "exact";
-}
-
-export interface NormalizedMatchBrand extends BaseBrandData {
-  matchType: "normalized";
-  OriginalBrand: string | null;
-}
-
-export interface PartialMatchBrand extends BaseBrandData {
-  matchType: "partial";
-  OriginalBrand: string | null;
-}
-
-export interface SpecialMatchBrand extends BaseBrandData {
-  matchType: "special";
-  OriginalBrand: string | null;
-}
-
-export interface AverageMatchBrand extends BaseBrandData {
+// Specific interface for market average data
+export interface AverageMatchBrand extends BrandData {
   matchType: "average";
-  OriginalBrand: string | null;
+  isMarketAverage: true;
 }
-
-export interface SqlMatchBrand extends BaseBrandData {
-  matchType: "sql-match";
-  OriginalBrand: string | null;
-}
-
-// Union type for all possible brand data variants
-export type BrandData = 
-  | ExactMatchBrand 
-  | NormalizedMatchBrand 
-  | PartialMatchBrand 
-  | SpecialMatchBrand 
-  | AverageMatchBrand
-  | SqlMatchBrand
-  | (BaseBrandData & { matchType?: null });
