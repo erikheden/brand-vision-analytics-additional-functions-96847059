@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User } from "lucide-react";
+import { Globe, LogOut, User } from "lucide-react";
 import { toast } from "sonner";
 
 const UserMenu = () => {
@@ -43,7 +43,7 @@ const UserMenu = () => {
       <DropdownMenuTrigger asChild>
         <Button 
           variant="outline" 
-          className="bg-white/10 text-white border-white hover:bg-white/90 hover:text-[#34502b] font-medium"
+          className="bg-white/80 text-white border-white hover:bg-white/90 hover:text-[#34502b] font-medium"
         >
           <User className="mr-2 h-4 w-4" />
           <span className="text-white group-hover:text-[#34502b]">{user.email?.split('@')[0]}</span>
@@ -52,6 +52,10 @@ const UserMenu = () => {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => navigate("/country-comparison")}>
+          <Globe className="mr-2 h-4 w-4" />
+          Country Comparison
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" />
           Log out
