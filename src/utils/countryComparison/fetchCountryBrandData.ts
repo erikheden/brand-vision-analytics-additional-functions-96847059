@@ -44,7 +44,7 @@ export const fetchCountryBrandData = async (
         console.log(`Found ${exactMatches.length} exact matches for "${brandName}"`);
         return exactMatches.map(match => ({
           ...match,
-          matchType: "exact"
+          matchType: "exact" as const
         }));
       }
       
@@ -102,7 +102,7 @@ export const fetchCountryBrandData = async (
             ...match,
             OriginalBrand: match.Brand,
             Brand: brandName, // Use the selected brand name for consistency
-            matchType: "normalized"
+            matchType: "normalized" as const
           }));
         }
       }
@@ -139,7 +139,7 @@ export const fetchCountryBrandData = async (
             ...match,
             OriginalBrand: match.Brand,
             Brand: brandName, // Use the selected brand name for consistency
-            matchType: "partial"
+            matchType: "partial" as const
           }));
         }
       }
@@ -167,7 +167,7 @@ export const fetchCountryBrandData = async (
             ...match,
             OriginalBrand: match.Brand,
             Brand: brandName, // Use the selected brand name for consistency
-            matchType: "special"
+            matchType: "special" as const
           }));
         }
       }
@@ -206,7 +206,7 @@ export const fetchCountryBrandData = async (
         Score: avg.score,
         industry: "All Industries",
         isMarketAverage: true,
-        matchType: "average"
+        matchType: "average" as const
       }));
       
       // Add the market averages to our results
