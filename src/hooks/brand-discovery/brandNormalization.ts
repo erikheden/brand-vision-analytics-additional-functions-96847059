@@ -1,5 +1,4 @@
-import { normalizeBrandName, getSpecialBrandName } from "@/utils/industry/brandNormalization";
-import { getPreferredBrandName } from "@/utils/industry/brandSelection";
+import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
 /**
  * Groups all brand variants by normalized name
@@ -29,6 +28,35 @@ export const groupBrandsByNormalizedName = (brands: any[]) => {
 };
 
 /**
+ * Special brand mappings that should be consistent across the application
+ */
+export const getSpecialBrandName = (normalizedName: string): string | null => {
+  const specialBrandMappings: Record<string, string> = {
+    'mcdonalds': 'McDonald\'s',
+    'cocacola': 'Coca-Cola',
+    'handm': 'H&M',
+    'sas': 'SAS',
+    'ikea': 'IKEA',
+    'bmw': 'BMW',
+    'volvo': 'Volvo',
+    'tesla': 'Tesla',
+    'clarionhotel': 'Clarion Hotel',
+    'scandic': 'Scandic',
+    'strawberry': 'Strawberry',
+    'nordicchoice': 'Nordic Choice',
+    'spotify': 'Spotify',
+    'netflix': 'Netflix',
+    'apple': 'Apple',
+    'microsoft': 'Microsoft',
+    'google': 'Google',
+    'samsung': 'Samsung',
+    'amazon': 'Amazon'
+  };
+  
+  return specialBrandMappings[normalizedName] || null;
+};
+
+/**
  * Get preferred display names for a set of normalized brands
  */
 export const getPreferredBrandNames = (normalizedBrands: Map<string, string[]>) => {
@@ -40,12 +68,53 @@ export const getPreferredBrandNames = (normalizedBrands: Map<string, string[]>) 
         return specialBrand;
       }
       
-      // Otherwise use the preferred brand name
-      const preferred = getPreferredBrandName(variations, normalizedName);
-      return preferred;
+      // Otherwise use our own logic to determine the best name
+      const bestName = selectBestBrandName(variations);
+      return bestName;
     })
     .filter(Boolean)
     .sort();
+};
+
+/**
+ * Selects the best brand name from a list of variations
+ */
+const selectBestBrandName = (variations: string[]): string => {
+  if (variations.length === 0) return '';
+  if (variations.length === 1) return variations[0];
+  
+  // Score each variation based on capitalization, etc.
+  const scoredVariations = variations.map(name => {
+    let score = 0;
+    
+    // Prefer capitalized first letters
+    if (name.charAt(0) === name.charAt(0).toUpperCase()) {
+      score += 2;
+    }
+    
+    // Prefer names with spaces over no spaces
+    if (name.includes(' ')) {
+      score += 1;
+    }
+    
+    // Prefer names with apostrophes (e.g., "McDonald's" over "McDonalds")
+    if (name.includes("'")) {
+      score += 1;
+    }
+    
+    // Penalize all uppercase or all lowercase
+    if (name === name.toUpperCase() || name === name.toLowerCase()) {
+      score -= 1;
+    }
+    
+    return { name, score };
+  });
+  
+  // Sort by score (highest first)
+  scoredVariations.sort((a, b) => b.score - a.score);
+  
+  // Return the best scoring name
+  return scoredVariations[0].name;
 };
 
 /**
