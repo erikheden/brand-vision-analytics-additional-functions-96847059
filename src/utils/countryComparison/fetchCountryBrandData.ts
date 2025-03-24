@@ -1,4 +1,3 @@
-
 import { getFullCountryName } from "@/components/CountrySelect";
 import { BrandData, AverageMatchBrand } from "@/types/brand";
 import { normalizeBrandName, getSpecialBrandName } from "@/utils/industry/brandNormalization";
@@ -198,9 +197,9 @@ export const fetchCountryBrandData = async (
       console.log(`Found ${marketAverages.length} market average records for ${country}`);
       
       // Transform market average data to match BrandData format
-      const formattedAverages: BrandData[] = marketAverages.map(avg => {
+      const formattedAverages: AverageMatchBrand[] = marketAverages.map(avg => {
         // Create an object that explicitly follows the AverageMatchBrand interface
-        const averageBrand: AverageMatchBrand = {
+        return {
           "Row ID": -1 * avg.year, // Use negative IDs for average data
           Year: avg.year,
           Brand: "Market Average",
@@ -211,8 +210,6 @@ export const fetchCountryBrandData = async (
           OriginalBrand: "Market Average",
           matchType: "average"
         };
-        
-        return averageBrand;
       });
       
       // Add the market averages to our results
