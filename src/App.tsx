@@ -1,7 +1,8 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Auth } from "@/pages/Auth";
-import { Index } from "@/pages";
+import Auth from "@/pages/Auth";
+import Index from "@/pages/Index";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/context/AuthContext";
 import { UserNavbar } from "@/components/UserNavbar";
