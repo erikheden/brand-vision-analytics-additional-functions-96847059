@@ -197,8 +197,8 @@ export const fetchCountryBrandData = async (
     } else if (marketAverages && marketAverages.length > 0) {
       console.log(`Found ${marketAverages.length} market average records for ${country}`);
       
-      // Transform market average data to match BrandData format
-      const formattedAverages = marketAverages.map(avg => ({
+      // Create market average data properly typed from the start
+      const formattedAverages: AverageMatchBrand[] = marketAverages.map(avg => ({
         "Row ID": -1 * avg.year, // Use negative IDs for average data
         Year: avg.year,
         Brand: "Market Average",
@@ -207,10 +207,11 @@ export const fetchCountryBrandData = async (
         industry: "All Industries",
         isMarketAverage: true,
         OriginalBrand: "Market Average",
-        matchType: "average" as const
-      })) as BrandData[];
+        matchType: "average"
+      }));
       
-      // Add the market averages to our results
+      // Add the market averages to our results - explicitly cast to BrandData
+      // since AverageMatchBrand is included in the BrandData union type
       allBrandData.push(...formattedAverages);
     }
     
