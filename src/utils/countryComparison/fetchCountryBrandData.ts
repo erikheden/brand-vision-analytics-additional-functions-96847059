@@ -37,58 +37,55 @@ export const fetchCountryBrandData = async (
       let matches = await findExactBrandMatch(country, fullCountryName, selectedBrand);
       if (matches.length > 0) {
         console.log(`Found direct match for "${selectedBrand}" in ${country}`);
-        return matches;
+        return {...matches[0], matchMethod: "exact"};
       }
       
       // 2. Try case variations
       matches = await findBrandByCaseVariations(country, fullCountryName, selectedBrand);
       if (matches.length > 0) {
         console.log(`Found case variation match for "${selectedBrand}" in ${country}`);
-        return matches;
+        return {...matches[0], matchMethod: "case-variation"};
       }
       
       // 3. Try name variations
       matches = await findBrandByNameVariations(country, fullCountryName, selectedBrand);
       if (matches.length > 0) {
         console.log(`Found name variation match for "${selectedBrand}" in ${country}`);
-        return matches;
+        return {...matches[0], matchMethod: "name-variation"};
       }
       
       // 4. Try normalized matching
       matches = await findBrandByNormalizedMatch(country, fullCountryName, selectedBrand);
       if (matches.length > 0) {
         console.log(`Found normalized match for "${selectedBrand}" in ${country}`);
-        return matches;
+        return {...matches[0], matchMethod: "normalized"};
       }
       
       // 5. Try special brand mappings
       matches = await findBrandBySpecialMappings(country, fullCountryName, selectedBrand);
       if (matches.length > 0) {
         console.log(`Found special mapping match for "${selectedBrand}" in ${country}`);
-        return matches;
+        return {...matches[0], matchMethod: "special-mapping"};
       }
       
       // 6. Last resort: Try broad search
       matches = await findBrandByBroadSearch(country, fullCountryName, selectedBrand);
       if (matches.length > 0) {
         console.log(`Found broad search match for "${selectedBrand}" in ${country}`);
-        return matches;
+        return {...matches[0], matchMethod: "broad-search"};
       }
       
       console.log(`No matches found for "${selectedBrand}" in ${country}`);
-      return [];
+      return null;
     });
     
-    // Wait for all brand queries to complete
-    const brandDataArrays = await Promise.all(brandQueries);
+    // Wait for all brand queries to complete and filter out null results
+    const brandData = (await Promise.all(brandQueries)).filter(Boolean);
     
-    // Flatten the array of arrays
-    const combinedData = brandDataArrays.flat();
-    
-    console.log(`Final combined data for ${country}: ${combinedData.length} records`);
+    console.log(`Final data for ${country}: ${brandData.length} records`);
     
     // Process and deduplicate data
-    const finalData = processBrandData(combinedData);
+    const finalData = processBrandData(brandData);
     
     // Enhance with market data and projections
     return await enhanceBrandData(finalData, selectedBrands, country, fullCountryName);

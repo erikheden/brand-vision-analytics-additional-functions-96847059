@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useSelectionData } from "@/hooks/useSelectionData";
 import CountrySelectionSection from "./country-comparison/CountrySelectionSection";
 import BrandSelectionSection from "./country-comparison/BrandSelectionSection";
+import BrandMatchingInfo from "./country-comparison/BrandMatchingInfo";
 import { useBrandDiscovery } from "@/hooks/brand-discovery";
 import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
@@ -93,6 +94,13 @@ const CountryComparisonPanel = ({
             onBrandToggle={handleBrandToggle}
             onBatchToggle={handleBatchToggle}
             onClearBrands={handleClearBrands}
+          />
+        )}
+        
+        {selectedCountries.length > 0 && selectedBrands.length > 0 && (
+          <BrandMatchingInfo 
+            selectedCountries={selectedCountries}
+            selectedBrands={selectedBrands}
           />
         )}
       </div>
