@@ -25,6 +25,7 @@ export const fetchCountryBrandData = async (
   try {
     // Get the full country name
     const fullCountryName = getFullCountryName(country);
+    console.log(`Country code: ${country}, Full name: ${fullCountryName}`);
     
     // For each selected brand, we need to find potential matches in the current country
     const brandQueries = selectedBrands.map(async (selectedBrand) => {
@@ -34,27 +35,45 @@ export const fetchCountryBrandData = async (
       
       // 1. Try direct match first
       let matches = await findExactBrandMatch(country, fullCountryName, selectedBrand);
-      if (matches.length > 0) return matches;
+      if (matches.length > 0) {
+        console.log(`Found direct match for "${selectedBrand}" in ${country}`);
+        return matches;
+      }
       
       // 2. Try case variations
       matches = await findBrandByCaseVariations(country, fullCountryName, selectedBrand);
-      if (matches.length > 0) return matches;
+      if (matches.length > 0) {
+        console.log(`Found case variation match for "${selectedBrand}" in ${country}`);
+        return matches;
+      }
       
       // 3. Try name variations
       matches = await findBrandByNameVariations(country, fullCountryName, selectedBrand);
-      if (matches.length > 0) return matches;
+      if (matches.length > 0) {
+        console.log(`Found name variation match for "${selectedBrand}" in ${country}`);
+        return matches;
+      }
       
       // 4. Try normalized matching
       matches = await findBrandByNormalizedMatch(country, fullCountryName, selectedBrand);
-      if (matches.length > 0) return matches;
+      if (matches.length > 0) {
+        console.log(`Found normalized match for "${selectedBrand}" in ${country}`);
+        return matches;
+      }
       
       // 5. Try special brand mappings
       matches = await findBrandBySpecialMappings(country, fullCountryName, selectedBrand);
-      if (matches.length > 0) return matches;
+      if (matches.length > 0) {
+        console.log(`Found special mapping match for "${selectedBrand}" in ${country}`);
+        return matches;
+      }
       
       // 6. Last resort: Try broad search
       matches = await findBrandByBroadSearch(country, fullCountryName, selectedBrand);
-      if (matches.length > 0) return matches;
+      if (matches.length > 0) {
+        console.log(`Found broad search match for "${selectedBrand}" in ${country}`);
+        return matches;
+      }
       
       console.log(`No matches found for "${selectedBrand}" in ${country}`);
       return [];

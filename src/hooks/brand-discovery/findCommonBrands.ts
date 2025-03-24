@@ -22,6 +22,7 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   }
   
   console.log(`Finding common brands for ${selectedCountries.length} countries: ${selectedCountries.join(', ')}`);
+  console.log(`Getting common brands for ${selectedCountries.length} countries with ${availableBrands.length} available brands`);
   
   // Step 1: Create a map to collect all brand names by country (normalized)
   const brandNamesByCountry = new Map<string, Set<string>>();
@@ -38,9 +39,14 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   availableBrands.forEach(brand => {
     if (!brand.Brand || !brand.Country) return;
     
-    const country = brand.Country;
+    // Case-insensitive country comparison (important for Se vs SE)
+    const country = selectedCountries.find(c => 
+      c.toLowerCase() === brand.Country.toLowerCase() ||
+      brand.Country.toLowerCase().includes(c.toLowerCase())
+    );
+    
     // Check if this is one of our selected countries
-    if (selectedCountries.includes(country)) {
+    if (country) {
       const normalizedBrandName = normalizeBrandName(brand.Brand.toString());
       
       // Add to the set of normalized brand names for this country
@@ -73,6 +79,14 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
       if (strawberryVariants.length > 0) {
         console.log(`${country} has potential Strawberry variants:`, strawberryVariants);
       }
+      
+      // Check for well-known brands to make sure they're being found
+      ['mcdonalds', 'cocacola', 'hm', 'adidas', 'nike'].forEach(knownBrand => {
+        const hasBrand = Array.from(brandNames).some(name => 
+          normalizeBrandName(name) === knownBrand
+        );
+        console.log(`${country} has ${knownBrand}: ${hasBrand}`);
+      });
     }
     
     // Log complete list of brands from each country for thorough debugging

@@ -148,7 +148,7 @@ export const findBrandByBroadSearch = async (
   let { data: broadMatchData, error: broadMatchError } = await supabase
     .from("SBI Ranking Scores 2011-2025")
     .select("*")
-    .or(`Country.eq.${country},Country.eq.${fullCountryName}`)
+    .or(`Country.ilike.${country},Country.ilike.${fullCountryName}`)
     .ilike('Brand', `%${searchTerm}%`)
     .order('Year', { ascending: true });
   

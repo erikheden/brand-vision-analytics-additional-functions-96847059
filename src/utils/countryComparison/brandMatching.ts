@@ -15,11 +15,11 @@ export const findDirectBrandMatch = async (
   // Log this attempt for debugging purposes
   console.log(`Trying direct match for "${selectedBrand}" in ${country}`);
   
-  // Try with country code first (direct match with the selected brand)
+  // Try with country code or name, case-insensitive
   let { data: directMatchData, error: directMatchError } = await supabase
     .from("SBI Ranking Scores 2011-2025")
     .select("Brand, industry, Country, Year, Score, \"Row ID\"")
-    .or(`Country.eq.${country},Country.eq.${fullCountryName}`)
+    .or(`Country.ilike.${country},Country.ilike.${fullCountryName}`)
     .ilike('Brand', selectedBrand)  // Using ilike for case-insensitive matching
     .order('Year', { ascending: true });
     
@@ -50,7 +50,7 @@ export const findNormalizedBrandMatches = async (
   let { data: allBrandsInCountry, error: brandsError } = await supabase
     .from("SBI Ranking Scores 2011-2025")
     .select("Brand")
-    .or(`Country.eq.${country},Country.eq.${fullCountryName}`)
+    .or(`Country.ilike.${country},Country.ilike.${fullCountryName}`)
     .not('Brand', 'is', null)
     .order('Brand', { ascending: true });
   
@@ -89,7 +89,7 @@ export const findNormalizedBrandMatches = async (
       let { data: brandData, error: dataError } = await supabase
         .from("SBI Ranking Scores 2011-2025")
         .select("*")
-        .or(`Country.eq.${country},Country.eq.${fullCountryName}`)
+        .or(`Country.ilike.${country},Country.ilike.${fullCountryName}`)
         .eq('Brand', preferredBrandName)
         .order('Year', { ascending: true });
       
@@ -110,7 +110,7 @@ export const findNormalizedBrandMatches = async (
         let { data: broadMatchData, error: broadMatchError } = await supabase
           .from("SBI Ranking Scores 2011-2025")
           .select("*")
-          .or(`Country.eq.${country},Country.eq.${fullCountryName}`)
+          .or(`Country.ilike.${country},Country.ilike.${fullCountryName}`)
           .ilike('Brand', `%${searchTerm}%`)
           .order('Year', { ascending: true });
         
@@ -146,7 +146,7 @@ export const findNormalizedBrandMatches = async (
   let { data: brandData, error: dataError } = await supabase
     .from("SBI Ranking Scores 2011-2025")
     .select("*")
-    .or(`Country.eq.${country},Country.eq.${fullCountryName}`)
+    .or(`Country.ilike.${country},Country.ilike.${fullCountryName}`)
     .eq('Brand', preferredBrandName)
     .order('Year', { ascending: true });
   
