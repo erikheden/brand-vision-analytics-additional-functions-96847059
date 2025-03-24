@@ -234,9 +234,6 @@ export const guessBrandIndustry = (brandName: string): string | null => {
     'apple': 'Technology',
     'microsoft': 'Technology',
     'google': 'Technology',
-    'amazon': 'E-commerce',
-    'netflix': 'Entertainment',
-    'spotify': 'Entertainment',
     'samsung': 'Technology',
     'nokia': 'Technology',
     'volvo': 'Automotive',
@@ -336,7 +333,8 @@ export const getBrandNameVariations = (brandName: string): string[] => {
 };
 
 /**
- * Returns common abbreviations and alternate names for a brand
+ * Returns special formatted brand name for a normalized brand
+ * Used for display purposes
  */
 export const getSpecialBrandName = (normalizedName: string): string | null => {
   const specialBrandMappings: Record<string, string> = {

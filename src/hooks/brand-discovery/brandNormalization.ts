@@ -1,4 +1,4 @@
-import { normalizeBrandName } from "@/utils/industry/brandNormalization";
+import { normalizeBrandName, getSpecialBrandName } from "@/utils/industry/brandNormalization";
 
 /**
  * Groups all brand variants by normalized name
@@ -25,35 +25,6 @@ export const groupBrandsByNormalizedName = (brands: any[]) => {
   });
   
   return normalizedBrands;
-};
-
-/**
- * Special brand mappings that should be consistent across the application
- */
-export const getSpecialBrandName = (normalizedName: string): string | null => {
-  const specialBrandMappings: Record<string, string> = {
-    'mcdonalds': 'McDonald\'s',
-    'cocacola': 'Coca-Cola',
-    'handm': 'H&M',
-    'sas': 'SAS',
-    'ikea': 'IKEA',
-    'bmw': 'BMW',
-    'volvo': 'Volvo',
-    'tesla': 'Tesla',
-    'clarionhotel': 'Clarion Hotel',
-    'scandic': 'Scandic',
-    'strawberry': 'Strawberry',
-    'nordicchoice': 'Nordic Choice',
-    'spotify': 'Spotify',
-    'netflix': 'Netflix',
-    'apple': 'Apple',
-    'microsoft': 'Microsoft',
-    'google': 'Google',
-    'samsung': 'Samsung',
-    'amazon': 'Amazon'
-  };
-  
-  return specialBrandMappings[normalizedName] || null;
 };
 
 /**

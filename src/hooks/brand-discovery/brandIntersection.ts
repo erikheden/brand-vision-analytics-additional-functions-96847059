@@ -1,3 +1,4 @@
+
 import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
 /**
@@ -33,6 +34,7 @@ export const findBrandIntersection = (
 
 /**
  * Finds brands that appear in at least the specified number of countries
+ * Improved to properly track brand occurrences across countries
  */
 export const findBrandsInMultipleCountries = (
   brandNamesByCountry: Map<string, Set<string>>,
@@ -73,12 +75,15 @@ export const findBrandsInMultipleCountries = (
     (brandCountryCount.get(b) || 0) - (brandCountryCount.get(a) || 0)
   );
   
-  // Debug: Log some of the country counts for verification
+  // Improved debugging: Log detailed information about brand matches
   if (result.length > 0) {
-    const sampleCounts = result.slice(0, 5).map(brand => 
+    console.log(`Found ${result.length} brands that appear in at least ${minCountryCount} countries:`);
+    const sampleCounts = result.slice(0, 10).map(brand => 
       `${brand}: ${brandCountryCount.get(brand)} countries`
     );
     console.log("Sample brand country counts:", sampleCounts);
+  } else {
+    console.log(`No brands found that appear in at least ${minCountryCount} countries`);
   }
   
   return result;

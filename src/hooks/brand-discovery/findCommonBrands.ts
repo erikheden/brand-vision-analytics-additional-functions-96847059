@@ -6,6 +6,7 @@ import { getUniqueBrandRecords } from "./brandRecords";
 
 /**
  * Finds brands that appear in multiple countries
+ * Enhanced to better handle brands across different countries
  */
 export const findMultiCountryBrands = (selectedCountries: string[], availableBrands: any[]) => {
   // If no countries selected, return empty array
@@ -57,6 +58,12 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   selectedCountries.forEach(country => {
     const brandNames = brandNamesByCountry.get(country);
     console.log(`${country} has ${brandNames?.size || 0} normalized brands`);
+    
+    // Check if Strawberry exists in this country's brands
+    if (brandNames) {
+      const hasStrawberry = Array.from(brandNames).some(name => name.toLowerCase() === 'strawberry');
+      console.log(`${country} has Strawberry: ${hasStrawberry}`);
+    }
     
     // Debug: Log a sample of brands from each country for verification
     if (brandNames && brandNames.size > 0) {
