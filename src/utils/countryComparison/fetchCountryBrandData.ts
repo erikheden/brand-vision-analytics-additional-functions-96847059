@@ -206,6 +206,8 @@ export const fetchCountryBrandData = async (
         Score: avg.score,
         industry: "All Industries",
         isMarketAverage: true,
+        // Add OriginalBrand to satisfy the TypeScript requirements
+        OriginalBrand: "Market Average",
         matchType: "average" as const
       }));
       
