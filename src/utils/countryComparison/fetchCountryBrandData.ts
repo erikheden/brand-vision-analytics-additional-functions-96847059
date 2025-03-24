@@ -51,7 +51,7 @@ export const fetchCountryBrandData = async (
         .select("Brand")
         .or(`Country.ilike.${country},Country.ilike.${fullCountryName}`)
         .not('Brand', 'is', null)
-        .is('Score', 'not.null'); // Only include brands with scores
+        .not('Score', 'is', null); // Only include brands with scores - fixed the is() method
       
       if (brandsError) {
         console.error(`Error fetching all brands in ${country}:`, brandsError);
