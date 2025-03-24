@@ -1,151 +1,103 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Info } from "lucide-react";
+import React from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 import { useMultiCountryChartData } from "@/hooks/useMultiCountryChartData";
-import { Badge } from "@/components/ui/badge";
 
 interface BrandMatchingInfoProps {
   selectedCountries: string[];
   selectedBrands: string[];
 }
 
-const BrandMatchingInfo = ({ selectedCountries, selectedBrands }: BrandMatchingInfoProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { data: countriesData, isLoading } = useMultiCountryChartData(selectedCountries, selectedBrands);
-  
-  if (isLoading) {
-    return (
-      <div className="text-sm text-muted-foreground italic">
-        Loading brand matching data...
-      </div>
-    );
+const BrandMatchingInfo = ({ 
+  selectedCountries,
+  selectedBrands 
+}: BrandMatchingInfoProps) => {
+  const { data: chartData, isLoading } = useMultiCountryChartData(
+    selectedCountries,
+    selectedBrands
+  );
+
+  if (isLoading || !chartData) {
+    return null;
   }
+
+  // Count results by match type
+  const matchCounts: Record<string, number> = {
+    exact: 0,
+    normalized: 0,
+    partial: 0,
+    special: 0,
+    average: 0,
+    missing: 0
+  };
   
-  if (!countriesData || Object.keys(countriesData).length === 0) {
+  // Process the chart data to count match types
+  Object.values(chartData).forEach(countryData => {
+    const processedBrands = new Set<string>();
+    
+    countryData.forEach(dataPoint => {
+      if (dataPoint.isMarketAverage) return; // Skip market averages
+      
+      const brandKey = `${dataPoint.Brand}-${dataPoint.Country}`;
+      if (processedBrands.has(brandKey)) return;
+      
+      processedBrands.add(brandKey);
+      
+      if (dataPoint.matchType) {
+        matchCounts[dataPoint.matchType]++;
+      }
+    });
+  });
+  
+  // Calculate missing matches (brands with no data in any country)
+  const totalBrandCountries = selectedBrands.length * selectedCountries.length;
+  const totalMatches = Object.values(matchCounts).reduce((sum, count) => sum + count, 0);
+  matchCounts.missing = totalBrandCountries - totalMatches;
+  
+  // Only show this component if we have any non-exact matches or missing data
+  if (matchCounts.normalized === 0 && 
+      matchCounts.partial === 0 && 
+      matchCounts.special === 0 && 
+      matchCounts.missing === 0) {
     return null;
   }
   
-  // Create a mapping of brands across countries
-  const brandMatching = selectedBrands.map(brand => {
-    const countryMatches = selectedCountries.map(country => {
-      const countryData = countriesData[country];
-      if (!countryData) return { country, matched: false, matchMethod: null };
-      
-      // Filter out market averages
-      const brandEntries = countryData.filter(item => 
-        item.Brand === brand && !item.IsMarketAverage
-      );
-      
-      // Get the first entry (if any)
-      const brandMatch = brandEntries.length > 0 ? brandEntries[0] : null;
-      
-      return { 
-        country, 
-        matched: !!brandMatch, 
-        matchMethod: brandMatch?.matchMethod || null,
-        originalBrand: brandMatch?.OriginalBrand || null
-      };
-    });
-    
-    return {
-      brand,
-      matches: countryMatches,
-      matchCount: countryMatches.filter(m => m.matched).length
-    };
-  });
-  
-  // Helper function to get badge color for match method
-  const getMatchMethodBadge = (method: string | null) => {
-    if (!method) return null;
-    
-    const colors: Record<string, string> = {
-      'exact': 'bg-green-100 text-green-800',
-      'normalized': 'bg-blue-100 text-blue-800',
-      'partial': 'bg-yellow-100 text-yellow-800',
-      'special': 'bg-purple-100 text-purple-800',
-      'average': 'bg-gray-100 text-gray-800'
-    };
-    
-    return (
-      <Badge variant="outline" className={`text-xs ${colors[method] || ''}`}>
-        {method}
-      </Badge>
-    );
-  };
-  
   return (
-    <div className="mt-2 bg-slate-50 rounded-md border p-3">
-      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="flex w-full justify-between p-2">
-            <div className="flex items-center gap-2">
-              <Info className="h-4 w-4 text-slate-500" />
-              <span className="font-medium text-sm">
-                Brand Matching Information
-              </span>
-            </div>
-            {isOpen ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-2">
-          <div className="text-sm text-muted-foreground mb-2">
-            This table shows which brands were successfully matched in each country and how the matching was performed.
-          </div>
-          
-          <div className="rounded-md border overflow-auto max-h-[300px]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Brand</TableHead>
-                  <TableHead>Countries Matched</TableHead>
-                  {selectedCountries.map(country => (
-                    <TableHead key={country}>{country}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {brandMatching.map(item => (
-                  <TableRow key={item.brand}>
-                    <TableCell className="font-medium">{item.brand}</TableCell>
-                    <TableCell>
-                      {item.matchCount} of {selectedCountries.length}
-                    </TableCell>
-                    {item.matches.map(match => (
-                      <TableCell key={`${item.brand}-${match.country}`} className="whitespace-nowrap">
-                        {match.matched ? (
-                          <div className="space-y-1">
-                            <div className="text-green-600 font-medium">✓</div>
-                            {match.originalBrand && match.originalBrand !== item.brand && (
-                              <div className="text-xs text-slate-500">
-                                as: {match.originalBrand}
-                              </div>
-                            )}
-                            {match.matchMethod && (
-                              <div className="text-xs">
-                                {getMatchMethodBadge(match.matchMethod)}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-red-500">✗</span>
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    </div>
+    <Alert className="bg-amber-50 border-amber-200">
+      <Info className="h-5 w-5 text-amber-500" />
+      <AlertTitle className="text-amber-800 text-sm font-medium ml-2">
+        Brand Matching Information
+      </AlertTitle>
+      <AlertDescription className="ml-7 text-sm text-amber-700">
+        <p className="mb-1">Some brands were matched using alternative methods:</p>
+        <ul className="list-disc pl-5 space-y-1">
+          {matchCounts.normalized > 0 && (
+            <li>
+              <span className="font-medium">{matchCounts.normalized}</span> matched by normalized name
+              <span className="text-xs ml-1 text-amber-600">(e.g., "McDonald's" → "McDonalds")</span>
+            </li>
+          )}
+          {matchCounts.partial > 0 && (
+            <li>
+              <span className="font-medium">{matchCounts.partial}</span> matched by partial name
+              <span className="text-xs ml-1 text-amber-600">(e.g., "BMW" → "BMW Group")</span>
+            </li>
+          )}
+          {matchCounts.special > 0 && (
+            <li>
+              <span className="font-medium">{matchCounts.special}</span> matched using special name variants
+              <span className="text-xs ml-1 text-amber-600">(e.g., "H&M" → "H and M")</span>
+            </li>
+          )}
+          {matchCounts.missing > 0 && (
+            <li className="text-amber-800">
+              <span className="font-medium">{matchCounts.missing}</span> brand-country combinations have no available data
+            </li>
+          )}
+        </ul>
+      </AlertDescription>
+    </Alert>
   );
 };
 

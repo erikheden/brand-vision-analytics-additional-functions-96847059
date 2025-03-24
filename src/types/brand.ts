@@ -7,10 +7,9 @@ export interface BrandData {
   Score: number | null;
   Year: number | null;
   Projected?: boolean;
-  // Cross-country brand comparison fields
+  
+  // Fields for brand matching
   OriginalBrand?: string | null;
-  NormalizedBrand?: string;
-  // Brand matching information
-  matchMethod?: string | null;
-  IsMarketAverage?: boolean;
+  isMarketAverage?: boolean;
+  matchType?: "exact" | "normalized" | "partial" | "special" | "average" | null;
 }
