@@ -1,9 +1,8 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { BrandData } from "@/types/brand";
-import { getFullCountryName } from "@/components/CountrySelect";
 import { fetchCountryBrandData } from "@/utils/countryComparison/fetchCountryBrandData";
+import { fetchBrandsAcrossCountries } from "@/utils/countryComparison/sqlBrandMatching";
 
 export type MultiCountryData = Record<string, BrandData[]>;
 
@@ -21,7 +20,14 @@ export const useMultiCountryChartData = (
       console.log("Fetching multi-country data for countries:", selectedCountries);
       
       try {
-        // For each country, get the data for the selected brands
+        // Use the new SQL-based approach for better performance when comparing multiple countries
+        if (selectedCountries.length > 1) {
+          console.log("Using SQL-based approach for multi-country comparison");
+          return await fetchBrandsAcrossCountries(selectedCountries, selectedBrands);
+        }
+        
+        // For single country, use the existing approach which has more sophisticated matching
+        console.log("Using existing approach for single country");
         const countriesData: MultiCountryData = {};
         
         // Process each selected country

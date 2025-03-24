@@ -1,5 +1,4 @@
 
-
 export interface BaseBrandData {
   Brand: string | null;
   Country: string | null;
@@ -36,6 +35,11 @@ export interface AverageMatchBrand extends BaseBrandData {
   OriginalBrand: string | null;
 }
 
+export interface SqlMatchBrand extends BaseBrandData {
+  matchType: "sql-match";
+  OriginalBrand: string | null;
+}
+
 // Union type for all possible brand data variants
 export type BrandData = 
   | ExactMatchBrand 
@@ -43,5 +47,5 @@ export type BrandData =
   | PartialMatchBrand 
   | SpecialMatchBrand 
   | AverageMatchBrand
+  | SqlMatchBrand
   | (BaseBrandData & { matchType?: null });
-
