@@ -130,3 +130,6 @@ export const ensureImportantBrands = (brandNames: string[], availableBrands: any
   
   return brandNames;
 };
+
+// Re-export getSpecialBrandName from the utils module
+export { getSpecialBrandName };
