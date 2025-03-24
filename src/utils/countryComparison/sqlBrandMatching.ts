@@ -61,7 +61,7 @@ export const fetchBrandsAcrossCountries = async (
             Brand: brandName, // Use the selected brand name for consistency
             OriginalBrand: match.Brand, // Keep the original brand name
             matchType: "sql-match"
-          } as BrandData;
+          };
           
           // Add to the appropriate country's results
           resultsByCountry[country].push(brandData);
@@ -108,22 +108,3 @@ export const fetchBrandsAcrossCountries = async (
     return {};
   }
 };
-
-// Define a type to represent the SQL match result
-// This extends the existing BrandData union type
-declare module "@/types/brand" {
-  interface SqlMatchBrand extends BaseBrandData {
-    matchType: "sql-match";
-    OriginalBrand: string | null;
-  }
-  
-  // Update the union type to include the new match type
-  type BrandData = 
-    | ExactMatchBrand 
-    | NormalizedMatchBrand 
-    | PartialMatchBrand 
-    | SpecialMatchBrand 
-    | AverageMatchBrand
-    | SqlMatchBrand
-    | (BaseBrandData & { matchType?: null });
-}

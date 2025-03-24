@@ -210,7 +210,7 @@ export const fetchCountryBrandData = async (
         matchType: "average"
       }));
       
-      // Add the market averages to our results - explicitly cast each item individually
+      // Add the market averages to our results - explicitly cast each item to BrandData
       formattedAverages.forEach(avgData => {
         allBrandData.push(avgData as BrandData);
       });
