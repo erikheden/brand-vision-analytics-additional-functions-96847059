@@ -93,11 +93,11 @@ export const fetchBrandsAcrossCountries = async (
           isMarketAverage: true,
           OriginalBrand: "Market Average",
           matchType: "average"
-        }));
+        } as BrandData));
         
         // Add each average individually with proper typing
         formattedAverages.forEach(avgData => {
-          resultsByCountry[country].push(avgData as BrandData);
+          resultsByCountry[country].push(avgData);
         });
       }
     }
