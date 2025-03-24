@@ -77,5 +77,4 @@ export const getSpecialBrandName = (normalizedName: string): string | null => {
   return specialBrandMappings[normalizedName] || null;
 };
 
-// Make sure to export getSpecialBrandName for use elsewhere
-export { getSpecialBrandName };
+// No need to re-export getSpecialBrandName as it's already exported above
