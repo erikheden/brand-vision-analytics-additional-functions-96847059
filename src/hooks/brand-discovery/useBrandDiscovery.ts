@@ -34,7 +34,7 @@ export const useBrandDiscovery = (
   const getNormalizedUniqueBrands = () => {
     const commonBrands = getCommonBrands();
     
-    // Check if we need to use fallback brands - only use if we found no brands at all
+    // If we didn't find any brands at all, fallback to global brands
     if (commonBrands.length === 0) {
       const fallbackBrands = getFallbackBrands(commonBrands.length, selectedCountries.length);
       if (fallbackBrands) {
@@ -73,7 +73,7 @@ export const useBrandDiscovery = (
     // Make sure to include important brands if they were not included
     const finalBrandNames = ensureImportantBrands(preferredBrandNames, availableBrands, selectedCountries);
     
-    console.log("Final preferred brand names:", finalBrandNames);
+    console.log(`Final brand count: ${finalBrandNames.length}`);
     return finalBrandNames;
   };
 
@@ -104,15 +104,12 @@ export const useBrandDiscovery = (
       });
       
       // Known global brands should always be shown as having data
-      // even if our database doesn't have direct matches yet
       const isKnownGlobalBrand = knownGlobalBrands.includes(brand);
       
       // If it's a known global brand but we found less than 2 countries with data,
       // still mark it as having data across all countries
       if (isKnownGlobalBrand && countriesWithData.length < 2) {
-        console.log(`Brand ${brand} is a known global brand but only found data in ${countriesWithData.length} countries - marking as having data across all`);
         // For global brands, consider it has data in all selected countries
-        // This ensures the UI doesn't show incorrect limited data warnings for known global brands
         countriesWithData.length = 0; // Clear existing entries
         selectedCountries.forEach(country => countriesWithData.push(country));
       }

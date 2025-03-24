@@ -1,5 +1,5 @@
-
-import { normalizeBrandName, getPreferredBrandName } from "@/utils/industry/normalizeIndustry";
+import { normalizeBrandName, getSpecialBrandName } from "@/utils/industry/brandNormalization";
+import { getPreferredBrandName } from "@/utils/industry/brandSelection";
 
 /**
  * Groups all brand variants by normalized name
@@ -34,8 +34,14 @@ export const groupBrandsByNormalizedName = (brands: any[]) => {
 export const getPreferredBrandNames = (normalizedBrands: Map<string, string[]>) => {
   return Array.from(normalizedBrands.entries())
     .map(([normalizedName, variations]) => {
+      // First check if there's a special brand name mapping
+      const specialBrand = getSpecialBrandName(normalizedName);
+      if (specialBrand) {
+        return specialBrand;
+      }
+      
+      // Otherwise use the preferred brand name
       const preferred = getPreferredBrandName(variations, normalizedName);
-      console.log(`Brand normalization: ${normalizedName} -> ${preferred} (from options: ${variations.join(', ')})`);
       return preferred;
     })
     .filter(Boolean)
@@ -46,9 +52,13 @@ export const getPreferredBrandNames = (normalizedBrands: Map<string, string[]>) 
  * Ensures important brands are included in the brand list if they exist in the data
  */
 export const ensureImportantBrands = (brandNames: string[], availableBrands: any[], selectedCountries: string[]) => {
+  // Important brands to ensure are included
   const importantBrands = [
+    "Tesla", "Clarion Hotel", "Strawberry", "Nordic Choice", "Scandic",
     "Zara", "IKEA", "H&M", "McDonald's", "Coca-Cola", 
-    "Lidl", "Burger King", "Starbucks", "Adidas", "Nike"
+    "Lidl", "Burger King", "Starbucks", "Adidas", "Nike",
+    "SAS", "Finnair", "Norwegian", "Telia", "Telenor",
+    "BMW", "Audi", "Toyota", "Volvo"
   ];
   
   importantBrands.forEach(brand => {
@@ -70,8 +80,8 @@ export const ensureImportantBrands = (brandNames: string[], availableBrands: any
         return hasInCountry ? count + 1 : count;
       }, 0);
       
-      // If it's in multiple countries but not in our list, add it
-      if (countryCount >= 2 && !brandNames.some(b => normalizeBrandName(b) === normalizedBrand)) {
+      // If it's in at least one country but not in our list, add it
+      if (countryCount >= 1 && !brandNames.some(b => normalizeBrandName(b) === normalizedBrand)) {
         console.log(`Ensuring ${brand} is included (found in ${countryCount} countries)`);
         brandNames.push(brand);
       }

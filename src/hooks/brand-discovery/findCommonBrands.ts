@@ -55,49 +55,15 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   // Debug: Output normalized brand names and record counts per country
   selectedCountries.forEach(country => {
     const brandNames = brandNamesByCountry.get(country);
-    const recordCounts = Array.from(brandRecordsByCountry.get(country)?.entries() || [])
-      .map(([name, records]) => `${name}: ${records.length}`);
-    
     console.log(`${country} has ${brandNames?.size || 0} normalized brands`);
-    
-    // Debug first 5 brand names for transparency
-    if (brandNames && brandNames.size > 0) {
-      console.log(`Sample brands from ${country}:`, Array.from(brandNames).slice(0, 5));
-      console.log(`Sample record counts from ${country}:`, recordCounts.slice(0, 5));
-    }
   });
   
   // Find brands that exist in at least 2 countries
-  const multiCountryBrands = findBrandsInMultipleCountries(brandNamesByCountry, selectedCountries);
+  const multiCountryBrands = findBrandsInMultipleCountries(brandNamesByCountry, selectedCountries, 2);
+  console.log(`Found ${multiCountryBrands.length} brands that appear in at least 2 countries`);
   
-  // If we found very few common brands, fall back to the original intersection approach
-  let intersectionBrands: Set<string> | null = null;
-  
-  if (multiCountryBrands.length < 10) {
-    console.log("Falling back to original intersection approach");
-    
-    // Find the intersection of brand names that appear in ALL selected countries
-    intersectionBrands = findBrandIntersection(brandNamesByCountry, selectedCountries);
-    
-    if (!intersectionBrands || intersectionBrands.size === 0) {
-      // No common brands found, add in well-known global brands
-      return addWellKnownGlobalBrands(
-        new Map<string, any>(),  // Start with empty map
-        selectedCountries, 
-        availableBrands,
-        true // Force add brands from the global list even if none found naturally
-      );
-    }
-  }
-  
-  // Use either multiCountryBrands (brands in 2+ countries) or intersectionBrands (brands in ALL countries)
-  const normalizedNamesToUse = multiCountryBrands.length >= 10 ? multiCountryBrands : 
-                              (intersectionBrands ? Array.from(intersectionBrands) : []);
-  
-  console.log(`Using ${normalizedNamesToUse.length} brand names`);
-  
-  // Step 4: Get the original brand records for these normalized names
-  const uniqueRecords = getUniqueBrandRecords(normalizedNamesToUse, selectedCountries, brandRecordsByCountry);
+  // Use multiCountryBrands to get original records
+  const uniqueRecords = getUniqueBrandRecords(multiCountryBrands, selectedCountries, brandRecordsByCountry);
   
   // If we found very few brands and there are at least 2 countries selected,
   // add some well-known global brands that should be present in all countries

@@ -44,7 +44,28 @@ export const knownGlobalBrands = [
   "Clarion Hotel",
   "Scandic",
   "Strawberry",
-  "Nordic Choice"
+  "Nordic Choice",
+  "Finnair",
+  "SAS",
+  "Norwegian",
+  "Telia",
+  "Telenor",
+  "Ericsson",
+  "Nokia",
+  "Siemens",
+  "Dell",
+  "HP",
+  "Lenovo",
+  "ASUS",
+  "Philips",
+  "LG",
+  "Sony",
+  "Panasonic",
+  "Canon",
+  "Nikon",
+  "Bosch",
+  "Electrolux",
+  "Miele"
 ];
 
 /**
@@ -52,8 +73,8 @@ export const knownGlobalBrands = [
  * Ensures that we always have some brands to show
  */
 export const getFallbackBrands = (commonBrandsCount: number, countryCount: number): string[] | null => {
-  // If we have fewer than 10 common brands and at least 2 countries, use fallback list
-  if (commonBrandsCount < 10 && countryCount >= 2) {
+  // If we have fewer than 20 common brands and at least 2 countries, use fallback list
+  if (commonBrandsCount < 20 && countryCount >= 2) {
     console.log("Using fallback brands due to insufficient common brands");
     return knownGlobalBrands;
   }

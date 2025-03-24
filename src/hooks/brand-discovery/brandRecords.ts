@@ -17,8 +17,13 @@ export const getUniqueBrandRecords = (
     for (const country of selectedCountries) {
       const countryRecords = brandRecordsByCountry.get(country)?.get(normalizedName) || [];
       
+      // Sort by year descending to prioritize recent data
+      const sortedRecords = [...countryRecords].sort((a, b) => 
+        (b.Year || 0) - (a.Year || 0)
+      );
+      
       // Find a record with non-null score from this country
-      const recordWithScore = countryRecords.find(record => 
+      const recordWithScore = sortedRecords.find(record => 
         record.Score !== null && record.Score !== 0
       );
       
@@ -34,7 +39,12 @@ export const getUniqueBrandRecords = (
         const countryRecords = brandRecordsByCountry.get(country)?.get(normalizedName) || [];
         
         if (countryRecords.length > 0) {
-          bestRecord = countryRecords[0];
+          // Sort by year descending to get the most recent record
+          const sortedRecords = [...countryRecords].sort((a, b) => 
+            (b.Year || 0) - (a.Year || 0)
+          );
+          
+          bestRecord = sortedRecords[0];
           break;
         }
       }
