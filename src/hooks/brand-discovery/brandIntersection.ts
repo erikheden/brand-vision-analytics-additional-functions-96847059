@@ -75,15 +75,47 @@ export const findBrandsInMultipleCountries = (
     (brandCountryCount.get(b) || 0) - (brandCountryCount.get(a) || 0)
   );
   
-  // Improved debugging: Log detailed information about brand matches
+  // Improved debugging: Log all brands that appear in multiple countries, not just a sample
   if (result.length > 0) {
     console.log(`Found ${result.length} brands that appear in at least ${minCountryCount} countries:`);
-    const sampleCounts = result.slice(0, 10).map(brand => 
-      `${brand}: ${brandCountryCount.get(brand)} countries`
-    );
-    console.log("Sample brand country counts:", sampleCounts);
+    console.log("All common brands:", result);
+    
+    // For each brand, log which countries it appears in
+    result.forEach(brand => {
+      const countriesWithBrand = selectedCountries.filter(country => 
+        brandNamesByCountry.get(country)?.has(brand) || false
+      );
+      console.log(`${brand} appears in: ${countriesWithBrand.join(', ')}`);
+    });
   } else {
     console.log(`No brands found that appear in at least ${minCountryCount} countries`);
+    
+    // Log some diagnostic information to help understand why no matches were found
+    console.log("Checking for potential near-matches...");
+    
+    // Look for brands that appear in at least one country
+    const singleCountryBrands = Array.from(allBrandNames).filter(brand => 
+      (brandCountryCount.get(brand) || 0) >= 1
+    );
+    
+    // Sample some of these brands for debugging
+    const sampleBrands = singleCountryBrands.slice(0, 20);
+    console.log(`Sample of brands that appear in at least one country: ${sampleBrands.join(', ')}`);
+    
+    // Check for special brands like "Strawberry" that might need different normalization
+    const specialBrandCases = ["Strawberry", "McDonald's", "Coca-Cola", "Nordic Choice", "Clarion Hotel"];
+    specialBrandCases.forEach(specialBrand => {
+      console.log(`Checking for special brand: ${specialBrand}`);
+      const normalizedSpecial = normalizeBrandName(specialBrand);
+      
+      selectedCountries.forEach(country => {
+        const countryBrands = brandNamesByCountry.get(country) || new Set<string>();
+        const hasSpecialBrand = Array.from(countryBrands).some(brand => 
+          normalizeBrandName(brand) === normalizedSpecial
+        );
+        console.log(`- ${specialBrand} in ${country}: ${hasSpecialBrand}`);
+      });
+    });
   }
   
   return result;

@@ -1,5 +1,4 @@
 
-
 import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 import { addWellKnownGlobalBrands } from "./globalBrands";
 import { findBrandIntersection, findBrandsInMultipleCountries } from "./brandIntersection";
@@ -64,22 +63,39 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
     if (brandNames) {
       const hasStrawberry = Array.from(brandNames).some(name => name.toLowerCase() === 'strawberry');
       console.log(`${country} has Strawberry: ${hasStrawberry}`);
+      
+      // Look for brand variations that might be Strawberry
+      const strawberryVariants = Array.from(brandNames).filter(name => 
+        name.toLowerCase().includes('strawberry') || 
+        name.toLowerCase().includes('straw') ||
+        name.toLowerCase().includes('berr')
+      );
+      if (strawberryVariants.length > 0) {
+        console.log(`${country} has potential Strawberry variants:`, strawberryVariants);
+      }
     }
     
-    // Debug: Log a sample of brands from each country for verification
+    // Log complete list of brands from each country for thorough debugging
     if (brandNames && brandNames.size > 0) {
-      const sampleBrands = Array.from(brandNames).slice(0, 5);
-      console.log(`Sample brands from ${country}:`, sampleBrands);
+      console.log(`All normalized brands from ${country}:`, Array.from(brandNames));
+      
+      // Also log the original brand names for reference
+      const countryRecords = brandRecordsByCountry.get(country);
+      if (countryRecords) {
+        const originalNames = Array.from(countryRecords.entries()).map(([normalized, records]) => {
+          return {
+            normalized,
+            original: records.map(r => r.Brand).join(', ')
+          };
+        });
+        console.log(`Original vs Normalized brands from ${country}:`, originalNames);
+      }
     }
   });
   
   // Find brands that exist in at least 2 countries
   const multiCountryBrands = findBrandsInMultipleCountries(brandNamesByCountry, selectedCountries, 2);
   console.log(`Found ${multiCountryBrands.length} brands that appear in at least 2 countries`);
-  
-  if (multiCountryBrands.length > 0) {
-    console.log("Sample common brands:", multiCountryBrands.slice(0, 10));
-  }
   
   // Use multiCountryBrands to get original records
   const uniqueRecords = getUniqueBrandRecords(multiCountryBrands, selectedCountries, brandRecordsByCountry);
@@ -94,4 +110,3 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   console.log(`Found ${uniqueRecords.size} unique brand records across countries`);
   return Array.from(uniqueRecords.values());
 };
-

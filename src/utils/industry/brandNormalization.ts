@@ -27,8 +27,11 @@ export const normalizeBrandName = (name: string): string => {
     'nordic-choice': 'nordicchoice',
     'clarion': 'clarionhotel',
     'clarion hotel': 'clarionhotel',
-    'strawberry': 'strawberry', // Special handling for Strawberry
-    'strawberry hotels': 'strawberry' // Variation of Strawberry
+    'strawberry': 'strawberry', 
+    'strawberry hotels': 'strawberry',
+    'strawberry hotels & resorts': 'strawberry',
+    'strawberry hospitality': 'strawberry',
+    'strawberry group': 'strawberry'
   };
   
   // Check for special replacements
@@ -36,6 +39,19 @@ export const normalizeBrandName = (name: string): string => {
     if (normalized === key) {
       return value;
     }
+  }
+  
+  // Special handling for additional variants of challenging brand names
+  if (normalized.includes('strawberry')) {
+    return 'strawberry';
+  }
+  
+  if (normalized.includes('mcdonalds') || normalized.includes('mcdonald')) {
+    return 'mcdonalds';
+  }
+  
+  if (normalized.includes('cocacola') || normalized.includes('coca cola') || normalized.includes('coca-cola')) {
+    return 'cocacola';
   }
   
   // Remove spaces and multiple consecutive spaces
@@ -55,8 +71,11 @@ export const getSpecialBrandName = (normalizedName: string): string | null => {
     'bodyshop': 'The Body Shop',
     'nordicchoice': 'Nordic Choice',
     'clarionhotel': 'Clarion Hotel',
-    'strawberry': 'Strawberry' // Added special mapping for Strawberry
+    'strawberry': 'Strawberry'
   };
   
   return specialBrandMappings[normalizedName] || null;
 };
+
+// Make sure to export getSpecialBrandName for use elsewhere
+export { getSpecialBrandName };
