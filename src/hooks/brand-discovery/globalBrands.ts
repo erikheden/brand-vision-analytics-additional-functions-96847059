@@ -1,103 +1,92 @@
+
 import { normalizeBrandName } from "@/utils/industry/brandNormalization";
+import { knownGlobalBrands } from "./fallbackBrands";
 
 /**
- * Adds well-known global brands that should be available in all countries
- * Only adds brands that actually exist in the data for at least one of the selected countries
+ * Adds well-known global brands to the results even if they weren't naturally found
  */
 export const addWellKnownGlobalBrands = (
   uniqueRecords: Map<string, any>,
   selectedCountries: string[],
   availableBrands: any[],
-  forceAddAll: boolean = false
-) => {
-  // List of well-known global brands that should be available in most countries
-  const wellKnownBrands = [
-    "IKEA", "H&M", "Volvo", "Spotify", "McDonald's", "Burger King", 
-    "Coca-Cola", "Pepsi", "Nike", "Adidas", "Zara", "Apple", "Samsung", 
-    "Google", "Microsoft", "Amazon", "Netflix", "Subway", "KFC", "Shell", 
-    "Lidl", "BMW", "Audi", "Volkswagen", "Toyota", "SAS", "Finnair",
-    "Norwegian", "Telenor", "Telia", "Spotify", "Electrolux", "Nordea",
-    "Handelsbanken", "Circle K", "7-Eleven", "Coop", "ICA", "Kiwi", "Rema 1000"
-  ];
+  forceAdd: boolean = false
+): any[] => {
+  const knownBrands = knownGlobalBrands;
   
-  console.log(`Adding ${wellKnownBrands.length} known common brands as fallback`);
-  let addedCount = 0;
+  if (!forceAdd && uniqueRecords.size >= 15) {
+    // We already have enough brands, don't add more
+    return Array.from(uniqueRecords.values());
+  }
   
-  for (const brand of wellKnownBrands) {
-    // Skip if we already have this brand
-    const normalizedBrand = normalizeBrandName(brand);
-    let alreadyExists = false;
+  // Loop through known global brands and ensure they're included
+  knownBrands.forEach(globalBrand => {
+    const normalizedGlobalBrand = normalizeBrandName(globalBrand);
     
-    for (const [key, record] of uniqueRecords.entries()) {
-      if (key.startsWith(`${normalizedBrand}-`)) {
-        alreadyExists = true;
-        break;
-      }
+    // Check if this global brand exists in our data for any country
+    let brandExists = false;
+    
+    // First check if we already have it in our unique records
+    if (Array.from(uniqueRecords.keys()).some(key => 
+      normalizeBrandName(key) === normalizedGlobalBrand
+    )) {
+      brandExists = true;
+    } else {
+      // Check if it exists in our available brands for any selected country
+      brandExists = availableBrands.some(item => 
+        item.Brand && 
+        normalizeBrandName(item.Brand.toString()) === normalizedGlobalBrand &&
+        selectedCountries.includes(item.Country)
+      );
     }
     
-    if (alreadyExists && !forceAddAll) continue;
-    
-    // Check if this brand exists in at least one of the selected countries
-    for (const country of selectedCountries) {
-      const matchingBrands = availableBrands.filter(b => 
-        b.Country === country && 
-        b.Brand && 
-        normalizeBrandName(b.Brand.toString()) === normalizedBrand
+    // If it exists but we don't have it yet, add it
+    if (brandExists && !uniqueRecords.has(globalBrand)) {
+      console.log(`Adding global brand: ${globalBrand}`);
+      
+      // Find a sample record to use (any country is fine for now)
+      const sampleRecord = availableBrands.find(item => 
+        item.Brand && 
+        normalizeBrandName(item.Brand.toString()) === normalizedGlobalBrand
       );
       
-      if (matchingBrands.length > 0) {
-        // If forceAddAll is true, add this brand for all countries where it exists
-        // Otherwise, check if it exists in all selected countries
-        let shouldAdd = forceAddAll;
+      if (sampleRecord) {
+        // Create a modified record with the preferred brand name
+        const modifiedRecord = {
+          ...sampleRecord,
+          Brand: globalBrand // Use the standard name
+        };
         
-        if (!forceAddAll) {
-          let existsInAllCountries = true;
-          
-          for (const checkCountry of selectedCountries) {
-            const countryHasBrand = availableBrands.some(b => 
-              b.Country === checkCountry && 
-              b.Brand && 
-              normalizeBrandName(b.Brand.toString()) === normalizedBrand
-            );
-            
-            if (!countryHasBrand) {
-              existsInAllCountries = false;
-              break;
-            }
-          }
-          
-          shouldAdd = existsInAllCountries;
-        }
+        uniqueRecords.set(globalBrand, modifiedRecord);
+      }
+    }
+  });
+  
+  // If we still don't have enough brands, force add some popular ones
+  if (uniqueRecords.size < 5 && forceAdd) {
+    const popularBrands = [
+      "McDonald's", "Coca-Cola", "IKEA", "H&M", "Apple", 
+      "Google", "Netflix", "Spotify", "Adidas", "Tesla",
+      "Clarion Hotel", "Strawberry", "Scandic"
+    ];
+    
+    for (const brand of popularBrands) {
+      if (!uniqueRecords.has(brand)) {
+        // Create a dummy record
+        const dummyRecord = {
+          Brand: brand,
+          Score: null,
+          Year: new Date().getFullYear(),
+          ForceAdded: true
+        };
         
-        // Add one record for each country
-        if (shouldAdd) {
-          addedCount++;
-          for (const addCountry of selectedCountries) {
-            const countryBrands = availableBrands.filter(b => 
-              b.Country === addCountry && 
-              b.Brand && 
-              normalizeBrandName(b.Brand.toString()) === normalizedBrand
-            );
-            
-            if (countryBrands.length > 0) {
-              // Find the record with the highest score
-              const bestRecord = countryBrands.reduce((best, current) => {
-                return (current.Score && best.Score && current.Score > best.Score) ? current : best;
-              }, countryBrands[0]);
-              
-              uniqueRecords.set(`${normalizedBrand}-${addCountry}`, bestRecord);
-            }
-          }
-        }
+        uniqueRecords.set(brand, dummyRecord);
+        console.log(`Force adding popular brand: ${brand}`);
         
-        // Break the country loop as we've already found and processed this brand
-        break;
+        // Stop after we've added enough
+        if (uniqueRecords.size >= 10) break;
       }
     }
   }
-  
-  console.log(`Added ${addedCount} brands from the global list`);
-  console.log(`Final brand count: ${uniqueRecords.size} records`);
   
   return Array.from(uniqueRecords.values());
 };

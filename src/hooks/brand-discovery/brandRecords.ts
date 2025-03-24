@@ -1,31 +1,50 @@
 
 /**
- * Gets unique brand records for common normalized brand names
+ * Gets unique brand records based on normalized brand names
  */
-export function getUniqueBrandRecords(
+export const getUniqueBrandRecords = (
   normalizedNames: string[],
   selectedCountries: string[],
   brandRecordsByCountry: Map<string, Map<string, any[]>>
-): Map<string, any> {
+): Map<string, any> => {
   const uniqueRecords = new Map<string, any>();
   
-  // For each common normalized brand name, find all matching brand records
   normalizedNames.forEach(normalizedName => {
-    selectedCountries.forEach(country => {
+    // Try to find a good representative record for this brand
+    let bestRecord: any = null;
+    
+    // First, try to find a record from any country that has a proper Score
+    for (const country of selectedCountries) {
       const countryRecords = brandRecordsByCountry.get(country)?.get(normalizedName) || [];
       
-      if (countryRecords.length > 0) {
-        // If multiple records exist for this brand in this country, use the one with highest score
-        const bestRecord = countryRecords.reduce((best, current) => {
-          return (!best.Score || (current.Score && current.Score > best.Score)) ? current : best;
-        }, countryRecords[0]);
-        
-        const key = `${normalizedName}-${country}`;
-        uniqueRecords.set(key, bestRecord);
+      // Find a record with non-null score from this country
+      const recordWithScore = countryRecords.find(record => 
+        record.Score !== null && record.Score !== 0
+      );
+      
+      if (recordWithScore) {
+        bestRecord = recordWithScore;
+        break;
       }
-    });
+    }
+    
+    // If no record with score found, just use the first record we find
+    if (!bestRecord) {
+      for (const country of selectedCountries) {
+        const countryRecords = brandRecordsByCountry.get(country)?.get(normalizedName) || [];
+        
+        if (countryRecords.length > 0) {
+          bestRecord = countryRecords[0];
+          break;
+        }
+      }
+    }
+    
+    // If we found a representative record, add it to our results
+    if (bestRecord) {
+      uniqueRecords.set(normalizedName, bestRecord);
+    }
   });
   
-  console.log(`Found ${uniqueRecords.size} unique brand records across countries`);
   return uniqueRecords;
-}
+};

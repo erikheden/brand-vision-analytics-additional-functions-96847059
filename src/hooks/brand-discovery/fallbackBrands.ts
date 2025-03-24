@@ -1,48 +1,62 @@
 
 /**
- * Common global/Nordic brands for fallback when not enough common brands are found
+ * Provides fallback brands for when no common brands are found
  */
-export const knownCommonBrands = [
-  "McDonald's", "Coca-Cola", "Pepsi", "IKEA", "H&M", 
-  "Spotify", "Volvo", "Nokia", "Adidas", "Nike", 
-  "Apple", "Samsung", "Netflix", "Google", "Microsoft",
-  "BMW", "Audi", "Volkswagen", "Toyota", "SAS",
-  "Finnair", "Norwegian", "Telia", "Telenor", "Nordea",
-  "Zara", "Mango", "Lidl", "Burger King", "Subway", 
-  "Starbucks", "Amazon", "LEGO"
+
+// Known brands that are problematic or should be excluded
+export const knownProblematicBrands = [
+  "Industry average",
+  "Unknown",
+  "Not specified",
+  "Not Available",
+  "N/A"
 ];
 
-/**
- * List of brands known to have data issues in some countries
- */
-export const knownProblematicBrands = ["Bershka", "Pull & Bear"];
-
-/**
- * List of brands known to be present across most Nordic countries 
- * These will be assumed to have data even if our initial check fails
- */
+// List of well-known global brands that exist in many countries
 export const knownGlobalBrands = [
-  "Coca-Cola", "H&M", "IKEA", "Volvo", "Nike", "Adidas", 
-  "McDonald's", "Apple", "Samsung", "Google", "Microsoft",
-  "Spotify", "Telia", "Nordea", "LEGO", "Zara", "Amazon",
-  "Finnair", "SAS", "BMW", "Audi", "Toyota"
+  "McDonald's",
+  "Coca-Cola",
+  "Nike",
+  "Adidas",
+  "IKEA",
+  "H&M",
+  "Apple",
+  "Samsung",
+  "Amazon",
+  "Google",
+  "Microsoft",
+  "Zara",
+  "Netflix",
+  "Spotify",
+  "Tesla",
+  "BMW",
+  "Audi",
+  "Toyota",
+  "Volvo",
+  "Lidl",
+  "Burger King",
+  "KFC",
+  "Subway",
+  "Starbucks",
+  "Shell",
+  "Visa",
+  "Mastercard",
+  "Clarion Hotel",
+  "Scandic",
+  "Strawberry",
+  "Nordic Choice"
 ];
 
 /**
- * Provides a fallback list of common brands when not enough naturally common brands
- * are found across the selected countries
+ * Get fallback brands to use when no common brands are found
+ * Ensures that we always have some brands to show
  */
-export const getFallbackBrands = (commonBrandsCount: number, selectedCountriesCount: number) => {
-  // Lower the threshold for fallback brands to ensure we always have options
-  // If fewer than 10 common brands found, use the fallback list
-  if ((commonBrandsCount < 10) && selectedCountriesCount >= 2) {
-    console.log(`Few common brands found naturally (${commonBrandsCount}) across ${selectedCountriesCount} countries, adding known common brands as fallback`);
-    console.log(`Adding ${knownCommonBrands.length} known common brands as fallback`);
-    
-    // Filter out problematic brands
-    return knownCommonBrands.filter(brand => !knownProblematicBrands.includes(brand));
+export const getFallbackBrands = (commonBrandsCount: number, countryCount: number): string[] | null => {
+  // If we have fewer than 10 common brands and at least 2 countries, use fallback list
+  if (commonBrandsCount < 10 && countryCount >= 2) {
+    console.log("Using fallback brands due to insufficient common brands");
+    return knownGlobalBrands;
   }
   
-  return null; // No fallback needed
+  return null;
 };
-
