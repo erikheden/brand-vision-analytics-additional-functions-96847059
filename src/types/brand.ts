@@ -10,4 +10,7 @@ export interface BrandData {
   // Cross-country brand comparison fields
   OriginalBrand?: string | null;
   NormalizedBrand?: string;
+  // Brand matching information
+  matchMethod?: string | null;
+  IsMarketAverage?: boolean;
 }
