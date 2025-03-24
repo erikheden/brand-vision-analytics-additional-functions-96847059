@@ -210,9 +210,10 @@ export const fetchCountryBrandData = async (
         matchType: "average"
       }));
       
-      // Add the market averages to our results - explicitly cast to BrandData
-      // since AverageMatchBrand is included in the BrandData union type
-      allBrandData.push(...formattedAverages);
+      // Add the market averages to our results - explicitly cast each item individually
+      formattedAverages.forEach(avgData => {
+        allBrandData.push(avgData as BrandData);
+      });
     }
     
     return allBrandData;
