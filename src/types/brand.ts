@@ -1,4 +1,5 @@
 
+
 export interface BaseBrandData {
   Brand: string | null;
   Country: string | null;
@@ -43,3 +44,4 @@ export type BrandData =
   | SpecialMatchBrand 
   | AverageMatchBrand
   | (BaseBrandData & { matchType?: null });
+
