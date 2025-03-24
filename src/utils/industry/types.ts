@@ -1,5 +1,12 @@
 
-export interface BrandData {
+export interface BrandScore {
+  brand: string;
+  score: number;
+  year: number;
+  industry: string | null;
+}
+
+export interface BrandDataSimple {
   Year: number;
   Brand: string;
   Score: number;
@@ -7,13 +14,6 @@ export interface BrandData {
   industry?: string | null;
   "Row ID"?: number;
   Projected?: boolean;
-}
-
-export interface BrandScore {
-  brand: string;
-  score: number;
-  year: number;
-  industry: string | null;
 }
 
 export type IndustryAverages = Record<number, Record<string, number>>;

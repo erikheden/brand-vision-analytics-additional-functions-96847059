@@ -60,7 +60,7 @@ export const fetchBrandsAcrossCountries = async (
             ...match,
             Brand: brandName, // Use the selected brand name for consistency
             OriginalBrand: match.Brand, // Keep the original brand name
-            matchType: "sql-match"
+            matchType: "sql-match" as const
           };
           
           // Add to the appropriate country's results
@@ -82,8 +82,8 @@ export const fetchBrandsAcrossCountries = async (
       } else if (marketAverages && marketAverages.length > 0) {
         console.log(`Found ${marketAverages.length} market average records for ${country}`);
         
-        // Create market average data properly typed
-        const formattedAverages = marketAverages.map(avg => ({
+        // Create market average data with the correct type
+        const formattedAverages: BrandData[] = marketAverages.map(avg => ({
           "Row ID": -1 * avg.year, // Use negative IDs for average data
           Year: avg.year,
           Brand: "Market Average",
@@ -92,13 +92,11 @@ export const fetchBrandsAcrossCountries = async (
           industry: "All Industries",
           isMarketAverage: true,
           OriginalBrand: "Market Average",
-          matchType: "average"
-        } as BrandData));
+          matchType: "average" as const
+        }));
         
-        // Add each average individually with proper typing
-        formattedAverages.forEach(avgData => {
-          resultsByCountry[country].push(avgData);
-        });
+        // Add averages to country results
+        resultsByCountry[country].push(...formattedAverages);
       }
     }
     
