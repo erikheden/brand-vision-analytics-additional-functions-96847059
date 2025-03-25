@@ -1,6 +1,4 @@
-
-// Remove the standardization import that's causing issues
-// import { standardizeScore } from '@/utils/countryChartDataUtils';
+import { standardizeScore } from '@/utils/countryChartDataUtils';
 
 interface Score {
   Year: number;

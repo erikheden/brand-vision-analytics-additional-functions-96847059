@@ -1,12 +1,13 @@
+
 import { useSelectionData } from "@/hooks/useSelectionData";
-import { findMultiCountryBrands } from "./findCommonBrands";
+import { findMultiCountryBrands } from "./commonBrandsFinder";
 import { getFallbackBrands, knownProblematicBrands, knownGlobalBrands } from "./fallbackBrands";
 import { 
   groupBrandsByNormalizedName, 
   getPreferredBrandNames,
   ensureImportantBrands
 } from "./brandNormalization";
-import { normalizeBrandName, getSpecialBrandName } from "@/utils/industry/brandNormalization";
+import { normalizeBrandName } from "@/utils/industry/brandNormalization";
 
 export const useBrandDiscovery = (
   selectedCountries: string[],
@@ -20,7 +21,6 @@ export const useBrandDiscovery = (
   
   // Get brands that appear in the selected countries
   const getCommonBrands = () => {
-    console.log(`Getting common brands for ${selectedCountries.length} countries with ${availableBrands.length} available brands`);
     const commonBrands = findMultiCountryBrands(selectedCountries, availableBrands);
     
     // Filter out known problematic brands
@@ -33,9 +33,8 @@ export const useBrandDiscovery = (
   // Get unique brand names from filtered list, prioritizing capitalized versions
   const getNormalizedUniqueBrands = () => {
     const commonBrands = getCommonBrands();
-    console.log(`Found ${commonBrands.length} common brands after filtering problematic ones`);
     
-    // If we didn't find any brands at all, fallback to global brands
+    // Check if we need to use fallback brands - only use if we found no brands at all
     if (commonBrands.length === 0) {
       const fallbackBrands = getFallbackBrands(commonBrands.length, selectedCountries.length);
       if (fallbackBrands) {
@@ -67,7 +66,6 @@ export const useBrandDiscovery = (
     
     // Group all brand variants by normalized name
     const normalizedBrands = groupBrandsByNormalizedName(commonBrands);
-    console.log(`Grouped into ${normalizedBrands.size} normalized brand groups`);
     
     // Get preferred display name for each normalized brand
     const preferredBrandNames = getPreferredBrandNames(normalizedBrands);
@@ -75,7 +73,7 @@ export const useBrandDiscovery = (
     // Make sure to include important brands if they were not included
     const finalBrandNames = ensureImportantBrands(preferredBrandNames, availableBrands, selectedCountries);
     
-    console.log(`Final brand count: ${finalBrandNames.length}`);
+    console.log("Final preferred brand names:", finalBrandNames);
     return finalBrandNames;
   };
 
@@ -106,12 +104,15 @@ export const useBrandDiscovery = (
       });
       
       // Known global brands should always be shown as having data
+      // even if our database doesn't have direct matches yet
       const isKnownGlobalBrand = knownGlobalBrands.includes(brand);
       
       // If it's a known global brand but we found less than 2 countries with data,
       // still mark it as having data across all countries
       if (isKnownGlobalBrand && countriesWithData.length < 2) {
+        console.log(`Brand ${brand} is a known global brand but only found data in ${countriesWithData.length} countries - marking as having data across all`);
         // For global brands, consider it has data in all selected countries
+        // This ensures the UI doesn't show incorrect limited data warnings for known global brands
         countriesWithData.length = 0; // Clear existing entries
         selectedCountries.forEach(country => countriesWithData.push(country));
       }

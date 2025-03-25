@@ -1,14 +1,5 @@
 
-import { BrandData as CoreBrandData } from "@/types/brand";
-
-export interface BrandScore {
-  brand: string;
-  score: number;
-  year: number;
-  industry: string | null;
-}
-
-export interface BrandDataSimple {
+export interface BrandData {
   Year: number;
   Brand: string;
   Score: number;
@@ -18,7 +9,11 @@ export interface BrandDataSimple {
   Projected?: boolean;
 }
 
-export type IndustryAverages = Record<number, Record<string, number>>;
+export interface BrandScore {
+  brand: string;
+  score: number;
+  year: number;
+  industry: string | null;
+}
 
-// Re-export BrandData from core types to avoid conflicts
-export type BrandData = CoreBrandData;
+export type IndustryAverages = Record<number, Record<string, number>>;

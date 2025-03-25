@@ -1,86 +1,70 @@
 
-import { normalizeBrandName } from "./brandNormalization";
-
 /**
- * Selects the preferred display name for a brand from multiple variants
+ * Get preferred brand display name 
+ * Selects the best version of a brand name from multiple variants,
+ * now with improved prioritization for acronyms and capitalization patterns.
  */
 export const getPreferredBrandName = (
-  brandVariants: string[],
+  brands: string[], 
   normalizedName: string
 ): string => {
-  if (!brandVariants || brandVariants.length === 0) return "";
+  const candidates = brands.filter(
+    brand => normalizeBrandName(brand) === normalizedName
+  );
   
-  // If only one variant, use it
-  if (brandVariants.length === 1) return brandVariants[0];
+  if (candidates.length === 0) return '';
   
-  // Create a scoring system for brand name variants
-  const scoredVariants = brandVariants.map(variant => {
-    let score = 0;
+  // Define a helper function to check if a string is a likely acronym
+  // Better detection for acronyms like KLM, SAS that should remain uppercase
+  const isLikelyAcronym = (str: string): boolean => {
+    // Must be all uppercase
+    if (str !== str.toUpperCase()) return false;
     
-    // Prefer capitalized first letter
-    if (variant.charAt(0) === variant.charAt(0).toUpperCase()) {
-      score += 2;
-    }
+    // Must be at least 2 characters
+    if (str.length < 2) return false;
     
-    // Prefer variants with proper spacing
-    if (variant.includes(" ") && !variant.includes("  ")) {
-      score += 1;
-    }
+    // Common airline and brand acronyms
+    const knownAcronyms = ['KLM', 'SAS', 'TUI', 'ICA', 'BYD', 'BMW', 'IBM', 'H&M', 'VW'];
+    if (knownAcronyms.includes(str)) return true;
     
-    // Prefer variants with proper apostrophes
-    if (variant.includes("'")) {
-      score += 1;
-    }
-    
-    // Penalize variants with lowercase throughout
-    if (variant === variant.toLowerCase()) {
-      score -= 1;
-    }
-    
-    // Prefer variants with company indicators
-    const companyIndicators = [" AB", " AS", " Inc", " GmbH", " Ltd", " LLC", " Co"];
-    if (companyIndicators.some(indicator => variant.endsWith(indicator))) {
-      score += 1;
-    }
-    
-    // Penalize variants that are excessively long
-    if (variant.length > 20) {
-      score -= 1;
-    }
-    
-    return { variant, score };
-  });
-  
-  // Sort by score (descending) and return the best variant
-  scoredVariants.sort((a, b) => b.score - a.score);
-  return scoredVariants[0].variant;
-};
-
-/**
- * Special brand mappings that should be consistent across the application
- */
-export const getSpecialBrandName = (normalizedName: string): string | null => {
-  const specialBrandMappings: Record<string, string> = {
-    'mcdonalds': 'McDonald\'s',
-    'cocacola': 'Coca-Cola',
-    'handm': 'H&M',
-    'sas': 'SAS',
-    'ikea': 'IKEA',
-    'bmw': 'BMW',
-    'volvo': 'Volvo',
-    'tesla': 'Tesla',
-    'clarionhotel': 'Clarion Hotel',
-    'scandic': 'Scandic',
-    'strawberry': 'Strawberry',
-    'nordicchoice': 'Nordic Choice',
-    'spotify': 'Spotify',
-    'netflix': 'Netflix',
-    'apple': 'Apple',
-    'microsoft': 'Microsoft',
-    'google': 'Google',
-    'samsung': 'Samsung',
-    'amazon': 'Amazon'
+    // Check if it has no lowercase letters and no spaces
+    // This helps identify acronyms like "KLM" versus "Klm"
+    return /^[A-Z0-9]+$/.test(str) && !str.includes(' ');
   };
   
-  return specialBrandMappings[normalizedName] || null;
+  // Sort to prioritize (in order):
+  // 1. Known acronyms or all uppercase short names (like KLM, SAS)
+  // 2. Capitalized first letter (Title case)
+  // 3. Other cases
+  return candidates.sort((a, b) => {
+    // First check for known acronyms or ALL CAPS short names
+    const aIsAcronym = isLikelyAcronym(a);
+    const bIsAcronym = isLikelyAcronym(b);
+    
+    if (aIsAcronym && !bIsAcronym) return -1;
+    if (!aIsAcronym && bIsAcronym) return 1;
+    
+    // If neither or both are acronyms, check for first letter capitalized
+    const aFirstCap = a.charAt(0) === a.charAt(0).toUpperCase();
+    const bFirstCap = b.charAt(0) === b.charAt(0).toUpperCase();
+    
+    if (aFirstCap && !bFirstCap) return -1;
+    if (!aFirstCap && bFirstCap) return 1;
+    
+    // Check for all caps as a fallback
+    const aAllCaps = a === a.toUpperCase() && a.length >= 2;
+    const bAllCaps = b === b.toUpperCase() && b.length >= 2;
+    
+    if (aAllCaps && !bAllCaps) return -1;
+    if (!aAllCaps && bAllCaps) return 1;
+    
+    // If still tied, prefer the longer name (often more complete)
+    if (a.length !== b.length) return b.length - a.length;
+    
+    // Last resort: alphabetical sorting
+    return a.localeCompare(b);
+  })[0];
 };
+
+// Need to import for the function to work
+import { normalizeBrandName } from './brandNormalization';

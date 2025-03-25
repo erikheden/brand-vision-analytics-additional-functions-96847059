@@ -1,6 +1,5 @@
 
-import { BrandData } from '@/types/brand';
-import { BrandScore, IndustryAverages } from './types';
+import { BrandData, BrandScore, IndustryAverages } from './types';
 import { normalizeIndustryName } from './normalizeIndustry';
 
 /**

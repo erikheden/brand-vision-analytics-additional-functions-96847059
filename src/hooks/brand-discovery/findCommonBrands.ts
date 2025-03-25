@@ -6,7 +6,6 @@ import { getUniqueBrandRecords } from "./brandRecords";
 
 /**
  * Finds brands that appear in multiple countries
- * Enhanced to better handle brands across different countries
  */
 export const findMultiCountryBrands = (selectedCountries: string[], availableBrands: any[]) => {
   // If no countries selected, return empty array
@@ -22,7 +21,6 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   }
   
   console.log(`Finding common brands for ${selectedCountries.length} countries: ${selectedCountries.join(', ')}`);
-  console.log(`Getting common brands for ${selectedCountries.length} countries with ${availableBrands.length} available brands`);
   
   // Step 1: Create a map to collect all brand names by country (normalized)
   const brandNamesByCountry = new Map<string, Set<string>>();
@@ -39,14 +37,8 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   availableBrands.forEach(brand => {
     if (!brand.Brand || !brand.Country) return;
     
-    // Case-insensitive country comparison (important for Se vs SE)
-    const country = selectedCountries.find(c => 
-      c.toLowerCase() === brand.Country.toLowerCase() ||
-      brand.Country.toLowerCase().includes(c.toLowerCase())
-    );
-    
-    // Check if this is one of our selected countries
-    if (country) {
+    const country = brand.Country;
+    if (selectedCountries.includes(country)) {
       const normalizedBrandName = normalizeBrandName(brand.Brand.toString());
       
       // Add to the set of normalized brand names for this country
@@ -63,56 +55,49 @@ export const findMultiCountryBrands = (selectedCountries: string[], availableBra
   // Debug: Output normalized brand names and record counts per country
   selectedCountries.forEach(country => {
     const brandNames = brandNamesByCountry.get(country);
+    const recordCounts = Array.from(brandRecordsByCountry.get(country)?.entries() || [])
+      .map(([name, records]) => `${name}: ${records.length}`);
+    
     console.log(`${country} has ${brandNames?.size || 0} normalized brands`);
     
-    // Check if Strawberry exists in this country's brands
-    if (brandNames) {
-      const hasStrawberry = Array.from(brandNames).some(name => name.toLowerCase() === 'strawberry');
-      console.log(`${country} has Strawberry: ${hasStrawberry}`);
-      
-      // Look for brand variations that might be Strawberry
-      const strawberryVariants = Array.from(brandNames).filter(name => 
-        name.toLowerCase().includes('strawberry') || 
-        name.toLowerCase().includes('straw') ||
-        name.toLowerCase().includes('berr')
-      );
-      if (strawberryVariants.length > 0) {
-        console.log(`${country} has potential Strawberry variants:`, strawberryVariants);
-      }
-      
-      // Check for well-known brands to make sure they're being found
-      ['mcdonalds', 'cocacola', 'hm', 'adidas', 'nike'].forEach(knownBrand => {
-        const hasBrand = Array.from(brandNames).some(name => 
-          normalizeBrandName(name) === knownBrand
-        );
-        console.log(`${country} has ${knownBrand}: ${hasBrand}`);
-      });
-    }
-    
-    // Log complete list of brands from each country for thorough debugging
+    // Debug first 5 brand names for transparency
     if (brandNames && brandNames.size > 0) {
-      console.log(`All normalized brands from ${country}:`, Array.from(brandNames));
-      
-      // Also log the original brand names for reference
-      const countryRecords = brandRecordsByCountry.get(country);
-      if (countryRecords) {
-        const originalNames = Array.from(countryRecords.entries()).map(([normalized, records]) => {
-          return {
-            normalized,
-            original: records.map(r => r.Brand).join(', ')
-          };
-        });
-        console.log(`Original vs Normalized brands from ${country}:`, originalNames);
-      }
+      console.log(`Sample brands from ${country}:`, Array.from(brandNames).slice(0, 5));
+      console.log(`Sample record counts from ${country}:`, recordCounts.slice(0, 5));
     }
   });
   
   // Find brands that exist in at least 2 countries
-  const multiCountryBrands = findBrandsInMultipleCountries(brandNamesByCountry, selectedCountries, 2);
-  console.log(`Found ${multiCountryBrands.length} brands that appear in at least 2 countries`);
+  const multiCountryBrands = findBrandsInMultipleCountries(brandNamesByCountry, selectedCountries);
   
-  // Use multiCountryBrands to get original records
-  const uniqueRecords = getUniqueBrandRecords(multiCountryBrands, selectedCountries, brandRecordsByCountry);
+  // If we found very few common brands, fall back to the original intersection approach
+  let intersectionBrands: Set<string> | null = null;
+  
+  if (multiCountryBrands.length < 10) {
+    console.log("Falling back to original intersection approach");
+    
+    // Find the intersection of brand names that appear in ALL selected countries
+    intersectionBrands = findBrandIntersection(brandNamesByCountry, selectedCountries);
+    
+    if (!intersectionBrands || intersectionBrands.size === 0) {
+      // No common brands found, add in well-known global brands
+      return addWellKnownGlobalBrands(
+        new Map<string, any>(),  // Start with empty map
+        selectedCountries, 
+        availableBrands,
+        true // Force add brands from the global list even if none found naturally
+      );
+    }
+  }
+  
+  // Use either multiCountryBrands (brands in 2+ countries) or intersectionBrands (brands in ALL countries)
+  const normalizedNamesToUse = multiCountryBrands.length >= 10 ? multiCountryBrands : 
+                              (intersectionBrands ? Array.from(intersectionBrands) : []);
+  
+  console.log(`Using ${normalizedNamesToUse.length} brand names`);
+  
+  // Step 4: Get the original brand records for these normalized names
+  const uniqueRecords = getUniqueBrandRecords(normalizedNamesToUse, selectedCountries, brandRecordsByCountry);
   
   // If we found very few brands and there are at least 2 countries selected,
   // add some well-known global brands that should be present in all countries

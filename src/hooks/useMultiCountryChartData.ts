@@ -1,76 +1,79 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { BrandData } from "@/types/brand";
+import { getFullCountryName } from "@/components/CountrySelect";
+import { fetchAverageScores } from "@/utils/countryComparison/averageScoreUtils";
 
-// Define the type for multi-country data
-export type MultiCountryData = Record<string, BrandData[]> & {
-  averageScores?: Map<string, Map<number, number>>;
-};
+export type MultiCountryData = Record<string, BrandData[]>;
 
 export const useMultiCountryChartData = (
   selectedCountries: string[],
   selectedBrands: string[]
 ) => {
   return useQuery({
-    queryKey: ["multi-country-data", selectedCountries, selectedBrands],
+    queryKey: ["multi-country-scores", selectedCountries, selectedBrands],
     queryFn: async () => {
-      if (!selectedCountries.length || !selectedBrands.length) {
-        return {} as MultiCountryData;
+      if (selectedCountries.length === 0 || selectedBrands.length === 0) {
+        return null;
       }
-
+      
+      console.log("Fetching multi-country data for countries:", selectedCountries);
+      
       try {
-        const result: MultiCountryData = {};
-        const averageScores = new Map<string, Map<number, number>>();
+        // For each country, get the data for the selected brands
+        const countriesData: MultiCountryData = {};
         
-        // Fetch data for each country
-        for (const country of selectedCountries) {
-          const { data, error } = await supabase
-            .from("SBI Ranking Scores 2011-2025")
-            .select("*")
-            .eq("Country", country)
-            .in("Brand", selectedBrands);
-
-          if (error) {
-            console.error(`Error fetching data for ${country}:`, error);
-            continue;
-          }
-
-          result[country] = data || [];
+        // Also get full country names for each code
+        const fullCountryNames = selectedCountries.map(getFullCountryName);
+        const allCountryFormats = [...selectedCountries, ...fullCountryNames];
+        
+        // Fetch all data for the selected countries and brands in one query
+        const { data, error } = await supabase
+          .from("SBI Ranking Scores 2011-2025")
+          .select("*")
+          .in("Country", allCountryFormats)
+          .in("Brand", selectedBrands);
           
-          // Fetch average scores for this country
-          const { data: avgData, error: avgError } = await supabase
-            .from("SBI Average Scores")
-            .select("*")
-            .eq("country", country);
-            
-          if (avgError) {
-            console.error(`Error fetching average scores for ${country}:`, avgError);
-          } else if (avgData?.length) {
-            const countryAverages = new Map<number, number>();
-            avgData.forEach(item => {
-              if (item.year && item.score) {
-                countryAverages.set(item.year, item.score);
-              }
-            });
-            averageScores.set(country, countryAverages);
+        if (error) {
+          console.error("Error fetching multi-country data:", error);
+          return null;
+        }
+        
+        if (!data || data.length === 0) {
+          console.warn("No data found for the selected countries and brands");
+          return {};
+        }
+        
+        // NEW: Fetch average scores
+        const averageScores = await fetchAverageScores(allCountryFormats);
+        
+        // Group data by country
+        for (const country of selectedCountries) {
+          const fullName = getFullCountryName(country);
+          
+          // Filter data for this country (both code and full name)
+          const countryData = data.filter(
+            item => item.Country === country || item.Country === fullName
+          );
+          
+          if (countryData.length > 0) {
+            countriesData[country] = countryData;
           }
         }
         
-        // Attach average scores to the result
-        Object.defineProperty(result, 'averageScores', {
+        // Add average scores as a non-enumerable property
+        Object.defineProperty(countriesData, 'averageScores', {
           value: averageScores,
           enumerable: false
         });
         
-        return result;
-      } catch (error) {
-        console.error("Error fetching multi-country data:", error);
-        toast.error("Failed to fetch multi-country data");
-        return {} as MultiCountryData;
+        return countriesData;
+      } catch (err) {
+        console.error("Exception in multi-country data fetch:", err);
+        return null;
       }
     },
-    enabled: selectedCountries.length > 0 && selectedBrands.length > 0,
+    enabled: selectedCountries.length > 0 && selectedBrands.length > 0
   });
 };

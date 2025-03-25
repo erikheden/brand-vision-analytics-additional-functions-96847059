@@ -32,14 +32,14 @@ export const processBarChartData = (
   const processedData: ProcessedBarDataPoint[] = [];
   
   // Get average scores if available
-  const averageScores = allCountriesData.averageScores as Map<string, Map<number, number>> | undefined;
+  const averageScores = (allCountriesData as any).averageScores as Map<string, Map<number, number>> | undefined;
   
   // Simplify common data determination
   const targetYear = 2025; // Using 2025 as the default target year
   
   // Process each country's data
   Object.entries(allCountriesData).forEach(([country, countryData]) => {
-    if (!countryData || !Array.isArray(countryData) || countryData.length === 0) return;
+    if (!countryData || countryData.length === 0) return;
     
     // For each selected brand
     selectedBrands.forEach(brand => {
