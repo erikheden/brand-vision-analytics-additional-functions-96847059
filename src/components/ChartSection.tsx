@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
@@ -8,6 +7,8 @@ import EmptyChartState from "./EmptyChartState";
 import TrendComparisonContainer from "./TrendComparisonContainer";
 import LineChartDisplay from "./LineChartDisplay";
 import BarChartDisplay from "./BarChartDisplay";
+import ChatInterface from './chat/ChatInterface';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 interface ChartSectionProps {
   selectedCountry: string;
@@ -70,32 +71,50 @@ const ChartSection = ({
   
   const chartConfig = createChartConfig(selectedBrands);
 
-  return <div className="space-y-6">
-      {/* Industry Comparison Widgets */}
-      <TrendComparisonContainer 
-        scores={scores} 
-        selectedBrands={selectedBrands} 
-        comparisonYear={2025} 
-      />
-      
-      {/* Bar Chart */}
-      <BarChartDisplay 
-        processedData={processedData}
-        selectedBrands={selectedBrands}
-        chartConfig={chartConfig}
-        standardized={standardized}
-        hasAverageScores={hasAverageScores}
-      />
-      
-      {/* Line Chart */}
-      <LineChartDisplay 
-        processedData={processedData}
-        selectedBrands={selectedBrands}
-        yearRange={yearRange}
-        chartConfig={chartConfig}
-        standardized={standardized}
-      />
-    </div>;
+  return (
+    <div className="space-y-6">
+      <Tabs defaultValue="charts" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsTrigger value="charts">Charts</TabsTrigger>
+          <TabsTrigger value="chat">Chat Analysis</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="charts" className="space-y-6">
+          {/* Industry Comparison Widgets */}
+          <TrendComparisonContainer 
+            scores={scores} 
+            selectedBrands={selectedBrands} 
+            comparisonYear={2025} 
+          />
+          
+          {/* Bar Chart */}
+          <BarChartDisplay 
+            processedData={processedData}
+            selectedBrands={selectedBrands}
+            chartConfig={chartConfig}
+            standardized={standardized}
+            hasAverageScores={hasAverageScores}
+          />
+          
+          {/* Line Chart */}
+          <LineChartDisplay 
+            processedData={processedData}
+            selectedBrands={selectedBrands}
+            yearRange={yearRange}
+            chartConfig={chartConfig}
+            standardized={standardized}
+          />
+        </TabsContent>
+
+        <TabsContent value="chat">
+          <ChatInterface 
+            selectedCountry={selectedCountry} 
+            selectedBrands={selectedBrands} 
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 };
 
 export default ChartSection;
