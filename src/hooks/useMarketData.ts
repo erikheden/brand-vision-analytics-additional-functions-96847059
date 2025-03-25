@@ -8,7 +8,7 @@ import { MultiCountryData } from "./useMultiCountryChartData";
  * This is used for standardization calculations
  */
 export const useMarketData = (selectedCountries: string[]) => {
-  return useQuery({
+  const result = useQuery({
     queryKey: ["market-data", selectedCountries],
     queryFn: async () => {
       if (!selectedCountries.length) {
@@ -67,4 +67,10 @@ export const useMarketData = (selectedCountries: string[]) => {
     },
     enabled: selectedCountries.length > 0,
   });
+
+  // Add marketData property to maintain compatibility
+  return {
+    ...result,
+    marketData: result.data
+  };
 };

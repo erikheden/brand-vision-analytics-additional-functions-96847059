@@ -39,7 +39,7 @@ export const processBarChartData = (
   
   // Process each country's data
   Object.entries(allCountriesData).forEach(([country, countryData]) => {
-    if (!countryData || countryData.length === 0) return;
+    if (!countryData || !Array.isArray(countryData) || countryData.length === 0) return;
     
     // For each selected brand
     selectedBrands.forEach(brand => {

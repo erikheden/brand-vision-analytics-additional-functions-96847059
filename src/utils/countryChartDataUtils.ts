@@ -29,7 +29,6 @@ export const getBrandColor = (brand: string): string => {
 
 /**
  * Standardize a score based on the mean and standard deviation
- * Note: This function is kept for compatibility but no longer used
  */
 export const standardizeScore = (
   score: number,
