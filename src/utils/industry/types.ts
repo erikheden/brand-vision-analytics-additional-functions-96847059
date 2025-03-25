@@ -1,4 +1,6 @@
 
+import { BrandData as CoreBrandData } from "@/types/brand";
+
 export interface BrandScore {
   brand: string;
   score: number;
@@ -17,3 +19,6 @@ export interface BrandDataSimple {
 }
 
 export type IndustryAverages = Record<number, Record<string, number>>;
+
+// Re-export BrandData from core types to avoid conflicts
+export type BrandData = CoreBrandData;

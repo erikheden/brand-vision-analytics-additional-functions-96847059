@@ -32,7 +32,7 @@ export const processBarChartData = (
   const processedData: ProcessedBarDataPoint[] = [];
   
   // Get average scores if available
-  const averageScores = (allCountriesData as any).averageScores as Map<string, Map<number, number>> | undefined;
+  const averageScores = allCountriesData.averageScores as Map<string, Map<number, number>> | undefined;
   
   // Simplify common data determination
   const targetYear = 2025; // Using 2025 as the default target year
