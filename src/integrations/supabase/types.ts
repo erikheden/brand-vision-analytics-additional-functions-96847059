@@ -512,6 +512,24 @@ export type Database = {
         }
         Relationships: []
       }
+      swe_travel_reasons: {
+        Row: {
+          main_reason: string | null
+          main_reason_code: number | null
+          respondent_id: number
+        }
+        Insert: {
+          main_reason?: string | null
+          main_reason_code?: number | null
+          respondent_id: number
+        }
+        Update: {
+          main_reason?: string | null
+          main_reason_code?: number | null
+          respondent_id?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

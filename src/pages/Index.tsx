@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import SelectionPanel from "@/components/SelectionPanel";
 import ChartSection from "@/components/ChartSection";
 import UserMenu from "@/components/UserMenu";
@@ -28,6 +29,20 @@ const Index = () => {
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <h1 className="text-2xl font-semibold text-[#34502b]">Sustainable Brand Index Dashboard</h1>
+              <nav className="flex space-x-4">
+                <Link 
+                  to="/" 
+                  className="text-[#34502b] font-medium hover:underline px-4 py-2 rounded bg-green-50"
+                >
+                  Brand Rankings
+                </Link>
+                <Link 
+                  to="/sustainability-priorities" 
+                  className="text-[#34502b] font-medium hover:underline px-4 py-2 rounded hover:bg-green-50"
+                >
+                  Sustainability Priorities
+                </Link>
+              </nav>
             </div>
             
             <SelectionPanel selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} selectedBrands={selectedBrands} setSelectedBrands={setSelectedBrands} />

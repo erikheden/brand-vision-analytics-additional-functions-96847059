@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import SustainabilityPriorities from "./pages/SustainabilityPriorities";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
@@ -25,6 +26,7 @@ const App = () => (
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<Index />} />
+              <Route path="/sustainability-priorities" element={<SustainabilityPriorities />} />
             </Route>
           </Routes>
         </BrowserRouter>
