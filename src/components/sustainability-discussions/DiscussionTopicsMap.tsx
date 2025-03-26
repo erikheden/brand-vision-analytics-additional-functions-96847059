@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import HighchartsMap from "highcharts/modules/map";
+import highchartsMap from "highcharts/modules/map";
 import highchartsWorld from "@highcharts/map-collection/custom/world.geo.json";
 import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
 import { getFullCountryName } from "@/components/CountrySelect";
@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 
 // Initialize the map module
 if (typeof Highcharts === "object") {
-  HighchartsMap(Highcharts);
+  highchartsMap(Highcharts);
 }
 
 // Country code mapping for Highcharts
