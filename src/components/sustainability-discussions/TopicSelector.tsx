@@ -8,6 +8,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Popover,
@@ -64,35 +65,33 @@ const TopicSelector = ({
         <PopoverContent className="w-[300px] p-0">
           <Command>
             <CommandInput placeholder="Search topics..." />
-            <div className="max-h-[300px] overflow-y-auto overflow-x-hidden">
+            <CommandList>
               <CommandEmpty>No topics found.</CommandEmpty>
               <CommandGroup>
-                <ScrollArea className="h-60">
-                  {safeTopics.length > 0 ? (
-                    safeTopics.map((topic) => (
-                      <CommandItem
-                        key={topic}
-                        value={topic}
-                        onSelect={() => handleSelectTopic(topic)}
-                        className="flex items-center gap-2"
-                      >
-                        <div className={cn(
-                          "flex h-4 w-4 items-center justify-center rounded-sm border border-[#34502b]",
-                          selectedTopic === topic ? "bg-[#34502b] text-white" : "opacity-50"
-                        )}>
-                          {selectedTopic === topic && <Check className="h-3 w-3" />}
-                        </div>
-                        <span>{topic}</span>
-                      </CommandItem>
-                    ))
-                  ) : (
-                    <div className="py-6 text-center text-sm text-gray-500">
-                      No discussion topics available
-                    </div>
-                  )}
-                </ScrollArea>
+                {safeTopics.length > 0 ? (
+                  safeTopics.map((topic) => (
+                    <CommandItem
+                      key={topic}
+                      value={topic}
+                      onSelect={() => handleSelectTopic(topic)}
+                      className="flex items-center gap-2"
+                    >
+                      <div className={cn(
+                        "flex h-4 w-4 items-center justify-center rounded-sm border border-[#34502b]",
+                        selectedTopic === topic ? "bg-[#34502b] text-white" : "opacity-50"
+                      )}>
+                        {selectedTopic === topic && <Check className="h-3 w-3" />}
+                      </div>
+                      <span>{topic}</span>
+                    </CommandItem>
+                  ))
+                ) : (
+                  <div className="py-6 text-center text-sm text-gray-500">
+                    No discussion topics available
+                  </div>
+                )}
               </CommandGroup>
-            </div>
+            </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
