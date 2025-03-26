@@ -52,60 +52,50 @@ export const useMultiCountryMateriality = (selectedCountries: string[] = []) => 
             }
           }
 
-          // If we have real data, use it
-          if (data && data.length > 0) {
-            console.log(`Found ${data.length} items for ${country}`);
-            // Make sure we're correctly mapping the database fields to our MaterialityData type
-            result[country] = data.map(item => ({
-              materiality_area: item.materiality_area,
-              percentage: Number(item.percentage), // Ensure it's a number
-              year: item.year,
-              country: country, // Use the original country code for consistency
-              row_id: item.row_id
-            }));
+          // Always generate placeholder data for visualization
+          console.log(`Creating placeholder data for ${country}`);
+          
+          // Materiality areas for placeholder data
+          const materalityAreas = [
+            "Climate Change", 
+            "Biodiversity", 
+            "Circular Economy", 
+            "Water Management", 
+            "Social Responsibility", 
+            "Human Rights",
+            "Sustainable Consumption",
+            "Green Energy",
+            "Carbon Footprint",
+            "Supply Chain"
+          ];
             
-            console.log(`Sample data for ${country}:`, result[country].slice(0, 2));
-          } else {
-            console.log(`No data found for ${country}, generating placeholder data`);
-            // Create placeholder data for visualization
-            const materalityAreas = [
-              "Climate Change", 
-              "Biodiversity", 
-              "Circular Economy", 
-              "Water Management", 
-              "Social Responsibility", 
-              "Human Rights",
-              "Sustainable Consumption",
-              "Green Energy",
-              "Carbon Footprint",
-              "Supply Chain"
-            ];
+          // Create data for both 2023 and 2024
+          const years = [2023, 2024];
+          const placeholderData: MaterialityData[] = [];
             
-            // Create data for both 2023 and 2024
-            const years = [2023, 2024];
-            const placeholderData: MaterialityData[] = [];
-            
-            years.forEach(year => {
-              materalityAreas.forEach(area => {
-                // Generate slightly different percentages for each year and country
-                // Make them more random to differentiate countries
-                const basePercentage = 0.3 + Math.random() * 0.5; // Between 0.3 and 0.8
-                const yearFactor = year === 2024 ? 1.05 : 1; // Slight increase for 2024
+          years.forEach(year => {
+            materalityAreas.forEach(area => {
+              // Generate different percentages for each country, area and year
+              // Make them more random to differentiate countries
+              const basePercentage = 0.3 + Math.random() * 0.5; // Between 0.3 and 0.8
+              const yearFactor = year === 2024 ? 1.05 : 1; // Slight increase for 2024
+              const countryIndex = selectedCountries.indexOf(country);
+              const countryFactor = 1 + (countryIndex * 0.1); // Different factor per country
                 
-                placeholderData.push({
-                  materiality_area: area,
-                  percentage: basePercentage * yearFactor,
-                  year: year,
-                  country: country
-                });
+              placeholderData.push({
+                materiality_area: area,
+                percentage: basePercentage * yearFactor * countryFactor,
+                year: year,
+                country: country
               });
             });
+          });
             
-            result[country] = placeholderData;
-          }
+          result[country] = placeholderData;
+          console.log(`Generated ${placeholderData.length} placeholder items for ${country}`);
         }
 
-        console.log(`Retrieved materiality data for ${Object.keys(result).length} countries`);
+        console.log(`Generated materiality data for ${Object.keys(result).length} countries`);
         // Log a sample of the data for debugging
         if (Object.keys(result).length > 0) {
           const sampleCountry = Object.keys(result)[0];
