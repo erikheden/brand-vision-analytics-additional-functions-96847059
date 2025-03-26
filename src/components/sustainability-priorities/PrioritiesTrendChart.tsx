@@ -91,12 +91,12 @@ const PrioritiesTrendChart: React.FC<PrioritiesTrendChartProps> = ({ data, selec
     tooltip: {
       shared: true,
       formatter: function(this: any) {
+        if (!this.points) return '';
+        
         let tooltip = `<b>Year: ${this.x}</b><br/>`;
-        if (this.points) {
-          this.points.forEach((point: any) => {
-            tooltip += `${point.series.name}: ${point.y.toFixed(1)}%<br/>`;
-          });
-        }
+        this.points.forEach((point: any) => {
+          tooltip += `${point.series.name}: ${point.y.toFixed(1)}%<br/>`;
+        });
         return tooltip;
       }
     },
@@ -123,8 +123,7 @@ const PrioritiesTrendChart: React.FC<PrioritiesTrendChartProps> = ({ data, selec
         fontFamily: FONT_FAMILY
       },
       itemWidth: 150,
-      maxHeight: 120,
-      scrollable: true
+      maxHeight: 120
     }
   };
 
