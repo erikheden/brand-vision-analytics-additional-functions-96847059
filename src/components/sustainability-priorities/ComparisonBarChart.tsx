@@ -64,27 +64,22 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
   console.log('ComparisonBarChart - selectedAreas:', selectedAreas);
   console.log('ComparisonBarChart - allAreas:', allAreas);
   console.log('ComparisonBarChart - sortedAreas:', sortedAreas);
+  console.log('ComparisonBarChart - sortedAreas length:', sortedAreas.length);
   console.log('ComparisonBarChart - series data:', series);
   console.log('ComparisonBarChart - series length:', series.length);
   console.log('ComparisonBarChart - first series sample:', series[0]?.data?.slice(0, 3));
 
-  // Get chart options
-  const options = useMemo(() => {
-    const chartOptionsComponent = (
-      <ComparisonChartOptions 
-        sortedAreas={sortedAreas} 
-        series={series} 
-        selectedYear={selectedYear} 
-      />
-    );
-    
-    // Extract options object from the component
-    return chartOptionsComponent.props;
-  }, [series, sortedAreas, selectedYear]);
-
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-      <HighchartsReact highcharts={Highcharts} options={options} />
+      <HighchartsReact 
+        highcharts={Highcharts} 
+        options={<ComparisonChartOptions 
+          sortedAreas={sortedAreas} 
+          series={series} 
+          selectedYear={selectedYear} 
+        />} 
+        immutable={false}
+      />
     </Card>
   );
 };

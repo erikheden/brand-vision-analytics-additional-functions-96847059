@@ -135,9 +135,10 @@ export const prepareChartSeries = (
   console.log('prepareChartSeries - sortedAreas:', sortedAreas);
   
   const series = Object.entries(chartData).map(([country, data]) => {
-    const seriesData = sortedAreas.map(area => {
+    const seriesData = sortedAreas.map((area, index) => {
       // For horizontal bar charts with categorical y-axis, the data must match the order of categories
       const value = data[area] || 0;
+      console.log(`Series data for ${country}, area ${area} at index ${index}: ${value}`);
       return value;
     });
     
@@ -151,7 +152,11 @@ export const prepareChartSeries = (
   });
   
   // Log prepared series for debugging
-  console.log('Prepared series:', series.map(s => s.name));
+  console.log('Prepared series:', series.map(s => ({
+    name: s.name,
+    dataLength: s.data.length,
+    sample: s.data.slice(0, 3)
+  })));
   
   return series;
 };

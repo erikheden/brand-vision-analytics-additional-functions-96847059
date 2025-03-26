@@ -19,6 +19,7 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
 
   // Log sorted areas to help with debugging
   console.log('ComparisonChartOptions - sortedAreas:', sortedAreas);
+  console.log('ComparisonChartOptions - series data:', series);
 
   const options: Highcharts.Options = {
     chart: {
@@ -44,11 +45,11 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
     },
     yAxis: {
       // This is for the area names (categories)
+      categories: sortedAreas,
       title: {
         text: 'Sustainability Areas',
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       },
-      categories: sortedAreas,
       labels: {
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       },
@@ -58,7 +59,6 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
     },
     tooltip: {
       formatter: function() {
-        // For horizontal bar charts, the y property is the index of the category
         return `<b>${this.series.yAxis.categories[this.y]}</b><br/>${this.series.name}: ${this.x.toFixed(1)}%`;
       }
     },
@@ -76,8 +76,8 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
         groupPadding: 0.1
       },
       series: {
-        // Ensure points are mapped to categories correctly
-        pointPlacement: 'between'
+        pointPadding: 0.1,
+        borderWidth: 0
       }
     },
     legend: {
