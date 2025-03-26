@@ -23,6 +23,12 @@ const countryCodeMapping: Record<string, string> = {
   "Dk": "dk",  // Denmark
   "Fi": "fi",  // Finland
   "Nl": "nl",  // Netherlands
+  // Add uppercase variants
+  "SE": "se",
+  "NO": "no",
+  "DK": "dk",
+  "FI": "fi",
+  "NL": "nl",
 };
 
 interface DiscussionTopicsMapProps {
@@ -72,15 +78,16 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
     
     // Calculate average percentage for each country
     Object.entries(countryGroups).forEach(([country, items]) => {
-      if (countryCodeMapping[country]) {
-        const avgPercentage = items.reduce((sum, item) => sum + (item.percentage || 0), 0) / items.length;
-        result.push({
-          "hc-key": countryCodeMapping[country],
-          value: avgPercentage,
-          name: getFullCountryName(country),
-          countryCode: country,
-        });
-      }
+      // Get the highcharts country code, using a case-insensitive approach
+      const hcKey = countryCodeMapping[country] || country.toLowerCase();
+      
+      const avgPercentage = items.reduce((sum, item) => sum + (item.percentage || 0), 0) / items.length;
+      result.push({
+        "hc-key": hcKey,
+        value: avgPercentage,
+        name: getFullCountryName(country),
+        countryCode: country,
+      });
     });
     
     console.log("Map data prepared:", result);
@@ -155,6 +162,22 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
       } as any);
     }
   }, [mapData]);
+
+  // Display message if no data is available
+  if (filteredData.length === 0) {
+    return (
+      <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+        <div className="text-center p-10">
+          <h3 className="text-lg font-semibold text-[#34502b]">No data available</h3>
+          <p className="text-gray-600 mt-2">
+            {selectedTopic 
+              ? `No data found for "${selectedTopic}" in ${selectedYear}.` 
+              : `No discussion topics data available for ${selectedYear}.`}
+          </p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">

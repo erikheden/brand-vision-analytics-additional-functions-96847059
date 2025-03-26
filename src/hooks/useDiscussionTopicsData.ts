@@ -17,11 +17,13 @@ export const useDiscussionTopicsData = (country: string) => {
     queryFn: async (): Promise<DiscussionTopicData[]> => {
       if (!country) return [];
       
-      // Fetch data from the SBI_Discussion_Topics_Geography table
+      console.log("Fetching discussion topics for country:", country);
+      
+      // Make query case-insensitive for country code
       const { data, error } = await supabase
         .from('SBI_Discussion_Topics_Geography')
         .select('*')
-        .eq('country', country);
+        .ilike('country', country);
       
       if (error) {
         console.error('Error fetching discussion topics:', error);
@@ -54,18 +56,24 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
     // Add debugging log
     console.log("Fetching topics for countries:", countries);
     
+    // Use ilike for case-insensitive matching with the 'in' operator equivalent for case-insensitive
     const { data, error } = await supabase
       .from('SBI_Discussion_Topics_Geography')
-      .select('*')
-      .in('country', countries);
-    
+      .select('*');
+      
     if (error) {
       console.error('Error fetching all discussion topics:', error);
       throw new Error(`Failed to fetch all discussion topics: ${error.message}`);
     }
     
+    // Filter for the countries we want (case-insensitive)
+    const countriesLowerCase = countries.map(c => c.toLowerCase());
+    const filteredData = data.filter(item => 
+      item.country && countriesLowerCase.includes(item.country.toLowerCase())
+    );
+    
     // Filter out any rows with empty discussion_topic values
-    const validTopics = data?.filter(item => 
+    const validTopics = filteredData.filter(item => 
       item.discussion_topic && 
       item.discussion_topic.trim() !== ''
     ) || [];

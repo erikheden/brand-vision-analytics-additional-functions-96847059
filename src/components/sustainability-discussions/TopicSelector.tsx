@@ -35,7 +35,8 @@ const TopicSelector = ({
   // Add debug log to check the topics array
   useEffect(() => {
     console.log("TopicSelector received topics:", topics);
-  }, [topics]);
+    console.log("TopicSelector selected topic:", selectedTopic);
+  }, [topics, selectedTopic]);
 
   const handleSelectTopic = (topic: string) => {
     // If selecting the same topic, clear the selection
