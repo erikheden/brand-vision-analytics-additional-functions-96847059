@@ -13,14 +13,20 @@ interface PrioritiesTrendChartProps {
 
 const PrioritiesTrendChart: React.FC<PrioritiesTrendChartProps> = ({ data, selectedAreas }) => {
   const chartSeries = useMemo(() => {
+    console.log("Generating trend chart series with data:", data.length, "records");
+    
     const uniqueAreas = selectedAreas.length > 0 
       ? selectedAreas 
       : [...new Set(data.map(item => item.materiality_area))];
+    
+    console.log("Areas to display:", uniqueAreas);
     
     return uniqueAreas.map(area => {
       const areaData = data
         .filter(item => item.materiality_area === area)
         .sort((a, b) => a.year - b.year);
+      
+      console.log(`Area: ${area}, Data points: ${areaData.length}`);
       
       return {
         name: area,
@@ -126,6 +132,16 @@ const PrioritiesTrendChart: React.FC<PrioritiesTrendChartProps> = ({ data, selec
       maxHeight: 120
     }
   };
+
+  if (data.length === 0) {
+    return (
+      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+        <div className="text-center py-10 text-gray-500">
+          No sustainability priorities data available. Please select a country.
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">

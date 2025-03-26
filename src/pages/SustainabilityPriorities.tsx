@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useGeneralMaterialityData } from "@/hooks/useGeneralMaterialityData";
 import CountrySelect from "@/components/CountrySelect";
 import PrioritiesBarChart from "@/components/sustainability-priorities/PrioritiesBarChart";
@@ -9,23 +9,43 @@ import YearSelector from "@/components/sustainability-priorities/YearSelector";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import UserMenu from "@/components/UserMenu";
+import { useToast } from "@/components/ui/use-toast";
 
 const SustainabilityPriorities = () => {
+  const { toast } = useToast();
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   
   const { data: materialityData = [], isLoading, error } = useGeneralMaterialityData(selectedCountry);
   
+  useEffect(() => {
+    // Log data to help with debugging
+    console.log("Materiality data loaded:", materialityData.length > 0 ? "Yes" : "No");
+    if (materialityData.length > 0) {
+      console.log("Sample data:", materialityData.slice(0, 2));
+    }
+    
+    // Reset selected areas when country changes
+    setSelectedAreas([]);
+  }, [materialityData]);
+  
   // Extract unique years from the data
   const years = useMemo(() => {
     if (!materialityData.length) return [2023, 2024]; // Default years if no data
-    return [...new Set(materialityData.map(item => item.year))];
+    return [...new Set(materialityData.map(item => item.year))].sort((a, b) => a - b);
   }, [materialityData]);
   
   // Set default to most recent year
   const [selectedYear, setSelectedYear] = useState<number>(
     years.length > 0 ? Math.max(...years) : 2024
   );
+  
+  // Update selected year when years change
+  useEffect(() => {
+    if (years.length > 0) {
+      setSelectedYear(Math.max(...years));
+    }
+  }, [years]);
   
   // Extract unique areas from the data
   const areas = useMemo(() => {
@@ -39,6 +59,16 @@ const SustainabilityPriorities = () => {
   // Handle logo click to reload the page
   const handleLogoClick = () => {
     window.location.reload();
+  };
+  
+  // Handle country selection with toast notification
+  const handleCountryChange = (country: string) => {
+    setSelectedCountry(country);
+    toast({
+      title: "Country Selected",
+      description: `Showing sustainability priorities for ${country}`,
+      duration: 3000,
+    });
   };
 
   return (
@@ -68,7 +98,7 @@ const SustainabilityPriorities = () => {
                 <CountrySelect 
                   selectedCountry={selectedCountry} 
                   countries={countries} 
-                  onCountryChange={setSelectedCountry} 
+                  onCountryChange={handleCountryChange} 
                 />
               </div>
             </div>
@@ -78,7 +108,7 @@ const SustainabilityPriorities = () => {
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
                 <AlertDescription>
-                  Failed to load sustainability priorities data.
+                  Failed to load sustainability priorities data: {error instanceof Error ? error.message : 'Unknown error'}
                 </AlertDescription>
               </Alert>
             )}
@@ -93,7 +123,7 @@ const SustainabilityPriorities = () => {
               </div>
             )}
             
-            {selectedCountry && materialityData.length > 0 && (
+            {selectedCountry && materialityData.length > 0 && !isLoading && (
               <div className="space-y-8">
                 {/* Bar Chart Section */}
                 <div className="space-y-4">
@@ -126,6 +156,12 @@ const SustainabilityPriorities = () => {
                     selectedAreas={selectedAreas}
                   />
                 </div>
+              </div>
+            )}
+            
+            {selectedCountry && materialityData.length === 0 && !isLoading && (
+              <div className="text-center py-10">
+                <p className="text-lg text-gray-600">No sustainability priorities data found for {selectedCountry}. Sample data will be shown instead.</p>
               </div>
             )}
           </div>
