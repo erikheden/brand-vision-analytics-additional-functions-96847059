@@ -77,6 +77,10 @@ const DiscussionsContent = () => {
     }
   };
 
+  // For map view - fetch data for all countries at once
+  const { data: allCountriesData = [], isLoading: isMapDataLoading, error: mapDataError } = 
+    useAllDiscussionTopicsData(countries);
+
   return (
     <div className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -159,15 +163,15 @@ const DiscussionsContent = () => {
                     />
                   </div>
                   
-                  {isLoading ? (
+                  {isMapDataLoading ? (
                     <div className="text-center py-12">Loading map data...</div>
-                  ) : error ? (
+                  ) : mapDataError ? (
                     <div className="text-center py-12 text-red-500">
-                      Error loading data: {error instanceof Error ? error.message : "Unknown error"}
+                      Error loading map data: {mapDataError instanceof Error ? mapDataError.message : "Unknown error"}
                     </div>
                   ) : (
-                    <DiscussionTopicsMapContainer 
-                      countries={countries}
+                    <DiscussionTopicsMap 
+                      data={allCountriesData}
                       selectedYear={selectedYear}
                       selectedTopic={selectedTopic}
                     />
@@ -179,38 +183,6 @@ const DiscussionsContent = () => {
         </div>
       </div>
     </div>
-  );
-};
-
-const DiscussionTopicsMapContainer = ({ 
-  countries, 
-  selectedYear,
-  selectedTopic 
-}: { 
-  countries: string[], 
-  selectedYear: number,
-  selectedTopic?: string
-}) => {
-  const { data: allCountriesData = [], isLoading, error } = useAllDiscussionTopicsData(countries);
-
-  if (isLoading) {
-    return <div className="text-center py-12">Loading map data for all countries...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-12 text-red-500">
-        Error loading map data: {error instanceof Error ? error.message : "Unknown error"}
-      </div>
-    );
-  }
-
-  return (
-    <DiscussionTopicsMap 
-      data={allCountriesData}
-      selectedYear={selectedYear}
-      selectedTopic={selectedTopic}
-    />
   );
 };
 

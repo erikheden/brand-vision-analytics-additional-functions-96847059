@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import CountryMultiSelect from "@/components/CountryMultiSelect";
 import YearSelector from "@/components/sustainability-priorities/YearSelector";
-import { useDiscussionTopicsData, DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
+import { fetchAllDiscussionTopicsData, DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
 import DiscussionTopicsComparisonChart from "./DiscussionTopicsComparisonChart";
 
 interface DiscussionTopicsComparisonProps {
@@ -18,31 +18,12 @@ const DiscussionTopicsComparison: React.FC<DiscussionTopicsComparisonProps> = ({
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [allCountriesData, setAllCountriesData] = useState<Record<string, DiscussionTopicData[]>>({});
   const [isLoading, setIsLoading] = useState(false);
-  
-  // For simplicity, we're using the first country's data to get years
-  const { data: firstCountryData = [] } = useDiscussionTopicsData(selectedCountries[0] || "");
-  
-  // Extract unique years
-  const years = React.useMemo(() => {
-    if (!firstCountryData.length) return [2023, 2024]; // Default years if no data
-    return [...new Set(firstCountryData.map(item => item.year))].sort((a, b) => a - b);
-  }, [firstCountryData]);
-  
-  // Set default to most recent year
-  const [selectedYear, setSelectedYear] = useState<number>(
-    years.length > 0 ? Math.max(...years) : 2024
-  );
-  
-  // Update selected year when years change
-  useEffect(() => {
-    if (years.length > 0) {
-      setSelectedYear(Math.max(...years));
-    }
-  }, [years]);
+  const [years, setYears] = useState<number[]>([2023, 2024]);
+  const [selectedYear, setSelectedYear] = useState<number>(2024);
   
   // Fetch data for each selected country
   useEffect(() => {
-    const fetchAllCountriesData = async () => {
+    const loadCountriesData = async () => {
       if (!selectedCountries.length) {
         setAllCountriesData({});
         return;
@@ -51,16 +32,29 @@ const DiscussionTopicsComparison: React.FC<DiscussionTopicsComparisonProps> = ({
       setIsLoading(true);
       
       try {
-        const countryDataMap: Record<string, DiscussionTopicData[]> = {};
+        // Fetch all data at once instead of country by country
+        const allData = await fetchAllDiscussionTopicsData(selectedCountries);
         
-        for (const country of selectedCountries) {
-          const { data } = await useDiscussionTopicsData(country);
-          if (data) {
-            countryDataMap[country] = data;
+        // Group by country
+        const countryGroups: Record<string, DiscussionTopicData[]> = {};
+        
+        allData.forEach(item => {
+          if (!countryGroups[item.country]) {
+            countryGroups[item.country] = [];
           }
+          countryGroups[item.country].push(item);
+        });
+        
+        // Extract years for year selector
+        const allYears = [...new Set(allData.map(item => item.year))].sort();
+        if (allYears.length > 0) {
+          setYears(allYears);
+          setSelectedYear(Math.max(...allYears));
         }
         
-        setAllCountriesData(countryDataMap);
+        setAllCountriesData(countryGroups);
+        console.log("Loaded data for countries:", Object.keys(countryGroups));
+        
       } catch (error) {
         console.error('Error fetching data for countries:', error);
         toast({
@@ -73,7 +67,7 @@ const DiscussionTopicsComparison: React.FC<DiscussionTopicsComparisonProps> = ({
       }
     };
     
-    fetchAllCountriesData();
+    loadCountriesData();
   }, [selectedCountries, toast]);
   
   // Handle country selection
