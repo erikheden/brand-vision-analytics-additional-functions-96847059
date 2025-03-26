@@ -64,7 +64,7 @@ const TopicSelector = ({
         <PopoverContent className="w-[300px] p-0">
           <Command>
             <CommandInput placeholder="Search topics..." />
-            <CommandList>
+            <div className="max-h-[300px] overflow-y-auto overflow-x-hidden">
               <CommandEmpty>No topics found.</CommandEmpty>
               <CommandGroup>
                 <ScrollArea className="h-60">
@@ -92,20 +92,10 @@ const TopicSelector = ({
                   )}
                 </ScrollArea>
               </CommandGroup>
-            </CommandList>
+            </div>
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
-  );
-};
-
-// CommandList component to fix the "undefined is not iterable" error
-// This wrapper ensures that the list is only rendered when it's safe to do so
-const CommandList = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="max-h-[300px] overflow-y-auto overflow-x-hidden">
-      {children}
     </div>
   );
 };
