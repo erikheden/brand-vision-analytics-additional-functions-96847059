@@ -43,9 +43,6 @@ const TopicSelector = ({
     setOpen(false);
   };
 
-  // Sort topics alphabetically for better UX
-  const sortedTopics = [...topics].sort();
-
   return (
     <div className={cn("w-full", className)}>
       <Popover open={open} onOpenChange={setOpen}>
@@ -66,8 +63,8 @@ const TopicSelector = ({
             <CommandEmpty>No topics found.</CommandEmpty>
             <CommandGroup>
               <ScrollArea className="h-60">
-                {sortedTopics && sortedTopics.length > 0 ? (
-                  sortedTopics.map((topic) => (
+                {topics && topics.length > 0 ? (
+                  topics.map((topic) => (
                     <CommandItem
                       key={topic}
                       value={topic}

@@ -17,8 +17,6 @@ export const useDiscussionTopicsData = (country: string) => {
     queryFn: async (): Promise<DiscussionTopicData[]> => {
       if (!country) return [];
       
-      console.log("Fetching discussion topics for country:", country);
-      
       // Fetch data from the SBI_Discussion_Topics_Geography table
       const { data, error } = await supabase
         .from('SBI_Discussion_Topics_Geography')
@@ -30,7 +28,8 @@ export const useDiscussionTopicsData = (country: string) => {
         throw new Error(`Failed to fetch discussion topics: ${error.message}`);
       }
       
-      console.log(`Retrieved ${data?.length} discussion topics for ${country}`);
+      // Add console logs to debug if data is being returned with discussion_topic values
+      console.log("Discussion topics fetched:", data);
       
       // Filter out any rows with empty discussion_topic values
       const validTopics = data?.filter(item => 
@@ -39,6 +38,7 @@ export const useDiscussionTopicsData = (country: string) => {
       ) || [];
       
       console.log("Valid discussion topics:", validTopics);
+      console.log("Unique discussion topics:", [...new Set(validTopics.map(item => item.discussion_topic))]);
       
       return validTopics;
     },
@@ -51,6 +51,7 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
   if (!countries.length) return [];
   
   try {
+    // Add debugging log
     console.log("Fetching topics for countries:", countries);
     
     const { data, error } = await supabase
@@ -63,13 +64,15 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
       throw new Error(`Failed to fetch all discussion topics: ${error.message}`);
     }
     
-    console.log(`Retrieved ${data?.length} total discussion topics for ${countries.join(', ')}`);
-    
     // Filter out any rows with empty discussion_topic values
     const validTopics = data?.filter(item => 
       item.discussion_topic && 
       item.discussion_topic.trim() !== ''
     ) || [];
+    
+    // Debug log to check data
+    console.log("All discussion topics data count:", validTopics.length);
+    console.log("Sample valid discussion topics:", validTopics.slice(0, 3));
     
     return validTopics;
   } catch (err) {
@@ -81,7 +84,7 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
 // Hook to get all countries' data
 export const useAllDiscussionTopicsData = (countries: string[]) => {
   return useQuery({
-    queryKey: ['all-discussion-topics', countries.sort().join(',')], // Ensure stable query key
+    queryKey: ['all-discussion-topics', countries],
     queryFn: () => fetchAllDiscussionTopicsData(countries),
     enabled: countries.length > 0,
   });
