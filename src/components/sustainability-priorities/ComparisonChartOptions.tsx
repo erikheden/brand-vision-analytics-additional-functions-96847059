@@ -52,8 +52,8 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
     },
     tooltip: {
       formatter: function() {
-        // Fixed: Access the x value directly for horizontal bar charts
-        return `<b>${this.series.yAxis.categories[this.point.y]}</b><br/>${this.series.name}: ${this.x.toFixed(1)}%`;
+        // Fixed: For horizontal bar charts, the y property is the index of the category
+        return `<b>${this.series.yAxis.categories[this.y]}</b><br/>${this.series.name}: ${this.x.toFixed(1)}%`;
       }
     },
     plotOptions: {

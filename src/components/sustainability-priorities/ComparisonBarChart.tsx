@@ -61,6 +61,8 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
   }
 
   // For debugging
+  console.log('ComparisonBarChart - selectedAreas:', selectedAreas);
+  console.log('ComparisonBarChart - allAreas:', allAreas);
   console.log('ComparisonBarChart - sortedAreas:', sortedAreas);
   console.log('ComparisonBarChart - series data:', series);
 
