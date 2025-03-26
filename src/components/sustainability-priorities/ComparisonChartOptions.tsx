@@ -45,15 +45,15 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
         text: 'Sustainability Areas',
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       },
+      categories: sortedAreas,
       labels: {
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      },
-      categories: sortedAreas // Explicitly set the categories to use sortedAreas
+      }
     },
     tooltip: {
       formatter: function() {
         // Fixed: Access the x value directly for horizontal bar charts
-        return `<b>${this.y}</b><br/>${this.series.name}: ${this.x.toFixed(1)}%`;
+        return `<b>${this.series.yAxis.categories[this.point.y]}</b><br/>${this.series.name}: ${this.x.toFixed(1)}%`;
       }
     },
     plotOptions: {

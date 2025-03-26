@@ -60,6 +60,10 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
     return <ComparisonEmptyState selectedAreas={selectedAreas} />;
   }
 
+  // For debugging
+  console.log('ComparisonBarChart - sortedAreas:', sortedAreas);
+  console.log('ComparisonBarChart - series data:', series);
+
   // Get chart options
   const options = useMemo(() => {
     const chartOptionsComponent = (

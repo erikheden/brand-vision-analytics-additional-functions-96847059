@@ -131,12 +131,14 @@ export const prepareChartSeries = (
   chartData: Record<string, Record<string, number>>,
   sortedAreas: string[]
 ) => {
-  return Object.entries(chartData).map(([country, data]) => {
+  const series = Object.entries(chartData).map(([country, data]) => {
     const seriesData = sortedAreas.map(area => {
       // For horizontal bar charts with categorical y-axis, the data must match the order of categories
       const value = data[area] || 0;
       return value;
     });
+    
+    console.log(`Series data for ${country}:`, seriesData);
     
     return {
       type: 'bar' as const,
@@ -144,4 +146,9 @@ export const prepareChartSeries = (
       data: seriesData
     };
   });
+  
+  // Log prepared series for debugging
+  console.log('Prepared series:', series.map(s => s.name));
+  
+  return series;
 };
