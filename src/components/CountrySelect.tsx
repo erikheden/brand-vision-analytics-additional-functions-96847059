@@ -1,11 +1,14 @@
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 interface CountrySelectProps {
   selectedCountry: string;
   countries: string[];
   onCountryChange: (country: string) => void;
+  className?: string;
 }
 
 // Map of country codes to full names
@@ -54,6 +57,7 @@ const CountrySelect = ({
   selectedCountry,
   countries,
   onCountryChange,
+  className,
 }: CountrySelectProps) => {
   // Log when countries are loaded or changed
   useEffect(() => {
@@ -61,7 +65,7 @@ const CountrySelect = ({
   }, [countries]);
 
   return (
-    <div className="space-y-2">
+    <div className={cn("space-y-2", className)}>
       <Label>Select Country</Label>
       <Select value={selectedCountry} onValueChange={onCountryChange}>
         <SelectTrigger className="bg-white">
