@@ -121,7 +121,10 @@ const PrioritiesTrendChart: React.FC<PrioritiesTrendChartProps> = ({ data, selec
       itemStyle: {
         color: '#34502b',
         fontFamily: FONT_FAMILY
-      }
+      },
+      itemWidth: 150,
+      maxHeight: 120,
+      scrollable: true
     }
   };
 

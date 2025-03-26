@@ -7,6 +7,7 @@ export interface MaterialityData {
   percentage: number;
   year: number;
   country: string;
+  row_id?: number;
 }
 
 export const useGeneralMaterialityData = (country: string) => {
@@ -27,7 +28,14 @@ export const useGeneralMaterialityData = (country: string) => {
         throw new Error(`Failed to fetch materiality data: ${error.message}`);
       }
 
-      return data || [];
+      // Transform the data to match our interface
+      return (data || []).map(item => ({
+        materiality_area: item.materiality_area,
+        percentage: item.percentage,
+        year: item.year,
+        country: item.country,
+        row_id: item.row_id
+      }));
     },
     enabled: !!country,
   });

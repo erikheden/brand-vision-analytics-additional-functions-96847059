@@ -1,22 +1,14 @@
 
 import React from 'react';
-import { Check, ChevronsUpDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface AreaSelectorProps {
   areas: string[];
@@ -25,9 +17,7 @@ interface AreaSelectorProps {
 }
 
 const AreaSelector: React.FC<AreaSelectorProps> = ({ areas, selectedAreas, onChange }) => {
-  const [open, setOpen] = React.useState(false);
-
-  const toggleArea = (area: string) => {
+  const handleAreaToggle = (area: string) => {
     if (selectedAreas.includes(area)) {
       onChange(selectedAreas.filter(a => a !== area));
     } else {
@@ -35,81 +25,55 @@ const AreaSelector: React.FC<AreaSelectorProps> = ({ areas, selectedAreas, onCha
     }
   };
 
-  const clearAll = () => {
-    onChange([]);
-  };
-
-  const selectAll = () => {
-    onChange([...areas]);
+  const handleSelectAll = () => {
+    if (selectedAreas.length === areas.length) {
+      onChange([]);
+    } else {
+      onChange([...areas]);
+    }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-sm font-medium">Filter Sustainability Areas</h3>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={clearAll} disabled={selectedAreas.length === 0}>
-            Clear All
-          </Button>
-          <Button variant="outline" size="sm" onClick={selectAll} disabled={selectedAreas.length === areas.length}>
-            Select All
-          </Button>
-        </div>
-      </div>
-      
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between"
+    <Card className="bg-white border-2 border-[#34502b]/20 shadow-md">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="text-lg text-[#34502b]">Sustainability Areas</CardTitle>
+            <CardDescription>
+              Select areas to display in the trend chart
+            </CardDescription>
+          </div>
+          <button 
+            onClick={handleSelectAll}
+            className="text-xs font-medium bg-[#34502b]/10 text-[#34502b] px-2 py-1 rounded hover:bg-[#34502b]/20 transition-colors"
           >
-            {selectedAreas.length > 0
-              ? `${selectedAreas.length} area${selectedAreas.length > 1 ? 's' : ''} selected`
-              : "Select areas..."}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-full p-0">
-          <Command>
-            <CommandInput placeholder="Search areas..." />
-            <CommandEmpty>No area found.</CommandEmpty>
-            <CommandGroup className="max-h-64 overflow-auto">
-              {areas.map((area) => (
-                <CommandItem
-                  key={area}
-                  value={area}
-                  onSelect={() => toggleArea(area)}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      selectedAreas.includes(area) ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {area}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
-      
-      {selectedAreas.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
-          {selectedAreas.map(area => (
-            <Badge key={area} variant="secondary" className="flex items-center gap-1">
-              {area}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => toggleArea(area)}
-              />
-            </Badge>
-          ))}
+            {selectedAreas.length === areas.length ? 'Deselect All' : 'Select All'}
+          </button>
         </div>
-      )}
-    </div>
+      </CardHeader>
+      <CardContent>
+        <ScrollArea className="h-[200px] pr-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {areas.map(area => (
+              <div key={area} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={`area-${area}`}
+                  checked={selectedAreas.includes(area)}
+                  onCheckedChange={() => handleAreaToggle(area)}
+                  className="border-[#34502b]/50 data-[state=checked]:bg-[#34502b] data-[state=checked]:border-[#34502b]"
+                />
+                <label 
+                  htmlFor={`area-${area}`}
+                  className="text-sm text-[#34502b] leading-tight cursor-pointer"
+                >
+                  {area}
+                </label>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </CardContent>
+    </Card>
   );
 };
 

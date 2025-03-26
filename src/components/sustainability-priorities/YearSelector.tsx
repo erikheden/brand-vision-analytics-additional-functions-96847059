@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface YearSelectorProps {
   years: number[];
@@ -10,18 +10,22 @@ interface YearSelectorProps {
 }
 
 const YearSelector: React.FC<YearSelectorProps> = ({ years, selectedYear, onChange }) => {
-  const sortedYears = [...years].sort((a, b) => b - a); // Sort years descending (newest first)
-
+  // Sort years in descending order
+  const sortedYears = [...years].sort((a, b) => b - a);
+  
   return (
     <div className="space-y-2">
-      <Label>Select Year</Label>
-      <Select value={selectedYear.toString()} onValueChange={(value) => onChange(parseInt(value))}>
-        <SelectTrigger className="bg-white">
-          <SelectValue placeholder="Choose a year">
-            {selectedYear}
-          </SelectValue>
+      <Label htmlFor="year-select" className="text-sm font-medium text-[#34502b]">
+        Select Year
+      </Label>
+      <Select
+        value={selectedYear.toString()}
+        onValueChange={(value) => onChange(parseInt(value))}
+      >
+        <SelectTrigger id="year-select" className="border-[#34502b]/30 focus:ring-[#34502b]/30">
+          <SelectValue placeholder="Select year" />
         </SelectTrigger>
-        <SelectContent className="bg-white z-50">
+        <SelectContent>
           {sortedYears.map((year) => (
             <SelectItem key={year} value={year.toString()}>
               {year}
