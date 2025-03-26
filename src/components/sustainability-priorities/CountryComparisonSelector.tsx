@@ -15,8 +15,8 @@ const CountryComparisonSelector: React.FC<CountryComparisonSelectorProps> = ({
   onCountriesChange
 }) => {
   // Ensure we have arrays even if props are undefined
-  const countries = availableCountries || [];
-  const selected = selectedCountries || [];
+  const countries = Array.isArray(availableCountries) ? availableCountries : [];
+  const selected = Array.isArray(selectedCountries) ? selectedCountries : [];
 
   return (
     <div className="space-y-2">

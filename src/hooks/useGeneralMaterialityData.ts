@@ -10,20 +10,6 @@ export interface MaterialityData {
   row_id?: number;
 }
 
-// Sample data to use if no real data is available
-const SAMPLE_DATA: MaterialityData[] = [
-  { materiality_area: "Climate Change", percentage: 0.78, year: 2023, country: "Se" },
-  { materiality_area: "Biodiversity", percentage: 0.65, year: 2023, country: "Se" },
-  { materiality_area: "Circular Economy", percentage: 0.71, year: 2023, country: "Se" },
-  { materiality_area: "Water Management", percentage: 0.58, year: 2023, country: "Se" },
-  { materiality_area: "Social Responsibility", percentage: 0.62, year: 2023, country: "Se" },
-  { materiality_area: "Climate Change", percentage: 0.82, year: 2024, country: "Se" },
-  { materiality_area: "Biodiversity", percentage: 0.68, year: 2024, country: "Se" },
-  { materiality_area: "Circular Economy", percentage: 0.75, year: 2024, country: "Se" },
-  { materiality_area: "Water Management", percentage: 0.60, year: 2024, country: "Se" },
-  { materiality_area: "Social Responsibility", percentage: 0.67, year: 2024, country: "Se" }
-];
-
 export const useGeneralMaterialityData = (country: string) => {
   return useQuery({
     queryKey: ["generalMaterialityData", country],
@@ -80,18 +66,44 @@ export const useGeneralMaterialityData = (country: string) => {
           }
         }
         
-        // If we still don't have data, use sample data
-        console.log("No real data found, using sample data");
-        return SAMPLE_DATA.map(item => ({
-          ...item,
-          country: country
-        }));
+        // If we still don't have data, generate placeholder data
+        console.log("No real data found, generating placeholder data");
+        const materalityAreas = [
+          "Climate Change", 
+          "Biodiversity", 
+          "Circular Economy", 
+          "Water Management", 
+          "Social Responsibility", 
+          "Human Rights",
+          "Sustainable Consumption",
+          "Green Energy",
+          "Carbon Footprint",
+          "Supply Chain"
+        ];
+        
+        // Create data for both 2023 and 2024
+        const years = [2023, 2024];
+        const placeholderData: MaterialityData[] = [];
+        
+        years.forEach(year => {
+          materalityAreas.forEach(area => {
+            // Generate slightly different percentages for each year
+            const basePercentage = 0.5 + Math.random() * 0.3;
+            const yearFactor = year === 2024 ? 1.05 : 1; // Slight increase for 2024
+            
+            placeholderData.push({
+              materiality_area: area,
+              percentage: basePercentage * yearFactor,
+              year: year,
+              country: country
+            });
+          });
+        });
+        
+        return placeholderData;
       } catch (error) {
         console.error("Exception in materiality data fetch:", error);
-        return SAMPLE_DATA.map(item => ({
-          ...item,
-          country: country
-        }));
+        throw error;
       }
     },
     enabled: !!country,
@@ -105,7 +117,12 @@ const getFullCountryName = (code: string): string => {
     'No': 'Norway',
     'Dk': 'Denmark',
     'Fi': 'Finland',
-    'Nl': 'The Netherlands'
+    'Nl': 'Netherlands',
+    'De': 'Germany',
+    'Fr': 'France',
+    'Uk': 'United Kingdom',
+    'Es': 'Spain',
+    'It': 'Italy'
   };
   
   return countryMapping[code] || code;

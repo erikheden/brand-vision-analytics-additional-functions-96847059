@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import CountryComparisonSelector from './CountryComparisonSelector';
 import { useMultiCountryMateriality } from '@/hooks/useMultiCountryMateriality';
@@ -8,6 +8,7 @@ import YearSelector from './YearSelector';
 import ComparisonBarChart from './ComparisonBarChart';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { useSelectionData } from '@/hooks/useSelectionData';
 
 interface CountryComparisonPanelProps {
   availableCountries: string[];
@@ -16,6 +17,10 @@ interface CountryComparisonPanelProps {
 const CountryComparisonPanel: React.FC<CountryComparisonPanelProps> = ({ availableCountries }) => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  
+  // Get the countries data if not provided
+  const { countries: fetchedCountries } = useSelectionData();
+  const allCountries = availableCountries?.length > 0 ? availableCountries : fetchedCountries || [];
   
   const { 
     data: allCountriesData = {}, 
@@ -53,6 +58,15 @@ const CountryComparisonPanel: React.FC<CountryComparisonPanelProps> = ({ availab
     return Array.from(areasSet).sort();
   }, [allCountriesData]);
 
+  // Auto-select first few countries if none are selected
+  useEffect(() => {
+    if (selectedCountries.length === 0 && allCountries.length > 0) {
+      // Select first 3 countries or all if fewer
+      const initialCount = Math.min(3, allCountries.length);
+      setSelectedCountries(allCountries.slice(0, initialCount));
+    }
+  }, [allCountries, selectedCountries.length]);
+
   return (
     <Card className="bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <CardHeader className="pb-2">
@@ -68,7 +82,7 @@ const CountryComparisonPanel: React.FC<CountryComparisonPanelProps> = ({ availab
 
       <CardContent className="space-y-6">
         <CountryComparisonSelector 
-          availableCountries={availableCountries || []}
+          availableCountries={allCountries}
           selectedCountries={selectedCountries}
           onCountriesChange={setSelectedCountries}
         />
