@@ -40,14 +40,19 @@ const CountryMultiSelect = ({
     if (!country) return;
     
     const normalizedCountry = normalizeCountry(country);
+    console.log(`Toggling country: ${normalizedCountry}, currently selected: ${safeSelectedCountries.includes(normalizedCountry)}`);
     
     // If already selected, remove it
     if (safeSelectedCountries.includes(normalizedCountry)) {
-      setSelectedCountries(safeSelectedCountries.filter(c => c !== normalizedCountry));
+      const newSelection = safeSelectedCountries.filter(c => c !== normalizedCountry);
+      console.log("New selection after removal:", newSelection);
+      setSelectedCountries(newSelection);
     } 
     // Otherwise add it
     else {
-      setSelectedCountries([...safeSelectedCountries, normalizedCountry]);
+      const newSelection = [...safeSelectedCountries, normalizedCountry];
+      console.log("New selection after addition:", newSelection);
+      setSelectedCountries(newSelection);
     }
   };
 
@@ -59,6 +64,7 @@ const CountryMultiSelect = ({
           role="combobox"
           aria-expanded={open}
           className="w-full justify-between bg-white border-[#34502b]/30 text-left font-normal"
+          type="button"
         >
           {safeSelectedCountries.length > 0
             ? `${safeSelectedCountries.length} ${safeSelectedCountries.length === 1 ? "country" : "countries"} selected`

@@ -20,6 +20,11 @@ const CountryComparisonSelector: React.FC<CountryComparisonSelectorProps> = ({
   const countries = Array.isArray(availableCountries) ? availableCountries : [];
   const selected = Array.isArray(selectedCountries) ? selectedCountries : [];
 
+  const handleClearAll = () => {
+    console.log("Clearing all countries");
+    onCountriesChange([]);
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
@@ -32,7 +37,8 @@ const CountryComparisonSelector: React.FC<CountryComparisonSelectorProps> = ({
             variant="ghost" 
             size="sm" 
             className="h-7 px-2 text-xs text-[#34502b]/70 hover:text-[#34502b] flex items-center gap-1"
-            onClick={() => onCountriesChange([])}
+            onClick={handleClearAll}
+            type="button"
           >
             <X className="h-3 w-3" />
             Clear all

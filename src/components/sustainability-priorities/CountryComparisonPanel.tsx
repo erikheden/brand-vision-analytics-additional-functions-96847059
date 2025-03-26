@@ -59,6 +59,23 @@ const CountryComparisonPanel: React.FC<CountryComparisonPanelProps> = ({ availab
     return Array.from(areasSet).sort();
   }, [allCountriesData]);
 
+  // Clear selected areas when the available areas change
+  useEffect(() => {
+    if (allAreas.length > 0 && selectedAreas.length > 0) {
+      // Check if any of the selected areas are no longer available
+      const newAreas = selectedAreas.filter(area => allAreas.includes(area));
+      if (newAreas.length !== selectedAreas.length) {
+        setSelectedAreas(newAreas);
+      }
+    }
+  }, [allAreas, selectedAreas]);
+
+  // Handle clearing all areas
+  const handleClearAreas = () => {
+    console.log("Clearing all selected areas");
+    setSelectedAreas([]);
+  };
+
   // Auto-select first few countries if none are selected
   useEffect(() => {
     if (selectedCountries.length === 0 && allCountries.length > 0) {
@@ -67,6 +84,11 @@ const CountryComparisonPanel: React.FC<CountryComparisonPanelProps> = ({ availab
       setSelectedCountries(allCountries.slice(0, initialCount));
     }
   }, [allCountries, selectedCountries.length]);
+
+  // Log selected countries for debugging
+  useEffect(() => {
+    console.log("Selected countries:", selectedCountries);
+  }, [selectedCountries]);
 
   return (
     <Card className="bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
@@ -85,7 +107,10 @@ const CountryComparisonPanel: React.FC<CountryComparisonPanelProps> = ({ availab
         <CountryComparisonSelector 
           availableCountries={allCountries}
           selectedCountries={selectedCountries}
-          onCountriesChange={setSelectedCountries}
+          onCountriesChange={(countries) => {
+            console.log("Countries changed to:", countries);
+            setSelectedCountries(countries);
+          }}
         />
         
         {error && (
@@ -126,6 +151,7 @@ const CountryComparisonPanel: React.FC<CountryComparisonPanelProps> = ({ availab
                     areas={allAreas}
                     selectedAreas={selectedAreas}
                     onChange={setSelectedAreas}
+                    onClearAreas={handleClearAreas}
                   />
                 )}
               </div>
