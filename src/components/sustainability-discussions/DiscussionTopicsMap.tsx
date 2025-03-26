@@ -1,18 +1,13 @@
-
 import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import highchartsMap from "highcharts/modules/map";
 import highchartsWorld from "@highcharts/map-collection/custom/world.geo.json";
 import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
 import { getFullCountryName } from "@/components/CountrySelect";
 import { Card } from "@/components/ui/card";
 
 // Initialize the map module
-if (typeof Highcharts === "object") {
-  // Use require syntax for the map module which is more reliable
-  require('highcharts/modules/map')(Highcharts);
-}
+import "highcharts/modules/map";
 
 // Country code mapping for Highcharts
 const countryCodeMapping: Record<string, string> = {
