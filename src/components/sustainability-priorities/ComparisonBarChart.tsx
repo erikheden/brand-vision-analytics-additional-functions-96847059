@@ -58,11 +58,18 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
   // Get chart options
   const options = useMemo(() => {
     if (series.length === 0) return null;
-    return <ComparisonChartOptions 
-      sortedAreas={sortedAreas} 
-      series={series} 
-      selectedYear={selectedYear} 
-    />;
+    
+    // Create Highcharts options
+    const chartOptionsComponent = (
+      <ComparisonChartOptions 
+        sortedAreas={sortedAreas} 
+        series={series} 
+        selectedYear={selectedYear} 
+      />
+    );
+    
+    // Extract options object from the component
+    return chartOptionsComponent.props;
   }, [series, sortedAreas, selectedYear]);
 
   // Check if we have data to display

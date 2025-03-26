@@ -78,7 +78,8 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
     }
   };
 
-  return options;
+  // Return the options object as React element
+  return <>{options}</>;
 };
 
 export default ComparisonChartOptions;
