@@ -52,8 +52,7 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
       labels: {
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       },
-      // Ensure the category labels are visible
-      reserveSpace: true,
+      // Ensure all categories are visible
       min: 0,
       max: sortedAreas.length - 1
     },
