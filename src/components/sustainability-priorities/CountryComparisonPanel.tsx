@@ -56,15 +56,19 @@ const CountryComparisonPanel: React.FC<CountryComparisonPanelProps> = ({ availab
   return (
     <Card className="bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <CardHeader className="pb-2">
-        <CardTitle className="text-xl text-[#34502b]">Country Comparison</CardTitle>
-        <CardDescription>
-          Compare sustainability priorities across different countries
-        </CardDescription>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="text-xl text-[#34502b]">Country Comparison</CardTitle>
+            <CardDescription>
+              Compare sustainability priorities across different countries
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent className="space-y-6">
         <CountryComparisonSelector 
-          availableCountries={availableCountries}
+          availableCountries={availableCountries || []}
           selectedCountries={selectedCountries}
           onCountriesChange={setSelectedCountries}
         />

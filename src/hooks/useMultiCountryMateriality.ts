@@ -2,112 +2,112 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MaterialityData } from "@/hooks/useGeneralMaterialityData";
-import { getFullCountryName } from "@/components/CountrySelect";
 
-export const useMultiCountryMateriality = (selectedCountries: string[]) => {
+const SAMPLE_DATA: Record<string, MaterialityData[]> = {
+  "Se": [
+    { materiality_area: "Climate Change", percentage: 0.78, year: 2023, country: "Se" },
+    { materiality_area: "Biodiversity", percentage: 0.65, year: 2023, country: "Se" },
+    { materiality_area: "Circular Economy", percentage: 0.71, year: 2023, country: "Se" },
+    { materiality_area: "Water Management", percentage: 0.58, year: 2023, country: "Se" },
+    { materiality_area: "Social Responsibility", percentage: 0.62, year: 2023, country: "Se" },
+    { materiality_area: "Climate Change", percentage: 0.82, year: 2024, country: "Se" },
+    { materiality_area: "Biodiversity", percentage: 0.68, year: 2024, country: "Se" },
+    { materiality_area: "Circular Economy", percentage: 0.75, year: 2024, country: "Se" },
+    { materiality_area: "Water Management", percentage: 0.60, year: 2024, country: "Se" },
+    { materiality_area: "Social Responsibility", percentage: 0.67, year: 2024, country: "Se" }
+  ],
+  "No": [
+    { materiality_area: "Climate Change", percentage: 0.80, year: 2023, country: "No" },
+    { materiality_area: "Biodiversity", percentage: 0.62, year: 2023, country: "No" },
+    { materiality_area: "Circular Economy", percentage: 0.69, year: 2023, country: "No" },
+    { materiality_area: "Water Management", percentage: 0.55, year: 2023, country: "No" },
+    { materiality_area: "Social Responsibility", percentage: 0.60, year: 2023, country: "No" },
+    { materiality_area: "Climate Change", percentage: 0.85, year: 2024, country: "No" },
+    { materiality_area: "Biodiversity", percentage: 0.65, year: 2024, country: "No" },
+    { materiality_area: "Circular Economy", percentage: 0.72, year: 2024, country: "No" },
+    { materiality_area: "Water Management", percentage: 0.58, year: 2024, country: "No" },
+    { materiality_area: "Social Responsibility", percentage: 0.64, year: 2024, country: "No" }
+  ],
+  "Dk": [
+    { materiality_area: "Climate Change", percentage: 0.76, year: 2023, country: "Dk" },
+    { materiality_area: "Biodiversity", percentage: 0.59, year: 2023, country: "Dk" },
+    { materiality_area: "Circular Economy", percentage: 0.73, year: 2023, country: "Dk" },
+    { materiality_area: "Water Management", percentage: 0.51, year: 2023, country: "Dk" },
+    { materiality_area: "Social Responsibility", percentage: 0.58, year: 2023, country: "Dk" },
+    { materiality_area: "Climate Change", percentage: 0.79, year: 2024, country: "Dk" },
+    { materiality_area: "Biodiversity", percentage: 0.63, year: 2024, country: "Dk" },
+    { materiality_area: "Circular Economy", percentage: 0.77, year: 2024, country: "Dk" },
+    { materiality_area: "Water Management", percentage: 0.54, year: 2024, country: "Dk" },
+    { materiality_area: "Social Responsibility", percentage: 0.61, year: 2024, country: "Dk" }
+  ]
+};
+
+export const useMultiCountryMateriality = (selectedCountries: string[] = []) => {
   return useQuery({
     queryKey: ["multiCountryMateriality", selectedCountries],
     queryFn: async (): Promise<Record<string, MaterialityData[]>> => {
-      if (!selectedCountries.length) {
+      // Ensure we have a valid array of countries
+      if (!Array.isArray(selectedCountries) || selectedCountries.length === 0) {
         return {};
       }
 
-      console.log(`Fetching materiality data for countries: ${selectedCountries.join(', ')}`);
-      const countryDataMap: Record<string, MaterialityData[]> = {};
+      console.log(`Fetching materiality data for ${selectedCountries.length} countries:`, selectedCountries);
 
       try {
-        // For each country, try to fetch data using both country code and full name
+        const result: Record<string, MaterialityData[]> = {};
+
+        // Process each country one by one
         for (const country of selectedCountries) {
-          const fullCountryName = getFullCountryName(country);
-          
-          // Query for both code and full name
-          const { data: codeData, error: codeError } = await supabase
+          const { data, error } = await supabase
             .from("materiality_areas_general_sbi")
             .select("*")
             .eq("country", country);
 
-          if (codeError) {
-            console.error(`Error fetching materiality data for ${country}:`, codeError);
+          if (error) {
+            console.error(`Error fetching data for ${country}:`, error);
+            // Continue with next country on error
+            continue;
           }
 
-          const { data: nameData, error: nameError } = await supabase
-            .from("materiality_areas_general_sbi")
-            .select("*")
-            .eq("country", fullCountryName);
-
-          if (nameError) {
-            console.error(`Error fetching materiality data for ${fullCountryName}:`, nameError);
-          }
-
-          // Combine results
-          const combinedData = [...(codeData || []), ...(nameData || [])];
-          
-          // If we have data, map it to the expected format
-          if (combinedData.length > 0) {
-            countryDataMap[country] = combinedData.map(item => ({
+          // If we have real data, use it
+          if (data && data.length > 0) {
+            result[country] = data.map(item => ({
               materiality_area: item.materiality_area,
               percentage: item.percentage,
               year: item.year,
               country: item.country,
               row_id: item.row_id
             }));
-            console.log(`Found ${countryDataMap[country].length} records for ${country}`);
+            continue;
+          }
+
+          // If we don't have real data, check if we have sample data for this country
+          if (SAMPLE_DATA[country]) {
+            result[country] = SAMPLE_DATA[country];
           } else {
-            console.log(`No data found for ${country} or ${fullCountryName}`);
-            // Use sample data as a fallback
-            countryDataMap[country] = generateSampleData(country);
+            // If no sample data exists for this country, create some
+            result[country] = [
+              { materiality_area: "Climate Change", percentage: 0.75 + Math.random() * 0.1, year: 2023, country },
+              { materiality_area: "Biodiversity", percentage: 0.60 + Math.random() * 0.1, year: 2023, country },
+              { materiality_area: "Circular Economy", percentage: 0.70 + Math.random() * 0.1, year: 2023, country },
+              { materiality_area: "Water Management", percentage: 0.55 + Math.random() * 0.1, year: 2023, country },
+              { materiality_area: "Social Responsibility", percentage: 0.60 + Math.random() * 0.1, year: 2023, country },
+              { materiality_area: "Climate Change", percentage: 0.80 + Math.random() * 0.1, year: 2024, country },
+              { materiality_area: "Biodiversity", percentage: 0.65 + Math.random() * 0.1, year: 2024, country },
+              { materiality_area: "Circular Economy", percentage: 0.75 + Math.random() * 0.1, year: 2024, country },
+              { materiality_area: "Water Management", percentage: 0.60 + Math.random() * 0.1, year: 2024, country },
+              { materiality_area: "Social Responsibility", percentage: 0.65 + Math.random() * 0.1, year: 2024, country }
+            ];
           }
         }
 
-        return countryDataMap;
+        console.log(`Retrieved materiality data for ${Object.keys(result).length} countries`);
+        return result;
       } catch (error) {
-        console.error("Exception in multi-country materiality data fetch:", error);
-        
-        // Return sample data for all countries as fallback
-        selectedCountries.forEach(country => {
-          if (!countryDataMap[country]) {
-            countryDataMap[country] = generateSampleData(country);
-          }
-        });
-        
-        return countryDataMap;
+        console.error("Error fetching multi-country materiality data:", error);
+        return {};
       }
     },
-    enabled: selectedCountries.length > 0,
+    enabled: Array.isArray(selectedCountries) && selectedCountries.length > 0,
   });
-};
-
-// Generate sample data for fallback
-const generateSampleData = (country: string): MaterialityData[] => {
-  const baseAreas = [
-    "Climate Change", 
-    "Biodiversity", 
-    "Circular Economy", 
-    "Water Management", 
-    "Social Responsibility"
-  ];
-  
-  // Generate data for 2023 and 2024
-  const years = [2023, 2024];
-  const result: MaterialityData[] = [];
-  
-  years.forEach(year => {
-    baseAreas.forEach((area, index) => {
-      // Create slightly different percentages for different countries
-      const basePercentage = 0.5 + (index * 0.05);
-      // Add some randomness based on the country code's charcode
-      const countryFactor = country.charCodeAt(0) % 10 / 100;
-      // Add some year variation
-      const yearFactor = year === 2024 ? 0.05 : 0;
-      
-      result.push({
-        materiality_area: area,
-        percentage: basePercentage + countryFactor + yearFactor,
-        year,
-        country
-      });
-    });
-  });
-  
-  return result;
 };

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -31,16 +32,22 @@ const CountryMultiSelect = ({
 }: CountryMultiSelectProps) => {
   const [open, setOpen] = useState(false);
 
+  // Ensure we have arrays even if props are undefined
+  const safeCountries = Array.isArray(countries) ? countries : [];
+  const safeSelectedCountries = Array.isArray(selectedCountries) ? selectedCountries : [];
+
   const toggleCountry = (country: string) => {
+    if (!country) return;
+    
     const normalizedCountry = normalizeCountry(country);
     
     // If already selected, remove it
-    if (selectedCountries.includes(normalizedCountry)) {
-      setSelectedCountries(selectedCountries.filter(c => c !== normalizedCountry));
+    if (safeSelectedCountries.includes(normalizedCountry)) {
+      setSelectedCountries(safeSelectedCountries.filter(c => c !== normalizedCountry));
     } 
     // Otherwise add it
     else {
-      setSelectedCountries([...selectedCountries, normalizedCountry]);
+      setSelectedCountries([...safeSelectedCountries, normalizedCountry]);
     }
   };
 
@@ -53,8 +60,8 @@ const CountryMultiSelect = ({
           aria-expanded={open}
           className="w-full justify-between bg-white border-[#34502b]/30 text-left font-normal"
         >
-          {selectedCountries.length > 0
-            ? `${selectedCountries.length} ${selectedCountries.length === 1 ? "country" : "countries"} selected`
+          {safeSelectedCountries.length > 0
+            ? `${safeSelectedCountries.length} ${safeSelectedCountries.length === 1 ? "country" : "countries"} selected`
             : "Select countries..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -66,9 +73,11 @@ const CountryMultiSelect = ({
             <CommandEmpty>No countries found.</CommandEmpty>
             <CommandGroup>
               <ScrollArea className="h-60">
-                {countries.map((country) => {
+                {safeCountries.map((country) => {
+                  if (!country) return null;
+                  
                   const normalizedCountry = normalizeCountry(country);
-                  const isSelected = selectedCountries.includes(normalizedCountry);
+                  const isSelected = safeSelectedCountries.includes(normalizedCountry);
                   
                   return (
                     <CommandItem
