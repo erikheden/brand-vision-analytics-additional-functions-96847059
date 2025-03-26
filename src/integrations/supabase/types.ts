@@ -373,16 +373,19 @@ export type Database = {
           question: string | null
           respondent_id: number | null
           response: string | null
+          response_code: number | null
         }
         Insert: {
           question?: string | null
           respondent_id?: number | null
           response?: string | null
+          response_code?: number | null
         }
         Update: {
           question?: string | null
           respondent_id?: number | null
           response?: string | null
+          response_code?: number | null
         }
         Relationships: []
       }

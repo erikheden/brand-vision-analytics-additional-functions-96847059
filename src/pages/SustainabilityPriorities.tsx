@@ -6,8 +6,10 @@ import PrioritiesBarChart from "@/components/sustainability-priorities/Prioritie
 import PrioritiesTrendChart from "@/components/sustainability-priorities/PrioritiesTrendChart";
 import AreaSelector from "@/components/sustainability-priorities/AreaSelector";
 import YearSelector from "@/components/sustainability-priorities/YearSelector";
+import CountryComparisonPanel from "@/components/sustainability-priorities/CountryComparisonPanel";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import UserMenu from "@/components/UserMenu";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -15,6 +17,7 @@ const SustainabilityPriorities = () => {
   const { toast } = useToast();
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<string>("single");
   
   const { data: materialityData = [], isLoading, error } = useGeneralMaterialityData(selectedCountry);
   
@@ -89,81 +92,102 @@ const SustainabilityPriorities = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <h1 className="text-2xl font-semibold text-[#34502b]">General Sustainability Priorities</h1>
+              <h1 className="text-2xl font-semibold text-[#34502b]">Sustainability Priorities</h1>
+              
+              <Tabs 
+                value={activeTab} 
+                onValueChange={setActiveTab}
+                className="w-full md:w-auto"
+              >
+                <TabsList className="bg-[#34502b]/10">
+                  <TabsTrigger value="single" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+                    Single Country Analysis
+                  </TabsTrigger>
+                  <TabsTrigger value="comparison" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+                    Country Comparison
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
             
-            {/* Country Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="md:col-span-1">
-                <CountrySelect 
-                  selectedCountry={selectedCountry} 
-                  countries={countries} 
-                  onCountryChange={handleCountryChange} 
-                />
+            <TabsContent value="single" className="space-y-6 mt-0">
+              {/* Country Selection */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-1">
+                  <CountrySelect 
+                    selectedCountry={selectedCountry} 
+                    countries={countries} 
+                    onCountryChange={handleCountryChange} 
+                  />
+                </div>
               </div>
-            </div>
-            
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>
-                  Failed to load sustainability priorities data: {error instanceof Error ? error.message : 'Unknown error'}
-                </AlertDescription>
-              </Alert>
-            )}
-            
-            {isLoading && (
-              <div className="text-center py-10">Loading data...</div>
-            )}
-            
-            {!selectedCountry && !isLoading && (
-              <div className="text-center py-10">
-                <p className="text-lg text-gray-600">Please select a country to view sustainability priorities.</p>
-              </div>
-            )}
-            
-            {selectedCountry && materialityData.length > 0 && !isLoading && (
-              <div className="space-y-8">
-                {/* Bar Chart Section */}
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="md:col-span-1">
-                      <YearSelector 
-                        years={years} 
-                        selectedYear={selectedYear} 
-                        onChange={setSelectedYear} 
-                      />
+              
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>
+                    Failed to load sustainability priorities data: {error instanceof Error ? error.message : 'Unknown error'}
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              {isLoading && (
+                <div className="text-center py-10">Loading data...</div>
+              )}
+              
+              {!selectedCountry && !isLoading && (
+                <div className="text-center py-10">
+                  <p className="text-lg text-gray-600">Please select a country to view sustainability priorities.</p>
+                </div>
+              )}
+              
+              {selectedCountry && materialityData.length > 0 && !isLoading && (
+                <div className="space-y-8">
+                  {/* Bar Chart Section */}
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="md:col-span-1">
+                        <YearSelector 
+                          years={years} 
+                          selectedYear={selectedYear} 
+                          onChange={setSelectedYear} 
+                        />
+                      </div>
                     </div>
+                    
+                    <PrioritiesBarChart 
+                      data={materialityData}
+                      selectedYear={selectedYear}
+                    />
                   </div>
                   
-                  <PrioritiesBarChart 
-                    data={materialityData}
-                    selectedYear={selectedYear}
-                  />
+                  {/* Line Chart Section */}
+                  <div className="space-y-4">
+                    <AreaSelector 
+                      areas={areas}
+                      selectedAreas={selectedAreas}
+                      onChange={setSelectedAreas}
+                    />
+                    
+                    <PrioritiesTrendChart 
+                      data={materialityData}
+                      selectedAreas={selectedAreas}
+                    />
+                  </div>
                 </div>
-                
-                {/* Line Chart Section */}
-                <div className="space-y-4">
-                  <AreaSelector 
-                    areas={areas}
-                    selectedAreas={selectedAreas}
-                    onChange={setSelectedAreas}
-                  />
-                  
-                  <PrioritiesTrendChart 
-                    data={materialityData}
-                    selectedAreas={selectedAreas}
-                  />
+              )}
+              
+              {selectedCountry && materialityData.length === 0 && !isLoading && (
+                <div className="text-center py-10">
+                  <p className="text-lg text-gray-600">No sustainability priorities data found for {selectedCountry}. Sample data will be shown instead.</p>
                 </div>
-              </div>
-            )}
+              )}
+            </TabsContent>
             
-            {selectedCountry && materialityData.length === 0 && !isLoading && (
-              <div className="text-center py-10">
-                <p className="text-lg text-gray-600">No sustainability priorities data found for {selectedCountry}. Sample data will be shown instead.</p>
-              </div>
-            )}
+            <TabsContent value="comparison" className="space-y-6 mt-0">
+              <CountryComparisonPanel availableCountries={countries} />
+            </TabsContent>
           </div>
         </div>
       </div>
