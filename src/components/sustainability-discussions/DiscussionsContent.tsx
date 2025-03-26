@@ -105,8 +105,8 @@ const DiscussionsContent = () => {
             </TabsList>
           
             <TabsContent value="single">
-              <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-                <div className="space-y-6">
+              <div className="space-y-6">
+                <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
                   <div className="flex flex-col md:flex-row gap-4 justify-between">
                     <CountrySelect
                       countries={countries}
@@ -121,24 +121,32 @@ const DiscussionsContent = () => {
                       onChange={setSelectedYear}
                     />
                   </div>
-                  
-                  {isLoading ? (
-                    <div className="text-center py-12">Loading discussion topics data...</div>
-                  ) : error ? (
+                </Card>
+                
+                {isLoading ? (
+                  <div className="text-center py-12">
+                    <div className="animate-pulse text-[#34502b]">Loading discussion topics data...</div>
+                  </div>
+                ) : error ? (
+                  <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
                     <div className="text-center py-12 text-red-500">
                       Error loading data: {error instanceof Error ? error.message : "Unknown error"}
                     </div>
-                  ) : !selectedCountry ? (
-                    <div className="text-center py-12">Please select a country to view discussion topics</div>
-                  ) : (
-                    <DiscussionTopicsChart 
-                      data={topicsData} 
-                      selectedYear={selectedYear}
-                      selectedCountry={selectedCountry}
-                    />
-                  )}
-                </div>
-              </Card>
+                  </Card>
+                ) : !selectedCountry ? (
+                  <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+                    <div className="text-center py-12 text-[#34502b]/70">
+                      Please select a country to view discussion topics
+                    </div>
+                  </Card>
+                ) : (
+                  <DiscussionTopicsChart 
+                    data={topicsData} 
+                    selectedYear={selectedYear}
+                    selectedCountry={selectedCountry}
+                  />
+                )}
+              </div>
             </TabsContent>
             
             <TabsContent value="comparison">
@@ -164,7 +172,9 @@ const DiscussionsContent = () => {
                   </div>
                   
                   {isMapDataLoading ? (
-                    <div className="text-center py-12">Loading map data...</div>
+                    <div className="text-center py-12">
+                      <div className="animate-pulse text-[#34502b]">Loading map data...</div>
+                    </div>
                   ) : mapDataError ? (
                     <div className="text-center py-12 text-red-500">
                       Error loading map data: {mapDataError instanceof Error ? mapDataError.message : "Unknown error"}

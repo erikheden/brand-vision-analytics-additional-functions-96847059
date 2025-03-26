@@ -45,7 +45,10 @@ export const useDiscussionTopicsData = (country: string) => {
           .map(item => ({
             ...item,
             // Convert country code to consistent case if needed
-            country: item.country || country
+            country: item.country || country,
+            // Ensure percentage is a number and multiply by 1 to convert string to number if needed
+            percentage: typeof item.percentage === 'number' ? item.percentage : 
+                       typeof item.percentage === 'string' ? parseFloat(item.percentage) : 0
           }));
         
         console.log("Valid discussion topics count:", validTopics.length);
@@ -105,7 +108,13 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
     
     // Filter out any rows with empty discussion_topic values
     const validTopics = filteredData
-      .filter(item => item && item.discussion_topic && item.discussion_topic.trim() !== '');
+      .filter(item => item && item.discussion_topic && item.discussion_topic.trim() !== '')
+      .map(item => ({
+        ...item,
+        // Ensure percentage is a number
+        percentage: typeof item.percentage === 'number' ? item.percentage : 
+                   typeof item.percentage === 'string' ? parseFloat(item.percentage) : 0
+      }));
     
     // Debug log to check data
     console.log("Filtered discussion topics data count:", validTopics.length);
@@ -126,7 +135,7 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
 export const useAllDiscussionTopicsData = (countries: string[]) => {
   return useQuery({
     queryKey: ['all-discussion-topics', countries],
-    queryFn: () => fetchAllDiscussionTopicsData(countries),
+    queryFn: () => fetchAllDiscussionTopicsData(countries || []),
     enabled: countries && countries.length > 0,
   });
 };

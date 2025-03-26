@@ -2,6 +2,7 @@
 import React, { useMemo } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { Card } from "@/components/ui/card";
 import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
 import { FONT_FAMILY } from "@/utils/constants";
 
@@ -17,7 +18,7 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
   selectedCountry 
 }) => {
   const processedData = useMemo(() => {
-    if (!data.length) return [];
+    if (!data || !data.length) return [];
     
     // Filter data for the selected year
     const yearData = data.filter(item => item.year === selectedYear);
@@ -34,7 +35,7 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
   const options: Highcharts.Options = {
     chart: {
       type: 'bar',
-      height: Math.max(300, 50 * topics.length),
+      height: Math.max(300, 50 * Math.min(topics.length, 15)),
       backgroundColor: 'white',
       style: { fontFamily: FONT_FAMILY }
     },
@@ -80,7 +81,13 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
         },
         groupPadding: 0.1,
         pointPadding: 0.1,
-        borderWidth: 0
+        borderWidth: 0,
+        colorByPoint: true,
+        colors: percentages.map((_, index) => {
+          // Create a gradient from dark green to light green
+          const shade = 80 - (index * (60 / Math.max(percentages.length, 1)));
+          return `rgba(52, 80, 43, ${shade / 100})`;
+        })
       }
     },
     series: [{
@@ -88,27 +95,30 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
       type: 'bar',
       data: percentages.map((value, index) => ({
         y: index,
-        x: value
+        x: value * 100 // Convert decimal to percentage if needed
       })),
       color: '#5c8f4a'
     }],
     credits: {
       enabled: false
+    },
+    legend: {
+      enabled: false
     }
   };
   
-  if (processedData.length === 0) {
+  if (!processedData || processedData.length === 0) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12 text-gray-500">
         No discussion topics data available for {selectedCountry} in {selectedYear}
       </div>
     );
   }
   
   return (
-    <div>
+    <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <HighchartsReact highcharts={Highcharts} options={options} />
-    </div>
+    </Card>
   );
 };
 
