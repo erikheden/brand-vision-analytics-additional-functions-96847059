@@ -7,12 +7,13 @@ import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
 import { getFullCountryName } from "@/components/CountrySelect";
 import { Card } from "@/components/ui/card";
 
-// Import the map module
-import HighchartsMap from "highcharts/modules/map";
+// Import and initialize the map module
+import "highcharts/modules/map";
 
-// Initialize the map module with Highcharts
+// Ensure Highcharts is properly loaded with the map module
 if (typeof Highcharts === 'object') {
-  HighchartsMap(Highcharts);
+  // The map module adds itself to the Highcharts object when imported
+  console.log("Highcharts map module initialized");
 }
 
 // Country code mapping for Highcharts
