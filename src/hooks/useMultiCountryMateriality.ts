@@ -54,13 +54,16 @@ export const useMultiCountryMateriality = (selectedCountries: string[] = []) => 
           // If we have real data, use it
           if (data && data.length > 0) {
             console.log(`Found ${data.length} items for ${country}`);
+            // Make sure we're correctly mapping the database fields to our MaterialityData type
             result[country] = data.map(item => ({
               materiality_area: item.materiality_area,
-              percentage: item.percentage,
+              percentage: Number(item.percentage), // Ensure it's a number
               year: item.year,
               country: country, // Use the original country code for consistency
               row_id: item.row_id
             }));
+            
+            console.log(`Sample data for ${country}:`, result[country].slice(0, 2));
           } else {
             console.log(`No data found for ${country}, generating placeholder data`);
             // Create placeholder data for visualization
@@ -83,8 +86,9 @@ export const useMultiCountryMateriality = (selectedCountries: string[] = []) => 
             
             years.forEach(year => {
               materalityAreas.forEach(area => {
-                // Generate slightly different percentages for each year
-                const basePercentage = 0.5 + Math.random() * 0.3;
+                // Generate slightly different percentages for each year and country
+                // Make them more random to differentiate countries
+                const basePercentage = 0.3 + Math.random() * 0.5;
                 const yearFactor = year === 2024 ? 1.05 : 1; // Slight increase for 2024
                 
                 placeholderData.push({
@@ -104,7 +108,7 @@ export const useMultiCountryMateriality = (selectedCountries: string[] = []) => 
         return result;
       } catch (error) {
         console.error("Error fetching multi-country materiality data:", error);
-        return {};
+        throw error;
       }
     },
     enabled: Array.isArray(selectedCountries) && selectedCountries.length > 0,

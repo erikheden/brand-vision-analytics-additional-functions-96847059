@@ -37,7 +37,7 @@ export const useGeneralMaterialityData = (country: string) => {
         if (data && data.length > 0) {
           return data.map(item => ({
             materiality_area: item.materiality_area,
-            percentage: item.percentage,
+            percentage: Number(item.percentage), // Ensure it's a number
             year: item.year,
             country: item.country,
             row_id: item.row_id
@@ -58,7 +58,7 @@ export const useGeneralMaterialityData = (country: string) => {
             console.log(`Retrieved ${fullNameData.length} records using full country name: ${fullCountryName}`);
             return fullNameData.map(item => ({
               materiality_area: item.materiality_area,
-              percentage: item.percentage,
+              percentage: Number(item.percentage), // Ensure it's a number
               year: item.year,
               country: item.country,
               row_id: item.row_id
