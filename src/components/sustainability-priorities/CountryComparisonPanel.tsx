@@ -76,14 +76,15 @@ const CountryComparisonPanel: React.FC<CountryComparisonPanelProps> = ({ availab
     setSelectedAreas([]);
   };
 
-  // Auto-select first few countries if none are selected
-  useEffect(() => {
-    if (selectedCountries.length === 0 && allCountries.length > 0) {
-      // Select first 3 countries or all if fewer
-      const initialCount = Math.min(3, allCountries.length);
-      setSelectedCountries(allCountries.slice(0, initialCount));
-    }
-  }, [allCountries, selectedCountries.length]);
+  // IMPORTANT: Remove the auto-selection of countries
+  // This was causing countries to be permanently selected
+  // useEffect(() => {
+  //   if (selectedCountries.length === 0 && allCountries.length > 0) {
+  //     // Select first 3 countries or all if fewer
+  //     const initialCount = Math.min(3, allCountries.length);
+  //     setSelectedCountries(allCountries.slice(0, initialCount));
+  //   }
+  // }, [allCountries, selectedCountries.length]);
 
   // Log selected countries for debugging
   useEffect(() => {

@@ -20,11 +20,14 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
 }) => {
   const chartData = useMemo(() => {
     if (!allCountriesData || Object.keys(allCountriesData).length === 0) {
+      console.log('No country data available for chart');
       return {};
     }
 
     // Debug log to see what data we're working with
-    console.log('Raw allCountriesData:', JSON.stringify(allCountriesData, null, 2));
+    console.log('Raw allCountriesData structure:', Object.keys(allCountriesData));
+    console.log('Selected year:', selectedYear);
+    console.log('Selected areas:', selectedAreas);
 
     // Filter data for the selected year and areas
     const filteredData: Record<string, Record<string, number>> = {};
@@ -33,24 +36,39 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
       // Find data for the selected year
       const yearData = data.filter(item => item.year === selectedYear);
       
-      console.log(`Country ${country} - yearData for ${selectedYear}:`, yearData);
+      console.log(`Country ${country} - yearData count for ${selectedYear}:`, yearData.length);
+      
+      if (yearData.length === 0) {
+        console.log(`No data for country ${country} in year ${selectedYear}`);
+      } else {
+        console.log(`Sample data for country ${country}:`, yearData[0]);
+      }
       
       // Filter for selected areas or use all if none selected
       const areasData = selectedAreas.length > 0 
         ? yearData.filter(item => selectedAreas.includes(item.materiality_area))
         : yearData;
       
-      console.log(`Country ${country} - filtered areasData:`, areasData);
+      console.log(`Country ${country} - filtered areasData count:`, areasData.length);
       
       // Add data to filtered set
       if (areasData.length > 0) {
         filteredData[country] = {};
         areasData.forEach(area => {
-          // Ensure percentage is multiplied by 100 for display
-          // and that it's a valid number
-          const percentage = typeof area.percentage === 'number' 
-            ? area.percentage * 100 
-            : parseFloat(area.percentage as any) * 100;
+          // Ensure percentage is properly converted to a number and multiplied by 100 for display
+          let percentage: number;
+          
+          if (typeof area.percentage === 'number') {
+            percentage = area.percentage * 100;
+          } else if (typeof area.percentage === 'string') {
+            percentage = parseFloat(area.percentage) * 100;
+          } else {
+            console.warn(`Invalid percentage for ${area.materiality_area}:`, area.percentage);
+            percentage = 0;
+          }
+          
+          console.log(`Area ${area.materiality_area} - raw percentage:`, area.percentage, 
+                     `type: ${typeof area.percentage}, converted:`, percentage);
           
           filteredData[country][area.materiality_area] = percentage;
         });
@@ -75,7 +93,7 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
   // Prepare series for Highcharts
   const series = useMemo(() => {
     return Object.entries(chartData).map(([country, data]) => ({
-      type: 'bar' as const, // Add explicit type for TypeScript
+      type: 'bar' as const,
       name: getFullCountryName(country),
       data: allAreas.map(area => data[area] || 0)
     }));

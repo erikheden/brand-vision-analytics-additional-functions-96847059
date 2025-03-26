@@ -10,6 +10,7 @@ export const useMultiCountryMateriality = (selectedCountries: string[] = []) => 
     queryFn: async (): Promise<Record<string, MaterialityData[]>> => {
       // Ensure we have a valid array of countries
       if (!Array.isArray(selectedCountries) || selectedCountries.length === 0) {
+        console.log("No countries selected, returning empty data");
         return {};
       }
 
