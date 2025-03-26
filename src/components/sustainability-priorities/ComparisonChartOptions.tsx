@@ -40,15 +40,15 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
       }
     },
     yAxis: {
-      // This should be for the area names (categories)
-      categories: sortedAreas,
+      // This is for the area names (categories)
       title: {
         text: 'Sustainability Areas',
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       },
       labels: {
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      }
+      },
+      categories: sortedAreas // Explicitly set the categories to use sortedAreas
     },
     tooltip: {
       formatter: function() {

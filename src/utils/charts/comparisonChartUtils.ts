@@ -1,3 +1,4 @@
+
 import { MaterialityData } from '@/hooks/useGeneralMaterialityData';
 import { getFullCountryName } from '@/components/CountrySelect';
 
@@ -132,9 +133,9 @@ export const prepareChartSeries = (
 ) => {
   return Object.entries(chartData).map(([country, data]) => {
     const seriesData = sortedAreas.map(area => {
-      // Format data points for horizontal bar chart
+      // For horizontal bar charts with categorical y-axis, the data must match the order of categories
       const value = data[area] || 0;
-      return value; // Just return the value for horizontal bar chart with categories
+      return value;
     });
     
     return {
