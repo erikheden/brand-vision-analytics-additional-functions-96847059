@@ -88,7 +88,7 @@ export const useMultiCountryMateriality = (selectedCountries: string[] = []) => 
               materalityAreas.forEach(area => {
                 // Generate slightly different percentages for each year and country
                 // Make them more random to differentiate countries
-                const basePercentage = 0.3 + Math.random() * 0.5;
+                const basePercentage = 0.3 + Math.random() * 0.5; // Between 0.3 and 0.8
                 const yearFactor = year === 2024 ? 1.05 : 1; // Slight increase for 2024
                 
                 placeholderData.push({
@@ -105,6 +105,12 @@ export const useMultiCountryMateriality = (selectedCountries: string[] = []) => 
         }
 
         console.log(`Retrieved materiality data for ${Object.keys(result).length} countries`);
+        // Log a sample of the data for debugging
+        if (Object.keys(result).length > 0) {
+          const sampleCountry = Object.keys(result)[0];
+          console.log(`Sample data for ${sampleCountry}:`, result[sampleCountry].slice(0, 2));
+        }
+        
         return result;
       } catch (error) {
         console.error("Error fetching multi-country materiality data:", error);

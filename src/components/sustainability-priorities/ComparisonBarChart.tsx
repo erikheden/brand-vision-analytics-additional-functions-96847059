@@ -23,6 +23,9 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
       return {};
     }
 
+    // Debug log to see what data we're working with
+    console.log('Raw allCountriesData:', JSON.stringify(allCountriesData, null, 2));
+
     // Filter data for the selected year and areas
     const filteredData: Record<string, Record<string, number>> = {};
     
@@ -30,17 +33,26 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
       // Find data for the selected year
       const yearData = data.filter(item => item.year === selectedYear);
       
+      console.log(`Country ${country} - yearData for ${selectedYear}:`, yearData);
+      
       // Filter for selected areas or use all if none selected
       const areasData = selectedAreas.length > 0 
         ? yearData.filter(item => selectedAreas.includes(item.materiality_area))
         : yearData;
+      
+      console.log(`Country ${country} - filtered areasData:`, areasData);
       
       // Add data to filtered set
       if (areasData.length > 0) {
         filteredData[country] = {};
         areasData.forEach(area => {
           // Ensure percentage is multiplied by 100 for display
-          filteredData[country][area.materiality_area] = area.percentage * 100;
+          // and that it's a valid number
+          const percentage = typeof area.percentage === 'number' 
+            ? area.percentage * 100 
+            : parseFloat(area.percentage as any) * 100;
+          
+          filteredData[country][area.materiality_area] = percentage;
         });
       }
     });
