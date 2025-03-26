@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -26,7 +27,7 @@ const DiscussionsContent = () => {
   }, [topicsData]);
   
   const topics = React.useMemo(() => {
-    console.log("Raw topicsData length:", topicsData?.length);
+    console.log("Calculating topics from topicsData length:", topicsData?.length);
     
     if (!topicsData || !topicsData.length) return [];
     
@@ -49,13 +50,20 @@ const DiscussionsContent = () => {
     }
   }, [years]);
   
+  // Reset selected topic when changing country
+  useEffect(() => {
+    setSelectedTopic(undefined);
+  }, [selectedCountry]);
+  
   const handleCountryChange = (country: string) => {
     setSelectedCountry(country);
-    toast({
-      title: "Country Selected",
-      description: `Showing sustainability discussions for ${country}`,
-      duration: 3000,
-    });
+    if (country) {
+      toast({
+        title: "Country Selected",
+        description: `Showing sustainability discussions for ${country}`,
+        duration: 3000,
+      });
+    }
   };
 
   const handleTopicChange = (topic: string | undefined) => {

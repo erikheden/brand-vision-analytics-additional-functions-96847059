@@ -30,9 +30,17 @@ export const useDiscussionTopicsData = (country: string) => {
       
       // Add console logs to debug if data is being returned with discussion_topic values
       console.log("Discussion topics fetched:", data);
-      console.log("Discussion topics sample:", data?.length > 0 ? data[0] : "No data");
       
-      return data || [];
+      // Filter out any rows with empty discussion_topic values
+      const validTopics = data?.filter(item => 
+        item.discussion_topic && 
+        item.discussion_topic.trim() !== ''
+      ) || [];
+      
+      console.log("Valid discussion topics:", validTopics);
+      console.log("Unique discussion topics:", [...new Set(validTopics.map(item => item.discussion_topic))]);
+      
+      return validTopics;
     },
     enabled: !!country, // Only run the query if country is provided
   });
@@ -56,11 +64,17 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
       throw new Error(`Failed to fetch all discussion topics: ${error.message}`);
     }
     
-    // Debug log to check data
-    console.log("All discussion topics data count:", data?.length);
-    console.log("Sample discussion topics:", data?.slice(0, 3));
+    // Filter out any rows with empty discussion_topic values
+    const validTopics = data?.filter(item => 
+      item.discussion_topic && 
+      item.discussion_topic.trim() !== ''
+    ) || [];
     
-    return data || [];
+    // Debug log to check data
+    console.log("All discussion topics data count:", validTopics.length);
+    console.log("Sample valid discussion topics:", validTopics.slice(0, 3));
+    
+    return validTopics;
   } catch (err) {
     console.error('Exception fetching all discussion topics:', err);
     throw err;

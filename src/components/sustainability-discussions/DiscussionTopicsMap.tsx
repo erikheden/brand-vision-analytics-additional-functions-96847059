@@ -7,9 +7,13 @@ import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
 import { getFullCountryName } from "@/components/CountrySelect";
 import { Card } from "@/components/ui/card";
 
-// Initialize the map module
-import mapModule from "highcharts/modules/map";
-mapModule(Highcharts); // Initialize the module with Highcharts
+// Import the map module
+import HighchartsMap from "highcharts/modules/map";
+
+// Initialize the map module with Highcharts
+if (typeof Highcharts === 'object') {
+  HighchartsMap(Highcharts);
+}
 
 // Country code mapping for Highcharts
 const countryCodeMapping: Record<string, string> = {
@@ -33,6 +37,13 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
 }) => {
   const chartRef = useRef<HighchartsReact.RefObject>(null);
 
+  // Debug logs to check data coming in
+  useEffect(() => {
+    console.log("DiscussionTopicsMap received data:", data?.length);
+    console.log("DiscussionTopicsMap selected year:", selectedYear);
+    console.log("DiscussionTopicsMap selected topic:", selectedTopic);
+  }, [data, selectedYear, selectedTopic]);
+
   // Filter data by selected year and topic
   const filteredData = React.useMemo(() => {
     let filtered = data.filter(item => item.year === selectedYear);
@@ -41,6 +52,7 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
       filtered = filtered.filter(item => item.discussion_topic === selectedTopic);
     }
     
+    console.log("Filtered data for map:", filtered);
     return filtered;
   }, [data, selectedYear, selectedTopic]);
 
@@ -70,6 +82,7 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
       }
     });
     
+    console.log("Map data prepared:", result);
     return result;
   }, [filteredData]);
 
