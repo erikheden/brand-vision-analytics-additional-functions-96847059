@@ -1,0 +1,153 @@
+
+import React, { useMemo } from "react";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
+import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
+import { FONT_FAMILY } from "@/utils/constants";
+
+interface DiscussionTopicsComparisonChartProps {
+  countriesData: Record<string, DiscussionTopicData[]>;
+  selectedYear: number;
+  selectedCountries: string[];
+}
+
+const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartProps> = ({ 
+  countriesData, 
+  selectedYear,
+  selectedCountries 
+}) => {
+  // Process data for the chart
+  const { topics, series } = useMemo(() => {
+    // Get all unique topics across all countries
+    const allTopics = new Set<string>();
+    const filteredData: Record<string, DiscussionTopicData[]> = {};
+    
+    // Filter data for the selected year and collect all topics
+    for (const country of selectedCountries) {
+      const countryData = countriesData[country] || [];
+      const yearData = countryData.filter(item => item.year === selectedYear);
+      
+      filteredData[country] = yearData;
+      
+      yearData.forEach(item => {
+        if (item.discussion_topic) {
+          allTopics.add(item.discussion_topic);
+        }
+      });
+    }
+    
+    // Convert topics set to sorted array
+    const topicsArray = Array.from(allTopics).sort();
+    
+    // Create series for each country
+    const chartSeries: Highcharts.SeriesOptionsType[] = selectedCountries.map(country => {
+      const countryData = filteredData[country] || [];
+      const countryColor = getCountryColor(country);
+      
+      return {
+        name: country,
+        type: 'bar',
+        data: topicsArray.map(topic => {
+          const topicData = countryData.find(item => item.discussion_topic === topic);
+          return topicData ? topicData.percentage || 0 : 0;
+        }),
+        color: countryColor
+      };
+    });
+    
+    return { topics: topicsArray, series: chartSeries };
+  }, [countriesData, selectedCountries, selectedYear]);
+  
+  // Get color based on country code
+  function getCountryColor(country: string): string {
+    const colorMap: Record<string, string> = {
+      'Se': '#34502b',
+      'No': '#5c8f4a',
+      'Dk': '#84c066',
+      'Fi': '#aad68b',
+      'Nl': '#d1ebc1'
+    };
+    
+    return colorMap[country] || '#34502b';
+  }
+  
+  // Chart options
+  const options: Highcharts.Options = {
+    chart: {
+      type: 'bar',
+      height: Math.max(400, 60 * topics.length),
+      backgroundColor: 'white',
+      style: { fontFamily: FONT_FAMILY }
+    },
+    title: {
+      text: `Sustainability Discussion Topics Comparison (${selectedYear})`,
+      style: { color: '#34502b', fontFamily: FONT_FAMILY }
+    },
+    xAxis: {
+      categories: topics,
+      title: {
+        text: 'Discussion Topics',
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      },
+      labels: {
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      }
+    },
+    yAxis: {
+      title: {
+        text: 'Percentage',
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      },
+      labels: {
+        format: '{value}%',
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      }
+    },
+    tooltip: {
+      formatter: function() {
+        return `<b>${this.series.name}</b><br/>${this.x}: ${this.y.toFixed(1)}%`;
+      }
+    },
+    plotOptions: {
+      bar: {
+        dataLabels: {
+          enabled: true,
+          format: '{y:.1f}%',
+          style: {
+            fontWeight: 'normal',
+            color: '#34502b',
+            fontFamily: FONT_FAMILY
+          }
+        }
+      }
+    },
+    legend: {
+      enabled: true,
+      backgroundColor: 'rgba(255, 255, 255, 0.85)',
+      itemStyle: {
+        color: '#34502b',
+        fontFamily: FONT_FAMILY
+      }
+    },
+    series: series,
+    credits: {
+      enabled: false
+    }
+  };
+  
+  if (topics.length === 0) {
+    return (
+      <div className="text-center py-12">
+        No discussion topics data available for the selected countries in {selectedYear}
+      </div>
+    );
+  }
+  
+  return (
+    <div>
+      <HighchartsReact highcharts={Highcharts} options={options} />
+    </div>
+  );
+};
+
+export default DiscussionTopicsComparisonChart;

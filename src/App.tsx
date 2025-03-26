@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import SustainabilityPriorities from "./pages/SustainabilityPriorities";
+import SustainabilityDiscussions from "./pages/SustainabilityDiscussions";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
@@ -27,6 +28,7 @@ const App = () => (
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<Index />} />
               <Route path="/sustainability-priorities" element={<SustainabilityPriorities />} />
+              <Route path="/sustainability-discussions" element={<SustainabilityDiscussions />} />
             </Route>
           </Routes>
         </BrowserRouter>

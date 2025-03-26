@@ -29,7 +29,7 @@ const Index = () => {
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <h1 className="text-2xl font-semibold text-[#34502b]">Sustainable Brand Index Dashboard</h1>
-              <nav className="flex space-x-4">
+              <nav className="flex flex-wrap space-x-2 md:space-x-4">
                 <Link 
                   to="/" 
                   className="text-[#34502b] font-medium hover:underline px-4 py-2 rounded bg-green-50"
@@ -41,6 +41,12 @@ const Index = () => {
                   className="text-[#34502b] font-medium hover:underline px-4 py-2 rounded hover:bg-green-50"
                 >
                   Sustainability Priorities
+                </Link>
+                <Link 
+                  to="/sustainability-discussions" 
+                  className="text-[#34502b] font-medium hover:underline px-4 py-2 rounded hover:bg-green-50"
+                >
+                  Sustainability Discussions
                 </Link>
               </nav>
             </div>

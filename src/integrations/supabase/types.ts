@@ -296,7 +296,7 @@ export type Database = {
       SBI_Discussion_Topics_Geography: {
         Row: {
           country: string | null
-          english_label_short: string | null
+          discussion_topic: string | null
           geography: string | null
           percentage: number | null
           row_id: number
@@ -304,7 +304,7 @@ export type Database = {
         }
         Insert: {
           country?: string | null
-          english_label_short?: string | null
+          discussion_topic?: string | null
           geography?: string | null
           percentage?: number | null
           row_id?: number
@@ -312,7 +312,7 @@ export type Database = {
         }
         Update: {
           country?: string | null
-          english_label_short?: string | null
+          discussion_topic?: string | null
           geography?: string | null
           percentage?: number | null
           row_id?: number
