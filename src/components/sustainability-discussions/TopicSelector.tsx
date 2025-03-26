@@ -32,11 +32,14 @@ const TopicSelector = ({
 }: TopicSelectorProps) => {
   const [open, setOpen] = useState(false);
 
+  // Ensure topics is always an array, even if it's undefined or null
+  const safeTopics = Array.isArray(topics) ? topics : [];
+
   // Add debug log to check the topics array
   useEffect(() => {
-    console.log("TopicSelector received topics:", topics);
+    console.log("TopicSelector received topics:", safeTopics);
     console.log("TopicSelector selected topic:", selectedTopic);
-  }, [topics, selectedTopic]);
+  }, [safeTopics, selectedTopic]);
 
   const handleSelectTopic = (topic: string) => {
     // If selecting the same topic, clear the selection
@@ -61,36 +64,48 @@ const TopicSelector = ({
         <PopoverContent className="w-[300px] p-0">
           <Command>
             <CommandInput placeholder="Search topics..." />
-            <CommandEmpty>No topics found.</CommandEmpty>
-            <CommandGroup>
-              <ScrollArea className="h-60">
-                {topics && topics.length > 0 ? (
-                  topics.map((topic) => (
-                    <CommandItem
-                      key={topic}
-                      value={topic}
-                      onSelect={() => handleSelectTopic(topic)}
-                      className="flex items-center gap-2"
-                    >
-                      <div className={cn(
-                        "flex h-4 w-4 items-center justify-center rounded-sm border border-[#34502b]",
-                        selectedTopic === topic ? "bg-[#34502b] text-white" : "opacity-50"
-                      )}>
-                        {selectedTopic === topic && <Check className="h-3 w-3" />}
-                      </div>
-                      <span>{topic}</span>
-                    </CommandItem>
-                  ))
-                ) : (
-                  <div className="py-6 text-center text-sm text-gray-500">
-                    No discussion topics available
-                  </div>
-                )}
-              </ScrollArea>
-            </CommandGroup>
+            <CommandList>
+              <CommandEmpty>No topics found.</CommandEmpty>
+              <CommandGroup>
+                <ScrollArea className="h-60">
+                  {safeTopics.length > 0 ? (
+                    safeTopics.map((topic) => (
+                      <CommandItem
+                        key={topic}
+                        value={topic}
+                        onSelect={() => handleSelectTopic(topic)}
+                        className="flex items-center gap-2"
+                      >
+                        <div className={cn(
+                          "flex h-4 w-4 items-center justify-center rounded-sm border border-[#34502b]",
+                          selectedTopic === topic ? "bg-[#34502b] text-white" : "opacity-50"
+                        )}>
+                          {selectedTopic === topic && <Check className="h-3 w-3" />}
+                        </div>
+                        <span>{topic}</span>
+                      </CommandItem>
+                    ))
+                  ) : (
+                    <div className="py-6 text-center text-sm text-gray-500">
+                      No discussion topics available
+                    </div>
+                  )}
+                </ScrollArea>
+              </CommandGroup>
+            </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
+    </div>
+  );
+};
+
+// CommandList component to fix the "undefined is not iterable" error
+// This wrapper ensures that the list is only rendered when it's safe to do so
+const CommandList = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="max-h-[300px] overflow-y-auto overflow-x-hidden">
+      {children}
     </div>
   );
 };

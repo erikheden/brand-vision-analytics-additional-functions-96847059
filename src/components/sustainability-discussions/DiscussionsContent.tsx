@@ -22,7 +22,7 @@ const DiscussionsContent = () => {
   const { data: topicsData = [], isLoading, error } = useDiscussionTopicsData(selectedCountry);
   
   const years = React.useMemo(() => {
-    if (!topicsData.length) return [2023, 2024];
+    if (!topicsData || !topicsData.length) return [2023, 2024];
     return [...new Set(topicsData.map(item => item.year))].sort((a, b) => a - b);
   }, [topicsData]);
   
@@ -150,7 +150,7 @@ const DiscussionsContent = () => {
                 <div className="space-y-6">
                   <div className="flex flex-col md:flex-row gap-4 justify-between">
                     <TopicSelector
-                      topics={topics}
+                      topics={topics || []}
                       selectedTopic={selectedTopic}
                       onTopicChange={handleTopicChange}
                       className="w-full md:w-64"
@@ -171,7 +171,7 @@ const DiscussionsContent = () => {
                     </div>
                   ) : (
                     <DiscussionTopicsMap 
-                      data={allCountriesData}
+                      data={allCountriesData || []}
                       selectedYear={selectedYear}
                       selectedTopic={selectedTopic}
                     />

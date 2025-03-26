@@ -19,30 +19,43 @@ export const useDiscussionTopicsData = (country: string) => {
       
       console.log("Fetching discussion topics for country:", country);
       
-      // Make query case-insensitive for country code
-      const { data, error } = await supabase
-        .from('SBI_Discussion_Topics_Geography')
-        .select('*')
-        .ilike('country', country);
-      
-      if (error) {
-        console.error('Error fetching discussion topics:', error);
-        throw new Error(`Failed to fetch discussion topics: ${error.message}`);
+      try {
+        // Make query case-insensitive for country code
+        const { data, error } = await supabase
+          .from('SBI_Discussion_Topics_Geography')
+          .select('*')
+          .ilike('country', country);
+        
+        if (error) {
+          console.error('Error fetching discussion topics:', error);
+          throw new Error(`Failed to fetch discussion topics: ${error.message}`);
+        }
+        
+        if (!data || data.length === 0) {
+          console.log(`No discussion topics found for country: ${country}`);
+          return [];
+        }
+        
+        // Add console logs to debug if data is being returned with discussion_topic values
+        console.log("Discussion topics fetched count:", data.length);
+        
+        // Filter out any rows with empty discussion_topic values
+        const validTopics = data
+          .filter(item => item && item.discussion_topic && item.discussion_topic.trim() !== '')
+          .map(item => ({
+            ...item,
+            // Convert country code to consistent case if needed
+            country: item.country || country
+          }));
+        
+        console.log("Valid discussion topics count:", validTopics.length);
+        console.log("Sample topics:", validTopics.slice(0, 3));
+        
+        return validTopics;
+      } catch (err) {
+        console.error('Exception in useDiscussionTopicsData:', err);
+        return [];
       }
-      
-      // Add console logs to debug if data is being returned with discussion_topic values
-      console.log("Discussion topics fetched:", data);
-      
-      // Filter out any rows with empty discussion_topic values
-      const validTopics = data?.filter(item => 
-        item.discussion_topic && 
-        item.discussion_topic.trim() !== ''
-      ) || [];
-      
-      console.log("Valid discussion topics:", validTopics);
-      console.log("Unique discussion topics:", [...new Set(validTopics.map(item => item.discussion_topic))]);
-      
-      return validTopics;
     },
     enabled: !!country, // Only run the query if country is provided
   });
@@ -50,13 +63,20 @@ export const useDiscussionTopicsData = (country: string) => {
 
 // Function to fetch all countries' data at once
 export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise<DiscussionTopicData[]> => {
-  if (!countries.length) return [];
+  if (!countries || countries.length === 0) return [];
   
   try {
     // Add debugging log
     console.log("Fetching topics for countries:", countries);
     
-    // Use ilike for case-insensitive matching with the 'in' operator equivalent for case-insensitive
+    // Prepare array of countries in both lowercase and uppercase for matching
+    const countryVariants = countries.flatMap(country => [
+      country, 
+      country.toLowerCase(), 
+      country.toUpperCase()
+    ]);
+    
+    // Get all data first - we'll filter client-side to be more flexible
     const { data, error } = await supabase
       .from('SBI_Discussion_Topics_Geography')
       .select('*');
@@ -66,21 +86,34 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
       throw new Error(`Failed to fetch all discussion topics: ${error.message}`);
     }
     
+    if (!data || data.length === 0) {
+      console.log("No discussion topics data found in the database");
+      return [];
+    }
+    
+    console.log(`Fetched ${data.length} total discussion topic records`);
+    
     // Filter for the countries we want (case-insensitive)
-    const countriesLowerCase = countries.map(c => c.toLowerCase());
-    const filteredData = data.filter(item => 
-      item.country && countriesLowerCase.includes(item.country.toLowerCase())
-    );
+    const filteredData = data.filter(item => {
+      if (!item.country) return false;
+      
+      const normalizedCountry = item.country.toLowerCase();
+      return countries.some(country => 
+        country.toLowerCase() === normalizedCountry
+      );
+    });
     
     // Filter out any rows with empty discussion_topic values
-    const validTopics = filteredData.filter(item => 
-      item.discussion_topic && 
-      item.discussion_topic.trim() !== ''
-    ) || [];
+    const validTopics = filteredData
+      .filter(item => item && item.discussion_topic && item.discussion_topic.trim() !== '');
     
     // Debug log to check data
-    console.log("All discussion topics data count:", validTopics.length);
-    console.log("Sample valid discussion topics:", validTopics.slice(0, 3));
+    console.log("Filtered discussion topics data count:", validTopics.length);
+    if (validTopics.length > 0) {
+      console.log("Sample valid discussion topics:", validTopics.slice(0, 3));
+      console.log("Countries in dataset:", [...new Set(validTopics.map(item => item.country))]);
+      console.log("Years in dataset:", [...new Set(validTopics.map(item => item.year))]);
+    }
     
     return validTopics;
   } catch (err) {
@@ -94,6 +127,6 @@ export const useAllDiscussionTopicsData = (countries: string[]) => {
   return useQuery({
     queryKey: ['all-discussion-topics', countries],
     queryFn: () => fetchAllDiscussionTopicsData(countries),
-    enabled: countries.length > 0,
+    enabled: countries && countries.length > 0,
   });
 };

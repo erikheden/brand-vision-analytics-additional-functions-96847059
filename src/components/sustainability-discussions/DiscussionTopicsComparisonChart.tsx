@@ -18,6 +18,15 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
 }) => {
   // Process data for the chart
   const { topics, series } = useMemo(() => {
+    // Check if we have valid data
+    if (!countriesData || Object.keys(countriesData).length === 0 || selectedCountries.length === 0) {
+      console.log("No valid data for chart", { 
+        countriesDataKeys: Object.keys(countriesData || {}),
+        selectedCountries 
+      });
+      return { topics: [], series: [] };
+    }
+    
     // Get all unique topics across all countries
     const allTopics = new Set<string>();
     const filteredData: Record<string, DiscussionTopicData[]> = {};
@@ -65,7 +74,13 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       'No': '#5c8f4a',
       'Dk': '#84c066',
       'Fi': '#aad68b',
-      'Nl': '#d1ebc1'
+      'Nl': '#d1ebc1',
+      // Add uppercase variants
+      'SE': '#34502b',
+      'NO': '#5c8f4a',
+      'DK': '#84c066',
+      'FI': '#aad68b',
+      'NL': '#d1ebc1'
     };
     
     return colorMap[country] || '#34502b';
