@@ -17,6 +17,9 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
   // Generate a color array
   const colors = ['#34502b', '#5c8f4a', '#84c066', '#aad68b', '#d1ebc1'];
 
+  // Log sorted areas to help with debugging
+  console.log('ComparisonChartOptions - sortedAreas:', sortedAreas);
+
   const options: Highcharts.Options = {
     chart: {
       type: 'bar',
@@ -48,11 +51,15 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
       categories: sortedAreas,
       labels: {
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      }
+      },
+      // Ensure the category labels are visible
+      reserveSpace: true,
+      min: 0,
+      max: sortedAreas.length - 1
     },
     tooltip: {
       formatter: function() {
-        // Fixed: For horizontal bar charts, the y property is the index of the category
+        // For horizontal bar charts, the y property is the index of the category
         return `<b>${this.series.yAxis.categories[this.y]}</b><br/>${this.series.name}: ${this.x.toFixed(1)}%`;
       }
     },
@@ -68,6 +75,10 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
           }
         },
         groupPadding: 0.1
+      },
+      series: {
+        // Ensure points are mapped to categories correctly
+        pointPlacement: 'between'
       }
     },
     legend: {

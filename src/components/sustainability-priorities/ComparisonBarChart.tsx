@@ -65,6 +65,8 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
   console.log('ComparisonBarChart - allAreas:', allAreas);
   console.log('ComparisonBarChart - sortedAreas:', sortedAreas);
   console.log('ComparisonBarChart - series data:', series);
+  console.log('ComparisonBarChart - series length:', series.length);
+  console.log('ComparisonBarChart - first series sample:', series[0]?.data?.slice(0, 3));
 
   // Get chart options
   const options = useMemo(() => {

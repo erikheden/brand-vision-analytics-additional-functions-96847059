@@ -131,6 +131,9 @@ export const prepareChartSeries = (
   chartData: Record<string, Record<string, number>>,
   sortedAreas: string[]
 ) => {
+  // Log to ensure our sorted areas are correct
+  console.log('prepareChartSeries - sortedAreas:', sortedAreas);
+  
   const series = Object.entries(chartData).map(([country, data]) => {
     const seriesData = sortedAreas.map(area => {
       // For horizontal bar charts with categorical y-axis, the data must match the order of categories
