@@ -4,7 +4,7 @@ import { useCountriesQuery } from "./queries/useCountriesQuery";
 import { useIndustriesQuery } from "./queries/useIndustriesQuery";
 import { useBrandsQuery } from "./queries/useBrandsQuery";
 
-export const useSelectionData = (selectedCountry: string | string[], selectedIndustries: string[]) => {
+export const useSelectionData = (selectedCountry: string | string[] = "", selectedIndustries: string[] = []) => {
   // Use the extracted query hooks
   const { data: countries = [], error: countriesError } = useCountriesQuery();
   

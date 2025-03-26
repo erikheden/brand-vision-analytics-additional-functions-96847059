@@ -19,7 +19,8 @@ const CountryComparisonPanel: React.FC<CountryComparisonPanelProps> = ({ availab
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   
   // Get the countries data if not provided
-  const { countries: fetchedCountries } = useSelectionData();
+  // Fix: Pass empty string and empty array to match required parameters
+  const { countries: fetchedCountries } = useSelectionData("", []);
   const allCountries = availableCountries?.length > 0 ? availableCountries : fetchedCountries || [];
   
   const { 
