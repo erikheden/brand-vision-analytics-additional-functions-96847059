@@ -47,19 +47,30 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
 
   // Filter data by selected year and topic
   const filteredData = React.useMemo(() => {
+    if (!data || !data.length) {
+      console.log("No data available to filter for map");
+      return [];
+    }
+    
     let filtered = data.filter(item => item.year === selectedYear);
+    console.log(`Filtered ${filtered.length} items for year ${selectedYear}`);
     
     if (selectedTopic) {
       filtered = filtered.filter(item => item.discussion_topic === selectedTopic);
+      console.log(`Further filtered to ${filtered.length} items for topic "${selectedTopic}"`);
     }
     
-    console.log("Filtered data for map:", filtered);
     return filtered;
   }, [data, selectedYear, selectedTopic]);
 
   // Prepare data for the map
   const mapData = React.useMemo(() => {
     const result: any[] = [];
+    
+    if (!filteredData.length) {
+      console.log("No filtered data available for map");
+      return [];
+    }
     
     // Group by country
     const countryGroups = filteredData.reduce((acc, item) => {
@@ -72,14 +83,17 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
     
     // Calculate average percentage for each country
     Object.entries(countryGroups).forEach(([country, items]) => {
-      if (countryCodeMapping[country]) {
+      const countryCode = countryCodeMapping[country];
+      if (countryCode) {
         const avgPercentage = items.reduce((sum, item) => sum + (item.percentage || 0), 0) / items.length;
         result.push({
-          "hc-key": countryCodeMapping[country],
+          "hc-key": countryCode,
           value: avgPercentage,
           name: getFullCountryName(country),
           countryCode: country,
         });
+      } else {
+        console.warn(`No mapping found for country code: ${country}`);
       }
     });
     
@@ -158,12 +172,20 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
 
   return (
     <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-      <HighchartsReact
-        highcharts={Highcharts}
-        options={options}
-        constructorType={"mapChart"}
-        ref={chartRef}
-      />
+      {mapData.length > 0 ? (
+        <HighchartsReact
+          highcharts={Highcharts}
+          options={options}
+          constructorType={"mapChart"}
+          ref={chartRef}
+        />
+      ) : (
+        <div className="py-12 text-center text-lg text-gray-500">
+          {data?.length > 0 
+            ? `No discussion data available for ${selectedTopic || 'selected topics'} in ${selectedYear}`
+            : 'No discussion topics data available'}
+        </div>
+      )}
     </Card>
   );
 };
