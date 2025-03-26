@@ -73,11 +73,12 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
             fontFamily: FONT_FAMILY
           }
         },
-        groupPadding: 0.1
-      },
-      series: {
+        groupPadding: 0.1,
         pointPadding: 0.1,
         borderWidth: 0
+      },
+      series: {
+        // Remove the invalid pointPadding and borderWidth properties
       }
     },
     legend: {
