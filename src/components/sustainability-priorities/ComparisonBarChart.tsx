@@ -87,17 +87,50 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
     Object.values(chartData).forEach(country => {
       Object.keys(country).forEach(area => areas.add(area));
     });
-    return Array.from(areas).sort();
+    return Array.from(areas);
   }, [chartData]);
+
+  // Calculate average value for each area across all countries
+  const areaAverages = useMemo(() => {
+    const averages: Record<string, number> = {};
+    const areaCounts: Record<string, number> = {};
+    
+    // Calculate sum and count for each area
+    Object.values(chartData).forEach(countryData => {
+      Object.entries(countryData).forEach(([area, value]) => {
+        if (!averages[area]) {
+          averages[area] = 0;
+          areaCounts[area] = 0;
+        }
+        averages[area] += value;
+        areaCounts[area]++;
+      });
+    });
+    
+    // Calculate average for each area
+    Object.keys(averages).forEach(area => {
+      averages[area] = averages[area] / areaCounts[area];
+    });
+    
+    console.log('Area averages:', averages);
+    return averages;
+  }, [chartData]);
+  
+  // Sort areas by average value (highest first)
+  const sortedAreas = useMemo(() => {
+    return [...allAreas].sort((a, b) => {
+      return (areaAverages[b] || 0) - (areaAverages[a] || 0);
+    });
+  }, [allAreas, areaAverages]);
 
   // Prepare series for Highcharts
   const series = useMemo(() => {
     return Object.entries(chartData).map(([country, data]) => ({
       type: 'bar' as const,
       name: getFullCountryName(country),
-      data: allAreas.map(area => data[area] || 0)
+      data: sortedAreas.map(area => data[area] || 0)
     }));
-  }, [chartData, allAreas]);
+  }, [chartData, sortedAreas]);
 
   // Generate a color array
   const colors = ['#34502b', '#5c8f4a', '#84c066', '#aad68b', '#d1ebc1'];
@@ -105,7 +138,7 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
   const options: Highcharts.Options = {
     chart: {
       type: 'bar',
-      height: Math.max(300, 50 * allAreas.length),
+      height: Math.max(300, 50 * sortedAreas.length),
       backgroundColor: 'white',
       style: { fontFamily: FONT_FAMILY }
     },
@@ -114,7 +147,7 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
       style: { color: '#34502b', fontFamily: FONT_FAMILY }
     },
     xAxis: {
-      categories: allAreas,
+      categories: sortedAreas,
       labels: {
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       }
