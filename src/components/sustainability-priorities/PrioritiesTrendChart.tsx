@@ -90,11 +90,13 @@ const PrioritiesTrendChart: React.FC<PrioritiesTrendChartProps> = ({ data, selec
     },
     tooltip: {
       shared: true,
-      formatter: function(this: Highcharts.TooltipFormatterContextObject) {
+      formatter: function(this: any) {
         let tooltip = `<b>Year: ${this.x}</b><br/>`;
-        this.points?.forEach(point => {
-          tooltip += `${point.series.name}: ${point.y.toFixed(1)}%<br/>`;
-        });
+        if (this.points) {
+          this.points.forEach((point: any) => {
+            tooltip += `${point.series.name}: ${point.y.toFixed(1)}%<br/>`;
+          });
+        }
         return tooltip;
       }
     },
