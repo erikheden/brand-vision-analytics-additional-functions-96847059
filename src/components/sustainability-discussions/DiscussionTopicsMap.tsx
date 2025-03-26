@@ -10,7 +10,8 @@ import { Card } from "@/components/ui/card";
 
 // Initialize the map module
 if (typeof Highcharts === "object") {
-  highchartsMap(Highcharts);
+  // Use require syntax for the map module which is more reliable
+  require('highcharts/modules/map')(Highcharts);
 }
 
 // Country code mapping for Highcharts
