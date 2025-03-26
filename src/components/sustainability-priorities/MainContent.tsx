@@ -66,45 +66,44 @@ const MainContent = () => {
     <div className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="space-y-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <h1 className="text-2xl font-semibold text-[#34502b]">Sustainability Priorities</h1>
+          {/* Headline moved to the top */}
+          <h1 className="text-2xl font-semibold text-[#34502b] text-center md:text-left">Sustainability Priorities</h1>
+          
+          <Tabs 
+            value={activeTab} 
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
+            <TabsList className="bg-[#34502b]/10 mx-auto md:mx-0">
+              <TabsTrigger value="single" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+                Single Country Analysis
+              </TabsTrigger>
+              <TabsTrigger value="comparison" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+                Country Comparison
+              </TabsTrigger>
+            </TabsList>
+          
+            <TabsContent value="single">
+              <SingleCountryView 
+                selectedCountry={selectedCountry}
+                setSelectedCountry={handleCountryChange}
+                materialityData={materialityData}
+                isLoading={isLoading}
+                error={error instanceof Error ? error : null}
+                years={years}
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+                areas={areas}
+                selectedAreas={selectedAreas}
+                setSelectedAreas={setSelectedAreas}
+                countries={countries}
+              />
+            </TabsContent>
             
-            <Tabs 
-              value={activeTab} 
-              onValueChange={setActiveTab}
-              className="w-full md:w-auto"
-            >
-              <TabsList className="bg-[#34502b]/10">
-                <TabsTrigger value="single" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-                  Single Country Analysis
-                </TabsTrigger>
-                <TabsTrigger value="comparison" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-                  Country Comparison
-                </TabsTrigger>
-              </TabsList>
-            
-              <TabsContent value="single">
-                <SingleCountryView 
-                  selectedCountry={selectedCountry}
-                  setSelectedCountry={handleCountryChange}
-                  materialityData={materialityData}
-                  isLoading={isLoading}
-                  error={error instanceof Error ? error : null}
-                  years={years}
-                  selectedYear={selectedYear}
-                  setSelectedYear={setSelectedYear}
-                  areas={areas}
-                  selectedAreas={selectedAreas}
-                  setSelectedAreas={setSelectedAreas}
-                  countries={countries}
-                />
-              </TabsContent>
-              
-              <TabsContent value="comparison">
-                <CountryComparisonPanel availableCountries={countries} />
-              </TabsContent>
-            </Tabs>
-          </div>
+            <TabsContent value="comparison">
+              <CountryComparisonPanel availableCountries={countries} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
