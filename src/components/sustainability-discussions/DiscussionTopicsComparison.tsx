@@ -98,15 +98,14 @@ const DiscussionTopicsComparison: React.FC<DiscussionTopicsComparisonProps> = ({
             <CountryMultiSelect
               countries={availableCountries}
               selectedCountries={selectedCountries}
-              onChange={handleCountrySelection}
-              maxSelection={5}
+              setSelectedCountries={handleCountrySelection}
             />
           </div>
           
           <YearSelector
             years={years}
             selectedYear={selectedYear}
-            onYearChange={setSelectedYear}
+            onChange={setSelectedYear}
           />
         </div>
         

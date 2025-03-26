@@ -76,14 +76,14 @@ const DiscussionsContent = () => {
                     <CountrySelect
                       countries={countries}
                       selectedCountry={selectedCountry}
-                      onChange={handleCountryChange}
+                      onCountryChange={handleCountryChange}
                       className="w-full md:w-64"
                     />
                     
                     <YearSelector
                       years={years}
                       selectedYear={selectedYear}
-                      onYearChange={setSelectedYear}
+                      onChange={setSelectedYear}
                     />
                   </div>
                   
