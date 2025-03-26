@@ -20,7 +20,7 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
 }) => {
   const chartData = useMemo(() => {
     if (!allCountriesData || Object.keys(allCountriesData).length === 0) {
-      return [];
+      return {};
     }
 
     // Filter data for the selected year and areas
@@ -59,6 +59,7 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
   // Prepare series for Highcharts
   const series = useMemo(() => {
     return Object.entries(chartData).map(([country, data]) => ({
+      type: 'bar' as const, // Add explicit type for TypeScript
       name: getFullCountryName(country),
       data: allAreas.map(area => data[area] || 0)
     }));
@@ -109,10 +110,7 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
             color: '#34502b',
             fontFamily: FONT_FAMILY
           }
-        }
-      },
-      series: {
-        pointWidth: 20,
+        },
         groupPadding: 0.1
       }
     },
