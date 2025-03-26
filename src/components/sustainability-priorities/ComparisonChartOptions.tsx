@@ -29,12 +29,7 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
       style: { color: '#34502b', fontFamily: FONT_FAMILY }
     },
     xAxis: {
-      categories: sortedAreas,
-      labels: {
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      }
-    },
-    yAxis: {
+      // This should be for the percentage values
       title: {
         text: 'Percentage',
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
@@ -44,16 +39,27 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       }
     },
+    yAxis: {
+      // This should be for the area names (categories)
+      categories: sortedAreas,
+      title: {
+        text: 'Sustainability Areas',
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      },
+      labels: {
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      }
+    },
     tooltip: {
       formatter: function() {
-        return `<b>${this.x}</b><br/>${this.series.name}: ${this.y.toFixed(1)}%`;
+        return `<b>${this.y}</b><br/>${this.series.name}: ${this.point.x.toFixed(1)}%`;
       }
     },
     plotOptions: {
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{y:.1f}%',
+          format: '{x:.1f}%',
           style: {
             fontWeight: 'normal',
             color: '#34502b',

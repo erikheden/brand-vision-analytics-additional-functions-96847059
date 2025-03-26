@@ -1,4 +1,3 @@
-
 import { MaterialityData } from '@/hooks/useGeneralMaterialityData';
 import { getFullCountryName } from '@/components/CountrySelect';
 
@@ -125,14 +124,23 @@ export const sortAreasByAverage = (allAreas: string[], areaAverages: Record<stri
 
 /**
  * Prepares series data for Highcharts
+ * Adjusted to work with horizontal bar chart where categories are on y-axis
  */
 export const prepareChartSeries = (
   chartData: Record<string, Record<string, number>>,
   sortedAreas: string[]
 ) => {
-  return Object.entries(chartData).map(([country, data]) => ({
-    type: 'bar' as const,
-    name: getFullCountryName(country),
-    data: sortedAreas.map(area => data[area] || 0)
-  }));
+  return Object.entries(chartData).map(([country, data]) => {
+    const seriesData = sortedAreas.map(area => {
+      // Format data points for horizontal bar chart
+      const value = data[area] || 0;
+      return value; // Just return the value for horizontal bar chart with categories
+    });
+    
+    return {
+      type: 'bar' as const,
+      name: getFullCountryName(country),
+      data: seriesData
+    };
+  });
 };

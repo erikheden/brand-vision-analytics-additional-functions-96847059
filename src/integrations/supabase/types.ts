@@ -296,18 +296,21 @@ export type Database = {
       swe_brand_areas_rated: {
         Row: {
           area: string | null
+          area_code: number | null
           brand: string | null
           rating_type: string | null
           respondent_id: number | null
         }
         Insert: {
           area?: string | null
+          area_code?: number | null
           brand?: string | null
           rating_type?: string | null
           respondent_id?: number | null
         }
         Update: {
           area?: string | null
+          area_code?: number | null
           brand?: string | null
           rating_type?: string | null
           respondent_id?: number | null
