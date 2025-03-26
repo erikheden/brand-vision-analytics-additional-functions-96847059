@@ -21,7 +21,10 @@ export const useMultiCountryMateriality = (selectedCountries: string[] = []) => 
 
         // Process each country one by one
         for (const country of selectedCountries) {
+          let hasRealData = false;
+          
           // Try with country code first
+          console.log(`Querying with country code: ${country}`);
           let { data, error } = await supabase
             .from("materiality_areas_general_sbi")
             .select("*")
@@ -29,7 +32,6 @@ export const useMultiCountryMateriality = (selectedCountries: string[] = []) => 
 
           if (error) {
             console.error(`Error fetching data for ${country}:`, error);
-            continue;
           }
 
           // If no data found with code, try with full country name
@@ -45,15 +47,31 @@ export const useMultiCountryMateriality = (selectedCountries: string[] = []) => 
               
               if (fullNameError) {
                 console.error(`Error fetching data for ${fullCountryName}:`, fullNameError);
-                continue;
+              } else if (fullNameData && fullNameData.length > 0) {
+                console.log(`Found ${fullNameData.length} records for ${fullCountryName}`);
+                data = fullNameData;
+                hasRealData = true;
               }
-              
-              data = fullNameData;
             }
+          } else {
+            console.log(`Found ${data.length} records for ${country}`);
+            hasRealData = true;
           }
 
-          // Always generate placeholder data for visualization
-          console.log(`Creating placeholder data for ${country}`);
+          // Process real data if we have it
+          if (data && data.length > 0 && hasRealData) {
+            console.log(`Using real data for ${country} with ${data.length} records`);
+            result[country] = data.map(item => ({
+              materiality_area: item.materiality_area,
+              percentage: Number(item.percentage),
+              year: item.year,
+              country: country
+            }));
+            continue; // Skip placeholder generation
+          }
+
+          // Generate placeholder data if no real data was found
+          console.log(`No real data found for ${country}, generating placeholder data`);
           
           // Materiality areas for placeholder data
           const materalityAreas = [

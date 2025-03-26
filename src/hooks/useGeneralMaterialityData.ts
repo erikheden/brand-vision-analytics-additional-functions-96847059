@@ -21,6 +21,8 @@ export const useGeneralMaterialityData = (country: string) => {
       console.log(`Fetching materiality data for country: ${country}`);
 
       try {
+        // Try with country code first
+        console.log(`Querying with country code: ${country}`);
         const { data, error } = await supabase
           .from("materiality_areas_general_sbi")
           .select("*")
@@ -47,6 +49,7 @@ export const useGeneralMaterialityData = (country: string) => {
         // If we didn't get data, try with full country name
         const fullCountryName = getFullCountryName(country);
         if (fullCountryName !== country) {
+          console.log(`Trying with full country name: ${fullCountryName}`);
           const { data: fullNameData, error: fullNameError } = await supabase
             .from("materiality_areas_general_sbi")
             .select("*")
