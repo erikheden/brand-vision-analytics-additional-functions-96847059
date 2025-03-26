@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +32,11 @@ const TopicSelector = ({
 }: TopicSelectorProps) => {
   const [open, setOpen] = useState(false);
 
+  // Add debug log to check the topics array
+  useEffect(() => {
+    console.log("TopicSelector received topics:", topics);
+  }, [topics]);
+
   const handleSelectTopic = (topic: string) => {
     // If selecting the same topic, clear the selection
     onTopicChange(topic === selectedTopic ? undefined : topic);
@@ -58,22 +63,28 @@ const TopicSelector = ({
             <CommandEmpty>No topics found.</CommandEmpty>
             <CommandGroup>
               <ScrollArea className="h-60">
-                {topics.map((topic) => (
-                  <CommandItem
-                    key={topic}
-                    value={topic}
-                    onSelect={() => handleSelectTopic(topic)}
-                    className="flex items-center gap-2"
-                  >
-                    <div className={cn(
-                      "flex h-4 w-4 items-center justify-center rounded-sm border border-[#34502b]",
-                      selectedTopic === topic ? "bg-[#34502b] text-white" : "opacity-50"
-                    )}>
-                      {selectedTopic === topic && <Check className="h-3 w-3" />}
-                    </div>
-                    <span>{topic}</span>
-                  </CommandItem>
-                ))}
+                {topics && topics.length > 0 ? (
+                  topics.map((topic) => (
+                    <CommandItem
+                      key={topic}
+                      value={topic}
+                      onSelect={() => handleSelectTopic(topic)}
+                      className="flex items-center gap-2"
+                    >
+                      <div className={cn(
+                        "flex h-4 w-4 items-center justify-center rounded-sm border border-[#34502b]",
+                        selectedTopic === topic ? "bg-[#34502b] text-white" : "opacity-50"
+                      )}>
+                        {selectedTopic === topic && <Check className="h-3 w-3" />}
+                      </div>
+                      <span>{topic}</span>
+                    </CommandItem>
+                  ))
+                ) : (
+                  <div className="py-6 text-center text-sm text-gray-500">
+                    No discussion topics available
+                  </div>
+                )}
               </ScrollArea>
             </CommandGroup>
           </Command>

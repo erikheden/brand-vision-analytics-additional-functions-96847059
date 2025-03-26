@@ -28,6 +28,10 @@ export const useDiscussionTopicsData = (country: string) => {
         throw new Error(`Failed to fetch discussion topics: ${error.message}`);
       }
       
+      // Add console logs to debug if data is being returned with discussion_topic values
+      console.log("Discussion topics fetched:", data);
+      console.log("Discussion topics sample:", data?.length > 0 ? data[0] : "No data");
+      
       return data || [];
     },
     enabled: !!country, // Only run the query if country is provided
@@ -39,6 +43,9 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
   if (!countries.length) return [];
   
   try {
+    // Add debugging log
+    console.log("Fetching topics for countries:", countries);
+    
     const { data, error } = await supabase
       .from('SBI_Discussion_Topics_Geography')
       .select('*')
@@ -48,6 +55,10 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
       console.error('Error fetching all discussion topics:', error);
       throw new Error(`Failed to fetch all discussion topics: ${error.message}`);
     }
+    
+    // Debug log to check data
+    console.log("All discussion topics data count:", data?.length);
+    console.log("Sample discussion topics:", data?.slice(0, 3));
     
     return data || [];
   } catch (err) {

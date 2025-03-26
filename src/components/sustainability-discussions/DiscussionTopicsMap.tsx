@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
@@ -7,7 +8,8 @@ import { getFullCountryName } from "@/components/CountrySelect";
 import { Card } from "@/components/ui/card";
 
 // Initialize the map module
-import "highcharts/modules/map";
+import mapModule from "highcharts/modules/map";
+mapModule(Highcharts); // Initialize the module with Highcharts
 
 // Country code mapping for Highcharts
 const countryCodeMapping: Record<string, string> = {

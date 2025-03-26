@@ -26,8 +26,17 @@ const DiscussionsContent = () => {
   }, [topicsData]);
   
   const topics = React.useMemo(() => {
-    if (!topicsData.length) return [];
-    return [...new Set(topicsData.map(item => item.discussion_topic))].filter(Boolean).sort();
+    console.log("Raw topicsData length:", topicsData?.length);
+    
+    if (!topicsData || !topicsData.length) return [];
+    
+    const uniqueTopics = [...new Set(topicsData
+      .filter(item => item.discussion_topic && item.discussion_topic.trim() !== '')
+      .map(item => item.discussion_topic))]
+      .sort();
+    
+    console.log("Extracted topics:", uniqueTopics);
+    return uniqueTopics;
   }, [topicsData]);
   
   const [selectedYear, setSelectedYear] = useState<number>(
