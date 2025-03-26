@@ -69,15 +69,18 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
   console.log('ComparisonBarChart - series length:', series.length);
   console.log('ComparisonBarChart - first series sample:', series[0]?.data?.slice(0, 3));
 
+  // Get the chart options from the ComparisonChartOptions component
+  const chartOptions = ComparisonChartOptions({ 
+    sortedAreas, 
+    series, 
+    selectedYear 
+  });
+
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <HighchartsReact 
         highcharts={Highcharts} 
-        options={<ComparisonChartOptions 
-          sortedAreas={sortedAreas} 
-          series={series} 
-          selectedYear={selectedYear} 
-        />} 
+        options={chartOptions} 
         immutable={false}
       />
     </Card>

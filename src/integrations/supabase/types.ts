@@ -293,6 +293,33 @@ export type Database = {
         }
         Relationships: []
       }
+      SBI_Discussion_Topics_Geography: {
+        Row: {
+          country: string | null
+          english_label_short: string | null
+          geography: string | null
+          percentage: number | null
+          row_id: number
+          year: number
+        }
+        Insert: {
+          country?: string | null
+          english_label_short?: string | null
+          geography?: string | null
+          percentage?: number | null
+          row_id?: number
+          year: number
+        }
+        Update: {
+          country?: string | null
+          english_label_short?: string | null
+          geography?: string | null
+          percentage?: number | null
+          row_id?: number
+          year?: number
+        }
+        Relationships: []
+      }
       swe_brand_areas_rated: {
         Row: {
           area: string | null

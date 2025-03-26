@@ -9,11 +9,11 @@ interface ComparisonChartOptionsProps {
   selectedYear: number;
 }
 
-const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({ 
+const ComparisonChartOptions = ({ 
   sortedAreas, 
   series, 
   selectedYear 
-}) => {
+}: ComparisonChartOptionsProps): Highcharts.Options => {
   // Generate a color array
   const colors = ['#34502b', '#5c8f4a', '#84c066', '#aad68b', '#d1ebc1'];
 
@@ -21,7 +21,8 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
   console.log('ComparisonChartOptions - sortedAreas:', sortedAreas);
   console.log('ComparisonChartOptions - series data:', series);
 
-  const options: Highcharts.Options = {
+  // Return the options object directly, not wrapped in a React fragment
+  return {
     chart: {
       type: 'bar',
       height: Math.max(300, 50 * sortedAreas.length),
@@ -95,9 +96,6 @@ const ComparisonChartOptions: React.FC<ComparisonChartOptionsProps> = ({
       enabled: false
     }
   };
-
-  // Return the options object as React element
-  return <>{options}</>;
 };
 
 export default ComparisonChartOptions;
