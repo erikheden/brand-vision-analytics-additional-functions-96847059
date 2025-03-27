@@ -1,76 +1,53 @@
-
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { 
-  BarChart3, 
-  ListChecks, 
-  Sparkles, 
-  Settings, 
-  HelpCircle, 
-  LogOut 
-} from "lucide-react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
+import { BarChart3, ListChecks, Sparkles, Settings, HelpCircle, LogOut } from "lucide-react";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
-
 export function SidebarNav() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signOut, user } = useAuth();
-  const { toast } = useToast();
+  const {
+    signOut,
+    user
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
 
   // Get the first letter of the user's email for the avatar fallback
   const userInitial = user?.email ? user.email[0].toUpperCase() : "U";
-
-  const menuItems = [
-    {
-      title: "Brand Rankings",
-      path: "/",
-      icon: BarChart3,
-    },
-    {
-      title: "Sustainability Priorities",
-      path: "/sustainability-priorities",
-      icon: ListChecks,
-    },
-    {
-      title: "Sustainability Discussions",
-      path: "/sustainability-discussions",
-      icon: Sparkles,
-    },
-  ];
-
+  const menuItems = [{
+    title: "Brand Rankings",
+    path: "/",
+    icon: BarChart3
+  }, {
+    title: "Sustainability Priorities",
+    path: "/sustainability-priorities",
+    icon: ListChecks
+  }, {
+    title: "Sustainability Discussions",
+    path: "/sustainability-discussions",
+    icon: Sparkles
+  }];
   const handleSignOut = async () => {
     try {
       await signOut();
       toast({
         title: "Signed out successfully",
-        description: "You have been signed out of your account",
+        description: "You have been signed out of your account"
       });
       navigate("/auth");
     } catch (error) {
       toast({
         title: "Error signing out",
         description: "There was a problem signing out. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
-  return (
-    <Sidebar>
+  return <Sidebar>
       <SidebarHeader className="flex items-center justify-center py-4">
         <Avatar className="h-10 w-10 bg-[#f77171] text-white">
           <AvatarFallback>{userInitial}</AvatarFallback>
@@ -82,18 +59,12 @@ export function SidebarNav() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    isActive={location.pathname === item.path}
-                    onClick={() => navigate(item.path)}
-                    tooltip={item.title}
-                  >
+              {menuItems.map(item => <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton isActive={location.pathname === item.path} onClick={() => navigate(item.path)} tooltip={item.title} className="text-base">
                     <item.icon className="mr-2" size={20} />
                     <span>{item.title}</span>
                   </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+                </SidebarMenuItem>)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -126,8 +97,6 @@ export function SidebarNav() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarFooter>
-    </Sidebar>
-  );
+    </Sidebar>;
 }
-
 export default SidebarNav;
