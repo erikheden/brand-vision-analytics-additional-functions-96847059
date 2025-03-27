@@ -1,9 +1,6 @@
-
 import React from "react";
-
 const Footer = () => {
-  return (
-    <div className="w-full bg-[#34502b] mt-auto">
+  return <div className="w-full mt-auto bg-neutral-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-[41px]">
         <p className="text-[8px] text-center text-white">
           © 2025 SB Insight AB. All rights reserved.
@@ -15,8 +12,6 @@ const Footer = () => {
           Unauthorised use may result in legal action. For inquiries regarding permitted use, please contact info@sb-insight.com.
         </p>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Footer;
