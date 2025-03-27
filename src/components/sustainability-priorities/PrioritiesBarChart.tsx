@@ -4,10 +4,12 @@ import HighchartsReact from 'highcharts-react-official';
 import { Card } from '@/components/ui/card';
 import { MaterialityData } from '@/hooks/useGeneralMaterialityData';
 import { FONT_FAMILY } from '@/utils/constants';
+
 interface PrioritiesBarChartProps {
   data: MaterialityData[];
   selectedYear: number;
 }
+
 const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
   data,
   selectedYear
@@ -22,13 +24,15 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
     // Sort data by percentage in descending order
     return [...yearData].sort((a, b) => b.percentage - a.percentage);
   }, [data, selectedYear]);
+
   const options: Highcharts.Options = {
     chart: {
       type: 'bar',
       backgroundColor: 'white',
       style: {
         fontFamily: FONT_FAMILY
-      }
+      },
+      height: 600 // Increased height from default
     },
     title: {
       text: `Sustainability Priorities ${selectedYear}`,
@@ -95,6 +99,7 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
       enabled: false
     }
   };
+
   if (chartData.length === 0) {
     return <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="text-center py-10 text-gray-500">
@@ -102,8 +107,12 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
         </div>
       </Card>;
   }
-  return <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md py-[100px]">
-      <HighchartsReact highcharts={Highcharts} options={options} />
+
+  return <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+      <div className="h-[600px]">
+        <HighchartsReact highcharts={Highcharts} options={options} />
+      </div>
     </Card>;
 };
+
 export default PrioritiesBarChart;

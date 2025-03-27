@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
@@ -51,7 +50,8 @@ const PrioritiesTrendChart: React.FC<PrioritiesTrendChartProps> = ({ data, selec
       backgroundColor: 'white',
       style: {
         fontFamily: FONT_FAMILY
-      }
+      },
+      height: 500
     },
     title: {
       text: 'Sustainability Priorities Trends',
@@ -145,12 +145,13 @@ const PrioritiesTrendChart: React.FC<PrioritiesTrendChartProps> = ({ data, selec
 
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-      <HighchartsReact highcharts={Highcharts} options={options} />
+      <div className="h-[500px]">
+        <HighchartsReact highcharts={Highcharts} options={options} />
+      </div>
     </Card>
   );
 };
 
-// Function to generate distinct colors for each line
 const getColorForIndex = (index: number): string => {
   const colors = [
     '#34502b', // Dark green
