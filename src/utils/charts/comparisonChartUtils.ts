@@ -125,7 +125,7 @@ export const sortAreasByAverage = (allAreas: string[], areaAverages: Record<stri
 
 /**
  * Prepares series data for Highcharts
- * Adjusted to work with horizontal bar chart where categories are on y-axis
+ * Now updates to work with standard bar chart where categories are on x-axis
  */
 export const prepareChartSeries = (
   chartData: Record<string, Record<string, number>>,
@@ -135,10 +135,9 @@ export const prepareChartSeries = (
   console.log('prepareChartSeries - sortedAreas:', sortedAreas);
   
   const series = Object.entries(chartData).map(([country, data]) => {
-    const seriesData = sortedAreas.map((area, index) => {
-      // For horizontal bar charts with categorical y-axis, the data must match the order of categories
+    const seriesData = sortedAreas.map(area => {
+      // For standard bar charts with categories on x-axis
       const value = data[area] || 0;
-      console.log(`Series data for ${country}, area ${area} at index ${index}: ${value}`);
       return value;
     });
     

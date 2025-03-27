@@ -34,6 +34,17 @@ const ComparisonChartOptions = ({
       style: { color: '#34502b', fontFamily: FONT_FAMILY }
     },
     xAxis: {
+      // This is for the area names (categories)
+      categories: sortedAreas,
+      title: {
+        text: 'Sustainability Areas',
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      },
+      labels: {
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      }
+    },
+    yAxis: {
       // This should be for the percentage values
       title: {
         text: 'Percentage',
@@ -44,30 +55,16 @@ const ComparisonChartOptions = ({
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       }
     },
-    yAxis: {
-      // This is for the area names (categories)
-      categories: sortedAreas,
-      title: {
-        text: 'Sustainability Areas',
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      },
-      labels: {
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      },
-      // Ensure all categories are visible
-      min: 0,
-      max: sortedAreas.length - 1
-    },
     tooltip: {
       formatter: function() {
-        return `<b>${this.series.yAxis.categories[this.y]}</b><br/>${this.series.name}: ${this.x.toFixed(1)}%`;
+        return `<b>${this.series.name}</b><br/>${this.x}: ${this.y.toFixed(1)}%`;
       }
     },
     plotOptions: {
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{x:.1f}%',
+          format: '{y:.1f}%',
           style: {
             fontWeight: 'normal',
             color: '#34502b',
