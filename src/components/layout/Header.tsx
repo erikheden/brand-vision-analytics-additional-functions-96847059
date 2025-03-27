@@ -16,15 +16,7 @@ const Header = () => {
           className="h-10 md:h-12 w-auto animate-fade-in cursor-pointer" 
           onClick={handleLogoClick} 
         />
-        <div className="flex items-center gap-4">
-          <UserMenu />
-          <img 
-            src="/lovable-uploads/8732b50b-f85b-48ca-91ac-748d8819f66c.png" 
-            alt="SB Index Logo" 
-            className="h-14 md:h-16 w-auto cursor-pointer" 
-            onClick={handleLogoClick} 
-          />
-        </div>
+        <UserMenu />
       </div>
     </div>
   );

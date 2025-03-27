@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { BarChart3, ListChecks, Sparkles, Settings, HelpCircle, LogOut } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
 
 export function SidebarNav() {
@@ -18,8 +17,6 @@ export function SidebarNav() {
     toast
   } = useToast();
 
-  // Get the first letter of the user's email for the avatar fallback
-  const userInitial = user?.email ? user.email[0].toUpperCase() : "U";
   const menuItems = [{
     title: "Brand Rankings",
     path: "/",
@@ -33,6 +30,7 @@ export function SidebarNav() {
     path: "/sustainability-discussions",
     icon: Sparkles
   }];
+  
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -52,10 +50,11 @@ export function SidebarNav() {
   
   return <Sidebar className="bg-[#34502b] text-white border-r border-[#4a6a3f]">
       <SidebarHeader className="flex items-center justify-center py-4">
-        <Avatar className="h-10 w-10 bg-[#f77171] text-white">
-          <AvatarFallback>{userInitial}</AvatarFallback>
-        </Avatar>
-        <span className="ml-2 text-lg font-medium text-white">SB Index</span>
+        <img 
+          src="/lovable-uploads/8732b50b-f85b-48ca-91ac-748d8819f66c.png" 
+          alt="SB Index Logo" 
+          className="h-14 w-auto" 
+        />
       </SidebarHeader>
       
       <SidebarContent>
