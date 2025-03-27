@@ -132,23 +132,60 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
         countryCode: country,
       });
       
-      // Add county level details with distributed values based on country average
-      if (countyDetails[hcKey]) {
-        countyDetails[hcKey].forEach(county => {
-          // Create a slightly different value for each county to show variation
-          // Using a random factor to simulate county-level differences
-          const countyValue = avgPercentage * (0.85 + Math.random() * 0.3);
+      // Also collect actual county data from our dataset if available
+      const countyData = new Map<string, number>();
+      
+      // Collect all real county data from the dataset
+      items.forEach(item => {
+        if (item.geography && item.geography !== item.country) {
+          // If we have real county geography data, use it
+          countyData.set(item.geography, item.percentage || 0);
+        }
+      });
+      
+      // First try to use actual county data if available
+      if (countyData.size > 0) {
+        // Use the real county data from the dataset
+        countyData.forEach((percentage, countyName) => {
+          // Find a match in our predefined county list to get coordinates
+          const predefinedCounty = countyDetails[hcKey]?.find(c => 
+            countyName.toLowerCase().includes(c.name.toLowerCase()) || 
+            c.name.toLowerCase().includes(countyName.toLowerCase())
+          );
+          
+          const lat = predefinedCounty?.lat || (Math.random() * 5 + 55); // Fallback with random position
+          const lon = predefinedCounty?.lon || (Math.random() * 5 + 10); // Fallback with random position
           
           result.push({
-            name: county.name,
-            lat: county.lat,
-            lon: county.lon,
-            z: countyValue, // For bubble size
-            value: countyValue,
+            name: countyName,
+            lat: lat,
+            lon: lon,
+            z: percentage, // For bubble size
+            value: percentage,
             countryCode: country,
-            countyLevel: true
+            countyLevel: true,
+            realCountyData: true // Flag to identify real county data
           });
         });
+      } else {
+        // Fall back to our predefined counties with simulated values
+        if (countyDetails[hcKey]) {
+          countyDetails[hcKey].forEach(county => {
+            // Create a slightly different value for each county to show variation
+            // Using a random factor to simulate county-level differences
+            const countyValue = avgPercentage * (0.85 + Math.random() * 0.3);
+            
+            result.push({
+              name: county.name,
+              lat: county.lat,
+              lon: county.lon,
+              z: countyValue, // For bubble size
+              value: countyValue,
+              countryCode: country,
+              countyLevel: true
+            });
+          });
+        }
       }
     });
     
@@ -171,6 +208,13 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
         fontWeight: 'bold',
       }
     },
+    subtitle: {
+      text: 'Click on counties to view detailed information',
+      style: {
+        color: '#666',
+        fontSize: '0.9em'
+      }
+    },
     mapNavigation: {
       enabled: true,
       buttonOptions: {
@@ -186,8 +230,8 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
         }
       },
       mapbubble: {
-        minSize: 3,
-        maxSize: 15,
+        minSize: 5,
+        maxSize: 30,
         tooltip: {
           pointFormat: '{point.name}: {point.value:.1f}%'
         }
@@ -206,7 +250,10 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
       }
     },
     tooltip: {
-      pointFormat: '{point.name}: {point.value:.1f}%'
+      useHTML: true,
+      headerFormat: '<span style="font-size: 10px">{point.key}</span><br/>',
+      pointFormat: '<span style="color:{point.color}">\u25CF</span> {point.name}: <b>{point.value:.1f}%</b><br/>' +
+                  '{#if point.realCountyData}<span class="font-italic">Real county data</span>{/if}'
     },
     legend: {
       title: {
@@ -217,6 +264,8 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
       {
         type: 'map',
         name: 'Country Overview',
+        nullColor: '#f8f8f8',
+        borderColor: '#888',
         states: {
           hover: {
             color: '#34502b'
@@ -226,7 +275,11 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
           enabled: true,
           format: '{point.name}',
           style: {
-            textOutline: '0px contrast'
+            textOutline: '1px contrast',
+            fontWeight: 'bold',
+            fontSize: '14px',
+            color: '#333',
+            textShadow: '0 0 3px #fff'
           }
         },
         allAreas: false,
@@ -238,15 +291,22 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
         color: '#0FA0CE',
         data: mapData.filter(item => item.countyLevel),
         cursor: 'pointer',
-        minSize: 5,
-        maxSize: 25,
+        minSize: 8,
+        maxSize: 30,
         dataLabels: {
           enabled: true,
           format: '{point.name}',
           style: {
-            textOutline: '1px contrast'
-          }
-        }
+            textOutline: '1px white',
+            fontSize: '11px',
+            color: 'black',
+            fontWeight: 'normal',
+            textShadow: '0 0 2px white'
+          },
+          crop: false,
+          overflow: 'allow'
+        },
+        zIndex: 100 // Place bubbles on top
       }
     ] as any
   };
@@ -291,6 +351,10 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
         constructorType={"mapChart"}
         ref={chartRef}
       />
+      <div className="mt-4 text-sm text-gray-500 italic text-center">
+        <p>Note: The map shows country-level data with county details. Hover or click on counties for more information.</p>
+        <p>Some counties may use estimated values based on country averages if specific data isn't available.</p>
+      </div>
     </Card>
   );
 };
