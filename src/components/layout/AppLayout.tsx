@@ -1,9 +1,10 @@
 
 import React from "react";
 import { Outlet } from "react-router-dom";
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import SidebarNav from "@/components/navigation/SidebarNav";
 import Footer from "@/components/layout/Footer";
+import Header from "@/components/layout/Header";
 
 const AppLayout = () => {
   return (
@@ -12,21 +13,7 @@ const AppLayout = () => {
         <SidebarNav />
         
         <SidebarInset className="flex flex-col">
-          <div className="flex items-center p-4 border-b">
-            <SidebarTrigger className="mr-4" />
-            <img 
-              src="/lovable-uploads/8b26bfaf-912f-4219-9ea9-5bb7156bb1e9.png" 
-              alt="Data Dashboard" 
-              className="h-10 w-auto" 
-            />
-            <div className="ml-auto">
-              <img 
-                src="/lovable-uploads/8732b50b-f85b-48ca-91ac-748d8819f66c.png" 
-                alt="SB Index Logo" 
-                className="h-14 w-auto" 
-              />
-            </div>
-          </div>
+          <Header />
           
           <div className="flex-grow">
             <Outlet />

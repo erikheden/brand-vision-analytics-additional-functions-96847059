@@ -8,7 +8,7 @@ const Header = () => {
   };
 
   return (
-    <div className="w-full bg-[#34502b] py-2">
+    <div className="w-full bg-white py-2 border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         <img 
           src="/lovable-uploads/8b26bfaf-912f-4219-9ea9-5bb7156bb1e9.png" 

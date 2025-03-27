@@ -35,13 +35,13 @@
  
     --radius: 0.5rem;
 
-    /* Sidebar custom colors */
-    --sidebar: 360 100% 98%;
-    --sidebar-foreground: 0 74% 42%;
-    --sidebar-border: 0 74% 86%;
-    --sidebar-ring: 0 74% 82%;
-    --sidebar-accent: 0 74% 94%;
-    --sidebar-accent-foreground: 0 74% 42%;
+    /* Sidebar custom colors for forest green */
+    --sidebar: 97 30% 24%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-border: 97 26% 33%;
+    --sidebar-ring: 97 26% 33%;
+    --sidebar-accent: 97 26% 33%;
+    --sidebar-accent-foreground: 0 0% 100%;
   }
  
   .dark {
@@ -73,12 +73,12 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
 
-    /* Sidebar custom colors */
-    --sidebar: 217.2 32.6% 10%;
+    /* Sidebar custom colors for dark mode */
+    --sidebar: 97 30% 20%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 224 71.4% 40%;
-    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-border: 97 26% 33%;
+    --sidebar-ring: 97 26% 40%;
+    --sidebar-accent: 97 26% 30%;
     --sidebar-accent-foreground: 210 40% 98%;
   }
 }

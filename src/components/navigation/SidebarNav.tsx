@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -5,6 +6,7 @@ import { BarChart3, ListChecks, Sparkles, Settings, HelpCircle, LogOut } from "l
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
+
 export function SidebarNav() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,12 +49,13 @@ export function SidebarNav() {
       });
     }
   };
-  return <Sidebar>
+  
+  return <Sidebar className="bg-[#34502b] text-white border-r border-[#4a6a3f]">
       <SidebarHeader className="flex items-center justify-center py-4">
         <Avatar className="h-10 w-10 bg-[#f77171] text-white">
           <AvatarFallback>{userInitial}</AvatarFallback>
         </Avatar>
-        <span className="ml-2 text-lg font-medium text-sidebar-foreground">SB Index</span>
+        <span className="ml-2 text-lg font-medium text-white">SB Index</span>
       </SidebarHeader>
       
       <SidebarContent>
@@ -60,8 +63,13 @@ export function SidebarNav() {
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map(item => <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton isActive={location.pathname === item.path} onClick={() => navigate(item.path)} tooltip={item.title} className="text-base">
-                    <item.icon className="mr-2" size={20} />
+                  <SidebarMenuButton 
+                    isActive={location.pathname === item.path} 
+                    onClick={() => navigate(item.path)} 
+                    tooltip={item.title} 
+                    className="text-base hover:bg-[#4a6a3f] data-[active=true]:bg-[#4a6a3f]"
+                  >
+                    <item.icon className="mr-2 text-white" size={20} />
                     <span>{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>)}
@@ -72,24 +80,24 @@ export function SidebarNav() {
       
       <SidebarFooter>
         <SidebarGroup>
-          <SidebarGroupLabel>SETTINGS</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-white/80">SETTINGS</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Settings">
-                  <Settings size={20} className="mr-2" />
+                <SidebarMenuButton tooltip="Settings" className="hover:bg-[#4a6a3f]">
+                  <Settings size={20} className="mr-2 text-white" />
                   <span>Settings</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Help">
-                  <HelpCircle size={20} className="mr-2" />
+                <SidebarMenuButton tooltip="Help" className="hover:bg-[#4a6a3f]">
+                  <HelpCircle size={20} className="mr-2 text-white" />
                   <span>Help</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleSignOut} tooltip="Logout">
-                  <LogOut size={20} className="mr-2" />
+                <SidebarMenuButton onClick={handleSignOut} tooltip="Logout" className="hover:bg-[#4a6a3f]">
+                  <LogOut size={20} className="mr-2 text-white" />
                   <span>Logout</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -99,4 +107,5 @@ export function SidebarNav() {
       </SidebarFooter>
     </Sidebar>;
 }
+
 export default SidebarNav;
