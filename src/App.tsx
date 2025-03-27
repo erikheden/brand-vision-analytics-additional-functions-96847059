@@ -10,6 +10,7 @@ import SustainabilityPriorities from "./pages/SustainabilityPriorities";
 import SustainabilityDiscussions from "./pages/SustainabilityDiscussions";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import AppLayout from "./components/layout/AppLayout";
 
 const queryClient = new QueryClient();
 
@@ -24,11 +25,13 @@ const App = () => (
             {/* Public routes */}
             <Route path="/auth" element={<Auth />} />
             
-            {/* Protected routes */}
+            {/* Protected routes with layout */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/sustainability-priorities" element={<SustainabilityPriorities />} />
-              <Route path="/sustainability-discussions" element={<SustainabilityDiscussions />} />
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/sustainability-priorities" element={<SustainabilityPriorities />} />
+                <Route path="/sustainability-discussions" element={<SustainabilityDiscussions />} />
+              </Route>
             </Route>
           </Routes>
         </BrowserRouter>
