@@ -1,15 +1,36 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Sidebar, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
-import { BarChart3, LineChart, PieChart, LayoutGrid, MessageSquare, BarChart, TrendingUp, BookOpen } from "lucide-react";
+import { 
+  Sidebar, 
+  SidebarContent, 
+  SidebarMenu, 
+  SidebarMenuItem, 
+  SidebarHeader 
+} from "@/components/ui/sidebar";
+import { 
+  BarChart3, 
+  LineChart, 
+  PieChart, 
+  LayoutGrid, 
+  MessageSquare, 
+  BarChart, 
+  TrendingUp, 
+  BookOpen 
+} from "lucide-react";
+
 const SidebarNav = () => {
   const location = useLocation();
   const isActive = (path: string) => {
     return location.pathname === path;
   };
-  return <Sidebar className="border-r bg-[#34502b] text-white">
-      
+  
+  return (
+    <Sidebar className="border-r bg-[#34502b] text-white" collapsible="icon">
+      <SidebarHeader className="text-center p-4">
+        <div className="font-semibold text-white">SB Index</div>
+      </SidebarHeader>
       
       <SidebarContent className="px-4">
         <SidebarMenu>
@@ -57,7 +78,7 @@ const SidebarNav = () => {
             </Link>
           </SidebarMenuItem>
           
-          {/* Add divider for Industry section */}
+          {/* Industry section */}
           <div className="pb-2 text-xs font-medium text-white/70 uppercase px-0 mx-0 mt-6 mb-px py-[15px]">Industry</div>
           
           <SidebarMenuItem>
@@ -75,6 +96,8 @@ const SidebarNav = () => {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
-    </Sidebar>;
+    </Sidebar>
+  );
 };
+
 export default SidebarNav;
