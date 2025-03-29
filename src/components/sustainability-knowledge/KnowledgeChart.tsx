@@ -1,10 +1,12 @@
 
 import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import { getFullCountryName } from '@/components/CountrySelect';
-import { formatPercentage, safeFormatPercentage } from '@/utils/formatting';
+import { formatPercentage } from '@/utils/formatting';
+import { FONT_FAMILY } from '@/utils/constants';
 
 interface KnowledgeChartProps {
   data: KnowledgeData[];
@@ -41,24 +43,96 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     
     // Filter by effective year
     const yearData = data.filter(item => item.year === effectiveYear);
-    console.log(`Filtered data for year ${effectiveYear}:`, yearData.length);
     
     // Filter by selected terms if any are selected
     let filteredData = yearData;
     if (selectedTerms.length > 0) {
       filteredData = yearData.filter(item => selectedTerms.includes(item.term));
     }
-    console.log('Filtered data by terms:', filteredData.length);
     
     // Sort by percentage descending
     return filteredData.sort((a, b) => b.percentage - a.percentage);
   }, [data, effectiveYear, selectedTerms]);
 
+  // Extract terms and percentages for the chart
+  const terms = chartData.map(item => item.term);
+  const percentages = chartData.map(item => item.percentage);
+
   // Chart colors
-  const COLORS = [
-    '#34502b', '#4d7342', '#668c5a', '#7fa571', '#98be89', '#b2d7a1', '#cbe9b9',
-    '#257179', '#328a94', '#3fa3ae', '#4dbcc9', '#66c7d2', '#80d2db', '#99dde4'
-  ];
+  const colors = percentages.map((_, index) => {
+    // Create a gradient from dark green to light green
+    const shade = 80 - (index * (60 / Math.max(percentages.length, 1)));
+    return `rgba(52, 80, 43, ${shade / 100})`;
+  });
+
+  // Chart options for horizontal bar chart
+  const options: Highcharts.Options = {
+    chart: {
+      type: 'bar',
+      height: Math.max(350, 50 * Math.min(terms.length, 15)),
+      backgroundColor: 'white',
+      style: { fontFamily: FONT_FAMILY }
+    },
+    title: {
+      text: `Sustainability Term Knowledge in ${getFullCountryName(country)} (${effectiveYear})`,
+      style: { color: '#34502b', fontFamily: FONT_FAMILY }
+    },
+    xAxis: {
+      title: {
+        text: 'Percentage',
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      },
+      labels: {
+        format: '{value}%',
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      }
+    },
+    yAxis: {
+      categories: terms,
+      title: {
+        text: 'Sustainability Terms',
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      },
+      labels: {
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      }
+    },
+    tooltip: {
+      formatter: function() {
+        return `<b>${this.y}</b><br/>${formatPercentage(this.x, false)}`;
+      }
+    },
+    plotOptions: {
+      bar: {
+        dataLabels: {
+          enabled: true,
+          format: '{point.x:.1f}%',
+          style: {
+            fontWeight: 'normal',
+            color: '#34502b',
+            fontFamily: FONT_FAMILY
+          }
+        },
+        groupPadding: 0.1,
+        pointPadding: 0.1,
+        borderWidth: 0,
+        colorByPoint: true,
+        colors: colors
+      }
+    },
+    series: [{
+      name: 'Knowledge Level',
+      type: 'bar',
+      data: percentages.map(value => value * 100), // Convert decimal to percentage
+      color: '#34502b'
+    }],
+    credits: {
+      enabled: false
+    },
+    legend: {
+      enabled: false
+    }
+  };
 
   if (chartData.length === 0) {
     return (
@@ -72,62 +146,9 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     );
   }
 
-  // Safe formatter function for bar labels
-  const safeLabelFormatter = (value: any) => {
-    return safeFormatPercentage(value, true);
-  };
-
   return (
     <Card className="p-6 bg-white border border-[#34502b]/20 rounded-xl shadow-md">
-      <h2 className="text-lg font-medium mb-4">
-        Sustainability Term Knowledge in {getFullCountryName(country)} ({effectiveYear})
-      </h2>
-      <div className="h-[500px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={chartData}
-            layout="vertical"
-            margin={{ top: 20, right: 30, left: 100, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-            <XAxis 
-              type="number" 
-              domain={[0, 100]} 
-              tickFormatter={(value) => `${value}%`}
-            />
-            <YAxis 
-              type="category" 
-              dataKey="term" 
-              width={90}
-              tick={{ fontSize: 12 }}
-            />
-            <Tooltip 
-              formatter={(value: number | null) => {
-                if (value === null || value === undefined) return ['N/A', 'Knowledge Level'];
-                // Assuming percentage is stored as decimal (0-1)
-                return [formatPercentage(value, true), 'Knowledge Level'];
-              }}
-              labelFormatter={(label) => `Term: ${label}`}
-            />
-            <Legend />
-            <Bar 
-              dataKey="percentage" 
-              name="Knowledge Level" 
-              fill="#34502b"
-              label={{
-                position: 'right',
-                formatter: safeLabelFormatter,
-                fill: '#34502b',
-                fontSize: 12
-              }}
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      <HighchartsReact highcharts={Highcharts} options={options} />
     </Card>
   );
 };

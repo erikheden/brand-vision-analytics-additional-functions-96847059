@@ -138,12 +138,12 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       }
     },
     legend: {
-      enabled: true,
       backgroundColor: 'rgba(255, 255, 255, 0.85)',
       itemStyle: {
         color: '#34502b',
         fontFamily: FONT_FAMILY
-      }
+      },
+      maxHeight: 80
     },
     series: series,
     credits: {
