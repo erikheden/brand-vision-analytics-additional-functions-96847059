@@ -2,7 +2,13 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Sidebar, SidebarContent, SidebarMenu, SidebarMenuSection, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
+import { 
+  Sidebar, 
+  SidebarContent, 
+  SidebarMenu, 
+  SidebarMenuItem, 
+  SidebarHeader 
+} from "@/components/ui/sidebar";
 import { BarChart3, LineChart, PieChart, LayoutGrid, MessageSquare } from "lucide-react";
 
 const SidebarNav = () => {
@@ -13,7 +19,7 @@ const SidebarNav = () => {
   };
   
   return (
-    <Sidebar className="border-r bg-[#34502b] text-white" defaultCollapsed={false}>
+    <Sidebar className="border-r bg-[#34502b] text-white">
       <SidebarHeader className="h-16 flex items-center px-5">
         <Link 
           to="/" 
@@ -32,62 +38,72 @@ const SidebarNav = () => {
       
       <SidebarContent className="px-4">
         <SidebarMenu>
-          <SidebarMenuSection label="Dashboards">
-            <SidebarMenuItem 
-              as={Link} 
+          <div className="pb-2 text-xs font-medium text-white/70 uppercase">Dashboards</div>
+          
+          <SidebarMenuItem>
+            <Link 
               to="/" 
-              active={isActive("/")}
-              icon={<LayoutGrid className="h-5 w-5" />}
-              activeClassName="bg-white/10 text-white"
-              className="hover:bg-white/5 transition-colors"
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm",
+                isActive("/") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors"
+              )}
             >
-              Overview
-            </SidebarMenuItem>
-            
-            <SidebarMenuItem 
-              as={Link} 
+              <LayoutGrid className="h-5 w-5" />
+              <span>Overview</span>
+            </Link>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <Link 
               to="/country-comparison" 
-              active={isActive("/country-comparison")}
-              icon={<LineChart className="h-5 w-5" />}
-              activeClassName="bg-white/10 text-white"
-              className="hover:bg-white/5 transition-colors"
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm",
+                isActive("/country-comparison") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors"
+              )}
             >
-              Country Comparison
-            </SidebarMenuItem>
-            
-            <SidebarMenuItem 
-              as={Link} 
+              <LineChart className="h-5 w-5" />
+              <span>Country Comparison</span>
+            </Link>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <Link 
               to="/sustainability-priorities" 
-              active={isActive("/sustainability-priorities")}
-              icon={<BarChart3 className="h-5 w-5" />}
-              activeClassName="bg-white/10 text-white"
-              className="hover:bg-white/5 transition-colors"
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm",
+                isActive("/sustainability-priorities") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors"
+              )}
             >
-              Sustainability Priorities
-            </SidebarMenuItem>
-            
-            <SidebarMenuItem 
-              as={Link} 
+              <BarChart3 className="h-5 w-5" />
+              <span>Sustainability Priorities</span>
+            </Link>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <Link 
               to="/materiality-areas" 
-              active={isActive("/materiality-areas")}
-              icon={<PieChart className="h-5 w-5" />}
-              activeClassName="bg-white/10 text-white"
-              className="hover:bg-white/5 transition-colors"
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm",
+                isActive("/materiality-areas") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors"
+              )}
             >
-              Materiality Areas
-            </SidebarMenuItem>
-            
-            <SidebarMenuItem 
-              as={Link} 
+              <PieChart className="h-5 w-5" />
+              <span>Materiality Areas</span>
+            </Link>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <Link 
               to="/sustainability-discussions" 
-              active={isActive("/sustainability-discussions")}
-              icon={<MessageSquare className="h-5 w-5" />}
-              activeClassName="bg-white/10 text-white"
-              className="hover:bg-white/5 transition-colors"
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm",
+                isActive("/sustainability-discussions") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors"
+              )}
             >
-              Sustainability Discussions
-            </SidebarMenuItem>
-          </SidebarMenuSection>
+              <MessageSquare className="h-5 w-5" />
+              <span>Sustainability Discussions</span>
+            </Link>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>
