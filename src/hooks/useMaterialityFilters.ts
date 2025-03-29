@@ -12,7 +12,7 @@ export interface MaterialityFilters {
 export function useMaterialityFilters() {
   const { toast } = useToast();
   const [selectedCountry, setSelectedCountry] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all_categories");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedFactors, setSelectedFactors] = useState<string[]>(["hygiene_factor"]);
   
   const { data: vhoData = [], isLoading, error } = useVHOData(selectedCountry);
@@ -31,7 +31,7 @@ export function useMaterialityFilters() {
     
     let filtered = vhoData;
     
-    if (selectedCategory && selectedCategory !== "all_categories") {
+    if (selectedCategory) {
       filtered = filtered.filter(item => item.category === selectedCategory);
     }
     
@@ -44,7 +44,7 @@ export function useMaterialityFilters() {
   
   // Reset category when country changes
   useEffect(() => {
-    setSelectedCategory("all_categories");
+    setSelectedCategory("");
   }, [selectedCountry]);
   
   // Handle country selection with toast notification

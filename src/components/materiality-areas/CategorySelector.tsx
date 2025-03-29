@@ -19,12 +19,9 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
       <Label>Select Category</Label>
       <Select value={selectedCategory} onValueChange={setSelectedCategory}>
         <SelectTrigger className="bg-white">
-          <SelectValue placeholder="Choose a category">
-            {selectedCategory || "All categories"}
-          </SelectValue>
+          <SelectValue placeholder="Choose a category" />
         </SelectTrigger>
         <SelectContent className="bg-white z-50">
-          <SelectItem value="all_categories">All categories</SelectItem>
           {categories && categories.length > 0 ? (
             categories.map((category) => (
               <SelectItem key={category} value={category}>
@@ -32,7 +29,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
               </SelectItem>
             ))
           ) : (
-            <SelectItem value="loading" disabled>
+            <SelectItem value="no_categories" disabled>
               No categories available
             </SelectItem>
           )}
