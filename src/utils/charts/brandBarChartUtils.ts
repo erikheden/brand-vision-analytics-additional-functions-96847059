@@ -2,7 +2,7 @@
 import Highcharts from 'highcharts';
 import { FONT_FAMILY } from '@/utils/constants';
 import { createTooltipContainer, createTooltipPoint, createAverageScoreDisplay, formatDifferenceText } from '@/utils/charts/tooltipFormatters';
-import { roundPercentage } from '@/utils/formatting';
+import { roundPercentage, formatPercentage } from '@/utils/formatting';
 
 /**
  * Create y-axis configuration with plot lines for average scores 
@@ -22,7 +22,8 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
         fontFamily: FONT_FAMILY
       },
       formatter: function() {
-        return roundPercentage(this.value as number) + '%';
+        // Fix: Return a string with % symbol
+        return `${roundPercentage(this.value as number)}%`;
       }
     },
     gridLineColor: 'rgba(52, 80, 43, 0.1)'

@@ -2,7 +2,7 @@
 import Highcharts from 'highcharts';
 import { createChartOptions } from '@/utils/chartConfigs';
 import { FONT_FAMILY } from '@/utils/constants';
-import { roundPercentage } from '@/utils/formatting';
+import { roundPercentage, formatPercentage } from '@/utils/formatting';
 
 /**
  * Creates tooltip formatter function for brand chart
@@ -50,7 +50,7 @@ export const createTooltipFormatter = (standardized: boolean, yearlyAverages: {y
         <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
           <div style="width: 10px; height: 10px; background-color: ${color}; border-radius: 50%;"></div>
           <span style="color: #34502b;">${point.series.name}:</span>
-          <span style="font-weight: bold; color: #34502b;">${value}${diffText}</span>
+          <span style="font-weight: bold; color: #34502b;">${value}%${diffText}</span>
         </div>
       `;
     }).join('');
@@ -62,7 +62,7 @@ export const createTooltipFormatter = (standardized: boolean, yearlyAverages: {y
         <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0; border-top: 1px dotted #34502b; padding-top: 4px;">
           <div style="width: 10px; height: 1px; background-color: #34502b; border-radius: 0;"></div>
           <span style="color: #34502b; font-style: italic;">Market Average:</span>
-          <span style="font-weight: bold; color: #34502b; margin-left: 5px;">${roundedAverage}</span>
+          <span style="font-weight: bold; color: #34502b; margin-left: 5px;">${roundedAverage}%</span>
         </div>
       ` + pointsHtml;
     }
@@ -119,7 +119,8 @@ export const createBrandChartOptions = (
           fontFamily: FONT_FAMILY
         },
         formatter: function() {
-          return roundPercentage(this.value as number);
+          // Fix: Return a string with % instead of just a number
+          return `${roundPercentage(this.value as number)}%`;
         }
       },
       gridLineColor: 'rgba(52, 80, 43, 0.1)'
