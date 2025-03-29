@@ -34,7 +34,8 @@ const KnowledgeTrendChart: React.FC<KnowledgeTrendChartProps> = ({
       }
       
       // Use the term as the key for the percentage
-      groups[item.year][item.term] = item.percentage * 100; // Convert to percentage
+      // Multiply by 100 since the database now stores values as 0.XX instead of XX.X
+      groups[item.year][item.term] = item.percentage * 100;
       
       return groups;
     }, {} as Record<number, any>);
