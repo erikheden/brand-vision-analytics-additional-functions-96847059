@@ -58,8 +58,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
   const formattedChartData = useMemo(() => {
     return chartData.map(item => ({
       ...item,
-      // Multiply by 100 since the database now stores values as 0.XX instead of XX.X
-      formattedPercentage: formatPercentage(item.percentage * 100, false)
+      formattedPercentage: formatPercentage(item.percentage, false)
     }));
   }, [chartData]);
 
@@ -107,7 +106,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
             />
             <Tooltip 
               formatter={(value: number, name: string) => {
-                return name === 'percentage' ? [`${(value).toFixed(1)}%`, 'Knowledge Level'] : [value, name];
+                return name === 'percentage' ? [`${value.toFixed(1)}%`, 'Knowledge Level'] : [value, name];
               }}
               labelFormatter={(label) => `Term: ${label}`}
             />
