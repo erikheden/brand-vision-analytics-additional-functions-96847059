@@ -1,8 +1,10 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Sidebar, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
 import { BarChart3, LineChart, PieChart, LayoutGrid, MessageSquare, BarChart, TrendingUp, BookOpen } from "lucide-react";
+
 const SidebarNav = () => {
   const location = useLocation();
   const isActive = (path: string) => {
@@ -51,6 +53,16 @@ const SidebarNav = () => {
           </SidebarMenuItem>
           
           <SidebarMenuItem>
+            <Link to="/sustainability-discussions" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/sustainability-discussions") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
+              <MessageSquare className="h-5 w-5" />
+              <span>Sustainability Discussions</span>
+            </Link>
+          </SidebarMenuItem>
+          
+          {/* Add divider for Industry section */}
+          <div className="pb-2 text-xs font-medium text-white/70 uppercase px-0 mx-0 mt-6 mb-px py-[15px]">Industry</div>
+          
+          <SidebarMenuItem>
             <Link to="/materiality-areas" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/materiality-areas") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
               <PieChart className="h-5 w-5" />
               <span>Materiality Areas</span>
@@ -61,13 +73,6 @@ const SidebarNav = () => {
             <Link to="/sustainability-impact" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/sustainability-impact") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
               <BarChart className="h-5 w-5" />
               <span>Sustainability Impact</span>
-            </Link>
-          </SidebarMenuItem>
-          
-          <SidebarMenuItem>
-            <Link to="/sustainability-discussions" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/sustainability-discussions") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
-              <MessageSquare className="h-5 w-5" />
-              <span>Sustainability Discussions</span>
             </Link>
           </SidebarMenuItem>
         </SidebarMenu>
