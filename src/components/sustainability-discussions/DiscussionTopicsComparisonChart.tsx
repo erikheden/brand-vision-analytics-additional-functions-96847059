@@ -55,7 +55,7 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       
       return {
         name: country,
-        type: 'column',
+        type: 'bar',
         data: topicsArray.map(topic => {
           const topicData = countryData.find(item => item.discussion_topic === topic);
           // Convert from decimal to percentage (0-100)
@@ -87,10 +87,10 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
     return colorMap[country] || '#34502b';
   }
   
-  // Chart options - better visualization configuration
+  // Chart options - horizontal bar chart with topics on y-axis
   const options: Highcharts.Options = {
     chart: {
-      type: 'column', // Use vertical column chart
+      type: 'bar', // Horizontal bars
       height: Math.max(400, 60 * topics.length),
       backgroundColor: 'white',
       style: { fontFamily: FONT_FAMILY }
@@ -100,18 +100,6 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       style: { color: '#34502b', fontFamily: FONT_FAMILY }
     },
     xAxis: {
-      categories: topics,
-      title: {
-        text: 'Discussion Topics',
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      },
-      labels: {
-        style: { color: '#34502b', fontFamily: FONT_FAMILY },
-        rotation: -45, // Rotate labels for better readability
-        align: 'right'
-      }
-    },
-    yAxis: {
       title: {
         text: 'Percentage',
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
@@ -121,16 +109,26 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       }
     },
+    yAxis: {
+      categories: topics,
+      title: {
+        text: 'Discussion Topics',
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      },
+      labels: {
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      }
+    },
     tooltip: {
       formatter: function() {
-        return `<b>${this.series.name}</b><br/>${this.x}: ${this.y.toFixed(1)}%`;
+        return `<b>${this.series.name}</b><br/>${this.y}: ${this.x.toFixed(1)}%`;
       }
     },
     plotOptions: {
-      column: {
+      bar: {
         dataLabels: {
           enabled: true,
-          format: '{y:.1f}%',
+          format: '{point.x:.1f}%',
           style: {
             fontWeight: 'normal',
             color: '#34502b',
