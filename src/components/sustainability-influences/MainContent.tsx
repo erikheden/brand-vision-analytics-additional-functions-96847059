@@ -49,31 +49,21 @@ const MainContent = () => {
     }
   }, [years]);
   
-  // Update selected influences when influences data changes or year changes
+  // Initialize selected influences when influences data changes
   useEffect(() => {
-    if (influences.length > 0 && influencesData.length > 0) {
-      console.log("Calculating top influences for year:", selectedYear);
-      
-      const yearData = influencesData.filter(item => item.year === selectedYear);
-      console.log(`Data points for year ${selectedYear}:`, yearData.length);
-      
-      // Select top 3 influences based on percentage
-      const topInfluences = yearData
-        .sort((a, b) => b.percentage - a.percentage)
-        .slice(0, Math.min(3, yearData.length))
-        .map(item => item.english_label_short);
-      
-      console.log("Top influences selected:", topInfluences);
-      setSelectedInfluences([...new Set(topInfluences)]);
-    } else {
-      // If no influences data, clear selection
-      setSelectedInfluences([]);
+    if (influences.length > 0 && selectedInfluences.length === 0) {
+      // Select a default of first 3 influences or all if less than 3
+      const defaultSelection = influences.slice(0, Math.min(3, influences.length));
+      console.log("Initial influences selection:", defaultSelection);
+      setSelectedInfluences(defaultSelection);
     }
-  }, [influences, selectedYear, influencesData]);
+  }, [influences, selectedInfluences.length]);
   
   const handleCountryChange = (country: string) => {
     console.log("Country selected:", country);
     setSelectedCountry(country);
+    // Reset selected influences when country changes
+    setSelectedInfluences([]);
     toast({
       title: "Country Selected",
       description: `Showing sustainability influences for ${country}`,
@@ -117,6 +107,7 @@ const MainContent = () => {
 
   console.log("Rendering main content with selected year:", selectedYear);
   console.log("Active tab:", activeTab);
+  console.log("Currently selected influences:", selectedInfluences);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
