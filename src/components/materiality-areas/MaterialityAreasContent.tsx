@@ -8,7 +8,6 @@ import VHOAreaBarChart from "./VHOAreaBarChart";
 import IndustrySelector from "./IndustrySelector";
 import CategorySelector from "./CategorySelector";
 import FactorToggle from "./FactorToggle";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const MaterialityAreasContent = () => {
   const { toast } = useToast();
@@ -22,17 +21,21 @@ const MaterialityAreasContent = () => {
   // Extract unique industries
   const industries = useMemo(() => {
     if (!vhoData.length) return [];
-    return [...new Set(vhoData.map(item => item.industry))].sort();
+    const uniqueIndustries = [...new Set(vhoData.map(item => item.industry))].sort();
+    console.log("Extracted industries:", uniqueIndustries);
+    return uniqueIndustries;
   }, [vhoData]);
   
   // Extract unique categories for the selected industry
   const categories = useMemo(() => {
     if (!vhoData.length || !selectedIndustry) return [];
-    return [...new Set(
+    const uniqueCategories = [...new Set(
       vhoData
         .filter(item => item.industry === selectedIndustry)
         .map(item => item.category)
     )].sort();
+    console.log("Extracted categories for", selectedIndustry, ":", uniqueCategories);
+    return uniqueCategories;
   }, [vhoData, selectedIndustry]);
   
   // Check if we have distinct categories (different from industry)
@@ -107,83 +110,89 @@ const MaterialityAreasContent = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="space-y-6">
-        <h1 className="text-2xl font-semibold text-[#34502b] text-center md:text-left">Materiality Areas</h1>
+        <h1 className="text-2xl font-semibold text-[#34502b] mb-6">Materiality Areas</h1>
         
-        <div className="grid md:grid-cols-4 gap-6">
-          <div className="md:col-span-1">
-            <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl">
-              <div className="space-y-6">
-                <CountrySelect
-                  selectedCountry={selectedCountry}
-                  countries={countries}
-                  onCountryChange={handleCountryChange}
-                />
-                
-                {selectedCountry && (
-                  <>
+        <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl mb-6">
+          <CountrySelect
+            selectedCountry={selectedCountry}
+            countries={countries}
+            onCountryChange={handleCountryChange}
+          />
+        </Card>
+        
+        {selectedCountry && (
+          <div className="grid md:grid-cols-4 gap-6">
+            <div className="md:col-span-1">
+              <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl">
+                <div className="space-y-6">
+                  {industries.length > 0 ? (
                     <IndustrySelector
                       industries={industries}
                       selectedIndustry={selectedIndustry}
                       setSelectedIndustry={setSelectedIndustry}
                     />
-                    
-                    {selectedIndustry && hasDistinctCategories && (
-                      <CategorySelector
-                        categories={categories}
-                        selectedCategory={selectedCategory}
-                        setSelectedCategory={setSelectedCategory}
-                      />
-                    )}
-                    
-                    {selectedIndustry && (
-                      <FactorToggle
-                        selectedFactors={selectedFactors}
-                        toggleFactor={toggleFactor}
-                      />
-                    )}
-                  </>
-                )}
-              </div>
-            </Card>
+                  ) : (
+                    <div className="text-sm text-gray-500">
+                      {isLoading ? "Loading industries..." : "No industries available"}
+                    </div>
+                  )}
+                  
+                  {selectedIndustry && hasDistinctCategories && (
+                    <CategorySelector
+                      categories={categories}
+                      selectedCategory={selectedCategory}
+                      setSelectedCategory={setSelectedCategory}
+                    />
+                  )}
+                  
+                  {selectedIndustry && (
+                    <FactorToggle
+                      selectedFactors={selectedFactors}
+                      toggleFactor={toggleFactor}
+                    />
+                  )}
+                </div>
+              </Card>
+            </div>
+            
+            <div className="md:col-span-3">
+              {isLoading ? (
+                <Card className="p-6 h-[600px] flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#34502b] mx-auto"></div>
+                    <p className="mt-4 text-[#34502b]">Loading materiality areas...</p>
+                  </div>
+                </Card>
+              ) : error ? (
+                <Card className="p-6 bg-white border-2 border-red-200 rounded-xl shadow-md">
+                  <div className="text-center py-10 text-red-500">
+                    Error loading data. Please try again later.
+                  </div>
+                </Card>
+              ) : !selectedCountry ? (
+                <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+                  <div className="text-center py-10 text-gray-500">
+                    Please select a country to view materiality areas.
+                  </div>
+                </Card>
+              ) : !selectedIndustry ? (
+                <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+                  <div className="text-center py-10 text-gray-500">
+                    Please select an industry to view materiality areas.
+                  </div>
+                </Card>
+              ) : filteredData.length === 0 ? (
+                <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+                  <div className="text-center py-10 text-gray-500">
+                    No materiality areas data available for the selected criteria.
+                  </div>
+                </Card>
+              ) : (
+                <VHOAreaBarChart data={filteredData} />
+              )}
+            </div>
           </div>
-          
-          <div className="md:col-span-3">
-            {isLoading ? (
-              <Card className="p-6 h-[600px] flex items-center justify-center">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#34502b] mx-auto"></div>
-                  <p className="mt-4 text-[#34502b]">Loading materiality areas...</p>
-                </div>
-              </Card>
-            ) : error ? (
-              <Card className="p-6 bg-white border-2 border-red-200 rounded-xl shadow-md">
-                <div className="text-center py-10 text-red-500">
-                  Error loading data. Please try again later.
-                </div>
-              </Card>
-            ) : !selectedCountry ? (
-              <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-                <div className="text-center py-10 text-gray-500">
-                  Please select a country to view materiality areas.
-                </div>
-              </Card>
-            ) : !selectedIndustry ? (
-              <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-                <div className="text-center py-10 text-gray-500">
-                  Please select an industry to view materiality areas.
-                </div>
-              </Card>
-            ) : filteredData.length === 0 ? (
-              <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-                <div className="text-center py-10 text-gray-500">
-                  No materiality areas data available for the selected criteria.
-                </div>
-              </Card>
-            ) : (
-              <VHOAreaBarChart data={filteredData} />
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
