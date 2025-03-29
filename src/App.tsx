@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,11 +9,11 @@ import SustainabilityInfluences from "./pages/SustainabilityInfluences";
 import SustainabilityDiscussions from "./pages/SustainabilityDiscussions";
 import MaterialityAreas from "./pages/MaterialityAreas";
 import SustainabilityImpact from "./pages/SustainabilityImpact";
+import SustainabilityKnowledge from "./pages/SustainabilityKnowledge";
 import Auth from "./pages/Auth";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
-// Create a QueryClient instance for React Query
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -43,6 +42,7 @@ function App() {
               <Route path="country-comparison" element={<CountryComparison />} />
               <Route path="sustainability-priorities" element={<SustainabilityPriorities />} />
               <Route path="sustainability-influences" element={<SustainabilityInfluences />} />
+              <Route path="sustainability-knowledge" element={<SustainabilityKnowledge />} />
               <Route path="sustainability-discussions" element={<SustainabilityDiscussions />} />
               <Route path="materiality-areas" element={<MaterialityAreas />} />
               <Route path="sustainability-impact" element={<SustainabilityImpact />} />

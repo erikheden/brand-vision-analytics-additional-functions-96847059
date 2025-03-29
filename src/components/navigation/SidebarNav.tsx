@@ -9,7 +9,16 @@ import {
   SidebarMenuItem, 
   SidebarHeader 
 } from "@/components/ui/sidebar";
-import { BarChart3, LineChart, PieChart, LayoutGrid, MessageSquare, BarChart, TrendingUp } from "lucide-react";
+import { 
+  BarChart3, 
+  LineChart, 
+  PieChart, 
+  LayoutGrid, 
+  MessageSquare, 
+  BarChart, 
+  TrendingUp, 
+  BookOpen 
+} from "lucide-react";
 
 const SidebarNav = () => {
   const location = useLocation();
@@ -89,6 +98,19 @@ const SidebarNav = () => {
             >
               <TrendingUp className="h-5 w-5" />
               <span>Sustainability Influences</span>
+            </Link>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <Link 
+              to="/sustainability-knowledge" 
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm",
+                isActive("/sustainability-knowledge") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors"
+              )}
+            >
+              <BookOpen className="h-5 w-5" />
+              <span>Sustainability Knowledge</span>
             </Link>
           </SidebarMenuItem>
           
