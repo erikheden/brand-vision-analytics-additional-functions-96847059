@@ -986,6 +986,27 @@ export type Database = {
         }
         Relationships: []
       }
+      SBI_Knowledge: {
+        Row: {
+          country: string | null
+          percentage: number | null
+          term: string | null
+          year: number | null
+        }
+        Insert: {
+          country?: string | null
+          percentage?: number | null
+          term?: string | null
+          year?: number | null
+        }
+        Update: {
+          country?: string | null
+          percentage?: number | null
+          term?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
       SBI_purchasing_decision_industries: {
         Row: {
           category: string | null
