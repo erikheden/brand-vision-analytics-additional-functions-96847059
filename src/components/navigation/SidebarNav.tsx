@@ -1,10 +1,8 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Sidebar, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
 import { BarChart3, LineChart, PieChart, LayoutGrid, MessageSquare, BarChart, TrendingUp, BookOpen } from "lucide-react";
-
 const SidebarNav = () => {
   const location = useLocation();
   const isActive = (path: string) => {
@@ -65,7 +63,7 @@ const SidebarNav = () => {
           <SidebarMenuItem>
             <Link to="/materiality-areas" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/materiality-areas") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
               <PieChart className="h-5 w-5" />
-              <span>Materiality Areas</span>
+              <span>Sustainability Areas</span>
             </Link>
           </SidebarMenuItem>
           
