@@ -32,10 +32,10 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
   const topics = processedData.map(item => item.discussion_topic || "Unknown");
   const percentages = processedData.map(item => item.percentage || 0);
   
-  // Chart options - SWAPPED X and Y axes
+  // Chart options - clean and correct configuration
   const options: Highcharts.Options = {
     chart: {
-      type: 'bar',  // Using bar chart type (horizontal bars)
+      type: 'column', // Switch to vertical column chart
       height: Math.max(300, 50 * Math.min(topics.length, 15)),
       backgroundColor: 'white',
       style: { fontFamily: FONT_FAMILY }
@@ -44,7 +44,18 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
       text: `Sustainability Discussion Topics (${selectedYear})`,
       style: { color: '#34502b', fontFamily: FONT_FAMILY }
     },
-    // Y-axis now shows percentages
+    xAxis: {
+      categories: topics,
+      title: {
+        text: 'Discussion Topics',
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      },
+      labels: {
+        style: { color: '#34502b', fontFamily: FONT_FAMILY },
+        rotation: -45, // Rotate labels for better readability with many categories
+        align: 'right'
+      }
+    },
     yAxis: {
       title: {
         text: 'Percentage',
@@ -55,27 +66,16 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       }
     },
-    // X-axis now shows topics
-    xAxis: {
-      categories: topics,
-      title: {
-        text: 'Discussion Topics',
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      },
-      labels: {
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      }
-    },
     tooltip: {
       formatter: function() {
-        return `<b>${this.x}</b><br/>${formatPercentage(this.y * 100, false)}`;
+        return `<b>${this.x}</b><br/>${formatPercentage(this.y, false)}`;
       }
     },
     plotOptions: {
-      bar: {
+      column: {
         dataLabels: {
           enabled: true,
-          format: '{point.formatted}',
+          format: '{point.y:.1f}%',
           style: {
             fontWeight: 'normal',
             color: '#34502b',
@@ -95,11 +95,8 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     },
     series: [{
       name: 'Percentage',
-      type: 'bar',
-      data: percentages.map((value, index) => ({
-        y: value * 100, // Convert decimal to percentage
-        formatted: formatPercentage(value * 100, false) // Pre-format for data labels
-      })),
+      type: 'column',
+      data: percentages.map(value => value * 100), // Convert decimal to percentage
       color: '#5c8f4a'
     }],
     credits: {
