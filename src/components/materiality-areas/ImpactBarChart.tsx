@@ -29,11 +29,33 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title }) => {
       'Medium impact': '#b7c895',
       'Low impact': '#6ec0dc',
       'Very low impact': '#09657b',
-      'No impact': '#d9d9d9'
+      'No impact': '#d9d9d9',
+      'Acting': '#34502b',
+      'Aware': '#7c9457',
+      'Concerned': '#b7c895',
+      'Willing to pay': '#6ec0dc'
     };
     
     return colorMap[name] || '#34502b';
   };
+  
+  // Sort data for consistent display
+  const sortedData = [...data].sort((a, b) => {
+    const impactOrder: Record<string, number> = {
+      'Very high impact': 1,
+      'High impact': 2,
+      'Medium impact': 3,
+      'Low impact': 4,
+      'Very low impact': 5,
+      'No impact': 6,
+      'Acting': 1,
+      'Aware': 2, 
+      'Concerned': 3,
+      'Willing to pay': 4
+    };
+    
+    return (impactOrder[a.name] || 99) - (impactOrder[b.name] || 99);
+  });
   
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -54,45 +76,40 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title }) => {
   
   return (
     <div className="w-full h-full">
-      <h3 className="text-lg font-medium text-center mb-4">{title}</h3>
-      <ResponsiveContainer width="100%" height={350}>
+      <h3 className="text-xl font-medium text-center mb-6 text-[#34502b]">{title}</h3>
+      <ResponsiveContainer width="100%" height={400}>
         <RechartsBarChart
-          data={data}
+          data={sortedData}
+          layout="vertical"
           margin={{
             top: 20,
             right: 30,
             left: 20,
-            bottom: 70,
+            bottom: 20,
           }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
           <XAxis 
-            dataKey="name" 
-            angle={-45} 
-            textAnchor="end" 
-            height={80} 
+            type="number"
+            domain={[0, 100]}
+            tickFormatter={(value) => `${value}%`}
             tick={{ fill: '#4b5563', fontSize: 12 }}
           />
           <YAxis 
-            domain={[0, 100]} 
-            tickFormatter={(value) => `${value}%`}
+            dataKey="name" 
+            type="category"
+            width={120}
             tick={{ fill: '#4b5563', fontSize: 12 }}
-            label={{ 
-              value: 'Percentage of Consumers', 
-              angle: -90, 
-              position: 'insideLeft',
-              style: { fill: '#4b5563', fontSize: 12, textAnchor: 'middle' }
-            }}
           />
           <Tooltip content={<CustomTooltip />} />
-          <Legend wrapperStyle={{ bottom: 0 }} />
+          <Legend />
           <Bar 
             dataKey="value" 
             fill="#34502b" 
             name="Impact Level" 
-            radius={[4, 4, 0, 0]}
+            radius={[0, 4, 4, 0]}
           >
-            {data.map((entry, index) => (
+            {sortedData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={getColor(entry.name)} />
             ))}
           </Bar>
