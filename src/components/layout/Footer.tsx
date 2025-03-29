@@ -2,7 +2,7 @@ import React from "react";
 const Footer = () => {
   return <div className="w-full mt-auto bg-neutral-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-[100px] py-0 my-0">
-        <p className="text-[8px] text-center text-neutral-600">
+        <p className="text-[6px] text-center text-neutral-600">
           © 2025 SB Insight AB. All rights reserved.
         </p>
         <p className="text-[8px] mt-2 text-center text-neutral-600">
