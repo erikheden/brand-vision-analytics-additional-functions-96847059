@@ -24,48 +24,29 @@ interface ImpactBarChartProps {
 
 const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title, categories }) => {
   // Color mapping for impact levels
-  const getColor = (name: string) => {
+  const getColor = (category: string, index: number) => {
+    const colors = [
+      '#34502b', '#7c9457', '#b7c895', '#6ec0dc', '#09657b', '#d9d9d9',
+      '#25636b', '#3d7882', '#578d96', '#72a2aa', '#8db7be', '#a8ccd1'
+    ];
+    
+    // Use consistent colors for specific categories if needed
     const colorMap: Record<string, string> = {
-      'Very high impact': '#34502b',
-      'High impact': '#7c9457',
-      'Medium impact': '#b7c895',
-      'Low impact': '#6ec0dc',
-      'Very low impact': '#09657b',
-      'No impact': '#d9d9d9',
-      'Acting': '#34502b',
-      'Aware': '#7c9457',
-      'Concerned': '#b7c895',
-      'Willing to pay': '#6ec0dc'
+      'Food & Beverage': '#34502b',
+      'Fashion & Apparel': '#7c9457',
+      'Beauty & Personal Care': '#b7c895',
+      'Home & Living': '#6ec0dc',
+      'Electronics': '#09657b',
+      'Travel & Tourism': '#d9d9d9'
     };
     
-    return colorMap[name] || '#34502b';
-  };
-  
-  // Get category colors for the legend
-  const getCategoryColor = (index: number) => {
-    const colors = ['#34502b', '#7c9457', '#b7c895', '#6ec0dc', '#09657b', '#d9d9d9'];
-    return colors[index % colors.length];
-  };
-  
-  // Order of impact levels for consistent display
-  const impactOrder: Record<string, number> = {
-    'Very high impact': 1,
-    'High impact': 2,
-    'Medium impact': 3,
-    'Low impact': 4,
-    'Very low impact': 5,
-    'No impact': 6,
-    'Acting': 1,
-    'Aware': 2, 
-    'Concerned': 3,
-    'Willing to pay': 4
+    return colorMap[category] || colors[index % colors.length];
   };
   
   // Process data for grouped bar chart
   const processedData = useMemo(() => {
-    // First, get all unique impact levels across all categories
-    const impactLevels = Array.from(new Set(data.map(item => item.name)))
-      .sort((a, b) => (impactOrder[a] || 99) - (impactOrder[b] || 99));
+    // First, get all unique impact levels
+    const impactLevels = [...new Set(data.map(item => item.name))];
     
     // Create data structure for grouped bar chart
     return impactLevels.map(level => {
@@ -134,9 +115,9 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title, categories
             <Bar 
               key={category}
               dataKey={category} 
-              fill={getCategoryColor(index)} 
+              fill={getColor(category, index)} 
               name={category} 
-              stackId="a"
+              // Remove stackId to display bars next to each other instead of stacked
               radius={[0, 4, 4, 0]}
             />
           ))}
