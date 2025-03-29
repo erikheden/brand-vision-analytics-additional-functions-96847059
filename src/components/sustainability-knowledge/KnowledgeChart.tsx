@@ -4,7 +4,6 @@ import { Card } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import { getFullCountryName } from '@/components/CountrySelect';
-import { formatPercentage } from '@/utils/formatting';
 
 interface KnowledgeChartProps {
   data: KnowledgeData[];
@@ -54,14 +53,6 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     return filteredData.sort((a, b) => b.percentage - a.percentage);
   }, [data, effectiveYear, selectedTerms]);
 
-  // Format chart data to include pre-formatted percentage values
-  const formattedChartData = useMemo(() => {
-    return chartData.map(item => ({
-      ...item,
-      formattedPercentage: formatPercentage(item.percentage, false)
-    }));
-  }, [chartData]);
-
   // Chart colors
   const COLORS = [
     '#34502b', '#4d7342', '#668c5a', '#7fa571', '#98be89', '#b2d7a1', '#cbe9b9',
@@ -88,7 +79,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
       <div className="h-[500px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={formattedChartData}
+            data={chartData}
             layout="vertical"
             margin={{ top: 20, right: 30, left: 100, bottom: 5 }}
           >
@@ -107,9 +98,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
             <Tooltip 
               formatter={(value: number, name: string) => {
                 if (name === 'percentage') {
-                  // Format percentage to show with 1 decimal point
-                  const formattedValue = value.toFixed(1);
-                  return [`${formattedValue}%`, 'Knowledge Level'];
+                  return [`${value.toFixed(1)}%`, 'Knowledge Level'];
                 }
                 return [value, name];
               }}
@@ -122,12 +111,12 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
               fill="#34502b"
               label={{
                 position: 'right',
-                formatter: (item: any) => item.formattedPercentage,
+                formatter: (item: any) => `${item.value.toFixed(1)}%`,
                 fill: '#34502b',
                 fontSize: 12
               }}
             >
-              {formattedChartData.map((entry, index) => (
+              {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Bar>
