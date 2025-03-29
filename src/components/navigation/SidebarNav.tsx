@@ -9,7 +9,7 @@ import {
   SidebarMenuItem, 
   SidebarHeader 
 } from "@/components/ui/sidebar";
-import { BarChart3, LineChart, PieChart, LayoutGrid, MessageSquare } from "lucide-react";
+import { BarChart3, LineChart, PieChart, LayoutGrid, MessageSquare, BarChart } from "lucide-react";
 
 const SidebarNav = () => {
   const location = useLocation();
@@ -89,6 +89,19 @@ const SidebarNav = () => {
             >
               <PieChart className="h-5 w-5" />
               <span>Materiality Areas</span>
+            </Link>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <Link 
+              to="/sustainability-impact" 
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm",
+                isActive("/sustainability-impact") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors"
+              )}
+            >
+              <BarChart className="h-5 w-5" />
+              <span>Sustainability Impact</span>
             </Link>
           </SidebarMenuItem>
           

@@ -8,6 +8,7 @@ import CountryComparison from "./pages/CountryComparison";
 import SustainabilityPriorities from "./pages/SustainabilityPriorities";
 import SustainabilityDiscussions from "./pages/SustainabilityDiscussions";
 import MaterialityAreas from "./pages/MaterialityAreas";
+import SustainabilityImpact from "./pages/SustainabilityImpact";
 import Auth from "./pages/Auth";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -42,6 +43,7 @@ function App() {
               <Route path="sustainability-priorities" element={<SustainabilityPriorities />} />
               <Route path="sustainability-discussions" element={<SustainabilityDiscussions />} />
               <Route path="materiality-areas" element={<MaterialityAreas />} />
+              <Route path="sustainability-impact" element={<SustainabilityImpact />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Route>
           </Routes>
