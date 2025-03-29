@@ -33,10 +33,8 @@ const MainContent = () => {
     hasError: !!error
   });
   
-  // Set default selected year to the most recent one
-  const [selectedYear, setSelectedYear] = useState<number>(
-    years.length > 0 ? Math.max(...years) : new Date().getFullYear()
-  );
+  // Set default selected year to the most recent one, but only if it exists in the data
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   
   // Update selected year when years data changes
   useEffect(() => {
