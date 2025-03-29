@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useSustainabilityInfluences } from '@/hooks/useSustainabilityInfluences';
@@ -16,6 +17,8 @@ const MainContent = () => {
   const [activeTab, setActiveTab] = useState<string>("yearly");
   const [selectedInfluences, setSelectedInfluences] = useState<string[]>([]);
   
+  console.log("MainContent rendered with selectedCountry:", selectedCountry);
+  
   const { 
     data: influencesData = [], 
     years = [],
@@ -24,13 +27,23 @@ const MainContent = () => {
     error 
   } = useSustainabilityInfluences(selectedCountry);
   
+  console.log("MainContent received data:", {
+    dataCount: influencesData.length,
+    yearsCount: years.length,
+    influencesCount: influences.length,
+    isLoading,
+    hasError: !!error
+  });
+  
   const [selectedYear, setSelectedYear] = useState<number>(
     years.length > 0 ? Math.max(...years) : new Date().getFullYear()
   );
   
   useEffect(() => {
     if (years.length > 0) {
-      setSelectedYear(Math.max(...years));
+      const maxYear = Math.max(...years);
+      console.log(`Setting selectedYear to max year: ${maxYear}`);
+      setSelectedYear(maxYear);
     }
   }, [years]);
   
@@ -38,17 +51,23 @@ const MainContent = () => {
     setSelectedInfluences([]);
     
     if (influences.length > 0) {
-      const topInfluences = influencesData
-        .filter(item => item.year === selectedYear)
+      console.log("Calculating top influences for year:", selectedYear);
+      
+      const yearData = influencesData.filter(item => item.year === selectedYear);
+      console.log(`Data points for year ${selectedYear}:`, yearData.length);
+      
+      const topInfluences = yearData
         .sort((a, b) => b.percentage - a.percentage)
         .slice(0, 3)
         .map(item => item.english_label_short);
       
+      console.log("Top influences selected:", topInfluences);
       setSelectedInfluences([...new Set(topInfluences)]);
     }
   }, [influences, selectedYear, influencesData]);
   
   const handleCountryChange = (country: string) => {
+    console.log("Country selected:", country);
     setSelectedCountry(country);
     toast({
       title: "Country Selected",
@@ -60,6 +79,7 @@ const MainContent = () => {
   const countries = ["SE", "NO", "DK", "FI", "NL"];
 
   if (isLoading) {
+    console.log("Rendering loading state");
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <h1 className="text-2xl font-semibold text-[#34502b] mb-6">Sustainability Influences</h1>
@@ -77,6 +97,7 @@ const MainContent = () => {
   }
 
   if (error) {
+    console.log("Rendering error state:", error);
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <h1 className="text-2xl font-semibold text-[#34502b] mb-6">Sustainability Influences</h1>
@@ -88,6 +109,9 @@ const MainContent = () => {
       </div>
     );
   }
+
+  console.log("Rendering main content with selected year:", selectedYear);
+  console.log("Active tab:", activeTab);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
