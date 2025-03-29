@@ -2,6 +2,7 @@
 import React from 'react';
 import Highcharts from 'highcharts';
 import { FONT_FAMILY } from '@/utils/constants';
+import { roundPercentage } from '@/utils/formatting';
 
 interface ComparisonChartOptionsProps {
   sortedAreas: string[];
@@ -57,14 +58,18 @@ const ComparisonChartOptions = ({
     },
     tooltip: {
       formatter: function() {
-        return `<b>${this.series.name}</b><br/>${this.x}: ${this.y.toFixed(1)}%`;
+        const roundedValue = roundPercentage(this.y);
+        return `<b>${this.series.name}</b><br/>${this.x}: ${roundedValue}%`;
       }
     },
     plotOptions: {
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{y:.1f}%',
+          format: '{y}%',
+          formatter: function() {
+            return roundPercentage(this.y) + '%';
+          },
           style: {
             fontWeight: 'normal',
             color: '#34502b',

@@ -1,5 +1,6 @@
 
 import { FONT_FAMILY } from '@/utils/constants';
+import { roundPercentage } from '@/utils/formatting';
 
 /**
  * Creates a standard tooltip container with consistent styling
@@ -24,7 +25,8 @@ export const createTooltipPoint = (
   diffText: string = ''
 ) => {
   // Format the value if it's a number
-  const formattedValue = typeof value === 'number' ? value.toFixed(2) : value;
+  const formattedValue = typeof value === 'number' ? 
+    roundPercentage(value) : value;
   
   // Add comparison info if provided
   const comparisonHtml = diffText ? 
@@ -49,7 +51,7 @@ export const createAverageScoreDisplay = (averageScore: number | null) => {
   return `
     <div style="margin-top: 8px; padding-top: 4px; border-top: 1px dotted #34502b;">
       <span style="color: #34502b; font-style: italic;">Market Average:</span>
-      <span style="font-weight: bold; color: #34502b; margin-left: 5px;">${averageScore.toFixed(2)}</span>
+      <span style="font-weight: bold; color: #34502b; margin-left: 5px;">${roundPercentage(averageScore)}</span>
     </div>
   `;
 };
@@ -61,5 +63,5 @@ export const formatDifferenceText = (value: number | null, average: number | nul
   if (value === null || average === null) return '';
   
   const diff = value - average;
-  return diff >= 0 ? `+${diff.toFixed(2)}` : `${diff.toFixed(2)}`;
+  return diff >= 0 ? `+${roundPercentage(diff)}` : `${roundPercentage(diff)}`;
 };

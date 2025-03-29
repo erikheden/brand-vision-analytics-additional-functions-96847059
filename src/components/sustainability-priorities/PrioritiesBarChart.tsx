@@ -5,6 +5,7 @@ import HighchartsReact from 'highcharts-react-official';
 import { Card } from '@/components/ui/card';
 import { MaterialityData } from '@/hooks/useGeneralMaterialityData';
 import { FONT_FAMILY } from '@/utils/constants';
+import { roundPercentage } from '@/utils/formatting';
 
 interface PrioritiesBarChartProps {
   data: MaterialityData[];
@@ -88,14 +89,17 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
     },
     tooltip: {
       formatter: function () {
-        return `<b>${this.x}</b>: ${this.y.toFixed(1)}%`;
+        return `<b>${this.x}</b>: ${roundPercentage(this.y)}%`;
       }
     },
     plotOptions: {
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{y:.1f}%',
+          format: '{y}%',
+          formatter: function() {
+            return roundPercentage(this.y) + '%';
+          },
           style: {
             fontWeight: 'normal',
             color: '#34502b',

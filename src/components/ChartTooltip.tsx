@@ -1,4 +1,6 @@
+
 import React from 'react';
+import { roundPercentage } from '@/utils/formatting';
 
 interface TooltipPointData {
   series: {
@@ -38,8 +40,8 @@ export const ChartTooltip: React.FC<any> = (props) => {
             <span className="text-xs text-gray-700">{entry.name}:</span>
             <span className="text-xs font-medium">
               {standardized 
-                ? `${entry.value?.toFixed(2)}σ` 
-                : entry.value?.toFixed(2)}
+                ? `${roundPercentage(entry.value)}σ` 
+                : `${roundPercentage(entry.value)}`}
             </span>
           </div>
         ))}
@@ -60,8 +62,8 @@ export const createTooltipFormatter = (fontFamily: string, standardized: boolean
     const pointsHtml = sortedPoints.map(point => {
       const color = point.series.color;
       const value = standardized ? 
-        `${point.y?.toFixed(2)} SD` : 
-        point.y?.toFixed(2);
+        `${roundPercentage(point.y)} SD` : 
+        `${roundPercentage(point.y)}`;
       
       return `
         <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">

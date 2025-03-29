@@ -5,6 +5,7 @@ import { TrendingUp, TrendingDown, Minus, Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BAR_COLOR } from '@/utils/constants';
 import { calculatePerformanceDelta, calculatePerformancePercentage } from '@/utils/industry';
+import { roundPercentage } from '@/utils/formatting';
 
 interface TrendComparisonWidgetProps {
   brandName: string;
@@ -80,7 +81,7 @@ const TrendComparisonWidget = ({
               <div className="flex items-center space-x-2 cursor-help">
                 {statusInfo.icon}
                 <span className={`text-sm font-medium ${statusInfo.color}`}>
-                  {performancePercentage !== null ? `${performancePercentage > 0 ? '+' : ''}${performancePercentage.toFixed(1)}%` : 'N/A'}
+                  {performancePercentage !== null ? `${performancePercentage > 0 ? '+' : ''}${roundPercentage(performancePercentage)}%` : 'N/A'}
                 </span>
               </div>
             </TooltipTrigger>
@@ -90,9 +91,9 @@ const TrendComparisonWidget = ({
                 {performanceDelta !== null && (
                   <>
                     <br/>
-                    <span className="font-medium">Brand score: {brandScore?.toFixed(2)}</span>
+                    <span className="font-medium">Brand score: {roundPercentage(brandScore)}</span>
                     <br/>
-                    <span className="font-medium">Selection average: {industryAverage?.toFixed(2)}</span>
+                    <span className="font-medium">Selection average: {roundPercentage(industryAverage)}</span>
                     {brandsInIndustry > 0 && (
                       <>
                         <br/>
@@ -106,7 +107,7 @@ const TrendComparisonWidget = ({
                         <br/>
                         <span className="font-medium">
                           {performancePercentage > 0 ? '+' : ''}
-                          {performancePercentage.toFixed(2)}% vs. selection
+                          {roundPercentage(performancePercentage)}% vs. selection
                         </span>
                       </>
                     )}
@@ -122,7 +123,7 @@ const TrendComparisonWidget = ({
         <div className="mt-4">
           <div className="flex justify-between text-xs text-gray-500 mb-1">
             <span>0</span>
-            <span>Selection Avg: {industryAverage.toFixed(1)}</span>
+            <span>Selection Avg: {roundPercentage(industryAverage)}</span>
             <span>100</span>
           </div>
           <div className="w-full h-2 bg-gray-200 rounded-full relative">
@@ -142,11 +143,11 @@ const TrendComparisonWidget = ({
           </div>
           <div className="flex justify-between mt-1">
             <div className="text-xs">
-              <span className="font-medium text-[#34502b]">Brand: {brandScore.toFixed(1)}</span>
+              <span className="font-medium text-[#34502b]">Brand: {roundPercentage(brandScore)}</span>
             </div>
             <div className="text-xs">
               <span className={`font-medium ${statusInfo.color}`}>
-                {performanceDelta !== null ? (performanceDelta > 0 ? '+' : '') + performanceDelta.toFixed(1) + ' points' : ''}
+                {performanceDelta !== null ? (performanceDelta > 0 ? '+' : '') + roundPercentage(performanceDelta) + ' points' : ''}
               </span>
             </div>
           </div>
