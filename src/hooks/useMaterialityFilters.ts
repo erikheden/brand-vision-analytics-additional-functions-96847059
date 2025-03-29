@@ -5,7 +5,6 @@ import { useToast } from '@/components/ui/use-toast';
 
 export interface MaterialityFilters {
   selectedCountry: string;
-  selectedIndustry: string;
   selectedCategory: string;
   selectedFactors: string[];
 }
@@ -13,54 +12,26 @@ export interface MaterialityFilters {
 export function useMaterialityFilters() {
   const { toast } = useToast();
   const [selectedCountry, setSelectedCountry] = useState<string>("");
-  const [selectedIndustry, setSelectedIndustry] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedFactors, setSelectedFactors] = useState<string[]>(["hygiene_factor"]);
   
   const { data: vhoData = [], isLoading, error } = useVHOData(selectedCountry);
   
-  // Extract unique industries
-  const industries = useMemo(() => {
-    if (!vhoData.length) return [];
-    const uniqueIndustries = [...new Set(vhoData.map(item => item.industry))].sort();
-    console.log("Extracted industries:", uniqueIndustries);
-    return uniqueIndustries;
-  }, [vhoData]);
-  
-  // Extract unique categories for the selected industry
+  // Extract unique categories
   const categories = useMemo(() => {
-    if (!vhoData.length || !selectedIndustry) return [];
-    const uniqueCategories = [...new Set(
-      vhoData
-        .filter(item => item.industry === selectedIndustry)
-        .map(item => item.category)
-    )].sort();
-    console.log("Extracted categories for", selectedIndustry, ":", uniqueCategories);
+    if (!vhoData.length) return [];
+    const uniqueCategories = [...new Set(vhoData.map(item => item.category))].sort();
+    console.log("Extracted categories:", uniqueCategories);
     return uniqueCategories;
-  }, [vhoData, selectedIndustry]);
-  
-  // Check if we have distinct categories (different from industry)
-  const hasDistinctCategories = useMemo(() => {
-    if (!vhoData.length || !selectedIndustry) return false;
-    // Get unique categories for the selected industry
-    const uniqueCategories = [...new Set(
-      vhoData
-        .filter(item => item.industry === selectedIndustry)
-        .map(item => item.category)
-    )];
-    
-    // If we have more than one category or the category is different from the industry name
-    return uniqueCategories.length > 1 || 
-           (uniqueCategories.length === 1 && uniqueCategories[0] !== selectedIndustry);
-  }, [vhoData, selectedIndustry]);
+  }, [vhoData]);
   
   // Filter data based on selections
   const filteredData = useMemo(() => {
-    if (!vhoData.length || !selectedIndustry) return [];
+    if (!vhoData.length) return [];
     
-    let filtered = vhoData.filter(item => item.industry === selectedIndustry);
+    let filtered = vhoData;
     
-    if (hasDistinctCategories && selectedCategory) {
+    if (selectedCategory) {
       filtered = filtered.filter(item => item.category === selectedCategory);
     }
     
@@ -69,16 +40,10 @@ export function useMaterialityFilters() {
     }
     
     return filtered;
-  }, [vhoData, selectedIndustry, selectedCategory, selectedFactors, hasDistinctCategories]);
+  }, [vhoData, selectedCategory, selectedFactors]);
   
-  // Reset category when industry changes
+  // Reset category when country changes
   useEffect(() => {
-    setSelectedCategory("");
-  }, [selectedIndustry]);
-  
-  // Reset industry when country changes
-  useEffect(() => {
-    setSelectedIndustry("");
     setSelectedCategory("");
   }, [selectedCountry]);
   
@@ -108,7 +73,6 @@ export function useMaterialityFilters() {
   return {
     // State
     selectedCountry,
-    selectedIndustry, 
     selectedCategory,
     selectedFactors,
     vhoData,
@@ -117,12 +81,9 @@ export function useMaterialityFilters() {
     error,
     
     // Derived data
-    industries,
     categories,
-    hasDistinctCategories,
     
     // Actions
-    setSelectedIndustry,
     setSelectedCategory,
     handleCountryChange,
     toggleFactor

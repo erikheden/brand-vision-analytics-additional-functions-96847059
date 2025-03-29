@@ -8,7 +8,7 @@ interface MaterialityResultsDisplayProps {
   isLoading: boolean;
   error: Error | null;
   selectedCountry: string;
-  selectedIndustry: string;
+  selectedCategory: string;
   filteredData: VHOData[];
 }
 
@@ -16,7 +16,7 @@ const MaterialityResultsDisplay: React.FC<MaterialityResultsDisplayProps> = ({
   isLoading,
   error,
   selectedCountry,
-  selectedIndustry,
+  selectedCategory,
   filteredData
 }) => {
   if (isLoading) {
@@ -45,16 +45,6 @@ const MaterialityResultsDisplay: React.FC<MaterialityResultsDisplayProps> = ({
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="text-center py-10 text-gray-500">
           Please select a country to view materiality areas.
-        </div>
-      </Card>
-    );
-  }
-  
-  if (!selectedIndustry) {
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-10 text-gray-500">
-          Please select an industry to view materiality areas.
         </div>
       </Card>
     );

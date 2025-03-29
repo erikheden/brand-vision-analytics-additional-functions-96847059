@@ -20,7 +20,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
       <Select value={selectedCategory} onValueChange={setSelectedCategory}>
         <SelectTrigger className="bg-white">
           <SelectValue placeholder="Choose a category">
-            {selectedCategory || "Choose a category"}
+            {selectedCategory || "All categories"}
           </SelectValue>
         </SelectTrigger>
         <SelectContent className="bg-white z-50">

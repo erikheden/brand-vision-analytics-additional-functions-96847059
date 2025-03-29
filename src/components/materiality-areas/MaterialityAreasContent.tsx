@@ -9,16 +9,12 @@ import MaterialityResultsDisplay from "./MaterialityResultsDisplay";
 const MaterialityAreasContent = () => {
   const {
     selectedCountry,
-    selectedIndustry,
     selectedCategory,
     selectedFactors,
     filteredData,
     isLoading,
     error,
-    industries,
     categories,
-    hasDistinctCategories,
-    setSelectedIndustry,
     setSelectedCategory,
     handleCountryChange,
     toggleFactor
@@ -47,13 +43,9 @@ const MaterialityAreasContent = () => {
                 countries={countries}
                 selectedCountry={selectedCountry}
                 onCountryChange={handleCountryChange}
-                industries={industries}
-                selectedIndustry={selectedIndustry}
-                setSelectedIndustry={setSelectedIndustry}
                 categories={categories}
                 selectedCategory={selectedCategory}
                 setSelectedCategory={setSelectedCategory}
-                hasDistinctCategories={hasDistinctCategories}
                 selectedFactors={selectedFactors}
                 toggleFactor={toggleFactor}
                 isLoading={isLoading}
@@ -65,7 +57,7 @@ const MaterialityAreasContent = () => {
                 isLoading={isLoading}
                 error={error}
                 selectedCountry={selectedCountry}
-                selectedIndustry={selectedIndustry}
+                selectedCategory={selectedCategory}
                 filteredData={filteredData}
               />
             </div>
