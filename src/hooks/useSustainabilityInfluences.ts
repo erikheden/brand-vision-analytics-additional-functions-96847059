@@ -74,53 +74,59 @@ export function useSustainabilityInfluences(country: string) {
       const countryCode = country.toUpperCase();
       console.log(`Fetching sustainability influences for country: ${countryCode}`);
       
-      const { data, error } = await supabase
-        .from('SBI_influences')
-        .select('*')
-        .eq('country', countryCode)
-        .order('year', { ascending: true });
-      
-      if (error) {
-        console.error('Error fetching sustainability influences data:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load sustainability influences data',
-          variant: 'destructive',
-        });
-        throw error;
-      }
-      
-      console.log(`Raw data from database for ${countryCode}:`, data);
-      
-      // Map the database fields to our interface
-      const mappedData = data.map(item => ({
-        year: item.year,
-        percentage: item.percentage,
-        country: item.country,
-        english_label_short: item.medium // Map 'medium' from DB to 'english_label_short' for component compatibility
-      })) as InfluenceData[];
-      
-      console.log(`Mapped ${mappedData.length} records for country ${countryCode}`);
-      
-      // Log the years from the data to help debug
-      if (mappedData.length > 0) {
-        const years = [...new Set(mappedData.map(item => item.year))].sort((a, b) => a - b);
-        console.log(`Years available in data for ${countryCode}:`, years);
+      try {
+        const { data, error } = await supabase
+          .from('SBI_influences')
+          .select('*')
+          .eq('country', countryCode)
+          .order('year', { ascending: true });
         
-        // Count records per year for debugging
-        years.forEach(year => {
-          const yearData = mappedData.filter(item => item.year === year);
-          console.log(`${countryCode} - Year ${year}: ${yearData.length} records`);
-        });
+        if (error) {
+          console.error('Error fetching sustainability influences data:', error);
+          toast({
+            title: 'Error',
+            description: 'Failed to load sustainability influences data',
+            variant: 'destructive',
+          });
+          throw error;
+        }
+        
+        console.log(`Raw data from database for ${countryCode}:`, data);
+        
+        // Map the database fields to our interface
+        const mappedData = data.map(item => ({
+          year: item.year,
+          percentage: item.percentage,
+          country: item.country,
+          english_label_short: item.medium // Map 'medium' from DB to 'english_label_short' for component compatibility
+        })) as InfluenceData[];
+        
+        console.log(`Mapped ${mappedData.length} records for country ${countryCode}`);
+        
+        // Log the years from the data to help debug
+        if (mappedData.length > 0) {
+          const years = [...new Set(mappedData.map(item => item.year))].sort((a, b) => a - b);
+          console.log(`Years available in data for ${countryCode}:`, years);
+          
+          // Count records per year for debugging
+          years.forEach(year => {
+            const yearData = mappedData.filter(item => item.year === year);
+            console.log(`${countryCode} - Year ${year}: ${yearData.length} records`);
+          });
+        }
+        
+        // If no data is returned from the database, use sample data
+        if (mappedData.length === 0) {
+          console.log(`No data found for ${countryCode} in database, using sample data`);
+          return sampleData[countryCode] || [];
+        }
+        
+        return mappedData;
+      } catch (err) {
+        console.error('Exception in useSustainabilityInfluences:', err);
+        console.log(`Falling back to sample data for ${countryCode}`);
+        return sampleData[countryCode] || [];
       }
-      
-      // If no data is returned from the database, use sample data
-      if (mappedData.length === 0 && sampleData[countryCode]) {
-        console.log(`No data found for ${countryCode} in database, using sample data`);
-        return sampleData[countryCode];
-      }
-      
-      return mappedData;
     },
     enabled: !!country,
   });
@@ -150,7 +156,7 @@ export function useSustainabilityInfluences(country: string) {
   }
   
   return {
-    data,
+    data: data || [],
     years,
     influences,
     isLoading,

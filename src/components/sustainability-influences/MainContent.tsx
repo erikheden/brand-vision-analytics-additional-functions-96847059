@@ -13,7 +13,7 @@ import { Card } from '@/components/ui/card';
 
 const MainContent = () => {
   const { toast } = useToast();
-  const [selectedCountry, setSelectedCountry] = useState<string>("");
+  const [selectedCountry, setSelectedCountry] = useState<string>("SE"); // Default to Sweden
   const [activeTab, setActiveTab] = useState<string>("yearly");
   const [selectedInfluences, setSelectedInfluences] = useState<string[]>([]);
   
@@ -35,10 +35,12 @@ const MainContent = () => {
     hasError: !!error
   });
   
+  // Set default selected year to the most recent one
   const [selectedYear, setSelectedYear] = useState<number>(
     years.length > 0 ? Math.max(...years) : new Date().getFullYear()
   );
   
+  // Update selected year when years data changes
   useEffect(() => {
     if (years.length > 0) {
       const maxYear = Math.max(...years);
@@ -47,22 +49,25 @@ const MainContent = () => {
     }
   }, [years]);
   
+  // Update selected influences when influences data changes or year changes
   useEffect(() => {
-    setSelectedInfluences([]);
-    
-    if (influences.length > 0) {
+    if (influences.length > 0 && influencesData.length > 0) {
       console.log("Calculating top influences for year:", selectedYear);
       
       const yearData = influencesData.filter(item => item.year === selectedYear);
       console.log(`Data points for year ${selectedYear}:`, yearData.length);
       
+      // Select top 3 influences based on percentage
       const topInfluences = yearData
         .sort((a, b) => b.percentage - a.percentage)
-        .slice(0, 3)
+        .slice(0, Math.min(3, yearData.length))
         .map(item => item.english_label_short);
       
       console.log("Top influences selected:", topInfluences);
       setSelectedInfluences([...new Set(topInfluences)]);
+    } else {
+      // If no influences data, clear selection
+      setSelectedInfluences([]);
     }
   }, [influences, selectedYear, influencesData]);
   

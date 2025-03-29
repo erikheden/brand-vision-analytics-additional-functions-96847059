@@ -14,9 +14,23 @@ const YearSelector: React.FC<YearSelectorProps> = ({
   selectedYear,
   onChange
 }) => {
-  if (years.length === 0) {
-    return null;
+  if (!years || years.length === 0) {
+    return (
+      <Card className="p-4 bg-white shadow">
+        <div className="mb-2">
+          <h3 className="text-sm font-medium text-gray-700">Year</h3>
+        </div>
+        <div className="text-center text-gray-500 py-2">
+          No years available
+        </div>
+      </Card>
+    );
   }
+
+  // Sort years in descending order for better UX
+  const sortedYears = [...years].sort((a, b) => b - a);
+  
+  console.log("YearSelector rendering with years:", sortedYears, "and selectedYear:", selectedYear);
 
   return (
     <Card className="p-4 bg-white shadow">
@@ -26,13 +40,17 @@ const YearSelector: React.FC<YearSelectorProps> = ({
       
       <Select 
         value={selectedYear.toString()} 
-        onValueChange={(value) => onChange(parseInt(value, 10))}
+        onValueChange={(value) => {
+          const year = parseInt(value, 10);
+          console.log(`YearSelector: changing year from ${selectedYear} to ${year}`);
+          onChange(year);
+        }}
       >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select year" />
         </SelectTrigger>
         <SelectContent>
-          {years.map((year) => (
+          {sortedYears.map((year) => (
             <SelectItem key={year} value={year.toString()}>
               {year}
             </SelectItem>
