@@ -11,8 +11,15 @@ const MainContent = () => {
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("single");
+  const [selectedAgeId, setSelectedAgeId] = useState<number | null>(null);
   
-  const { data: materialityData = [], isLoading, error } = useGeneralMaterialityData(selectedCountry);
+  const { 
+    data: materialityData = [], 
+    ageGroups = [],
+    isLoading, 
+    isLoadingAgeGroups,
+    error 
+  } = useGeneralMaterialityData(selectedCountry, selectedAgeId);
   
   useEffect(() => {
     // Log data to help with debugging
@@ -97,6 +104,10 @@ const MainContent = () => {
                 selectedAreas={selectedAreas}
                 setSelectedAreas={setSelectedAreas}
                 countries={countries}
+                ageGroups={ageGroups}
+                selectedAgeId={selectedAgeId}
+                setSelectedAgeId={setSelectedAgeId}
+                isLoadingAgeGroups={isLoadingAgeGroups}
               />
             </TabsContent>
             

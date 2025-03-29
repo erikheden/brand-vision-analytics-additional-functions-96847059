@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
@@ -8,11 +9,13 @@ import { FONT_FAMILY } from '@/utils/constants';
 interface PrioritiesBarChartProps {
   data: MaterialityData[];
   selectedYear: number;
+  selectedAgeId?: number | null;
 }
 
 const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
   data,
-  selectedYear
+  selectedYear,
+  selectedAgeId = null
 }) => {
   const chartData = useMemo(() => {
     console.log(`Filtering data for year ${selectedYear}, total data points: ${data.length}`);
@@ -25,6 +28,16 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
     return [...yearData].sort((a, b) => b.percentage - a.percentage);
   }, [data, selectedYear]);
 
+  // Get subtitle based on selected age group
+  const subtitle = useMemo(() => {
+    if (!selectedAgeId) {
+      return 'General Population';
+    }
+    
+    const ageItem = data.find(item => item.age_id === selectedAgeId);
+    return ageItem?.age_group || `Age Group ID: ${selectedAgeId}`;
+  }, [data, selectedAgeId]);
+
   const options: Highcharts.Options = {
     chart: {
       type: 'bar',
@@ -36,6 +49,13 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
     },
     title: {
       text: `Sustainability Priorities ${selectedYear}`,
+      style: {
+        color: '#34502b',
+        fontFamily: FONT_FAMILY
+      }
+    },
+    subtitle: {
+      text: subtitle,
       style: {
         color: '#34502b',
         fontFamily: FONT_FAMILY
