@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useSustainabilityInfluences } from '@/hooks/useSustainabilityInfluences';
@@ -25,23 +24,19 @@ const MainContent = () => {
     error 
   } = useSustainabilityInfluences(selectedCountry);
   
-  // Set default to most recent year
   const [selectedYear, setSelectedYear] = useState<number>(
     years.length > 0 ? Math.max(...years) : new Date().getFullYear()
   );
   
-  // Update selected year when years change
   useEffect(() => {
     if (years.length > 0) {
       setSelectedYear(Math.max(...years));
     }
   }, [years]);
   
-  // Reset selected influences when country changes
   useEffect(() => {
     setSelectedInfluences([]);
     
-    // If influences are available, select the top 3 for initial display
     if (influences.length > 0) {
       const topInfluences = influencesData
         .filter(item => item.year === selectedYear)
@@ -53,7 +48,6 @@ const MainContent = () => {
     }
   }, [influences, selectedYear, influencesData]);
   
-  // Handle country selection with toast notification
   const handleCountryChange = (country: string) => {
     setSelectedCountry(country);
     toast({
@@ -63,10 +57,8 @@ const MainContent = () => {
     });
   };
 
-  // Available countries (same as in other components)
-  const countries = ["Se", "No", "Dk", "Fi", "Nl"];
+  const countries = ["SE", "NO", "DK", "FI", "NL"];
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -84,7 +76,6 @@ const MainContent = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

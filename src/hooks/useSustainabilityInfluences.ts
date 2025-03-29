@@ -12,47 +12,47 @@ export interface InfluenceData {
 
 // Sample data to use when no database data is available
 const sampleData: Record<string, InfluenceData[]> = {
-  "Se": [
-    { year: 2021, percentage: 0.35, country: "Se", english_label_short: "TV" },
-    { year: 2021, percentage: 0.45, country: "Se", english_label_short: "News Media" },
-    { year: 2021, percentage: 0.28, country: "Se", english_label_short: "Social Media" },
-    { year: 2021, percentage: 0.22, country: "Se", english_label_short: "Friends & Family" },
-    { year: 2022, percentage: 0.38, country: "Se", english_label_short: "TV" },
-    { year: 2022, percentage: 0.42, country: "Se", english_label_short: "News Media" },
-    { year: 2022, percentage: 0.32, country: "Se", english_label_short: "Social Media" },
-    { year: 2022, percentage: 0.25, country: "Se", english_label_short: "Friends & Family" },
-    { year: 2023, percentage: 0.41, country: "Se", english_label_short: "TV" },
-    { year: 2023, percentage: 0.39, country: "Se", english_label_short: "News Media" },
-    { year: 2023, percentage: 0.37, country: "Se", english_label_short: "Social Media" },
-    { year: 2023, percentage: 0.29, country: "Se", english_label_short: "Friends & Family" },
-    { year: 2024, percentage: 0.43, country: "Se", english_label_short: "TV" },
-    { year: 2024, percentage: 0.36, country: "Se", english_label_short: "News Media" },
-    { year: 2024, percentage: 0.44, country: "Se", english_label_short: "Social Media" },
-    { year: 2024, percentage: 0.32, country: "Se", english_label_short: "Friends & Family" }
+  "SE": [
+    { year: 2021, percentage: 0.35, country: "SE", english_label_short: "TV" },
+    { year: 2021, percentage: 0.45, country: "SE", english_label_short: "News Media" },
+    { year: 2021, percentage: 0.28, country: "SE", english_label_short: "Social Media" },
+    { year: 2021, percentage: 0.22, country: "SE", english_label_short: "Friends & Family" },
+    { year: 2022, percentage: 0.38, country: "SE", english_label_short: "TV" },
+    { year: 2022, percentage: 0.42, country: "SE", english_label_short: "News Media" },
+    { year: 2022, percentage: 0.32, country: "SE", english_label_short: "Social Media" },
+    { year: 2022, percentage: 0.25, country: "SE", english_label_short: "Friends & Family" },
+    { year: 2023, percentage: 0.41, country: "SE", english_label_short: "TV" },
+    { year: 2023, percentage: 0.39, country: "SE", english_label_short: "News Media" },
+    { year: 2023, percentage: 0.37, country: "SE", english_label_short: "Social Media" },
+    { year: 2023, percentage: 0.29, country: "SE", english_label_short: "Friends & Family" },
+    { year: 2024, percentage: 0.43, country: "SE", english_label_short: "TV" },
+    { year: 2024, percentage: 0.36, country: "SE", english_label_short: "News Media" },
+    { year: 2024, percentage: 0.44, country: "SE", english_label_short: "Social Media" },
+    { year: 2024, percentage: 0.32, country: "SE", english_label_short: "Friends & Family" }
   ],
-  "No": [
-    { year: 2021, percentage: 0.32, country: "No", english_label_short: "TV" },
-    { year: 2021, percentage: 0.41, country: "No", english_label_short: "News Media" },
-    { year: 2021, percentage: 0.26, country: "No", english_label_short: "Social Media" },
-    { year: 2021, percentage: 0.21, country: "No", english_label_short: "Friends & Family" },
-    { year: 2022, percentage: 0.34, country: "No", english_label_short: "TV" },
-    { year: 2022, percentage: 0.38, country: "No", english_label_short: "News Media" },
-    { year: 2022, percentage: 0.29, country: "No", english_label_short: "Social Media" },
-    { year: 2022, percentage: 0.24, country: "No", english_label_short: "Friends & Family" },
-    { year: 2023, percentage: 0.37, country: "No", english_label_short: "TV" },
-    { year: 2023, percentage: 0.36, country: "No", english_label_short: "News Media" },
-    { year: 2023, percentage: 0.33, country: "No", english_label_short: "Social Media" },
-    { year: 2023, percentage: 0.27, country: "No", english_label_short: "Friends & Family" },
-    { year: 2024, percentage: 0.40, country: "No", english_label_short: "TV" },
-    { year: 2024, percentage: 0.33, country: "No", english_label_short: "News Media" },
-    { year: 2024, percentage: 0.38, country: "No", english_label_short: "Social Media" },
-    { year: 2024, percentage: 0.30, country: "No", english_label_short: "Friends & Family" }
+  "NO": [
+    { year: 2021, percentage: 0.32, country: "NO", english_label_short: "TV" },
+    { year: 2021, percentage: 0.41, country: "NO", english_label_short: "News Media" },
+    { year: 2021, percentage: 0.26, country: "NO", english_label_short: "Social Media" },
+    { year: 2021, percentage: 0.21, country: "NO", english_label_short: "Friends & Family" },
+    { year: 2022, percentage: 0.34, country: "NO", english_label_short: "TV" },
+    { year: 2022, percentage: 0.38, country: "NO", english_label_short: "News Media" },
+    { year: 2022, percentage: 0.29, country: "NO", english_label_short: "Social Media" },
+    { year: 2022, percentage: 0.24, country: "NO", english_label_short: "Friends & Family" },
+    { year: 2023, percentage: 0.37, country: "NO", english_label_short: "TV" },
+    { year: 2023, percentage: 0.36, country: "NO", english_label_short: "News Media" },
+    { year: 2023, percentage: 0.33, country: "NO", english_label_short: "Social Media" },
+    { year: 2023, percentage: 0.27, country: "NO", english_label_short: "Friends & Family" },
+    { year: 2024, percentage: 0.40, country: "NO", english_label_short: "TV" },
+    { year: 2024, percentage: 0.33, country: "NO", english_label_short: "News Media" },
+    { year: 2024, percentage: 0.38, country: "NO", english_label_short: "Social Media" },
+    { year: 2024, percentage: 0.30, country: "NO", english_label_short: "Friends & Family" }
   ]
 };
 
 // Add sample data for other countries
-["Dk", "Fi", "Nl"].forEach(country => {
-  sampleData[country] = sampleData["Se"].map(item => ({
+["DK", "FI", "NL"].forEach(country => {
+  sampleData[country] = sampleData["SE"].map(item => ({
     ...item,
     country,
     percentage: item.percentage * (0.8 + Math.random() * 0.4) // Add some variation
@@ -67,10 +67,13 @@ export function useSustainabilityInfluences(country: string) {
     queryFn: async () => {
       if (!country) return [];
       
+      // Convert country code to uppercase for consistency
+      const countryCode = country.toUpperCase();
+      
       const { data, error } = await supabase
         .from('SBI_influences')
         .select('*')
-        .eq('country', country)
+        .eq('country', countryCode)
         .order('year', { ascending: true });
       
       if (error) {
@@ -91,10 +94,12 @@ export function useSustainabilityInfluences(country: string) {
         english_label_short: item.medium // Map 'medium' from DB to 'english_label_short' for component compatibility
       })) as InfluenceData[];
       
+      console.log(`Fetched ${mappedData.length} records for country ${countryCode}`);
+      
       // If no data is returned from the database, use sample data
-      if (mappedData.length === 0 && sampleData[country]) {
-        console.log(`No data found for ${country} in database, using sample data`);
-        return sampleData[country];
+      if (mappedData.length === 0 && sampleData[countryCode]) {
+        console.log(`No data found for ${countryCode} in database, using sample data`);
+        return sampleData[countryCode];
       }
       
       return mappedData;

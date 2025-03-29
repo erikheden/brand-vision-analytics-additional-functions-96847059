@@ -13,20 +13,20 @@ interface CountrySelectProps {
 
 // Map of country codes to full names
 export const countryMapping: { [key: string]: string } = {
-  'Se': 'Sweden',
-  'No': 'Norway',
-  'Dk': 'Denmark',
-  'Fi': 'Finland',
-  'Nl': 'The Netherlands'
+  'SE': 'Sweden',
+  'NO': 'Norway',
+  'DK': 'Denmark',
+  'FI': 'Finland',
+  'NL': 'The Netherlands'
 };
 
 // Map of full names back to country codes
 export const reverseCountryMapping: { [key: string]: string } = {
-  'Sweden': 'Se',
-  'Norway': 'No',
-  'Denmark': 'Dk',
-  'Finland': 'Fi',
-  'The Netherlands': 'Nl'
+  'Sweden': 'SE',
+  'Norway': 'NO',
+  'Denmark': 'DK',
+  'Finland': 'FI',
+  'The Netherlands': 'NL'
 };
 
 export const getFullCountryName = (code: string) => {
