@@ -117,65 +117,65 @@ const MainContent = () => {
             Trends View
           </TabsTrigger>
         </TabsList>
-      </Tabs>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="space-y-4">
-          <CountrySelect
-            selectedCountry={selectedCountry}
-            onCountryChange={handleCountryChange}
-            countries={countries}
-          />
-          
-          {activeTab === "yearly" ? (
-            <YearSelector
-              years={years}
-              selectedYear={selectedYear}
-              onChange={setSelectedYear}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
+          <div className="space-y-4">
+            <CountrySelect
+              selectedCountry={selectedCountry}
+              onCountryChange={handleCountryChange}
+              countries={countries}
             />
-          ) : (
-            <InfluenceSelector
-              influences={influences}
-              selectedInfluences={selectedInfluences}
-              onChange={setSelectedInfluences}
-            />
-          )}
-        </div>
-        
-        <div className="md:col-span-3">
-          <TabsContent value="yearly" className="mt-0">
-            {selectedCountry ? (
-              <InfluencesBarChart
-                data={influencesData}
+            
+            {activeTab === "yearly" ? (
+              <YearSelector
+                years={years}
                 selectedYear={selectedYear}
-                country={selectedCountry}
+                onChange={setSelectedYear}
               />
             ) : (
-              <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-                <div className="text-center py-10 text-gray-500">
-                  Please select a country to view sustainability influences data.
-                </div>
-              </Card>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="trends" className="mt-0">
-            {selectedCountry ? (
-              <InfluencesTrendChart
-                data={influencesData}
+              <InfluenceSelector
+                influences={influences}
                 selectedInfluences={selectedInfluences}
-                country={selectedCountry}
+                onChange={setSelectedInfluences}
               />
-            ) : (
-              <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-                <div className="text-center py-10 text-gray-500">
-                  Please select a country to view sustainability influences trends.
-                </div>
-              </Card>
             )}
-          </TabsContent>
+          </div>
+          
+          <div className="md:col-span-3">
+            <TabsContent value="yearly" className="mt-0">
+              {selectedCountry ? (
+                <InfluencesBarChart
+                  data={influencesData}
+                  selectedYear={selectedYear}
+                  country={selectedCountry}
+                />
+              ) : (
+                <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+                  <div className="text-center py-10 text-gray-500">
+                    Please select a country to view sustainability influences data.
+                  </div>
+                </Card>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="trends" className="mt-0">
+              {selectedCountry ? (
+                <InfluencesTrendChart
+                  data={influencesData}
+                  selectedInfluences={selectedInfluences}
+                  country={selectedCountry}
+                />
+              ) : (
+                <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+                  <div className="text-center py-10 text-gray-500">
+                    Please select a country to view sustainability influences trends.
+                  </div>
+                </Card>
+              )}
+            </TabsContent>
+          </div>
         </div>
-      </div>
+      </Tabs>
     </div>
   );
 };
