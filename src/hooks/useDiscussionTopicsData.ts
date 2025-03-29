@@ -3,9 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface DiscussionTopicData {
-  row_id: number;
+  row_id?: number;
   country: string;
-  geography: string;
   discussion_topic: string;
   year: number;
   percentage: number;
@@ -22,7 +21,7 @@ export const useDiscussionTopicsData = (country: string) => {
       try {
         // Make query case-insensitive for country code
         const { data, error } = await supabase
-          .from('SBI_Discussion_Topics_Geography')
+          .from('SBI_Discussion_Topics')
           .select('*')
           .ilike('country', country);
         
@@ -81,7 +80,7 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
     
     // Get all data first - we'll filter client-side to be more flexible
     const { data, error } = await supabase
-      .from('SBI_Discussion_Topics_Geography')
+      .from('SBI_Discussion_Topics')
       .select('*');
       
     if (error) {

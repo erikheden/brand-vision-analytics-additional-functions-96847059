@@ -938,6 +938,27 @@ export type Database = {
         }
         Relationships: []
       }
+      SBI_Discussion_Topics: {
+        Row: {
+          country: string | null
+          discussion_topic: string | null
+          percentage: number | null
+          year: number | null
+        }
+        Insert: {
+          country?: string | null
+          discussion_topic?: string | null
+          percentage?: number | null
+          year?: number | null
+        }
+        Update: {
+          country?: string | null
+          discussion_topic?: string | null
+          percentage?: number | null
+          year?: number | null
+        }
+        Relationships: []
+      }
       SBI_Discussion_Topics_Geography: {
         Row: {
           country: string | null
