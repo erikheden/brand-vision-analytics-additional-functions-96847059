@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -8,7 +9,7 @@ const SidebarNav = () => {
   const isActive = (path: string) => {
     return location.pathname === path;
   };
-  return <Sidebar className="border-r bg-[#34502b] text-white">
+  return <Sidebar className="border-r bg-[#34502b] text-white font-forma">
       
       
       <SidebarContent className="px-4">
