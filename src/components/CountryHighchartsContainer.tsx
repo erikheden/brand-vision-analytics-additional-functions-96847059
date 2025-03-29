@@ -5,6 +5,7 @@ import HighchartsReact from "highcharts-react-official";
 import { FONT_FAMILY } from "@/utils/constants";
 import { LineConfig } from "@/hooks/useCountryLineChart";
 import { createTooltipFormatter } from "./ChartTooltip";
+import { roundPercentage } from "@/utils/formatting";
 
 interface CountryHighchartsContainerProps {
   chartData: any[];
@@ -136,8 +137,11 @@ const CountryHighchartsContainer: React.FC<CountryHighchartsContainerProps> = ({
         }
       },
       labels: {
-        // Only apply sigma format for standardized view
-        format: standardized ? '{value:.1f}σ' : '{value:.0f}',
+        // Format based on standardized view but always ensure rounding
+        formatter: function() {
+          const roundedValue = roundPercentage(this.value as number);
+          return standardized ? `${roundedValue}σ` : `${roundedValue}`;
+        },
         style: {
           color: '#34502b',
           fontFamily: FONT_FAMILY

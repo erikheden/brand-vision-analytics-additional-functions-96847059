@@ -11,6 +11,7 @@ import {
   Legend,
   Cell
 } from 'recharts';
+import { roundPercentage } from '@/utils/formatting';
 
 interface ImpactBarChartProps {
   data: Array<{
@@ -71,7 +72,7 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title, categories
           {payload.map((entry: any, index: number) => (
             <p key={index} style={{ color: entry.color }} className="text-sm">
               <span className="font-medium">{entry.name}: </span>
-              {`${entry.value.toFixed(1)}%`}
+              {`${roundPercentage(entry.value)}%`}
             </p>
           ))}
         </div>
@@ -99,7 +100,7 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title, categories
           <XAxis 
             type="number"
             domain={[0, 100]}
-            tickFormatter={(value) => `${value}%`}
+            tickFormatter={(value) => `${roundPercentage(value)}%`}
             tick={{ fill: '#4b5563', fontSize: 12 }}
           />
           <YAxis 

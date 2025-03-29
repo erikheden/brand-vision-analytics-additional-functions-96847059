@@ -2,6 +2,7 @@
 import Highcharts from 'highcharts';
 import { createChartOptions } from '@/utils/chartConfigs';
 import { FONT_FAMILY } from '@/utils/constants';
+import { roundPercentage } from '@/utils/formatting';
 
 /**
  * Creates tooltip formatter function for brand chart
@@ -35,13 +36,14 @@ export const createTooltipFormatter = (standardized: boolean, yearlyAverages: {y
       if (point.series.name === 'Market Average') return '';
       
       const color = point.series.color;
-      const value = point.y?.toFixed(2);
+      const value = roundPercentage(point.y as number);
       
       // Add difference from average if available
       let diffText = '';
       if (averageForYear !== null && point.series.name !== 'Market Average') {
         const diff = (point.y as number) - averageForYear;
-        diffText = `<span style="font-size: 0.85em; margin-left: 5px; color: ${diff >= 0 ? '#34502b' : '#b74134'}">(${diff >= 0 ? '+' : ''}${diff.toFixed(2)})</span>`;
+        const roundedDiff = roundPercentage(diff);
+        diffText = `<span style="font-size: 0.85em; margin-left: 5px; color: ${diff >= 0 ? '#34502b' : '#b74134'}">(${diff >= 0 ? '+' : ''}${roundedDiff})</span>`;
       }
       
       return `
@@ -55,11 +57,12 @@ export const createTooltipFormatter = (standardized: boolean, yearlyAverages: {y
     
     // Add average line info if available
     if (averageForYear !== null) {
+      const roundedAverage = roundPercentage(averageForYear);
       pointsHtml = `
         <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0; border-top: 1px dotted #34502b; padding-top: 4px;">
           <div style="width: 10px; height: 1px; background-color: #34502b; border-radius: 0;"></div>
           <span style="color: #34502b; font-style: italic;">Market Average:</span>
-          <span style="font-weight: bold; color: #34502b;">${averageForYear.toFixed(2)}</span>
+          <span style="font-weight: bold; color: #34502b; margin-left: 5px;">${roundedAverage}</span>
         </div>
       ` + pointsHtml;
     }
@@ -114,6 +117,9 @@ export const createBrandChartOptions = (
         style: {
           color: '#34502b',
           fontFamily: FONT_FAMILY
+        },
+        formatter: function() {
+          return roundPercentage(this.value as number);
         }
       },
       gridLineColor: 'rgba(52, 80, 43, 0.1)'

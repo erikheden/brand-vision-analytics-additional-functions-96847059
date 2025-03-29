@@ -31,3 +31,4 @@ export const formatPercentage = (
   const rounded = roundPercentage(value, asDecimal);
   return rounded !== null ? `${rounded}%` : 'N/A';
 };
+

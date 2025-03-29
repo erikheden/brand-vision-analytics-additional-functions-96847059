@@ -1,6 +1,8 @@
+
 import Highcharts from 'highcharts';
 import { FONT_FAMILY } from '@/utils/constants';
 import { createTooltipContainer, createTooltipPoint, createAverageScoreDisplay, formatDifferenceText } from '@/utils/charts/tooltipFormatters';
+import { roundPercentage } from '@/utils/formatting';
 
 /**
  * Create y-axis configuration with plot lines for average scores 
@@ -18,6 +20,9 @@ export const createYAxisConfig = (standardized: boolean, averageScore: number | 
       style: {
         color: '#34502b',
         fontFamily: FONT_FAMILY
+      },
+      formatter: function() {
+        return roundPercentage(this.value as number) + '%';
       }
     },
     gridLineColor: 'rgba(52, 80, 43, 0.1)'
@@ -75,7 +80,7 @@ export const createTooltipFormatter = (standardized: boolean, averageScore: numb
       
       return createTooltipContainer(
         point.name,
-        createTooltipPoint('Score', point.y.toFixed(2), point.color, diff),
+        createTooltipPoint('Score', roundPercentage(point.y), point.color, diff),
         averageScore !== null ? createAverageScoreDisplay(averageScore) : ''
       );
     }
@@ -98,7 +103,7 @@ export const createTooltipFormatter = (standardized: boolean, averageScore: numb
       // Calculate difference from average if available
       const diff = averageScore !== null ? formatDifferenceText(value, averageScore) : '';
       
-      return createTooltipPoint(name, value, color, diff);
+      return createTooltipPoint(name, roundPercentage(value), color, diff);
     }).join('');
 
     // Add average line info if available
