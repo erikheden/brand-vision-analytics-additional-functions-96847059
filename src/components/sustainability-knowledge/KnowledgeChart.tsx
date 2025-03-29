@@ -106,7 +106,12 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
             />
             <Tooltip 
               formatter={(value: number, name: string) => {
-                return name === 'percentage' ? [`${value.toFixed(1)}%`, 'Knowledge Level'] : [value, name];
+                if (name === 'percentage') {
+                  // Format percentage to show with 1 decimal point
+                  const formattedValue = value.toFixed(1);
+                  return [`${formattedValue}%`, 'Knowledge Level'];
+                }
+                return [value, name];
               }}
               labelFormatter={(label) => `Term: ${label}`}
             />

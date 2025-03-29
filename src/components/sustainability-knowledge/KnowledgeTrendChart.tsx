@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -81,7 +80,7 @@ const KnowledgeTrendChart: React.FC<KnowledgeTrendChartProps> = ({
               tickFormatter={(value) => `${value}%`}
             />
             <Tooltip 
-              formatter={(value: number) => [formatPercentage(value, false), 'Percentage']}
+              formatter={(value: number) => [`${value.toFixed(1)}%`, 'Percentage']}
               labelFormatter={(year) => `Year: ${year}`}
             />
             <Legend />

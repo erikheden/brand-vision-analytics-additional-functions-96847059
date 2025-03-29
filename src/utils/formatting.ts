@@ -11,8 +11,8 @@ export const roundPercentage = (
 ): number | null => {
   if (value === null || value === undefined) return null;
   
-  // If the value is a decimal (0-1), convert to percentage first
-  const percentage = asDecimal ? value * 100 : value;
+  // No conversion needed now since our data is already in percentage format
+  const percentage = value;
   
   // Round to nearest whole number
   return Math.round(percentage);
