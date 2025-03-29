@@ -91,8 +91,8 @@ const MaterialityAreasContent = () => {
     });
   };
   
-  // Countries available (using the same list as in other components)
-  const countries = ["Se", "No", "Dk", "Fi", "Nl"];
+  // Countries available (using capital letters as specified)
+  const countries = ["NO", "SE", "DK", "FI", "NL"];
   
   // Toggle a factor selection
   const toggleFactor = (factor: string) => {

@@ -29,6 +29,9 @@ export const useVHOData = (selectedCountry: string) => {
 
       console.log(`Fetching VHO data for country: ${selectedCountry}`);
       
+      // Convert country code to uppercase for database query
+      const countryCode = selectedCountry.toUpperCase();
+      
       // Get the full country name if we have a country code
       const fullCountryName = getFullCountryName(selectedCountry);
       console.log(`Using country name for query: ${fullCountryName}`);
@@ -37,7 +40,7 @@ export const useVHOData = (selectedCountry: string) => {
       let { data: codeData, error: codeError } = await supabase
         .from("SBI_VHO_2021-2024")
         .select("*")
-        .eq("country", selectedCountry)
+        .eq("country", countryCode)
         .eq("year", 2024);
 
       if (codeError) {
@@ -63,7 +66,7 @@ export const useVHOData = (selectedCountry: string) => {
           return nameData as VHOData[];
         }
       } else {
-        console.log(`Fetched ${codeData.length} VHO records for ${selectedCountry}`);
+        console.log(`Fetched ${codeData.length} VHO records for ${countryCode}`);
         return codeData as VHOData[];
       }
       
@@ -110,16 +113,16 @@ export const useVHOData = (selectedCountry: string) => {
               type_of_factor: factorType,
               category: industry,
               industry: industry,
-              country: selectedCountry,
+              country: countryCode, // Use uppercase country code
               priority_percentage: 0.2 + Math.random() * 0.6, // Random value between 0.2 and 0.8
-              year: 2024,
+              year: 2024, // Always set year to 2024
               vho_area: vhoArea
             });
           }
         }
       }
       
-      console.log(`Generated ${sampleData.length} sample VHO records for ${selectedCountry}`);
+      console.log(`Generated ${sampleData.length} sample VHO records for ${countryCode}`);
       
       // Show a toast notification to indicate we're using sample data
       toast({
