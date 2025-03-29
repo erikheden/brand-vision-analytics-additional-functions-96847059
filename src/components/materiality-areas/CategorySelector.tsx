@@ -24,7 +24,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
           </SelectValue>
         </SelectTrigger>
         <SelectContent className="bg-white z-50">
-          <SelectItem value="">All categories</SelectItem>
+          <SelectItem value="all_categories">All categories</SelectItem>
           {categories && categories.length > 0 ? (
             categories.map((category) => (
               <SelectItem key={category} value={category}>
