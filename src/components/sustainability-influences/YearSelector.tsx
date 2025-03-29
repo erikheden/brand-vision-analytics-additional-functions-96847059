@@ -39,7 +39,7 @@ const YearSelector: React.FC<YearSelectorProps> = ({
       </div>
       
       <Select 
-        value={selectedYear.toString()} 
+        value={String(selectedYear)} 
         onValueChange={(value) => {
           const year = parseInt(value, 10);
           console.log(`YearSelector: changing year from ${selectedYear} to ${year}`);
@@ -51,7 +51,7 @@ const YearSelector: React.FC<YearSelectorProps> = ({
         </SelectTrigger>
         <SelectContent>
           {sortedYears.map((year) => (
-            <SelectItem key={year} value={year.toString()}>
+            <SelectItem key={year} value={String(year)}>
               {year}
             </SelectItem>
           ))}

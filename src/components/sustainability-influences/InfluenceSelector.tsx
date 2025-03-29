@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -28,12 +27,14 @@ const InfluenceSelector: React.FC<InfluenceSelectorProps> = ({
   const handleSelectAll = () => {
     if (selectedInfluences.length === influences.length) {
       onChange([]);
+      console.log("Deselecting all influences");
     } else {
       onChange([...influences]);
+      console.log("Selecting all influences:", influences);
     }
   };
 
-  if (influences.length === 0) {
+  if (!influences || influences.length === 0) {
     return (
       <Card className="p-4 bg-white shadow">
         <div className="text-center text-gray-500 py-4">
