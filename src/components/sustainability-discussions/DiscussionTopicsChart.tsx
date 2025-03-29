@@ -32,10 +32,10 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
   const topics = processedData.map(item => item.discussion_topic || "Unknown");
   const percentages = processedData.map(item => item.percentage || 0);
   
-  // Chart options
+  // Chart options - SWAPPED X and Y axes
   const options: Highcharts.Options = {
     chart: {
-      type: 'bar',
+      type: 'bar',  // Using bar chart type (horizontal bars)
       height: Math.max(300, 50 * Math.min(topics.length, 15)),
       backgroundColor: 'white',
       style: { fontFamily: FONT_FAMILY }
@@ -44,7 +44,8 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
       text: `Sustainability Discussion Topics (${selectedYear})`,
       style: { color: '#34502b', fontFamily: FONT_FAMILY }
     },
-    xAxis: {
+    // Y-axis now shows percentages
+    yAxis: {
       title: {
         text: 'Percentage',
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
@@ -54,7 +55,8 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       }
     },
-    yAxis: {
+    // X-axis now shows topics
+    xAxis: {
       categories: topics,
       title: {
         text: 'Discussion Topics',
@@ -66,7 +68,7 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     },
     tooltip: {
       formatter: function() {
-        return `<b>${this.series.yAxis.categories[this.y]}</b><br/>${formatPercentage(this.x, false)}`;
+        return `<b>${this.x}</b><br/>${formatPercentage(this.y * 100, false)}`;
       }
     },
     plotOptions: {
@@ -95,8 +97,7 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
       name: 'Percentage',
       type: 'bar',
       data: percentages.map((value, index) => ({
-        y: index,
-        x: value * 100, // Convert decimal to percentage
+        y: value * 100, // Convert decimal to percentage
         formatted: formatPercentage(value * 100, false) // Pre-format for data labels
       })),
       color: '#5c8f4a'

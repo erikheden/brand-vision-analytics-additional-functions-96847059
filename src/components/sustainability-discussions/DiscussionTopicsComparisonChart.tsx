@@ -58,7 +58,8 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
         type: 'bar',
         data: topicsArray.map(topic => {
           const topicData = countryData.find(item => item.discussion_topic === topic);
-          return topicData ? topicData.percentage || 0 : 0;
+          // Convert from decimal to percentage (0-100)
+          return topicData ? (topicData.percentage || 0) * 100 : 0;
         }),
         color: countryColor
       };
@@ -86,10 +87,10 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
     return colorMap[country] || '#34502b';
   }
   
-  // Chart options
+  // Chart options - SWAPPED X and Y axes
   const options: Highcharts.Options = {
     chart: {
-      type: 'bar',
+      type: 'bar', // Horizontal bars
       height: Math.max(400, 60 * topics.length),
       backgroundColor: 'white',
       style: { fontFamily: FONT_FAMILY }
@@ -98,6 +99,7 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       text: `Sustainability Discussion Topics Comparison (${selectedYear})`,
       style: { color: '#34502b', fontFamily: FONT_FAMILY }
     },
+    // X-axis now shows topics
     xAxis: {
       categories: topics,
       title: {
@@ -108,6 +110,7 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       }
     },
+    // Y-axis now shows percentages
     yAxis: {
       title: {
         text: 'Percentage',
