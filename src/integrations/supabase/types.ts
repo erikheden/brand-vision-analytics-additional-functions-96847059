@@ -965,6 +965,30 @@ export type Database = {
         }
         Relationships: []
       }
+      SBI_purchasing_decision_industries: {
+        Row: {
+          category: string | null
+          country: string | null
+          impact_level: string | null
+          percentage: number | null
+          year: number | null
+        }
+        Insert: {
+          category?: string | null
+          country?: string | null
+          impact_level?: string | null
+          percentage?: number | null
+          year?: number | null
+        }
+        Update: {
+          category?: string | null
+          country?: string | null
+          impact_level?: string | null
+          percentage?: number | null
+          year?: number | null
+        }
+        Relationships: []
+      }
       "SBI_VHO_2021-2024": {
         Row: {
           category: string | null
