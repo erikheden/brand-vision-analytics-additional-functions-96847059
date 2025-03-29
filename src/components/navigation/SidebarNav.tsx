@@ -13,7 +13,7 @@ const SidebarNav = () => {
       
       <SidebarContent className="px-4">
         <SidebarMenu>
-          <div className="pb-2 text-xs font-medium text-white/70 uppercase">Dashboards</div>
+          <div className="pb-2 text-xs font-medium text-white/70 uppercase px-0 mx-0 my-px py-[15px]">Dashboards</div>
           
           <SidebarMenuItem>
             <Link to="/" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
