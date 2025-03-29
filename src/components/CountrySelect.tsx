@@ -1,4 +1,3 @@
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
@@ -17,7 +16,12 @@ export const countryMapping: { [key: string]: string } = {
   'NO': 'Norway',
   'DK': 'Denmark',
   'FI': 'Finland',
-  'NL': 'The Netherlands'
+  'NL': 'The Netherlands',
+  'se': 'Sweden',
+  'no': 'Norway',
+  'dk': 'Denmark',
+  'fi': 'Finland',
+  'nl': 'The Netherlands'
 };
 
 // Map of full names back to country codes
@@ -29,19 +33,36 @@ export const reverseCountryMapping: { [key: string]: string } = {
   'The Netherlands': 'NL'
 };
 
+// Function to get the full country name from a code
 export const getFullCountryName = (code: string) => {
-  return countryMapping[code] || code;
+  // First check if it's a known code (case-insensitive)
+  const upperCode = code.toUpperCase();
+  if (countryMapping[upperCode]) {
+    return countryMapping[upperCode];
+  }
+  
+  // If it's already a full name, return it
+  if (Object.values(countryMapping).includes(code)) {
+    return code;
+  }
+  
+  // Otherwise, return the original value
+  return code;
 };
 
+// Function to get the country code from a full name
 export const getCountryCode = (fullName: string) => {
   return reverseCountryMapping[fullName] || fullName;
 };
 
 // Function to normalize country code/name to ensure consistent format
 export const normalizeCountry = (country: string) => {
-  // If it's a known code, return the code
-  if (countryMapping[country]) {
-    return country;
+  if (!country) return '';
+  
+  // If it's a known code (case-insensitive), return the uppercase version
+  const upperCode = country.toUpperCase();
+  if (countryMapping[upperCode]) {
+    return upperCode;
   }
   
   // If it's a known full name, return the code
