@@ -125,7 +125,9 @@ const MaterialityAreasContent = () => {
             <div className="md:col-span-1">
               <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl">
                 <div className="space-y-6">
-                  {industries.length > 0 ? (
+                  {isLoading ? (
+                    <div className="text-sm text-gray-500">Loading industries...</div>
+                  ) : industries.length > 0 ? (
                     <IndustrySelector
                       industries={industries}
                       selectedIndustry={selectedIndustry}
@@ -133,7 +135,7 @@ const MaterialityAreasContent = () => {
                     />
                   ) : (
                     <div className="text-sm text-gray-500">
-                      {isLoading ? "Loading industries..." : "No industries available"}
+                      No industries available for this country
                     </div>
                   )}
                   
