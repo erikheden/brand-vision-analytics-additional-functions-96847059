@@ -965,6 +965,39 @@ export type Database = {
         }
         Relationships: []
       }
+      "SBI_VHO_2021-2024": {
+        Row: {
+          category: string | null
+          country: string | null
+          industry: string | null
+          priority_percentage: number | null
+          row_id: number
+          type_of_factor: string | null
+          vho_area: string | null
+          year: number | null
+        }
+        Insert: {
+          category?: string | null
+          country?: string | null
+          industry?: string | null
+          priority_percentage?: number | null
+          row_id?: number
+          type_of_factor?: string | null
+          vho_area?: string | null
+          year?: number | null
+        }
+        Update: {
+          category?: string | null
+          country?: string | null
+          industry?: string | null
+          priority_percentage?: number | null
+          row_id?: number
+          type_of_factor?: string | null
+          vho_area?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
       swe_brand_areas_rated: {
         Row: {
           area: string | null

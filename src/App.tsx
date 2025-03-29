@@ -1,43 +1,55 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
+import { Toaster } from "@/components/ui/toaster";
+import AppLayout from "@/components/layout/AppLayout";
+import IndexPage from "./pages/Index";
+import CountryComparison from "./pages/CountryComparison";
 import SustainabilityPriorities from "./pages/SustainabilityPriorities";
 import SustainabilityDiscussions from "./pages/SustainabilityDiscussions";
-import { AuthProvider } from "./context/AuthContext";
+import MaterialityAreas from "./pages/MaterialityAreas";
+import Auth from "./pages/Auth";
+import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import AppLayout from "./components/layout/AppLayout";
 
-const queryClient = new QueryClient();
+// Create a QueryClient instance for React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+    },
+  },
+});
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
         <BrowserRouter>
           <Routes>
-            {/* Public routes */}
             <Route path="/auth" element={<Auth />} />
-            
-            {/* Protected routes with layout */}
-            <Route element={<ProtectedRoute />}>
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<Index />} />
-                <Route path="/sustainability-priorities" element={<SustainabilityPriorities />} />
-                <Route path="/sustainability-discussions" element={<SustainabilityDiscussions />} />
-              </Route>
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<IndexPage />} />
+              <Route path="country-comparison" element={<CountryComparison />} />
+              <Route path="sustainability-priorities" element={<SustainabilityPriorities />} />
+              <Route path="sustainability-discussions" element={<SustainabilityDiscussions />} />
+              <Route path="materiality-areas" element={<MaterialityAreas />} />
+              <Route path="*" element={<Navigate to="/" />} />
             </Route>
           </Routes>
         </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+        <Toaster />
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
