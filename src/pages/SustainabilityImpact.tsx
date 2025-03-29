@@ -8,7 +8,7 @@ const SustainabilityImpact = () => {
       <div className="space-y-6">
         <h1 className="text-3xl font-semibold text-[#34502b] mb-6">Sustainability Impact Categories</h1>
         <p className="text-gray-600 mb-6">
-          Explore how sustainability impacts consumer behavior across different industries and years.
+          Compare sustainability impacts across different categories and years. Select multiple categories to see how they compare.
         </p>
         <ImpactCategoriesContent />
       </div>

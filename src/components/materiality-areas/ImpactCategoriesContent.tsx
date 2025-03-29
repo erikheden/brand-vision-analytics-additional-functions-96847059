@@ -4,11 +4,13 @@ import { Card } from "@/components/ui/card";
 import CountrySelect from "@/components/CountrySelect";
 import { useSustainabilityImpactData } from "@/hooks/useSustainabilityImpactData";
 import ImpactBarChart from "./ImpactBarChart";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 const ImpactCategoriesContent = () => {
   // State for selected filters
   const [selectedCountry, setSelectedCountry] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   
   // Get impact data for the selected country
@@ -26,22 +28,43 @@ const ImpactCategoriesContent = () => {
   // Handle country selection
   const handleCountryChange = (country: string) => {
     setSelectedCountry(country);
-    setSelectedCategory("");
+    setSelectedCategories([]);
     setSelectedYear(null);
   };
   
-  // Prepare data for the selected category and year
+  // Handle category toggle
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+  
+  // Prepare data for the selected categories and year
   const chartData = useMemo(() => {
-    if (!selectedCategory || !selectedYear || !processedData[selectedCategory] || !processedData[selectedCategory][selectedYear]) {
+    if (selectedCategories.length === 0 || !selectedYear) {
       return [];
     }
     
-    const impactLevels = processedData[selectedCategory][selectedYear];
-    return Object.entries(impactLevels).map(([level, percentage]) => ({
-      name: level,
-      value: percentage * 100 // Convert to percentage
-    }));
-  }, [selectedCategory, selectedYear, processedData]);
+    let allData: Array<{name: string; value: number; category: string}> = [];
+    
+    selectedCategories.forEach(category => {
+      if (processedData[category] && processedData[category][selectedYear]) {
+        const impactLevels = processedData[category][selectedYear];
+        
+        Object.entries(impactLevels).forEach(([level, percentage]) => {
+          allData.push({
+            name: level,
+            value: percentage * 100, // Convert to percentage
+            category: category
+          });
+        });
+      }
+    });
+    
+    return allData;
+  }, [selectedCategories, selectedYear, processedData]);
 
   return (
     <div className="space-y-6">
@@ -58,31 +81,35 @@ const ImpactCategoriesContent = () => {
         <>
           {/* Category and Year Selection */}
           <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl">
-            <div className="flex flex-col md:flex-row md:items-center gap-6">
+            <div className="flex flex-col md:flex-row md:items-start gap-6">
               <div className="md:w-1/2">
-                <label htmlFor="category-select" className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Category
-                </label>
-                <select
-                  id="category-select"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#34502b]"
-                  disabled={isLoading}
-                >
-                  <option value="">Select a category</option>
+                <Label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Categories
+                </Label>
+                <div className="space-y-2 max-h-60 overflow-y-auto p-2 border border-gray-200 rounded-md">
                   {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
+                    <div key={category} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`category-${category}`}
+                        checked={selectedCategories.includes(category)}
+                        onCheckedChange={() => toggleCategory(category)}
+                        disabled={isLoading}
+                      />
+                      <Label 
+                        htmlFor={`category-${category}`}
+                        className="text-sm cursor-pointer"
+                      >
+                        {category}
+                      </Label>
+                    </div>
                   ))}
-                </select>
+                </div>
               </div>
               
               <div className="md:w-1/2">
-                <label htmlFor="year-select" className="block text-sm font-medium text-gray-700 mb-2">
+                <Label className="block text-sm font-medium text-gray-700 mb-2">
                   Select Year
-                </label>
+                </Label>
                 <div className="flex flex-wrap gap-2">
                   {years.map((year) => (
                     <button
@@ -113,22 +140,23 @@ const ImpactCategoriesContent = () => {
               <div className="flex justify-center items-center h-80">
                 <p className="text-red-500">Error loading data. Please try again.</p>
               </div>
-            ) : selectedCategory && selectedYear ? (
+            ) : selectedCategories.length > 0 && selectedYear ? (
               chartData.length > 0 ? (
                 <div className="h-[500px]">
                   <ImpactBarChart 
                     data={chartData} 
-                    title={`${selectedCategory} - Impact Levels (${selectedYear})`} 
+                    title={`Impact Levels (${selectedYear})`} 
+                    categories={selectedCategories}
                   />
                 </div>
               ) : (
                 <div className="flex justify-center items-center h-80">
-                  <p className="text-gray-500">No data available for the selected category and year.</p>
+                  <p className="text-gray-500">No data available for the selected categories and year.</p>
                 </div>
               )
             ) : (
               <div className="flex justify-center items-center h-80">
-                <p className="text-gray-500">Please select a category and year to view the data.</p>
+                <p className="text-gray-500">Please select categories and a year to view the data.</p>
               </div>
             )}
           </Card>
