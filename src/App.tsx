@@ -6,6 +6,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import IndexPage from "./pages/Index";
 import CountryComparison from "./pages/CountryComparison";
 import SustainabilityPriorities from "./pages/SustainabilityPriorities";
+import SustainabilityInfluences from "./pages/SustainabilityInfluences";
 import SustainabilityDiscussions from "./pages/SustainabilityDiscussions";
 import MaterialityAreas from "./pages/MaterialityAreas";
 import SustainabilityImpact from "./pages/SustainabilityImpact";
@@ -41,6 +42,7 @@ function App() {
               <Route index element={<IndexPage />} />
               <Route path="country-comparison" element={<CountryComparison />} />
               <Route path="sustainability-priorities" element={<SustainabilityPriorities />} />
+              <Route path="sustainability-influences" element={<SustainabilityInfluences />} />
               <Route path="sustainability-discussions" element={<SustainabilityDiscussions />} />
               <Route path="materiality-areas" element={<MaterialityAreas />} />
               <Route path="sustainability-impact" element={<SustainabilityImpact />} />
