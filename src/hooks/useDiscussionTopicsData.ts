@@ -46,7 +46,7 @@ export const useDiscussionTopicsData = (country: string) => {
             ...item,
             // Convert country code to consistent case if needed
             country: item.country || country,
-            // Ensure percentage is a number and multiply by 1 to convert string to number if needed
+            // Ensure percentage is a number between 0-1 for consistent handling
             percentage: typeof item.percentage === 'number' ? item.percentage : 
                        typeof item.percentage === 'string' ? parseFloat(item.percentage) : 0
           }));

@@ -5,7 +5,7 @@ import HighchartsReact from "highcharts-react-official";
 import { Card } from "@/components/ui/card";
 import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
 import { FONT_FAMILY } from "@/utils/constants";
-import { roundPercentage } from "@/utils/formatting";
+import { formatPercentage } from "@/utils/formatting";
 
 interface DiscussionTopicsChartProps {
   data: DiscussionTopicData[];
@@ -66,17 +66,14 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     },
     tooltip: {
       formatter: function() {
-        return `<b>${this.series.yAxis.categories[this.y]}</b><br/>${roundPercentage(this.x)}%`;
+        return `<b>${this.series.yAxis.categories[this.y]}</b><br/>${formatPercentage(this.x, false)}`;
       }
     },
     plotOptions: {
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{x}%',
-          formatter: function() {
-            return roundPercentage(this.x) + '%';
-          },
+          format: '{point.formatted}',
           style: {
             fontWeight: 'normal',
             color: '#34502b',
@@ -99,7 +96,8 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
       type: 'bar',
       data: percentages.map((value, index) => ({
         y: index,
-        x: value * 100 // Convert decimal to percentage if needed
+        x: value * 100, // Convert decimal to percentage
+        formatted: formatPercentage(value * 100, false) // Pre-format for data labels
       })),
       color: '#5c8f4a'
     }],
