@@ -8,6 +8,7 @@ export interface DiscussionTopicData {
   discussion_topic: string;
   year: number;
   percentage: number;
+  geography?: string; // Added optional geography field
 }
 
 export const useDiscussionTopicsData = (country: string) => {

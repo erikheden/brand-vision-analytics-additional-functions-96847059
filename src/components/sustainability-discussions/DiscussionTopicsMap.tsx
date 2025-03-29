@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
@@ -137,6 +136,7 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
       
       // Collect all real county data from the dataset
       items.forEach(item => {
+        // Check if geography property exists and is different from country
         if (item.geography && item.geography !== item.country) {
           // If we have real county geography data, use it
           countyData.set(item.geography, item.percentage || 0);
