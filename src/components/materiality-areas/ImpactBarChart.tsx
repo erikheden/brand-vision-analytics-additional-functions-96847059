@@ -44,13 +44,34 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title, categories
     return colorMap[category] || colors[index % colors.length];
   };
   
+  // Define the correct sorting order for impact levels
+  const impactLevelOrder = ["Aware", "Concerned", "Acting", "Willing to pay"];
+  
   // Process data for grouped bar chart
   const processedData = useMemo(() => {
-    // First, get all unique impact levels
+    // Get all unique impact levels present in data
     const impactLevels = [...new Set(data.map(item => item.name))];
     
+    // Sort impact levels according to defined order
+    const sortedLevels = impactLevels.sort((a, b) => {
+      const indexA = impactLevelOrder.indexOf(a);
+      const indexB = impactLevelOrder.indexOf(b);
+      
+      // If both are found in the ordering array, compare indices
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      }
+      
+      // If one is not in the ordering array, prioritize the one that is
+      if (indexA !== -1) return -1;
+      if (indexB !== -1) return 1;
+      
+      // If neither is in the ordering array, sort alphabetically
+      return a.localeCompare(b);
+    });
+    
     // Create data structure for grouped bar chart
-    return impactLevels.map(level => {
+    return sortedLevels.map(level => {
       const result: Record<string, any> = { name: level };
       
       // Add value for each category
@@ -61,7 +82,7 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title, categories
       
       return result;
     });
-  }, [data, categories]);
+  }, [data, categories, impactLevelOrder]);
   
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -118,7 +139,6 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title, categories
               dataKey={category} 
               fill={getColor(category, index)} 
               name={category} 
-              // Remove stackId to display bars next to each other instead of stacked
               radius={[0, 4, 4, 0]}
             />
           ))}

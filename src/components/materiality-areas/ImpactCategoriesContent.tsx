@@ -12,11 +12,15 @@ const ImpactCategoriesContent = () => {
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedLevels, setSelectedLevels] = useState<string[]>([
+    "Aware", "Concerned", "Acting", "Willing to pay"
+  ]);
   
   // Get impact data for the selected country
   const { 
     categories,
     years,
+    impactLevels,
     isLoading,
     error,
     processedData
@@ -24,6 +28,9 @@ const ImpactCategoriesContent = () => {
   
   // Countries available
   const countries = ["NO", "SE", "DK", "FI", "NL"];
+  
+  // Define the correct sorting order for impact levels
+  const sortedImpactLevels = ["Aware", "Concerned", "Acting", "Willing to pay"];
   
   // Handle country selection
   const handleCountryChange = (country: string) => {
@@ -41,9 +48,18 @@ const ImpactCategoriesContent = () => {
     );
   };
   
-  // Prepare data for the selected categories and year
+  // Handle impact level toggle
+  const toggleImpactLevel = (level: string) => {
+    setSelectedLevels(prev => 
+      prev.includes(level)
+        ? prev.filter(l => l !== level)
+        : [...prev, level]
+    );
+  };
+  
+  // Prepare data for the selected categories, year, and impact levels
   const chartData = useMemo(() => {
-    if (selectedCategories.length === 0 || !selectedYear) {
+    if (selectedCategories.length === 0 || !selectedYear || selectedLevels.length === 0) {
       return [];
     }
     
@@ -54,17 +70,20 @@ const ImpactCategoriesContent = () => {
         const impactLevels = processedData[category][selectedYear];
         
         Object.entries(impactLevels).forEach(([level, percentage]) => {
-          allData.push({
-            name: level,
-            value: percentage * 100, // Convert to percentage
-            category: category
-          });
+          // Only include selected impact levels
+          if (selectedLevels.includes(level)) {
+            allData.push({
+              name: level,
+              value: percentage * 100, // Convert to percentage
+              category: category
+            });
+          }
         });
       }
     });
     
     return allData;
-  }, [selectedCategories, selectedYear, processedData]);
+  }, [selectedCategories, selectedYear, processedData, selectedLevels]);
 
   return (
     <div className="space-y-6">
@@ -79,10 +98,10 @@ const ImpactCategoriesContent = () => {
       
       {selectedCountry && (
         <>
-          {/* Category and Year Selection */}
+          {/* Category, Year, and Impact Level Selection */}
           <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl">
             <div className="flex flex-col md:flex-row md:items-start gap-6">
-              <div className="md:w-1/2">
+              <div className="md:w-1/3">
                 <Label className="block text-sm font-medium text-gray-700 mb-2">
                   Select Categories
                 </Label>
@@ -106,7 +125,7 @@ const ImpactCategoriesContent = () => {
                 </div>
               </div>
               
-              <div className="md:w-1/2">
+              <div className="md:w-1/3">
                 <Label className="block text-sm font-medium text-gray-700 mb-2">
                   Select Year
                 </Label>
@@ -124,6 +143,30 @@ const ImpactCategoriesContent = () => {
                     >
                       {year}
                     </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="md:w-1/3">
+                <Label className="block text-sm font-medium text-gray-700 mb-2">
+                  Impact Levels
+                </Label>
+                <div className="space-y-2 p-2 border border-gray-200 rounded-md">
+                  {sortedImpactLevels.map((level) => (
+                    <div key={level} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`level-${level}`}
+                        checked={selectedLevels.includes(level)}
+                        onCheckedChange={() => toggleImpactLevel(level)}
+                        disabled={isLoading}
+                      />
+                      <Label 
+                        htmlFor={`level-${level}`}
+                        className="text-sm cursor-pointer"
+                      >
+                        {level}
+                      </Label>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -151,7 +194,7 @@ const ImpactCategoriesContent = () => {
                 </div>
               ) : (
                 <div className="flex justify-center items-center h-80">
-                  <p className="text-gray-500">No data available for the selected categories and year.</p>
+                  <p className="text-gray-500">No data available for the selected categories, year, or impact levels.</p>
                 </div>
               )
             ) : (
