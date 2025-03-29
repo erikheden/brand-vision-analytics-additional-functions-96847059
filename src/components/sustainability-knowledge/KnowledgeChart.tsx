@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import { getFullCountryName } from '@/components/CountrySelect';
-import { formatPercentage } from '@/utils/formatting';
+import { formatPercentage, safeFormatPercentage } from '@/utils/formatting';
 
 interface KnowledgeChartProps {
   data: KnowledgeData[];
@@ -74,8 +74,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
 
   // Safe formatter function for bar labels
   const safeLabelFormatter = (value: any) => {
-    if (value === undefined || value === null) return '';
-    return `${value.toFixed(1)}%`;
+    return safeFormatPercentage(value, true);
   };
 
   return (
@@ -105,7 +104,8 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
             <Tooltip 
               formatter={(value: number | null) => {
                 if (value === null || value === undefined) return ['N/A', 'Knowledge Level'];
-                return [`${value.toFixed(1)}%`, 'Knowledge Level'];
+                // Assuming percentage is stored as decimal (0-1)
+                return [formatPercentage(value, true), 'Knowledge Level'];
               }}
               labelFormatter={(label) => `Term: ${label}`}
             />

@@ -83,7 +83,8 @@ const KnowledgeTrendChart: React.FC<KnowledgeTrendChartProps> = ({
             <Tooltip 
               formatter={(value: number | null | undefined, name: string) => {
                 if (value === null || value === undefined) return ['N/A', name];
-                return [`${value.toFixed(1)}%`, name];
+                // Assuming percentage is stored as decimal (0-1)
+                return [formatPercentage(value, true), name];
               }}
               labelFormatter={(year) => `Year: ${year}`}
             />
