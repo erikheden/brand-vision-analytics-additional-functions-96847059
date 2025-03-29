@@ -968,19 +968,19 @@ export type Database = {
       SBI_influences: {
         Row: {
           country: string | null
-          english_label_short: string | null
+          medium: string | null
           percentage: number | null
           year: number | null
         }
         Insert: {
           country?: string | null
-          english_label_short?: string | null
+          medium?: string | null
           percentage?: number | null
           year?: number | null
         }
         Update: {
           country?: string | null
-          english_label_short?: string | null
+          medium?: string | null
           percentage?: number | null
           year?: number | null
         }

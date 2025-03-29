@@ -7,7 +7,7 @@ export interface InfluenceData {
   year: number;
   percentage: number;
   country: string;
-  english_label_short: string;
+  english_label_short: string; // This represents the 'medium' field from the database
 }
 
 export function useSustainabilityInfluences(country: string) {
@@ -34,7 +34,13 @@ export function useSustainabilityInfluences(country: string) {
         throw error;
       }
       
-      return data as InfluenceData[];
+      // Map the database fields to our interface
+      return data.map(item => ({
+        year: item.year,
+        percentage: item.percentage,
+        country: item.country,
+        english_label_short: item.medium // Map 'medium' from DB to 'english_label_short' for component compatibility
+      })) as InfluenceData[];
     },
     enabled: !!country,
   });
@@ -44,7 +50,7 @@ export function useSustainabilityInfluences(country: string) {
     ? [...new Set(data.map(item => item.year))].sort((a, b) => a - b)
     : [];
   
-  // Extract unique influence factors
+  // Extract unique influence factors (which are stored in the 'medium' field in the database)
   const influences = data && data.length > 0
     ? [...new Set(data.map(item => item.english_label_short))].sort()
     : [];
