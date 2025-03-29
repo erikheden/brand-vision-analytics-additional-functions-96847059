@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import { getFullCountryName } from '@/components/CountrySelect';
+import { formatPercentage } from '@/utils/formatting';
 
 interface KnowledgeChartProps {
   data: KnowledgeData[];
@@ -71,6 +72,12 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     );
   }
 
+  // Safe formatter function for bar labels
+  const safeLabelFormatter = (value: any) => {
+    if (value === undefined || value === null) return '';
+    return `${value.toFixed(1)}%`;
+  };
+
   return (
     <Card className="p-6 bg-white border border-[#34502b]/20 rounded-xl shadow-md">
       <h2 className="text-lg font-medium mb-4">
@@ -96,11 +103,9 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
               tick={{ fontSize: 12 }}
             />
             <Tooltip 
-              formatter={(value: number, name: string) => {
-                if (name === 'percentage') {
-                  return [`${value.toFixed(1)}%`, 'Knowledge Level'];
-                }
-                return [value, name];
+              formatter={(value: number | null) => {
+                if (value === null || value === undefined) return ['N/A', 'Knowledge Level'];
+                return [`${value.toFixed(1)}%`, 'Knowledge Level'];
               }}
               labelFormatter={(label) => `Term: ${label}`}
             />
@@ -111,7 +116,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
               fill="#34502b"
               label={{
                 position: 'right',
-                formatter: (item: any) => `${item.value.toFixed(1)}%`,
+                formatter: safeLabelFormatter,
                 fill: '#34502b',
                 fontSize: 12
               }}

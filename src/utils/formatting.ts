@@ -38,3 +38,30 @@ export const formatPercentage = (
   // Format with the specified number of decimal places
   return `${percentage.toFixed(decimals)}%`;
 };
+
+/**
+ * Safely formats a percentage value for display, handling undefined/null values
+ * @param value The percentage value to format
+ * @param decimals Number of decimal places to show (default: 1)
+ * @returns Formatted string with % symbol or empty string if value is invalid
+ */
+export const safeFormatPercentage = (
+  value: any,
+  decimals: number = 1
+): string => {
+  if (value === null || value === undefined) return '';
+  
+  try {
+    // Try to convert to number if it's a string
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    
+    // Check if it's a valid number
+    if (isNaN(numValue)) return '';
+    
+    // Format with the specified number of decimal places
+    return `${numValue.toFixed(decimals)}%`;
+  } catch (e) {
+    // Return empty string if any error occurs during formatting
+    return '';
+  }
+};

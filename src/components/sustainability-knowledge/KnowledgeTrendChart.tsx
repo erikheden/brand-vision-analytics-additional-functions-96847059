@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import { getFullCountryName } from '@/components/CountrySelect';
+import { formatPercentage } from '@/utils/formatting';
 
 interface KnowledgeTrendChartProps {
   data: KnowledgeData[];
@@ -80,7 +81,10 @@ const KnowledgeTrendChart: React.FC<KnowledgeTrendChartProps> = ({
               tickFormatter={(value) => `${value}%`}
             />
             <Tooltip 
-              formatter={(value: number, name: string) => [`${value.toFixed(1)}%`, name]}
+              formatter={(value: number | null | undefined, name: string) => {
+                if (value === null || value === undefined) return ['N/A', name];
+                return [`${value.toFixed(1)}%`, name];
+              }}
               labelFormatter={(year) => `Year: ${year}`}
             />
             <Legend />
