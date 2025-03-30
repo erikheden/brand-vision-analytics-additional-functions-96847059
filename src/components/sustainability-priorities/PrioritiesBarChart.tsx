@@ -122,7 +122,7 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
     series: [{
       name: 'Priority',
       type: 'bar',
-      data: chartData.map(item => item.percentage * 100) // Convert decimal to percentage
+      data: chartData.map(item => Math.round(item.percentage * 100)) // Round to whole number and convert decimal to percentage
     }],
     credits: {
       enabled: false

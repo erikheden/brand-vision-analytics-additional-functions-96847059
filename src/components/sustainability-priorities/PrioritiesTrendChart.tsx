@@ -1,9 +1,11 @@
+
 import React, { useMemo } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { Card } from '@/components/ui/card';
 import { MaterialityData } from '@/hooks/useGeneralMaterialityData';
 import { FONT_FAMILY } from '@/utils/constants';
+import { roundPercentage } from '@/utils/formatting';
 
 interface PrioritiesTrendChartProps {
   data: MaterialityData[];
@@ -29,7 +31,7 @@ const PrioritiesTrendChart: React.FC<PrioritiesTrendChartProps> = ({ data, selec
       
       return {
         name: area,
-        data: areaData.map(item => [item.year, item.percentage])
+        data: areaData.map(item => [item.year, Math.round(item.percentage * 100)]) // Round to whole number and convert to percentage
       };
     });
   }, [data, selectedAreas]);
@@ -101,7 +103,7 @@ const PrioritiesTrendChart: React.FC<PrioritiesTrendChartProps> = ({ data, selec
         
         let tooltip = `<b>Year: ${this.x}</b><br/>`;
         this.points.forEach((point: any) => {
-          tooltip += `${point.series.name}: ${point.y.toFixed(1)}%<br/>`;
+          tooltip += `${point.series.name}: ${roundPercentage(point.y)}%<br/>`;
         });
         return tooltip;
       }
@@ -111,6 +113,10 @@ const PrioritiesTrendChart: React.FC<PrioritiesTrendChartProps> = ({ data, selec
         marker: {
           symbol: 'circle',
           radius: 4
+        },
+        dataLabels: {
+          enabled: false, // Not using data labels on the line chart
+          format: '{y}%'
         }
       }
     },
