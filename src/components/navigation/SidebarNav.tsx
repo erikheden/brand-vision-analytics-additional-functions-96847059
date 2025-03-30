@@ -25,13 +25,6 @@ const SidebarNav = () => {
           </SidebarMenuItem>
           
           <SidebarMenuItem>
-            <Link to="/country-comparison" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/country-comparison") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
-              <LineChart className="h-5 w-5" />
-              <span>Country Comparison</span>
-            </Link>
-          </SidebarMenuItem>
-          
-          <SidebarMenuItem>
             <Link to="/sustainability-priorities" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/sustainability-priorities") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
               <BarChart3 className="h-5 w-5" />
               <span>Sustainability Priorities</span>
@@ -76,13 +69,20 @@ const SidebarNav = () => {
             </Link>
           </SidebarMenuItem>
           
-          {/* Add brand section */}
+          {/* Brand section */}
           <div className="pb-2 text-xs font-medium text-white/70 uppercase px-0 mx-0 mt-6 mb-px py-[15px]">Brand</div>
           
           <SidebarMenuItem>
             <Link to="/sustainability-perception" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/sustainability-perception") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
               <Award className="h-5 w-5" />
               <span>Sustainability Perception</span>
+            </Link>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <Link to="/country-comparison" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/country-comparison") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
+              <LineChart className="h-5 w-5" />
+              <span>Country Comparison</span>
             </Link>
           </SidebarMenuItem>
         </SidebarMenu>
