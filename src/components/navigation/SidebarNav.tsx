@@ -3,15 +3,16 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Sidebar, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
-import { BarChart3, LineChart, PieChart, LayoutGrid, MessageSquare, BarChart, TrendingUp, BookOpen } from "lucide-react";
+import { BarChart3, LineChart, PieChart, LayoutGrid, MessageSquare, BarChart, TrendingUp, BookOpen, Award } from "lucide-react";
+
 const SidebarNav = () => {
   const location = useLocation();
   const isActive = (path: string) => {
     return location.pathname === path;
   };
-  return <Sidebar className="border-r bg-[#34502b] text-white font-forma">
-      
-      
+  
+  return (
+    <Sidebar className="border-r bg-[#34502b] text-white font-forma">
       <SidebarContent className="px-4">
         <SidebarMenu>
           <div className="pb-2 text-xs font-medium text-white/70 uppercase px-0 mx-0 my-px py-[15px]">Dashboards</div>
@@ -58,7 +59,7 @@ const SidebarNav = () => {
             </Link>
           </SidebarMenuItem>
           
-          {/* Add divider for Industry section */}
+          {/* Industry section */}
           <div className="pb-2 text-xs font-medium text-white/70 uppercase px-0 mx-0 mt-6 mb-px py-[15px]">Industry</div>
           
           <SidebarMenuItem>
@@ -74,8 +75,20 @@ const SidebarNav = () => {
               <span>Sustainability Impact</span>
             </Link>
           </SidebarMenuItem>
+          
+          {/* Add brand section */}
+          <div className="pb-2 text-xs font-medium text-white/70 uppercase px-0 mx-0 mt-6 mb-px py-[15px]">Brand</div>
+          
+          <SidebarMenuItem>
+            <Link to="/sustainability-perception" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/sustainability-perception") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
+              <Award className="h-5 w-5" />
+              <span>Sustainability Perception</span>
+            </Link>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
-    </Sidebar>;
+    </Sidebar>
+  );
 };
+
 export default SidebarNav;

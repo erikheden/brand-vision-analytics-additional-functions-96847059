@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,6 +11,7 @@ import SustainabilityDiscussions from "./pages/SustainabilityDiscussions";
 import MaterialityAreas from "./pages/MaterialityAreas";
 import SustainabilityImpact from "./pages/SustainabilityImpact";
 import SustainabilityKnowledge from "./pages/SustainabilityKnowledge";
+import SustainabilityPerception from "./pages/SustainabilityPerception";
 import Auth from "./pages/Auth";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -46,6 +48,7 @@ function App() {
               <Route path="sustainability-discussions" element={<SustainabilityDiscussions />} />
               <Route path="materiality-areas" element={<MaterialityAreas />} />
               <Route path="sustainability-impact" element={<SustainabilityImpact />} />
+              <Route path="sustainability-perception" element={<SustainabilityPerception />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Route>
           </Routes>
