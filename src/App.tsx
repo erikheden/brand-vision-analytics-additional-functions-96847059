@@ -12,6 +12,7 @@ import MaterialityAreas from "./pages/MaterialityAreas";
 import SustainabilityImpact from "./pages/SustainabilityImpact";
 import SustainabilityKnowledge from "./pages/SustainabilityKnowledge";
 import SustainabilityPerception from "./pages/SustainabilityPerception";
+import BehaviourGroups from "./pages/BehaviourGroups";
 import Auth from "./pages/Auth";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -49,6 +50,7 @@ function App() {
               <Route path="materiality-areas" element={<MaterialityAreas />} />
               <Route path="sustainability-impact" element={<SustainabilityImpact />} />
               <Route path="sustainability-perception" element={<SustainabilityPerception />} />
+              <Route path="behaviour-groups" element={<BehaviourGroups />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Route>
           </Routes>

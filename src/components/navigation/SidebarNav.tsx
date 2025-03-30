@@ -3,7 +3,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Sidebar, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
-import { BarChart3, LineChart, PieChart, LayoutGrid, MessageSquare, BarChart, TrendingUp, BookOpen, Award } from "lucide-react";
+import { BarChart3, LineChart, PieChart, LayoutGrid, MessageSquare, BarChart, TrendingUp, BookOpen, Award, PieChart2 } from "lucide-react";
 
 const SidebarNav = () => {
   const location = useLocation();
@@ -49,6 +49,13 @@ const SidebarNav = () => {
             <Link to="/sustainability-discussions" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/sustainability-discussions") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
               <MessageSquare className="h-5 w-5" />
               <span>Sustainability Discussions</span>
+            </Link>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <Link to="/behaviour-groups" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/behaviour-groups") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
+              <PieChart2 className="h-5 w-5" />
+              <span>Behaviour Groups</span>
             </Link>
           </SidebarMenuItem>
           
