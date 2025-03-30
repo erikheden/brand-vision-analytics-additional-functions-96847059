@@ -24,6 +24,12 @@ const ImpactCategoriesContent = () => {
     toggleImpactLevel
   } = useImpactCategories();
 
+  // Prepare the data in the format expected by ImpactResultsDisplay
+  const formattedChartData = {
+    byLevel: chartData, // Assign the array to byLevel property
+    byCategory: [] // Empty array for byCategory, as it's not currently used
+  };
+
   return (
     <div className="space-y-6">
       {/* Filters Section */}
@@ -50,7 +56,7 @@ const ImpactCategoriesContent = () => {
         selectedCountry={selectedCountry}
         selectedCategories={selectedCategories}
         selectedYear={selectedYear}
-        chartData={chartData}
+        chartData={formattedChartData}
       />
     </div>
   );
