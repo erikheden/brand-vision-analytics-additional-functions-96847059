@@ -40,15 +40,16 @@ export const useCountriesWithBehaviourData = () => {
       const { data, error } = await supabase
         .from('SBI_behaviour_groups')
         .select('country')
-        .order('country')
-        .distinct();
+        .order('country');
 
       if (error) {
         console.error("Error fetching countries:", error);
         throw new Error("Failed to fetch countries data");
       }
 
-      return data?.map(item => item.country) || [];
+      // Filter to get unique countries
+      const uniqueCountries = [...new Set(data?.map(item => item.country))];
+      return uniqueCountries || [];
     },
   });
 };
@@ -66,15 +67,16 @@ export const useYearsWithBehaviourData = (selectedCountry?: string) => {
       }
       
       const { data, error } = await query
-        .order('year')
-        .distinct();
+        .order('year');
 
       if (error) {
         console.error("Error fetching years:", error);
         throw new Error("Failed to fetch years data");
       }
 
-      return data?.map(item => Number(item.year)) || [];
+      // Filter to get unique years
+      const uniqueYears = [...new Set(data?.map(item => Number(item.year)))];
+      return uniqueYears || [];
     },
   });
 };

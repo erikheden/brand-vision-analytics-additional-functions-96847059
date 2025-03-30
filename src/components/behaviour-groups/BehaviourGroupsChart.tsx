@@ -66,7 +66,6 @@ const BehaviourGroupsChart = ({ selectedCountry, viewType }: BehaviourGroupsChar
               data={trendData}
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
               stackOffset="expand"
-              stackId="a"
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="year" />
@@ -121,7 +120,6 @@ const BehaviourGroupsChart = ({ selectedCountry, viewType }: BehaviourGroupsChar
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
               layout="vertical"
               stackOffset="expand"
-              stackId="a"
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" tickFormatter={(tick) => `${(tick * 100).toFixed(0)}%`} />
