@@ -76,20 +76,36 @@ const KnowledgeTrendChart: React.FC<KnowledgeTrendChartProps> = ({
             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="year" />
+            <XAxis 
+              dataKey="year" 
+              label={{ 
+                value: 'Year', 
+                position: 'insideBottomRight', 
+                offset: -5 
+              }}
+            />
             <YAxis 
               domain={[0, 100]} 
+              label={{ 
+                value: 'Knowledge Level (%)', 
+                angle: -90, 
+                position: 'insideLeft',
+                style: { textAnchor: 'middle' }
+              }}
               tickFormatter={(value) => `${value}%`}
             />
             <Tooltip 
               formatter={(value: number | null | undefined, name: string) => {
                 if (value === null || value === undefined) return ['N/A', name];
-                // Return whole number without decimal places
                 return [`${value}%`, name];
               }}
               labelFormatter={(year) => `Year: ${year}`}
             />
-            <Legend />
+            <Legend 
+              layout="horizontal" 
+              verticalAlign="bottom" 
+              wrapperStyle={{ paddingTop: '10px' }}
+            />
             {selectedTerms.map((term, index) => (
               <Line
                 key={term}
