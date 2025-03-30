@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { MaterialityData } from '@/hooks/useGeneralMaterialityData';
 import { FONT_FAMILY } from '@/utils/constants';
 import { roundPercentage } from '@/utils/formatting';
+import { toast } from 'sonner';
 
 interface PrioritiesBarChartProps {
   data: MaterialityData[];
@@ -23,9 +24,25 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
     const yearData = data.filter(item => item.year === selectedYear);
     console.log(`Found ${yearData.length} records for year ${selectedYear}`);
 
+    if (yearData.length === 0 && data.length > 0) {
+      // Only show toast if we have data but not for the selected year
+      toast.info(`No data available for ${selectedYear}. Showing the most recent year instead.`);
+      // Get the most recent year data instead
+      const years = [...new Set(data.map(item => item.year))];
+      const mostRecentYear = Math.max(...years);
+      return [...data.filter(item => item.year === mostRecentYear)]
+        .sort((a, b) => b.percentage - a.percentage);
+    }
+
     // Sort data by percentage in descending order
     return [...yearData].sort((a, b) => b.percentage - a.percentage);
   }, [data, selectedYear]);
+
+  const isPlaceholderData = useMemo(() => {
+    // Check if we're using placeholder data by looking at the data structure
+    // Real data should have row_id, placeholder doesn't
+    return data.length > 0 && data.every(item => !item.row_id);
+  }, [data]);
 
   const options: Highcharts.Options = {
     chart: {
@@ -37,7 +54,7 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
       height: 600 // Increased height from default
     },
     title: {
-      text: `Sustainability Priorities ${selectedYear}`,
+      text: `Sustainability Priorities ${selectedYear}${isPlaceholderData ? ' (Sample Data)' : ''}`,
       style: {
         color: '#34502b',
         fontFamily: FONT_FAMILY
@@ -124,6 +141,12 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
       <div className="h-[600px]">
         <HighchartsReact highcharts={Highcharts} options={options} />
       </div>
+      {isPlaceholderData && (
+        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-sm text-yellow-700">
+          <p className="font-medium">Note: Sample data is being displayed.</p>
+          <p>No actual data was found in the database for the selected country.</p>
+        </div>
+      )}
     </Card>;
 };
 

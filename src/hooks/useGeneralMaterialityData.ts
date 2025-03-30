@@ -27,35 +27,27 @@ export const useGeneralMaterialityData = (country: string) => {
       console.log(`Fetching materiality data for country: ${country}`);
 
       try {
-        // Fetch general population data
-        console.log(`Querying general population data`);
-        const { data, error } = await supabase
+        // Normalize country code for consistency
+        const normalizedCountry = normalizeCountryCode(country);
+        console.log(`Using normalized country code: ${normalizedCountry}`);
+
+        // Try with normalized country code first
+        console.log(`Querying general population data with normalized country code`);
+        let { data, error } = await supabase
           .from("materiality_areas_general_sbi")
           .select("*")
-          .eq("country", country);
+          .eq("country", normalizedCountry);
 
         if (error) {
           console.error("Error fetching materiality data:", error);
           throw new Error(`Failed to fetch materiality data: ${error.message}`);
         }
 
-        console.log(`Retrieved ${data?.length || 0} materiality data records`);
-
-        // If we got data, return it
-        if (data && data.length > 0) {
-          return data.map(item => ({
-            materiality_area: item.materiality_area,
-            percentage: Number(item.percentage),
-            year: item.year,
-            country: item.country,
-            row_id: item.row_id
-          }));
-        }
-        
-        // If we didn't get data, try with full country name
-        const fullCountryName = getFullCountryName(country);
-        if (fullCountryName !== country) {
-          console.log(`Trying with full country name: ${fullCountryName}`);
+        // If no data found, try with full country name
+        if (!data || data.length === 0) {
+          const fullCountryName = getFullCountryName(normalizedCountry);
+          console.log(`No data found with code ${normalizedCountry}, trying with full country name: ${fullCountryName}`);
+          
           const { data: fullNameData, error: fullNameError } = await supabase
             .from("materiality_areas_general_sbi")
             .select("*")
@@ -67,17 +59,46 @@ export const useGeneralMaterialityData = (country: string) => {
             console.log(`Retrieved ${fullNameData.length} records using full country name: ${fullCountryName}`);
             return fullNameData.map(item => ({
               materiality_area: item.materiality_area,
-              percentage: Number(item.percentage), // Ensure it's a number
+              percentage: Number(item.percentage),
               year: item.year,
               country: item.country,
               row_id: item.row_id
             }));
           }
+          
+          // If still no data, try case-insensitive search using ILIKE
+          console.log(`Trying case-insensitive search for country: ${normalizedCountry}`);
+          const { data: caseInsensitiveData, error: caseInsensitiveError } = await supabase
+            .from("materiality_areas_general_sbi")
+            .select("*")
+            .ilike("country", `%${normalizedCountry}%`);
+            
+          if (caseInsensitiveError) {
+            console.error("Error with case-insensitive search:", caseInsensitiveError);
+          } else if (caseInsensitiveData && caseInsensitiveData.length > 0) {
+            console.log(`Retrieved ${caseInsensitiveData.length} records using case-insensitive search`);
+            return caseInsensitiveData.map(item => ({
+              materiality_area: item.materiality_area,
+              percentage: Number(item.percentage),
+              year: item.year,
+              country: item.country,
+              row_id: item.row_id
+            }));
+          }
+        } else {
+          console.log(`Retrieved ${data.length} materiality data records`);
+          return data.map(item => ({
+            materiality_area: item.materiality_area,
+            percentage: Number(item.percentage),
+            year: item.year,
+            country: item.country,
+            row_id: item.row_id
+          }));
         }
         
-        // If we still don't have data, generate placeholder data
+        // If we get here, we couldn't find any real data, so generate placeholder data
         console.log("No real data found, generating placeholder data");
-        const materalityAreas = [
+        const materialityAreas = [
           "Climate Change", 
           "Biodiversity", 
           "Circular Economy", 
@@ -95,7 +116,7 @@ export const useGeneralMaterialityData = (country: string) => {
         const placeholderData: MaterialityData[] = [];
         
         years.forEach(year => {
-          materalityAreas.forEach(area => {
+          materialityAreas.forEach(area => {
             // Generate slightly different percentages for each year
             const basePercentage = 0.5 + Math.random() * 0.3;
             const yearFactor = year === 2024 ? 1.05 : 1; // Slight increase for 2024
@@ -125,19 +146,27 @@ export const useGeneralMaterialityData = (country: string) => {
   };
 };
 
+// Helper function to normalize country code
+const normalizeCountryCode = (code: string): string => {
+  if (!code) return '';
+  
+  // Convert to uppercase to ensure consistency
+  return code.toUpperCase();
+};
+
 // Helper function to get full country name from code
 const getFullCountryName = (code: string): string => {
   const countryMapping: Record<string, string> = {
-    'Se': 'Sweden',
-    'No': 'Norway',
-    'Dk': 'Denmark',
-    'Fi': 'Finland',
-    'Nl': 'Netherlands',
-    'De': 'Germany',
-    'Fr': 'France',
-    'Uk': 'United Kingdom',
-    'Es': 'Spain',
-    'It': 'Italy'
+    'SE': 'Sweden',
+    'NO': 'Norway',
+    'DK': 'Denmark',
+    'FI': 'Finland',
+    'NL': 'Netherlands',
+    'DE': 'Germany',
+    'FR': 'France',
+    'UK': 'United Kingdom',
+    'ES': 'Spain',
+    'IT': 'Italy'
   };
   
   return countryMapping[code] || code;

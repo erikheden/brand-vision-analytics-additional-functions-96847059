@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Info } from "lucide-react";
 import CountrySelect from "@/components/CountrySelect";
 import YearSelector from "@/components/sustainability-priorities/YearSelector";
 import AreaSelector from "@/components/sustainability-priorities/AreaSelector";
@@ -38,6 +38,9 @@ const SingleCountryView: React.FC<SingleCountryViewProps> = ({
   setSelectedAreas,
   countries,
 }) => {
+  // Check if we're using placeholder data
+  const isPlaceholderData = materialityData.length > 0 && materialityData.every(item => !item.row_id);
+  
   return (
     <div className="space-y-6 mt-0">
       {/* Country Selection */}
@@ -73,6 +76,16 @@ const SingleCountryView: React.FC<SingleCountryViewProps> = ({
 
       {selectedCountry && materialityData.length > 0 && !isLoading && (
         <div className="space-y-8">
+          {isPlaceholderData && (
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertTitle>Using Sample Data</AlertTitle>
+              <AlertDescription>
+                No actual data was found for {selectedCountry}. Sample data is being displayed for demonstration purposes.
+              </AlertDescription>
+            </Alert>
+          )}
+          
           {/* Bar Chart Section */}
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -109,7 +122,7 @@ const SingleCountryView: React.FC<SingleCountryViewProps> = ({
 
       {selectedCountry && materialityData.length === 0 && !isLoading && (
         <div className="text-center py-10">
-          <p className="text-lg text-gray-600">No sustainability priorities data found for {selectedCountry}. Sample data will be shown instead.</p>
+          <p className="text-lg text-gray-600">No sustainability priorities data found for {selectedCountry}.</p>
         </div>
       )}
     </div>
