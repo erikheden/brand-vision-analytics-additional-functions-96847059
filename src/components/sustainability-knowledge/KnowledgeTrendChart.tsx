@@ -34,7 +34,8 @@ const KnowledgeTrendChart: React.FC<KnowledgeTrendChartProps> = ({
       }
       
       // Use the term as the key for the percentage
-      groups[item.year][item.term] = item.percentage;
+      // Convert from decimal (0-1) to percentage (0-100) and round
+      groups[item.year][item.term] = Math.round(item.percentage * 100);
       
       return groups;
     }, {} as Record<number, any>);
@@ -83,8 +84,8 @@ const KnowledgeTrendChart: React.FC<KnowledgeTrendChartProps> = ({
             <Tooltip 
               formatter={(value: number | null | undefined, name: string) => {
                 if (value === null || value === undefined) return ['N/A', name];
-                // Round to whole number and return without decimal places
-                return [`${roundPercentage(value, true)}%`, name];
+                // Return whole number without decimal places
+                return [`${value}%`, name];
               }}
               labelFormatter={(year) => `Year: ${year}`}
             />

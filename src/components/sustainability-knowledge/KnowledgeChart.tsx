@@ -65,10 +65,13 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     return `rgba(52, 80, 43, ${shade / 100})`;
   });
 
-  // Chart options for horizontal bar chart - corrected axis configuration
+  // Chart options for horizontal bar chart
+  // Note: In Highcharts, for horizontal bar charts:
+  // - yAxis represents the category axis (shown vertically with terms)
+  // - xAxis represents the value axis (shown horizontally with percentages)
   const options: Highcharts.Options = {
     chart: {
-      type: 'bar',
+      type: 'bar', // 'bar' creates horizontal bars
       height: Math.max(350, 50 * Math.min(terms.length, 15)),
       backgroundColor: 'white',
       style: { fontFamily: FONT_FAMILY }
@@ -78,7 +81,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
       style: { color: '#34502b', fontFamily: FONT_FAMILY }
     },
     xAxis: {
-      // This is actually the horizontal axis (for percentages)
+      // This represents the value axis (percentage) - displayed horizontally
       title: {
         text: 'Percentage',
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
@@ -89,7 +92,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
       }
     },
     yAxis: {
-      // This is actually the vertical axis (for terms)
+      // This represents the category axis (terms) - displayed vertically
       categories: terms,
       title: {
         text: 'Sustainability Terms',
@@ -125,7 +128,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     series: [{
       name: 'Knowledge Level',
       type: 'bar',
-      data: percentages.map(value => Math.round(value * 100)), // Round to whole number
+      data: percentages.map(value => Math.round(value * 100)), // Convert decimal (0-1) to percentage (0-100)
       color: '#34502b'
     }],
     credits: {
