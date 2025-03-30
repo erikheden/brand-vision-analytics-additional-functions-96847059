@@ -10,13 +10,11 @@ import { roundPercentage } from '@/utils/formatting';
 interface PrioritiesBarChartProps {
   data: MaterialityData[];
   selectedYear: number;
-  selectedAgeId?: number | null;
 }
 
 const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
   data,
-  selectedYear,
-  selectedAgeId = null
+  selectedYear
 }) => {
   const chartData = useMemo(() => {
     console.log(`Filtering data for year ${selectedYear}, total data points: ${data.length}`);
@@ -28,16 +26,6 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
     // Sort data by percentage in descending order
     return [...yearData].sort((a, b) => b.percentage - a.percentage);
   }, [data, selectedYear]);
-
-  // Get subtitle based on selected age group
-  const subtitle = useMemo(() => {
-    if (!selectedAgeId) {
-      return 'General Population';
-    }
-    
-    const ageItem = data.find(item => item.age_id === selectedAgeId);
-    return ageItem?.age_group || `Age Group ID: ${selectedAgeId}`;
-  }, [data, selectedAgeId]);
 
   const options: Highcharts.Options = {
     chart: {
@@ -56,7 +44,7 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
       }
     },
     subtitle: {
-      text: subtitle,
+      text: 'General Population',
       style: {
         color: '#34502b',
         fontFamily: FONT_FAMILY

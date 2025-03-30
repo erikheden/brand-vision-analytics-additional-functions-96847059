@@ -12,16 +12,13 @@ const MainContent = () => {
   const [selectedCountry, setSelectedCountry] = useState<string>("SE");
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number>(2023);
-  const [selectedAgeId, setSelectedAgeId] = useState<number | null>(null);
   
   // Get the data for the selected country
   const { 
     data: materialityData, 
-    ageGroups,
     isLoading, 
-    error,
-    isLoadingAgeGroups
-  } = useGeneralMaterialityData(selectedCountry, selectedAgeId);
+    error
+  } = useGeneralMaterialityData(selectedCountry);
   
   // Get available countries
   const { countries } = useSelectionData("", []);
@@ -70,14 +67,14 @@ const MainContent = () => {
           <TabsContent value="single" className="space-y-6 pt-4">
             <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
               <p className="text-gray-600">
-                Analyze sustainability priorities for a single country. Select different years, age groups, or specific priority areas to see how they compare.
+                Analyze sustainability priorities for a single country. Select different years or specific priority areas to see how they compare.
               </p>
             </Card>
             
             <SingleCountryView 
               selectedCountry={selectedCountry}
               setSelectedCountry={setSelectedCountry}
-              materialityData={materialityData}
+              materialityData={materialityData || []}
               isLoading={isLoading}
               error={error}
               years={years}
@@ -87,10 +84,6 @@ const MainContent = () => {
               selectedAreas={selectedAreas}
               setSelectedAreas={setSelectedAreas}
               countries={countries || []}
-              ageGroups={ageGroups}
-              selectedAgeId={selectedAgeId}
-              setSelectedAgeId={setSelectedAgeId}
-              isLoadingAgeGroups={isLoadingAgeGroups}
             />
           </TabsContent>
 

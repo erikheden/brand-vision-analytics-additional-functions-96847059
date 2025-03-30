@@ -8,8 +8,6 @@ export interface MaterialityData {
   year: number;
   country: string;
   row_id?: number;
-  age_id?: number;
-  age_group?: string;
 }
 
 export interface AgeGroup {
@@ -17,55 +15,24 @@ export interface AgeGroup {
   age_group: string;
 }
 
-export const useGeneralMaterialityData = (country: string, selectedAgeId?: number | null) => {
-  // Query for age groups
-  const ageGroupsQuery = useQuery({
-    queryKey: ["ageGroups"],
-    queryFn: async (): Promise<AgeGroup[]> => {
-      const { data, error } = await supabase
-        .from("age_groups")
-        .select("*")
-        .order("age_id");
-
-      if (error) {
-        console.error("Error fetching age groups:", error);
-        throw new Error(`Failed to fetch age groups: ${error.message}`);
-      }
-
-      return data || [];
-    },
-  });
-
+export const useGeneralMaterialityData = (country: string) => {
   // Query for materiality data
   const materialityQuery = useQuery({
-    queryKey: ["generalMaterialityData", country, selectedAgeId],
+    queryKey: ["generalMaterialityData", country],
     queryFn: async (): Promise<MaterialityData[]> => {
       if (!country) {
         return [];
       }
 
-      console.log(`Fetching materiality data for country: ${country}, age_id: ${selectedAgeId}`);
+      console.log(`Fetching materiality data for country: ${country}`);
 
       try {
-        let data;
-        let error;
-
-        if (selectedAgeId !== undefined && selectedAgeId !== null) {
-          // Fetch age-specific data
-          console.log(`Querying age-specific data for age_id: ${selectedAgeId}`);
-          ({ data, error } = await supabase
-            .from("materiality_areas__age_sbi")
-            .select("*")
-            .eq("country", country)
-            .eq("age_id", selectedAgeId));
-        } else {
-          // Fetch general population data
-          console.log(`Querying general population data`);
-          ({ data, error } = await supabase
-            .from("materiality_areas_general_sbi")
-            .select("*")
-            .eq("country", country));
-        }
+        // Fetch general population data
+        console.log(`Querying general population data`);
+        const { data, error } = await supabase
+          .from("materiality_areas_general_sbi")
+          .select("*")
+          .eq("country", country);
 
         if (error) {
           console.error("Error fetching materiality data:", error);
@@ -76,23 +43,6 @@ export const useGeneralMaterialityData = (country: string, selectedAgeId?: numbe
 
         // If we got data, return it
         if (data && data.length > 0) {
-          // If we have age group data, attach the age group labels
-          if (selectedAgeId !== undefined && selectedAgeId !== null && ageGroupsQuery.data) {
-            const ageGroupMap = new Map(
-              ageGroupsQuery.data.map(ag => [ag.age_id, ag.age_group])
-            );
-            
-            return data.map(item => ({
-              materiality_area: item.materiality_area,
-              percentage: Number(item.percentage),
-              year: item.year,
-              country: item.country,
-              row_id: item.row_id,
-              age_id: item.age_id,
-              age_group: ageGroupMap.get(item.age_id) || `Age ID: ${item.age_id}`
-            }));
-          }
-          
           return data.map(item => ({
             materiality_area: item.materiality_area,
             percentage: Number(item.percentage),
@@ -170,8 +120,6 @@ export const useGeneralMaterialityData = (country: string, selectedAgeId?: numbe
 
   return {
     data: materialityQuery.data || [],
-    ageGroups: ageGroupsQuery.data || [],
-    isLoadingAgeGroups: ageGroupsQuery.isLoading,
     isLoading: materialityQuery.isLoading,
     error: materialityQuery.error,
   };

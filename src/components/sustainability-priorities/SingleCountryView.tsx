@@ -7,8 +7,7 @@ import YearSelector from "@/components/sustainability-priorities/YearSelector";
 import AreaSelector from "@/components/sustainability-priorities/AreaSelector";
 import PrioritiesBarChart from "@/components/sustainability-priorities/PrioritiesBarChart";
 import PrioritiesTrendChart from "@/components/sustainability-priorities/PrioritiesTrendChart";
-import AgeGroupSelector from "@/components/sustainability-priorities/AgeGroupSelector";
-import { MaterialityData, AgeGroup } from "@/hooks/useGeneralMaterialityData";
+import { MaterialityData } from "@/hooks/useGeneralMaterialityData";
 
 interface SingleCountryViewProps {
   selectedCountry: string;
@@ -23,10 +22,6 @@ interface SingleCountryViewProps {
   selectedAreas: string[];
   setSelectedAreas: (areas: string[]) => void;
   countries: string[];
-  ageGroups: AgeGroup[];
-  selectedAgeId: number | null;
-  setSelectedAgeId: (ageId: number | null) => void;
-  isLoadingAgeGroups: boolean;
 }
 
 const SingleCountryView: React.FC<SingleCountryViewProps> = ({
@@ -42,10 +37,6 @@ const SingleCountryView: React.FC<SingleCountryViewProps> = ({
   selectedAreas,
   setSelectedAreas,
   countries,
-  ageGroups,
-  selectedAgeId,
-  setSelectedAgeId,
-  isLoadingAgeGroups,
 }) => {
   return (
     <div className="space-y-6 mt-0">
@@ -92,20 +83,11 @@ const SingleCountryView: React.FC<SingleCountryViewProps> = ({
                   onChange={setSelectedYear}
                 />
               </div>
-              <div className="md:col-span-1">
-                <AgeGroupSelector
-                  ageGroups={ageGroups}
-                  selectedAgeId={selectedAgeId}
-                  onChange={setSelectedAgeId}
-                  isLoading={isLoadingAgeGroups}
-                />
-              </div>
             </div>
 
             <PrioritiesBarChart
               data={materialityData}
               selectedYear={selectedYear}
-              selectedAgeId={selectedAgeId}
             />
           </div>
 
