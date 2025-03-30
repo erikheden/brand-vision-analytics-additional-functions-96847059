@@ -1,141 +1,165 @@
 
-import React, { useState, useEffect } from 'react';
-import { useToast } from '@/components/ui/use-toast';
-import { useSustainabilityKnowledge } from '@/hooks/useSustainabilityKnowledge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import LoadingState from './LoadingState';
-import ErrorState from './ErrorState';
-import SidebarControls from './SidebarControls';
-import KnowledgeChart from './KnowledgeChart';
-import KnowledgeTrendChart from './KnowledgeTrendChart';
+import React, { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useSustainabilityKnowledge } from "@/hooks/useSustainabilityKnowledge";
+import CountrySelect from "@/components/CountrySelect";
+import LoadingState from "./LoadingState";
+import ErrorState from "./ErrorState";
+import KnowledgeChart from "./KnowledgeChart";
+import KnowledgeTrendChart from "./KnowledgeTrendChart";
+import SidebarControls from "./SidebarControls";
+import { useToast } from "@/components/ui/use-toast";
 
 const MainContent = () => {
   const { toast } = useToast();
-  const [selectedCountry, setSelectedCountry] = useState<string>("SE"); // Default to Sweden
-  const [activeTab, setActiveTab] = useState<string>("yearly");
+  const [selectedCountry, setSelectedCountry] = useState<string>("SE");
+  const [selectedYear, setSelectedYear] = useState<number>(2024);
   const [selectedTerms, setSelectedTerms] = useState<string[]>([]);
-  
-  console.log("Knowledge MainContent rendered with selectedCountry:", selectedCountry);
-  
-  const { 
-    data: knowledgeData = [], 
-    years = [],
-    terms = [],
-    isLoading, 
-    error 
-  } = useSustainabilityKnowledge(selectedCountry);
-  
-  console.log("Knowledge MainContent received data:", {
-    dataCount: knowledgeData.length,
-    yearsCount: years.length,
-    termsCount: terms.length,
-    isLoading,
-    hasError: !!error
-  });
-  
-  // Set default selected year to the most recent one, but only if it exists in the data
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-  
-  // Update selected year when years data changes
+  const [activeTab, setActiveTab] = useState<string>("single");
+
+  const { data, years, terms, isLoading, error } = useSustainabilityKnowledge(selectedCountry);
+
+  // Set initial year when years are loaded
   useEffect(() => {
     if (years.length > 0) {
-      const maxYear = Math.max(...years);
-      console.log(`Setting selectedYear to max year: ${maxYear}`);
-      setSelectedYear(maxYear);
+      setSelectedYear(Math.max(...years));
     }
   }, [years]);
-  
-  // Initialize selected terms when terms data changes
-  useEffect(() => {
-    if (terms.length > 0 && selectedTerms.length === 0) {
-      // Select all terms by default
-      console.log("Initial terms selection:", terms);
-      setSelectedTerms(terms);
-    }
-  }, [terms, selectedTerms.length]);
-  
+
   const handleCountryChange = (country: string) => {
-    console.log("Country selected:", country);
     setSelectedCountry(country);
-    // Reset selected terms when country changes
     setSelectedTerms([]);
     toast({
-      title: "Country Selected",
-      description: `Showing sustainability knowledge for ${country}`,
+      title: "Country Changed",
+      description: `Showing data for ${country}`,
       duration: 3000,
     });
   };
 
-  const countries = ["SE", "NO", "DK", "FI", "NL"];
+  const handleYearChange = (year: number) => {
+    setSelectedYear(year);
+  };
 
-  if (isLoading) {
-    console.log("Rendering loading state");
-    return <LoadingState />;
-  }
+  const handleTermToggle = (term: string) => {
+    if (selectedTerms.includes(term)) {
+      setSelectedTerms(selectedTerms.filter(t => t !== term));
+    } else {
+      if (selectedTerms.length >= 5 && activeTab === "trends") {
+        toast({
+          title: "Selection Limit",
+          description: "You can select up to 5 terms for trend comparison",
+          variant: "destructive",
+        });
+        return;
+      }
+      setSelectedTerms([...selectedTerms, term]);
+    }
+  };
 
-  if (error) {
-    console.log("Rendering error state:", error);
-    return <ErrorState />;
-  }
+  const handleSelectAllTerms = () => {
+    if (activeTab === "trends" && terms.length > 5) {
+      toast({
+        title: "Selection Limit",
+        description: "You can select up to 5 terms for trend comparison. Please select terms individually.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSelectedTerms([...terms]);
+  };
 
-  console.log("Rendering main content with selected year:", selectedYear);
-  console.log("Active tab:", activeTab);
-  console.log("Currently selected terms:", selectedTerms);
+  const handleClearTerms = () => {
+    setSelectedTerms([]);
+  };
+
+  if (error) return <ErrorState />;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <h1 className="text-2xl font-semibold text-[#34502b] mb-6">Sustainability Knowledge</h1>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-6">
-        <TabsList className="bg-[#34502b]/10 mx-auto md:mx-0">
-          <TabsTrigger 
-            value="yearly" 
-            className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
-          >
-            Yearly View
-          </TabsTrigger>
-          <TabsTrigger 
-            value="trends" 
-            className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
-          >
-            Trends View
-          </TabsTrigger>
-        </TabsList>
-      
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
-          <SidebarControls
-            activeTab={activeTab}
-            selectedCountry={selectedCountry}
-            onCountryChange={handleCountryChange}
-            years={years}
-            selectedYear={selectedYear}
-            onYearChange={setSelectedYear}
-            terms={terms}
-            selectedTerms={selectedTerms}
-            onTermsChange={setSelectedTerms}
-            countries={countries}
-          />
-          
-          <div className="md:col-span-3">
-            <TabsContent value="yearly" className="mt-0">
-              <KnowledgeChart
-                data={knowledgeData}
-                selectedYear={selectedYear}
-                country={selectedCountry}
-                selectedTerms={selectedTerms}
-              />
-            </TabsContent>
-            
-            <TabsContent value="trends" className="mt-0">
+    <div className="flex flex-col md:flex-row gap-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="w-full md:w-1/4">
+        <SidebarControls
+          countries={["SE", "NO", "DK", "FI", "NL"]}
+          selectedCountry={selectedCountry}
+          onCountryChange={handleCountryChange}
+          terms={terms}
+          selectedTerms={selectedTerms}
+          onTermToggle={handleTermToggle}
+          onSelectAll={handleSelectAllTerms}
+          onClearAll={handleClearTerms}
+          isLoading={isLoading}
+        />
+      </div>
+
+      <div className="w-full md:w-3/4">
+        <h1 className="text-2xl font-semibold text-[#34502b] mb-6">Sustainability Knowledge</h1>
+        
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="bg-[#34502b]/10 mx-auto md:mx-0 mb-6">
+            <TabsTrigger value="single" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+              Knowledge Levels
+            </TabsTrigger>
+            <TabsTrigger value="trends" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+              Knowledge Trends
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="single" className="mt-0">
+            {isLoading ? (
+              <LoadingState />
+            ) : (
+              <div className="space-y-6">
+                <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="text-lg font-medium text-[#34502b]">
+                      Knowledge Levels by Term
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <label className="text-sm font-medium text-gray-700">Year:</label>
+                      <select
+                        value={selectedYear}
+                        onChange={(e) => handleYearChange(Number(e.target.value))}
+                        className="px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:ring-[#34502b] focus:border-[#34502b]"
+                      >
+                        {years.map((year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </Card>
+
+                <KnowledgeChart
+                  data={data}
+                  selectedYear={selectedYear}
+                  country={selectedCountry}
+                  selectedTerms={selectedTerms}
+                />
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="trends" className="mt-0">
+            {isLoading ? (
+              <LoadingState />
+            ) : selectedTerms.length === 0 ? (
+              <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+                <div className="text-center py-10 text-gray-500">
+                  Please select at least one term from the sidebar to view trends over time.
+                </div>
+              </Card>
+            ) : (
               <KnowledgeTrendChart
-                data={knowledgeData}
+                data={data}
                 selectedTerms={selectedTerms}
                 country={selectedCountry}
               />
-            </TabsContent>
-          </div>
-        </div>
-      </Tabs>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };
