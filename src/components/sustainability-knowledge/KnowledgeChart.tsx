@@ -65,7 +65,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     return `rgba(52, 80, 43, ${shade / 100})`;
   });
 
-  // Chart options for horizontal bar chart
+  // Chart options for horizontal bar chart - corrected axis configuration
   const options: Highcharts.Options = {
     chart: {
       type: 'bar',
@@ -78,6 +78,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
       style: { color: '#34502b', fontFamily: FONT_FAMILY }
     },
     xAxis: {
+      // This is actually the horizontal axis (for percentages)
       title: {
         text: 'Percentage',
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
@@ -88,6 +89,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
       }
     },
     yAxis: {
+      // This is actually the vertical axis (for terms)
       categories: terms,
       title: {
         text: 'Sustainability Terms',
@@ -106,7 +108,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{point.x:.0f}%', // Changed from .1f to .0f to remove decimal
+          format: '{point.x:.0f}%', // Whole numbers without decimals
           style: {
             fontWeight: 'normal',
             color: '#34502b',
@@ -123,7 +125,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     series: [{
       name: 'Knowledge Level',
       type: 'bar',
-      data: percentages.map(value => Math.round(value * 100)), // Round to whole number and convert decimal to percentage
+      data: percentages.map(value => Math.round(value * 100)), // Round to whole number
       color: '#34502b'
     }],
     credits: {
