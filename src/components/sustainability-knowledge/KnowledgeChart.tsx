@@ -5,7 +5,7 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import { getFullCountryName } from '@/components/CountrySelect';
-import { formatPercentage } from '@/utils/formatting';
+import { formatPercentage, roundPercentage } from '@/utils/formatting';
 import { FONT_FAMILY } from '@/utils/constants';
 
 interface KnowledgeChartProps {
@@ -99,14 +99,14 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     },
     tooltip: {
       formatter: function() {
-        return `<b>${this.y}</b><br/>${formatPercentage(this.x, false)}`;
+        return `<b>${this.y}</b><br/>${roundPercentage(this.x, false)}%`;
       }
     },
     plotOptions: {
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{point.x:.1f}%',
+          format: '{point.x:.0f}%', // Changed from .1f to .0f to remove decimal
           style: {
             fontWeight: 'normal',
             color: '#34502b',
@@ -123,7 +123,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     series: [{
       name: 'Knowledge Level',
       type: 'bar',
-      data: percentages.map(value => value * 100), // Convert decimal to percentage
+      data: percentages.map(value => Math.round(value * 100)), // Round to whole number and convert decimal to percentage
       color: '#34502b'
     }],
     credits: {

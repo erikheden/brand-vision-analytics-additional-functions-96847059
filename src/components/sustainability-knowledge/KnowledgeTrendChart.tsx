@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import { getFullCountryName } from '@/components/CountrySelect';
-import { formatPercentage } from '@/utils/formatting';
+import { formatPercentage, roundPercentage } from '@/utils/formatting';
 
 interface KnowledgeTrendChartProps {
   data: KnowledgeData[];
@@ -83,8 +83,8 @@ const KnowledgeTrendChart: React.FC<KnowledgeTrendChartProps> = ({
             <Tooltip 
               formatter={(value: number | null | undefined, name: string) => {
                 if (value === null || value === undefined) return ['N/A', name];
-                // Assuming percentage is stored as decimal (0-1)
-                return [formatPercentage(value, true), name];
+                // Round to whole number and return without decimal places
+                return [`${roundPercentage(value, true)}%`, name];
               }}
               labelFormatter={(year) => `Year: ${year}`}
             />
