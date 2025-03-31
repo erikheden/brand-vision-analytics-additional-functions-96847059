@@ -964,18 +964,21 @@ export type Database = {
           country: string | null
           discussion_topic: string | null
           percentage: number | null
+          row_id: number
           year: number | null
         }
         Insert: {
           country?: string | null
           discussion_topic?: string | null
           percentage?: number | null
+          row_id?: number
           year?: number | null
         }
         Update: {
           country?: string | null
           discussion_topic?: string | null
           percentage?: number | null
+          row_id?: number
           year?: number | null
         }
         Relationships: []
@@ -1012,18 +1015,21 @@ export type Database = {
           country: string | null
           medium: string | null
           percentage: number | null
+          row_id: number
           year: number | null
         }
         Insert: {
           country?: string | null
           medium?: string | null
           percentage?: number | null
+          row_id?: number
           year?: number | null
         }
         Update: {
           country?: string | null
           medium?: string | null
           percentage?: number | null
+          row_id?: number
           year?: number | null
         }
         Relationships: []
@@ -1032,18 +1038,21 @@ export type Database = {
         Row: {
           country: string | null
           percentage: number | null
+          row_id: number
           term: string | null
           year: number | null
         }
         Insert: {
           country?: string | null
           percentage?: number | null
+          row_id?: number
           term?: string | null
           year?: number | null
         }
         Update: {
           country?: string | null
           percentage?: number | null
+          row_id?: number
           term?: string | null
           year?: number | null
         }
@@ -1055,6 +1064,7 @@ export type Database = {
           country: string | null
           impact_level: string | null
           percentage: number | null
+          row_id: number
           year: number | null
         }
         Insert: {
@@ -1062,6 +1072,7 @@ export type Database = {
           country?: string | null
           impact_level?: string | null
           percentage?: number | null
+          row_id?: number
           year?: number | null
         }
         Update: {
@@ -1069,6 +1080,7 @@ export type Database = {
           country?: string | null
           impact_level?: string | null
           percentage?: number | null
+          row_id?: number
           year?: number | null
         }
         Relationships: []

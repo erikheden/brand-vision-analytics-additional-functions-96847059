@@ -2,34 +2,36 @@
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import SingleCountryView from "./SingleCountryView";
-import CountryComparisonPanel from "./CountryComparisonPanel";
+import PrioritiesView from "./PrioritiesView";
+import TrendsView from "./TrendsView";
 import { useGeneralMaterialityData } from "@/hooks/useGeneralMaterialityData";
 import { useSelectionData } from "@/hooks/useSelectionData";
+import CountryMultiSelect from "@/components/CountryMultiSelect";
 
 const MainContent = () => {
-  const [activeView, setActiveView] = useState<string>("single");
-  const [selectedCountry, setSelectedCountry] = useState<string>("SE");
+  const [activeView, setActiveView] = useState<string>("priorities");
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number>(2023);
-  
-  // Get the data for the selected country
-  const { 
-    data: materialityData, 
-    isLoading, 
-    error
-  } = useGeneralMaterialityData(selectedCountry);
   
   // Get available countries
   const { countries } = useSelectionData("", []);
   
-  // Extract unique years and areas from data
+  // Get the data for all selected countries
+  const { 
+    data: materialityData, 
+    isLoading, 
+    error
+  } = useGeneralMaterialityData(selectedCountries[0] || "");
+  
+  // Extract unique years from data
   const years = React.useMemo(() => {
     if (!materialityData || materialityData.length === 0) return [2023, 2024];
     const yearsSet = new Set(materialityData.map(item => item.year));
     return Array.from(yearsSet).sort((a, b) => a - b);
   }, [materialityData]);
   
+  // Extract areas from data
   const areas = React.useMemo(() => {
     if (!materialityData || materialityData.length === 0) return [];
     const areasSet = new Set(materialityData.map(item => item.materiality_area));
@@ -50,52 +52,71 @@ const MainContent = () => {
           Sustainability Priorities
         </h1>
 
+        <div className="mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-3">
+              <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+                <div className="space-y-4">
+                  <h2 className="text-lg font-semibold text-[#34502b]">Select Countries</h2>
+                  <p className="text-gray-600 text-sm">
+                    Select one or more countries to view and compare sustainability priorities.
+                  </p>
+                  <CountryMultiSelect
+                    countries={countries || []}
+                    selectedCountries={selectedCountries}
+                    setSelectedCountries={setSelectedCountries}
+                  />
+                </div>
+              </Card>
+            </div>
+          </div>
+        </div>
+
         <Tabs 
           value={activeView} 
           onValueChange={setActiveView}
           className="w-full"
         >
           <TabsList className="bg-[#34502b]/10 mx-auto md:mx-0">
-            <TabsTrigger value="single" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-              Single Country
+            <TabsTrigger value="priorities" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+              Priorities
             </TabsTrigger>
-            <TabsTrigger value="comparison" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-              Country Comparison
+            <TabsTrigger value="trends" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+              Trends
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="single" className="space-y-6 pt-4">
+          <TabsContent value="priorities" className="space-y-6 pt-4">
             <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
               <p className="text-gray-600">
-                Analyze sustainability priorities for a single country. Select different years or specific priority areas to see how they compare.
+                View and compare sustainability priorities across selected countries for specific years.
               </p>
             </Card>
             
-            <SingleCountryView 
-              selectedCountry={selectedCountry}
-              setSelectedCountry={setSelectedCountry}
-              materialityData={materialityData || []}
-              isLoading={isLoading}
-              error={error}
+            <PrioritiesView 
+              selectedCountries={selectedCountries}
               years={years}
               selectedYear={selectedYear}
               setSelectedYear={setSelectedYear}
-              areas={areas}
-              selectedAreas={selectedAreas}
-              setSelectedAreas={setSelectedAreas}
-              countries={countries || []}
+              isLoading={isLoading}
+              error={error}
             />
           </TabsContent>
 
-          <TabsContent value="comparison" className="space-y-6 pt-4">
+          <TabsContent value="trends" className="space-y-6 pt-4">
             <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
               <p className="text-gray-600">
-                Compare sustainability priorities across multiple countries. Select different countries and priority areas to see how they compare.
+                Analyze trends in sustainability priorities over time for selected countries and areas.
               </p>
             </Card>
             
-            <CountryComparisonPanel 
-              availableCountries={countries || []}
+            <TrendsView 
+              selectedCountries={selectedCountries}
+              areas={areas}
+              selectedAreas={selectedAreas}
+              setSelectedAreas={setSelectedAreas}
+              isLoading={isLoading}
+              error={error}
             />
           </TabsContent>
         </Tabs>
