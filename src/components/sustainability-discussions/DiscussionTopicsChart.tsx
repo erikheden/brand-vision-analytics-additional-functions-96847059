@@ -70,8 +70,10 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     },
     tooltip: {
       formatter: function() {
-        // Access the category name and y value directly from the context
-        const topicName = this.series.yAxis.categories?.[this.point.y as number] || '';
+        // TypeScript-friendly way to access tooltip data
+        const index = this.point ? this.point.index : undefined;
+        const topicName = index !== undefined && this.series.yAxis.categories ? 
+          this.series.yAxis.categories[index] : 'Unknown';
         return `<b>${topicName}</b><br/>${formatPercentage(this.y as number, false)}`;
       }
     },
