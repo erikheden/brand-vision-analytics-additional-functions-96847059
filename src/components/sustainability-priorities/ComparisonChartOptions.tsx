@@ -58,18 +58,14 @@ const ComparisonChartOptions = ({
     },
     tooltip: {
       formatter: function() {
-        const roundedValue = roundPercentage(this.y);
-        return `<b>${this.series.name}</b><br/>${this.x}: ${roundedValue}%`;
+        return `<b>${this.series.name}</b><br/>${this.x}: ${Math.round(this.y)}%`;
       }
     },
     plotOptions: {
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{y}%',
-          formatter: function() {
-            return roundPercentage(this.y) + '%';
-          },
+          format: '{y:.0f}%', // Ensure whole numbers with no decimals
           style: {
             fontWeight: 'normal',
             color: '#34502b',
