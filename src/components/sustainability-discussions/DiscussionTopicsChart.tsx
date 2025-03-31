@@ -71,9 +71,10 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     tooltip: {
       formatter: function() {
         // TypeScript-friendly way to access tooltip data
-        const index = this.point ? this.point.index : undefined;
-        const topicName = index !== undefined && this.series.yAxis.categories ? 
-          this.series.yAxis.categories[index] : 'Unknown';
+        const seriesIndex = this.series ? this.series.index : 0;
+        const pointIndex = this.point ? this.point.index : undefined;
+        const topicName = pointIndex !== undefined && this.series?.yAxis?.categories ? 
+          this.series.yAxis.categories[pointIndex] : 'Unknown';
         return `<b>${topicName}</b><br/>${formatPercentage(this.y as number, false)}`;
       }
     },
