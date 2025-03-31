@@ -4,6 +4,8 @@ import { InfluenceData } from '@/hooks/useSustainabilityInfluences';
 import { Card } from '@/components/ui/card';
 import InfluencesBarChart from './InfluencesBarChart';
 import InfluencesTrendChart from './InfluencesTrendChart';
+import YearSelector from './YearSelector';
+import InfluenceSelector from './InfluenceSelector';
 
 interface TabViewProps {
   activeTab: string;
@@ -11,6 +13,10 @@ interface TabViewProps {
   selectedYear: number;
   selectedInfluences: string[];
   influencesData: InfluenceData[];
+  years?: number[];
+  setSelectedYear?: (year: number) => void;
+  influences?: string[];
+  setSelectedInfluences?: (influences: string[]) => void;
 }
 
 const TabView: React.FC<TabViewProps> = ({
@@ -18,7 +24,11 @@ const TabView: React.FC<TabViewProps> = ({
   selectedCountry,
   selectedYear,
   selectedInfluences,
-  influencesData
+  influencesData,
+  years,
+  setSelectedYear,
+  influences,
+  setSelectedInfluences
 }) => {
   if (!selectedCountry) {
     return (
@@ -31,21 +41,39 @@ const TabView: React.FC<TabViewProps> = ({
   }
 
   return (
-    <>
-      {activeTab === "yearly" ? (
-        <InfluencesBarChart
-          data={influencesData}
-          selectedYear={selectedYear}
-          country={selectedCountry}
-        />
-      ) : (
-        <InfluencesTrendChart
-          data={influencesData}
-          selectedInfluences={selectedInfluences}
-          country={selectedCountry}
-        />
-      )}
-    </>
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="md:col-span-1">
+        {activeTab === "yearly" && years && setSelectedYear ? (
+          <YearSelector
+            years={years}
+            selectedYear={selectedYear}
+            onChange={setSelectedYear}
+          />
+        ) : activeTab === "trends" && influences && setSelectedInfluences ? (
+          <InfluenceSelector
+            influences={influences}
+            selectedInfluences={selectedInfluences}
+            onChange={setSelectedInfluences}
+          />
+        ) : null}
+      </div>
+      
+      <div className="md:col-span-3">
+        {activeTab === "yearly" ? (
+          <InfluencesBarChart
+            data={influencesData}
+            selectedYear={selectedYear}
+            country={selectedCountry}
+          />
+        ) : (
+          <InfluencesTrendChart
+            data={influencesData}
+            selectedInfluences={selectedInfluences}
+            country={selectedCountry}
+          />
+        )}
+      </div>
+    </div>
   );
 };
 
