@@ -70,19 +70,15 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     },
     tooltip: {
       formatter: function() {
-        // Fixed TypeScript-friendly way to access tooltip data
-        const seriesIndex = this.series ? this.series.index : 0;
-        
-        // Safely access the point index
+        // Safely access tooltip data
         let topicName = 'Unknown';
         
-        // Check if we have access to categories through yAxis
+        // Check if we have access to point data through this.key (which is the point index)
         if (this.series && this.series.yAxis && this.series.yAxis.categories) {
-          // Get the topic name from categories if possible
           const categories = this.series.yAxis.categories;
-          const pointIndex = this.point ? (this.point as any).index : undefined;
+          const pointIndex = typeof this.key !== 'undefined' ? Number(this.key) : undefined;
           
-          if (pointIndex !== undefined && categories[pointIndex]) {
+          if (pointIndex !== undefined && !isNaN(pointIndex) && categories[pointIndex]) {
             topicName = categories[pointIndex];
           }
         }
