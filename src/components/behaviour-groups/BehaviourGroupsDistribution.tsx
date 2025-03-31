@@ -10,11 +10,12 @@ interface BehaviourGroupsDistributionProps {
   selectedCountry: string;
 }
 
+// Updated colors based on the provided image
 const COLORS = {
-  "Ego": "#FF8042",
-  "Moderate": "#FFBB28",
-  "Smart": "#00C49F",
-  "Dedicated": "#0088FE"
+  "Ego": "#E8A27C", // Orange
+  "Moderate": "#8BA86B", // Green
+  "Smart": "#A67A54", // Brown
+  "Dedicated": "#78BBC7" // Blue
 };
 
 const BehaviourGroupsDistribution = ({ selectedCountry }: BehaviourGroupsDistributionProps) => {
@@ -101,7 +102,7 @@ const BehaviourGroupsDistribution = ({ selectedCountry }: BehaviourGroupsDistrib
               outerRadius={120}
               fill="#8884d8"
               dataKey="value"
-              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
             >
               {pieData.map((entry, index) => (
                 <Cell 
@@ -110,7 +111,7 @@ const BehaviourGroupsDistribution = ({ selectedCountry }: BehaviourGroupsDistrib
                 />
               ))}
             </Pie>
-            <Tooltip formatter={(value: number) => [`${(value * 100).toFixed(1)}%`]} />
+            <Tooltip formatter={(value: number) => [`${(value * 100).toFixed(0)}%`]} />
             <Legend />
           </PieChart>
         </ResponsiveContainer>

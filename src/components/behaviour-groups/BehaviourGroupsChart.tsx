@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { useBehaviourGroups } from "@/hooks/useBehaviourGroups";
@@ -9,13 +8,14 @@ interface BehaviourGroupsChartProps {
   viewType: "comparison" | "trend";
 }
 
-const COLORS = ["#FF8042", "#FFBB28", "#00C49F", "#0088FE"];
 const GROUP_COLORS = {
-  "Ego": "#FF8042",
-  "Moderate": "#FFBB28",
-  "Smart": "#00C49F",
-  "Dedicated": "#0088FE"
+  "Ego": "#E8A27C",
+  "Moderate": "#8BA86B",
+  "Smart": "#A67A54",
+  "Dedicated": "#78BBC7"
 };
+
+const COLORS = Object.values(GROUP_COLORS);
 
 const BehaviourGroupsChart = ({ selectedCountry, viewType }: BehaviourGroupsChartProps) => {
   const { data: behaviourData = [], isLoading } = useBehaviourGroups(viewType === "trend" ? selectedCountry : undefined);
@@ -41,7 +41,6 @@ const BehaviourGroupsChart = ({ selectedCountry, viewType }: BehaviourGroupsChar
   }
 
   if (viewType === "trend") {
-    // Prepare data for trend view - group by year and behaviour group
     const years = [...new Set(behaviourData.map(item => item.year))].sort();
     
     const trendData = years.map(year => {
@@ -71,7 +70,7 @@ const BehaviourGroupsChart = ({ selectedCountry, viewType }: BehaviourGroupsChar
               <XAxis dataKey="year" />
               <YAxis tickFormatter={(tick) => `${(tick * 100).toFixed(0)}%`} />
               <Tooltip 
-                formatter={(value: number) => [`${(value * 100).toFixed(1)}%`]}
+                formatter={(value: number) => [`${(value * 100).toFixed(0)}%`]}
                 labelFormatter={(label) => `Year: ${label}`}
               />
               <Legend />
@@ -84,7 +83,6 @@ const BehaviourGroupsChart = ({ selectedCountry, viewType }: BehaviourGroupsChar
       </Card>
     );
   } else {
-    // Comparison view - group by country and show latest year for each country
     const countryGroups = [...new Set(behaviourData.map(item => item.country))];
     
     const latestYearData = countryGroups.map(country => {
@@ -93,7 +91,6 @@ const BehaviourGroupsChart = ({ selectedCountry, viewType }: BehaviourGroupsChar
       return countryData.filter(item => item.year === latestYear);
     }).flat();
 
-    // Restructure data for the chart
     const comparisonData = countryGroups.map(country => {
       const countryData = latestYearData.filter(item => item.country === country);
       const result: { [key: string]: any } = { country };
@@ -102,7 +99,6 @@ const BehaviourGroupsChart = ({ selectedCountry, viewType }: BehaviourGroupsChar
         result[item.behaviour_group] = item.percentage;
       });
       
-      // Add a total field set to 1 to ensure bars always go to 100%
       result.total = 1;
       
       return result;
@@ -125,7 +121,7 @@ const BehaviourGroupsChart = ({ selectedCountry, viewType }: BehaviourGroupsChar
               <XAxis type="number" tickFormatter={(tick) => `${(tick * 100).toFixed(0)}%`} />
               <YAxis type="category" dataKey="country" />
               <Tooltip 
-                formatter={(value: number) => [`${(value * 100).toFixed(1)}%`]}
+                formatter={(value: number) => [`${(value * 100).toFixed(0)}%`]}
                 labelFormatter={(label) => `Country: ${label}`}
               />
               <Legend />
