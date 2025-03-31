@@ -20,46 +20,105 @@ const MainContent = () => {
   
   console.log("MainContent rendered with selectedCountries:", selectedCountries);
   
-  // Get the data for the first selected country
-  const { 
-    data: influencesData = [], 
-    years = [],
-    influences = [],
-    isLoading, 
-    error 
-  } = useSustainabilityInfluences(selectedCountries[0] || "");
+  // Fetch data for all selected countries
+  const [countriesData, setCountriesData] = useState<Record<string, any>>({});
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [allYears, setAllYears] = useState<number[]>([]);
+  const [allInfluences, setAllInfluences] = useState<string[]>([]);
   
-  console.log("MainContent received data:", {
-    dataCount: influencesData.length,
-    yearsCount: years.length,
-    influencesCount: influences.length,
-    isLoading,
-    hasError: !!error
-  });
+  // Fetch data for each selected country
+  useEffect(() => {
+    const fetchAllCountriesData = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const dataPromises = selectedCountries.map(country => {
+          // For each country, get its data
+          const { data, years, influences, error } = useSustainabilityInfluences(country);
+          
+          if (error) {
+            throw error;
+          }
+          
+          return { country, data, years, influences };
+        });
+        
+        // Wait for all country data to load
+        const results = await Promise.all(dataPromises);
+        
+        // Combine the data
+        const combinedData: Record<string, any> = {};
+        let combinedYears: number[] = [];
+        let combinedInfluences: string[] = [];
+        
+        results.forEach(result => {
+          combinedData[result.country] = result.data;
+          combinedYears = [...combinedYears, ...(result.years || [])];
+          combinedInfluences = [...combinedInfluences, ...(result.influences || [])];
+        });
+        
+        // Remove duplicates and sort
+        const uniqueYears = [...new Set(combinedYears)].sort((a, b) => a - b);
+        const uniqueInfluences = [...new Set(combinedInfluences)].sort();
+        
+        setCountriesData(combinedData);
+        setAllYears(uniqueYears);
+        setAllInfluences(uniqueInfluences);
+        setIsLoading(false);
+      } catch (err) {
+        console.error("Error fetching countries data:", err);
+        setError(err as Error);
+        setIsLoading(false);
+        
+        toast({
+          title: "Error",
+          description: "Failed to load influences data for one or more countries",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    fetchAllCountriesData();
+  }, [selectedCountries, toast]);
+  
+  // Use the data from the first country to initialize
+  const firstCountryData = useSustainabilityInfluences(selectedCountries[0] || "");
   
   // Set default selected year to the most recent one
   const [selectedYear, setSelectedYear] = useState<number>(
-    years.length > 0 ? Math.max(...years) : new Date().getFullYear()
+    allYears.length > 0 ? Math.max(...allYears) : 
+    firstCountryData.years.length > 0 ? Math.max(...firstCountryData.years) : 
+    new Date().getFullYear()
   );
   
   // Update selected year when years data changes
   useEffect(() => {
-    if (years.length > 0) {
-      const maxYear = Math.max(...years);
+    if (allYears.length > 0) {
+      const maxYear = Math.max(...allYears);
       console.log(`Setting selectedYear to max year: ${maxYear}`);
       setSelectedYear(maxYear);
+    } else if (firstCountryData.years.length > 0) {
+      const maxYear = Math.max(...firstCountryData.years);
+      console.log(`Setting selectedYear to max year from first country: ${maxYear}`);
+      setSelectedYear(maxYear);
     }
-  }, [years]);
+  }, [allYears, firstCountryData.years]);
   
   // Initialize selected influences when influences data changes
   useEffect(() => {
-    if (influences.length > 0 && selectedInfluences.length === 0) {
+    if (allInfluences.length > 0 && selectedInfluences.length === 0) {
       // Select a default of first 3 influences or all if less than 3
-      const defaultSelection = influences.slice(0, Math.min(3, influences.length));
+      const defaultSelection = allInfluences.slice(0, Math.min(3, allInfluences.length));
       console.log("Initial influences selection:", defaultSelection);
       setSelectedInfluences(defaultSelection);
+    } else if (firstCountryData.influences.length > 0 && selectedInfluences.length === 0) {
+      const defaultSelection = firstCountryData.influences.slice(0, Math.min(3, firstCountryData.influences.length));
+      console.log("Initial influences selection from first country:", defaultSelection);
+      setSelectedInfluences(defaultSelection);
     }
-  }, [influences, selectedInfluences.length]);
+  }, [allInfluences, firstCountryData.influences, selectedInfluences.length]);
   
   const handleCountryChange = (countries: string[]) => {
     console.log("Countries selected:", countries);
@@ -73,19 +132,28 @@ const MainContent = () => {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || firstCountryData.isLoading) {
     console.log("Rendering loading state");
     return <LoadingState />;
   }
 
-  if (error) {
-    console.log("Rendering error state:", error);
+  if (error || firstCountryData.error) {
+    console.log("Rendering error state:", error || firstCountryData.error);
     return <ErrorState />;
   }
 
   console.log("Rendering main content with selected year:", selectedYear);
   console.log("Active tab:", activeTab);
   console.log("Currently selected influences:", selectedInfluences);
+
+  // Merge data from all selected countries
+  const combinedData = countriesData;
+  if (Object.keys(combinedData).length === 0 && selectedCountries.length > 0) {
+    combinedData[selectedCountries[0]] = firstCountryData.data;
+  }
+
+  const years = allYears.length > 0 ? allYears : firstCountryData.years;
+  const influences = allInfluences.length > 0 ? allInfluences : firstCountryData.influences;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -137,10 +205,10 @@ const MainContent = () => {
             
             <TabView
               activeTab="yearly"
-              selectedCountry={selectedCountries[0]}
+              selectedCountries={selectedCountries}
               selectedYear={selectedYear}
               selectedInfluences={selectedInfluences}
-              influencesData={influencesData}
+              influencesData={combinedData}
               years={years}
               setSelectedYear={setSelectedYear}
             />
@@ -155,10 +223,10 @@ const MainContent = () => {
             
             <TabView
               activeTab="trends"
-              selectedCountry={selectedCountries[0]}
+              selectedCountries={selectedCountries}
               selectedYear={selectedYear}
               selectedInfluences={selectedInfluences}
-              influencesData={influencesData}
+              influencesData={combinedData}
               influences={influences}
               setSelectedInfluences={setSelectedInfluences}
             />

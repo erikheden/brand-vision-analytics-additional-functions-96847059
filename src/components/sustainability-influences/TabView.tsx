@@ -9,10 +9,10 @@ import InfluenceSelector from './InfluenceSelector';
 
 interface TabViewProps {
   activeTab: string;
-  selectedCountry: string;
+  selectedCountries: string[];
   selectedYear: number;
   selectedInfluences: string[];
-  influencesData: InfluenceData[];
+  influencesData: Record<string, InfluenceData[]>;
   years?: number[];
   setSelectedYear?: (year: number) => void;
   influences?: string[];
@@ -21,7 +21,7 @@ interface TabViewProps {
 
 const TabView: React.FC<TabViewProps> = ({
   activeTab,
-  selectedCountry,
+  selectedCountries,
   selectedYear,
   selectedInfluences,
   influencesData,
@@ -30,11 +30,11 @@ const TabView: React.FC<TabViewProps> = ({
   influences,
   setSelectedInfluences
 }) => {
-  if (!selectedCountry) {
+  if (selectedCountries.length === 0) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="text-center py-10 text-gray-500">
-          Please select a country to view sustainability influences data.
+          Please select at least one country to view sustainability influences data.
         </div>
       </Card>
     );
@@ -63,13 +63,13 @@ const TabView: React.FC<TabViewProps> = ({
           <InfluencesBarChart
             data={influencesData}
             selectedYear={selectedYear}
-            country={selectedCountry}
+            countries={selectedCountries}
           />
         ) : (
           <InfluencesTrendChart
             data={influencesData}
             selectedInfluences={selectedInfluences}
-            country={selectedCountry}
+            countries={selectedCountries}
           />
         )}
       </div>
