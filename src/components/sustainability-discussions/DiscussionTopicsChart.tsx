@@ -69,10 +69,10 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
       }
     },
     tooltip: {
-      formatter: function(this: Highcharts.TooltipFormatterContextObject) {
+      formatter: function() {
         // TypeScript-friendly way to access tooltip data
         const seriesIndex = this.series ? this.series.index : 0;
-        const pointIndex = this.point?.index;
+        const pointIndex = typeof this.point === 'object' && this.point ? this.point.index : undefined;
         const topicName = pointIndex !== undefined && this.series?.yAxis?.categories ? 
           this.series.yAxis.categories[pointIndex] : 'Unknown';
         return `<b>${topicName}</b><br/>${formatPercentage(this.y as number, false)}`;
