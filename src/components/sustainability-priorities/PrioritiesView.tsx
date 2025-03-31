@@ -45,13 +45,7 @@ const PrioritiesView: React.FC<PrioritiesViewProps> = ({
         </div> : null}
 
       {selectedCountries.length > 0 && !isLoading && !isLoadingMulti && Object.keys(allCountriesData).length > 0 ? <div className="space-y-6">
-          {isPlaceholderData && <Alert>
-              <Info className="h-4 w-4" />
-              <AlertTitle>Using Sample Data</AlertTitle>
-              <AlertDescription>
-                No actual data was found for some countries. Sample data is being displayed for demonstration purposes.
-              </AlertDescription>
-            </Alert>}
+          {isPlaceholderData}
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-1">
