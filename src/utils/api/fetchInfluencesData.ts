@@ -1,21 +1,13 @@
 
 import { InfluenceData } from '@/hooks/useSustainabilityInfluences';
+import { getInfluencesData, InfluencesResponse } from './getInfluencesData';
 
-export interface InfluencesApiResponse {
-  data: InfluenceData[];
-  years: number[];
-  influences: string[];
-}
+export { InfluencesResponse };
 
-export const fetchInfluencesData = async (country: string): Promise<InfluencesApiResponse> => {
+export const fetchInfluencesData = async (country: string): Promise<InfluencesResponse> => {
   try {
-    const response = await fetch(`/api/influences?country=${country}`);
-    
-    if (!response.ok) {
-      throw new Error(`Error fetching data for ${country}: ${response.statusText}`);
-    }
-    
-    return await response.json();
+    // Use our utility function directly instead of an API call
+    return await getInfluencesData(country);
   } catch (error) {
     console.error(`Failed to fetch influences data for ${country}:`, error);
     // Return empty data structure on error

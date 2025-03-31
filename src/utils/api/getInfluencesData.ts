@@ -1,5 +1,4 @@
 
-import { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '@/integrations/supabase/client';
 import { InfluenceData } from '@/hooks/useSustainabilityInfluences';
 
@@ -52,17 +51,13 @@ const sampleData: Record<string, InfluenceData[]> = {
   }));
 });
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
+export interface InfluencesResponse {
+  data: InfluenceData[];
+  years: number[];
+  influences: string[];
+}
 
-  const { country } = req.query;
-  
-  if (!country || typeof country !== 'string') {
-    return res.status(400).json({ message: 'Country parameter is required' });
-  }
-  
+export const getInfluencesData = async (country: string): Promise<InfluencesResponse> => {  
   try {
     // Convert country code to uppercase for consistency
     const countryCode = country.toUpperCase();
@@ -95,22 +90,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const years = [...new Set(fallbackData.map(item => item.year))].sort((a, b) => a - b);
       const influences = [...new Set(fallbackData.map(item => item.english_label_short))].sort();
       
-      return res.status(200).json({ 
+      return { 
         data: fallbackData,
         years,
         influences
-      });
+      };
     }
     
     // Extract years and influences
     const years = [...new Set(mappedData.map(item => item.year))].sort((a, b) => a - b);
     const influences = [...new Set(mappedData.map(item => item.english_label_short))].sort();
     
-    return res.status(200).json({ 
+    return { 
       data: mappedData,
       years,
       influences
-    });
+    };
   } catch (error) {
     console.error('Exception in influences API:', error);
     
@@ -119,10 +114,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const years = [...new Set(fallbackData.map(item => item.year))].sort((a, b) => a - b);
     const influences = [...new Set(fallbackData.map(item => item.english_label_short))].sort();
     
-    return res.status(200).json({ 
+    return { 
       data: fallbackData,
       years,
       influences
-    });
+    };
   }
-}
+};

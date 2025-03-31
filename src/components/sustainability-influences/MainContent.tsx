@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useSustainabilityInfluences } from '@/hooks/useSustainabilityInfluences';
@@ -8,6 +7,7 @@ import LoadingState from './LoadingState';
 import ErrorState from './ErrorState';
 import TabView from './TabView';
 import CountryMultiSelect from '@/components/CountryMultiSelect';
+import { fetchInfluencesData } from '@/utils/api/fetchInfluencesData';
 
 const MainContent = () => {
   const { toast } = useToast();
@@ -50,34 +50,17 @@ const MainContent = () => {
         
         // Fetch data for each country sequentially
         for (const country of selectedCountries) {
-          // Use the hook in a React-safe way by calling it at the component level
-          // and accessing its result here, not calling the hook inside this effect
-          const result = await fetch(`/api/influences?country=${country}`)
-            .catch(() => {
-              // If API fetch fails, use the hook data if this is the first country
-              if (country === selectedCountries[0]) {
-                return {
-                  ok: true,
-                  json: async () => ({
-                    data: firstCountryData,
-                    years: firstCountryYears,
-                    influences: firstCountryInfluences
-                  })
-                };
-              }
-              throw new Error(`Failed to load data for ${country}`);
-            });
+          try {
+            const result = await fetchInfluencesData(country);
             
-          if (!result.ok) {
-            throw new Error(`Failed to load data for ${country}`);
+            // Store the data
+            newCombinedData[country] = result.data;
+            newCombinedYears = [...newCombinedYears, ...(result.years || [])];
+            newCombinedInfluences = [...newCombinedInfluences, ...(result.influences || [])];
+          } catch (err) {
+            console.error(`Error fetching data for ${country}:`, err);
+            // Continue with other countries even if one fails
           }
-            
-          const { data, years, influences } = await result.json();
-          
-          // Store the data
-          newCombinedData[country] = data;
-          newCombinedYears = [...newCombinedYears, ...(years || [])];
-          newCombinedInfluences = [...newCombinedInfluences, ...(influences || [])];
         }
         
         // Remove duplicates and sort
@@ -116,7 +99,7 @@ const MainContent = () => {
     };
     
     fetchAllCountriesData();
-  }, [selectedCountries, firstCountryData, firstCountryYears, firstCountryInfluences, toast]);
+  }, [selectedCountries, selectedYear, selectedInfluences, toast]);
   
   // Update the hook without breaking React rules
   useEffect(() => {
@@ -139,7 +122,7 @@ const MainContent = () => {
         }
       }
     }
-  }, [firstCountryData, firstCountryYears, firstCountryInfluences, selectedCountries]);
+  }, [firstCountryData, firstCountryYears, firstCountryInfluences, selectedCountries, selectedYear, selectedInfluences]);
 
   const handleCountryChange = (countries: string[]) => {
     console.log("Countries selected:", countries);
