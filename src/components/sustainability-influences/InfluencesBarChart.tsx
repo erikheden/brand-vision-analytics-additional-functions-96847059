@@ -27,7 +27,7 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
   // Process chart data with proper type annotations
   const chartData = useMemo(() => {
     if (!data || Object.keys(data).length === 0 || countries.length === 0) {
-      return [] as string[] | ChartDataItem[];
+      return [] as (string[] | ChartDataItem[]);
     }
 
     // Get all unique influence types across all countries
@@ -66,10 +66,20 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
     if (countries.length !== 1) return null;
     
     // Type guard to ensure chartData is ChartDataItem[]
-    if (!Array.isArray(chartData) || chartData.length === 0 || !('percentage' in chartData[0])) {
+    if (!Array.isArray(chartData) || chartData.length === 0) {
       return null;
     }
     
+    // Additional type check to ensure we're dealing with ChartDataItem[]
+    const isChartDataItem = chartData.length > 0 && 
+      typeof chartData[0] === 'object' && 
+      'percentage' in (chartData[0] as object);
+      
+    if (!isChartDataItem) {
+      return null;
+    }
+    
+    const typedChartData = chartData as ChartDataItem[];
     const countryName = getFullCountryName(countries[0]);
     
     return {
@@ -89,7 +99,7 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
         }
       },
       xAxis: {
-        categories: chartData.map(item => item.name),
+        categories: typedChartData.map(item => item.name),
         labels: {
           style: {
             color: '#34502b',
@@ -130,9 +140,9 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
             }
           },
           colorByPoint: true,
-          colors: chartData.map((_, index) => {
+          colors: typedChartData.map((_, index) => {
             // Create a gradient from dark green to light green
-            const shade = 80 - index * (60 / Math.max(chartData.length, 1));
+            const shade = 80 - index * (60 / Math.max(typedChartData.length, 1));
             return `rgba(52, 80, 43, ${shade / 100})`;
           })
         }
@@ -140,7 +150,7 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
       series: [{
         name: 'Influence',
         type: 'bar',
-        data: chartData.map(item => Math.round(item.percentage * 100))
+        data: typedChartData.map(item => Math.round(item.percentage * 100))
       }],
       credits: {
         enabled: false
@@ -153,16 +163,24 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
     if (countries.length <= 1) return null;
     
     // Type guard to ensure chartData is string[]
-    if (!Array.isArray(chartData) || chartData.length === 0 || typeof chartData[0] !== 'string') {
+    if (!Array.isArray(chartData) || chartData.length === 0) {
       return null;
     }
+    
+    // Additional type check to ensure we're dealing with string[]
+    const isStringArray = chartData.length > 0 && typeof chartData[0] === 'string';
+    if (!isStringArray) {
+      return null;
+    }
+    
+    const typedChartData = chartData as string[];
     
     const series = countries.map(country => {
       const countryData = data[country] || [];
       const yearData = countryData.filter(item => item.year === selectedYear);
       
       // Map each influence to its percentage value
-      const seriesData = chartData.map(influence => {
+      const seriesData = typedChartData.map(influence => {
         const influenceData = yearData.find(item => item.english_label_short === influence);
         return influenceData ? Math.round(influenceData.percentage * 100) : 0;
       });
@@ -198,7 +216,7 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
         }
       },
       xAxis: {
-        categories: chartData,
+        categories: typedChartData,
         labels: {
           style: {
             color: '#34502b',
