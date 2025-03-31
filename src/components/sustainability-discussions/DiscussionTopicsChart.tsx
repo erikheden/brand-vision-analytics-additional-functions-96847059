@@ -67,7 +67,7 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     },
     tooltip: {
       formatter: function() {
-        return `<b>${this.y}</b><br/>${formatPercentage(this.x, false)}`;
+        return `<b>${this.y}</b><br/>${formatPercentage(this.x as number, false)}`;
       }
     },
     plotOptions: {
