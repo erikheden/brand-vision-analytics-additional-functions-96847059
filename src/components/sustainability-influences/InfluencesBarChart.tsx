@@ -14,15 +14,20 @@ interface InfluencesBarChartProps {
   countries: string[];
 }
 
+interface ChartDataItem {
+  name: string;
+  percentage: number;
+}
+
 const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
   data,
   selectedYear,
   countries
 }) => {
-  // Process chart data
+  // Process chart data with proper type annotations
   const chartData = useMemo(() => {
     if (!data || Object.keys(data).length === 0 || countries.length === 0) {
-      return [];
+      return [] as string[] | ChartDataItem[];
     }
 
     // Get all unique influence types across all countries
@@ -49,16 +54,21 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
         .map(item => ({
           name: item.english_label_short,
           percentage: item.percentage
-        }));
+        })) as ChartDataItem[];
     } else {
       // For multiple countries, return the influence types only
-      return influenceTypes;
+      return influenceTypes as string[];
     }
   }, [data, selectedYear, countries]);
 
   // Create options for single country chart
   const singleCountryOptions = useMemo(() => {
-    if (countries.length !== 1 || chartData.length === 0) return null;
+    if (countries.length !== 1) return null;
+    
+    // Type guard to ensure chartData is ChartDataItem[]
+    if (!Array.isArray(chartData) || chartData.length === 0 || !('percentage' in chartData[0])) {
+      return null;
+    }
     
     const countryName = getFullCountryName(countries[0]);
     
@@ -140,7 +150,12 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
 
   // Create options for multi-country chart
   const multiCountryOptions = useMemo(() => {
-    if (countries.length <= 1 || typeof chartData === 'object' || chartData.length === 0) return null;
+    if (countries.length <= 1) return null;
+    
+    // Type guard to ensure chartData is string[]
+    if (!Array.isArray(chartData) || chartData.length === 0 || typeof chartData[0] !== 'string') {
+      return null;
+    }
     
     const series = countries.map(country => {
       const countryData = data[country] || [];
