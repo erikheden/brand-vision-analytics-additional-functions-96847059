@@ -62,19 +62,24 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       },
       labels: {
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+        style: { color: '#34502b', fontFamily: FONT_FAMILY },
+        // Ensure labels are properly aligned and visible
+        align: 'right',
+        reserveSpace: true
       }
     },
     tooltip: {
       formatter: function() {
-        return `<b>${this.y}</b><br/>${formatPercentage(this.x as number, false)}`;
+        // Use topic name from categories and percentage value
+        const topicName = this.point.category;
+        return `<b>${topicName}</b><br/>${formatPercentage(this.point.y as number, false)}`;
       }
     },
     plotOptions: {
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{point.x:.1f}%',
+          format: '{point.y:.1f}%',
           style: {
             fontWeight: 'normal',
             color: '#34502b',
