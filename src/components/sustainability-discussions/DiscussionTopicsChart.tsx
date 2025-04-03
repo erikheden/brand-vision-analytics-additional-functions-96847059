@@ -69,9 +69,10 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
       }
     },
     tooltip: {
-      formatter: function() {
-        // Access category (topic name) from the current point's category
-        const topicName = this.series.yAxis.categories?.[this.point.y as number] || 'Unknown';
+      formatter: function(this: Highcharts.TooltipFormatterContextObject) {
+        // Access category (topic name) from the current point
+        const index = this.point?.index ?? 0;
+        const topicName = this.series?.yAxis?.categories?.[index] || 'Unknown';
         const percentage = this.y || 0;
         
         return `<b>${topicName}</b><br/>${percentage.toFixed(1)}%`;
