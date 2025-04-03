@@ -101,11 +101,12 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     },
     tooltip: {
       formatter: function() {
-        if (typeof this.point !== 'undefined') {
-          const termName = this.point.category || 'Unknown';
-          return `<b>${termName}</b><br/>${roundPercentage(this.point.y || 0, false)}%`;
-        }
-        return '';
+        // Use a safer approach accessing the term name and percentage
+        const index = typeof this.key === 'string' ? parseInt(this.key, 10) : -1;
+        const termName = !isNaN(index) && this.series?.yAxis?.categories?.[index] || 'Unknown';
+        const percentage = this.y !== undefined ? this.y : 0;
+        
+        return `<b>${termName}</b><br/>${roundPercentage(percentage, false)}%`;
       }
     },
     plotOptions: {
