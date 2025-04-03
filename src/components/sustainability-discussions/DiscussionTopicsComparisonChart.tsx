@@ -121,31 +121,9 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
     },
     tooltip: {
       formatter: function() {
-        // Fixed: Safely access category data
-        if (!this.series || !this.series.yAxis || !this.series.yAxis.categories) {
-          return 'No data available';
-        }
-        
-        // Instead of using this.point.index which doesn't exist, determine the index using this.y
-        let topicName = 'Unknown';
-        const categories = this.series.yAxis.categories;
-        
-        // In bar charts, the y value corresponds to the category index
-        if (this.series.yAxis && categories) {
-          // The point index should match the category index in horizontal bar charts
-          // We can use the key as a possible reference to the category index
-          const pointIndex = typeof this.x === 'number' ? Math.round(this.x) : -1;
-          
-          // Try to get the topic name from categories
-          if (pointIndex >= 0 && pointIndex < categories.length) {
-            topicName = String(categories[pointIndex]);
-          } else if (typeof this.key === 'string' && categories.includes(this.key)) {
-            // If we have a key that matches a category name, use it
-            topicName = this.key;
-          }
-        }
-        
-        const percentage = typeof this.y === 'number' ? this.y : 0;
+        // Get topic name directly from the category
+        const topicName = this.point.category || 'Unknown';
+        const percentage = this.point.y || 0;
         
         return `<b>${this.series.name}</b><br/>${topicName}: ${percentage.toFixed(1)}%`;
       }
@@ -154,7 +132,7 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{point.y:.1f}%',
+          format: '{y:.1f}%',
           style: {
             fontWeight: 'normal',
             color: '#34502b',

@@ -70,14 +70,11 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     },
     tooltip: {
       formatter: function() {
-        // Safely access topic and percentage
-        const index = this.series && this.series.yAxis?.categories ? 
-          this.series.yAxis.categories.indexOf(this.key as string) : -1;
-        const topicName = index >= 0 ? topics[index] : 
-          (typeof this.key === 'string' ? this.key : 'Unknown');
-        const percentage = typeof this.y === 'number' ? this.y : 0;
+        // Get the topic name directly from yAxis categories
+        const topicName = this.point.category || 'Unknown';
+        const percentage = this.point.y || 0;
         
-        return `<b>${topicName}</b><br/>${Math.round(percentage)}%`;
+        return `<b>${topicName}</b><br/>${percentage.toFixed(1)}%`;
       }
     },
     plotOptions: {
