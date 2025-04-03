@@ -71,8 +71,10 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     tooltip: {
       formatter: function() {
         // Safely access topic and percentage
-        const index = typeof this.point?.index !== 'undefined' ? this.point.index : -1;
-        const topicName = index >= 0 && topics[index] || 'Unknown';
+        const index = this.series && typeof this.series.yAxis?.categories !== 'undefined' ? 
+          topics.indexOf(String(this.series.yAxis.categories[this.point.y])) : -1;
+        const topicName = index >= 0 ? topics[index] : 
+          (typeof this.key === 'string' ? this.key : 'Unknown');
         const percentage = this.y !== undefined ? this.y : 0;
         
         return `<b>${topicName}</b><br/>${Math.round(percentage)}%`;

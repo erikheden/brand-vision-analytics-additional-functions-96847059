@@ -6,7 +6,6 @@ import { useToast } from "@/components/ui/use-toast";
 import CountrySelect from "@/components/CountrySelect";
 import YearSelector from "@/components/sustainability-priorities/YearSelector";
 import DiscussionTopicsChart from "./DiscussionTopicsChart";
-import DiscussionTopicsMap from "./DiscussionTopicsMap";
 import DiscussionTopicsComparison from "./DiscussionTopicsComparison";
 import { useDiscussionTopicsData, useAllDiscussionTopicsData } from "@/hooks/useDiscussionTopicsData";
 
@@ -14,7 +13,6 @@ const DiscussionsContent = () => {
   const { toast } = useToast();
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("single");
-  const [selectedTopic, setSelectedTopic] = useState<string>("");
   
   const countries = ["Se", "No", "Dk", "Fi", "Nl"];
   
@@ -46,12 +44,6 @@ const DiscussionsContent = () => {
     }
   };
 
-  // Get topics for dropdown
-  const topics = React.useMemo(() => {
-    if (!topicsData || !topicsData.length) return [];
-    return [...new Set(topicsData.map(item => item.discussion_topic).filter(Boolean))].sort();
-  }, [topicsData]);
-
   // For comparison view - fetch data for all countries at once
   const { data: allCountriesData = [], isLoading: isComparisonDataLoading, error: comparisonDataError } = 
     useAllDiscussionTopicsData(countries);
@@ -70,9 +62,6 @@ const DiscussionsContent = () => {
             <TabsList className="bg-[#34502b]/10 mx-auto md:mx-0">
               <TabsTrigger value="single" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
                 Single Country Analysis
-              </TabsTrigger>
-              <TabsTrigger value="map" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-                Geographic View
               </TabsTrigger>
               <TabsTrigger value="comparison" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
                 Country Comparison
@@ -119,54 +108,6 @@ const DiscussionsContent = () => {
                     data={topicsData} 
                     selectedYear={selectedYear}
                     selectedCountry={selectedCountry}
-                  />
-                )}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="map">
-              <div className="space-y-6">
-                <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-                  <div className="flex flex-col md:flex-row gap-4 justify-between">
-                    <div className="w-full md:w-1/2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Select Topic
-                      </label>
-                      <select
-                        value={selectedTopic}
-                        onChange={(e) => setSelectedTopic(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#34502b] focus:border-[#34502b]"
-                      >
-                        <option value="">All Topics</option>
-                        {topics.map(topic => (
-                          <option key={topic} value={topic}>{topic}</option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    <YearSelector
-                      years={years}
-                      selectedYear={selectedYear}
-                      onChange={setSelectedYear}
-                    />
-                  </div>
-                </Card>
-                
-                {isLoading ? (
-                  <div className="text-center py-12">
-                    <div className="animate-pulse text-[#34502b]">Loading map data...</div>
-                  </div>
-                ) : error ? (
-                  <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-                    <div className="text-center py-12 text-red-500">
-                      Error loading data: {error instanceof Error ? error.message : "Unknown error"}
-                    </div>
-                  </Card>
-                ) : (
-                  <DiscussionTopicsMap 
-                    data={allCountriesData}
-                    selectedYear={selectedYear}
-                    selectedTopic={selectedTopic}
                   />
                 )}
               </div>
