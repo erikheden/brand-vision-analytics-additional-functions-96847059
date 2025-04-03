@@ -31,7 +31,7 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
   
   // Extract topics and percentages for the chart
   const topics = processedData.map(item => item.discussion_topic || "Unknown");
-  const percentages = processedData.map(item => item.percentage || 0);
+  const percentages = processedData.map(item => (item.percentage || 0) * 100); // Convert decimal to percentage
   
   // Chart options - horizontal bar chart with topics on y-axis
   const options: Highcharts.Options = {
@@ -70,19 +70,19 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     },
     tooltip: {
       formatter: function() {
-        // Safely access tooltip data
-        const index = typeof this.key === 'string' ? parseInt(this.key, 10) : -1;
-        const topicName = !isNaN(index) && this.series?.yAxis?.categories?.[index] || 'Unknown';
+        // Safely access topic and percentage
+        const index = typeof this.point?.index !== 'undefined' ? this.point.index : -1;
+        const topicName = index >= 0 && topics[index] || 'Unknown';
         const percentage = this.y !== undefined ? this.y : 0;
         
-        return `<b>${topicName}</b><br/>${Math.round(percentage * 100)}%`;
+        return `<b>${topicName}</b><br/>${Math.round(percentage)}%`;
       }
     },
     plotOptions: {
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{point.y:.1f}%',
+          format: '{y:.1f}%',
           style: {
             fontWeight: 'normal',
             color: '#34502b',
@@ -103,7 +103,7 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     series: [{
       name: 'Percentage',
       type: 'bar',
-      data: percentages.map(value => value * 100), // Convert decimal to percentage
+      data: percentages, // Already converted to percentage
       color: '#5c8f4a'
     }],
     credits: {

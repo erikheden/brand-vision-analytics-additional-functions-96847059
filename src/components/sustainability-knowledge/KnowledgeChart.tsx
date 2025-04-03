@@ -56,7 +56,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
 
   // Extract terms and percentages for the chart
   const terms = chartData.map(item => item.term);
-  const percentages = chartData.map(item => item.percentage);
+  const percentages = chartData.map(item => Math.round(item.percentage * 100)); // Convert to whole percentages
 
   // Chart colors
   const colors = percentages.map((_, index) => {
@@ -102,18 +102,18 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     tooltip: {
       formatter: function() {
         // Use a safer approach accessing the term name and percentage
-        const index = typeof this.key === 'string' ? parseInt(this.key, 10) : -1;
-        const termName = !isNaN(index) && this.series?.yAxis?.categories?.[index] || 'Unknown';
+        const index = typeof this.point?.index !== 'undefined' ? this.point.index : -1;
+        const termName = index >= 0 && terms[index] || 'Unknown';
         const percentage = this.y !== undefined ? this.y : 0;
         
-        return `<b>${termName}</b><br/>${roundPercentage(percentage, false)}%`;
+        return `<b>${termName}</b><br/>${percentage}%`;
       }
     },
     plotOptions: {
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{point.y:.0f}%', // Whole numbers without decimals
+          format: '{y}%', // Whole numbers without decimals
           style: {
             fontWeight: 'normal',
             color: '#34502b',
@@ -130,7 +130,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     series: [{
       name: 'Knowledge Level',
       type: 'bar',
-      data: percentages.map(value => Math.round(value * 100)), // Convert decimal (0-1) to percentage (0-100)
+      data: percentages, // Already converted to percentage (0-100)
       color: '#34502b'
     }],
     credits: {
