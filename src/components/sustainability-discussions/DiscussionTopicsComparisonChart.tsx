@@ -120,7 +120,7 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       }
     },
     tooltip: {
-      formatter: function(this: Highcharts.TooltipFormatterContextObject) {
+      formatter: function() {
         // Access the category (topic name) from the yAxis categories using the point index
         const index = this.points?.[0]?.point?.index ?? 0;
         const topicName = this.points?.[0]?.series?.yAxis?.categories?.[index] || 'Unknown';
