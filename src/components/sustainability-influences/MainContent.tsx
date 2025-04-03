@@ -6,31 +6,22 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import LoadingState from './LoadingState';
 import ErrorState from './ErrorState';
-import TabView from './TabView';
 import CountryMultiSelect from '@/components/CountryMultiSelect';
+import InfluencesBarChart from './InfluencesBarChart';
+import InfluencesTrendChart from './InfluencesTrendChart';
 import { fetchInfluencesData } from '@/utils/api/fetchInfluencesData';
+import YearSelector from '@/components/sustainability-priorities/YearSelector';
+import InfluenceSelector from './InfluenceSelector';
 
 const MainContent = () => {
-  const {
-    toast
-  } = useToast();
-  const [selectedCountries, setSelectedCountries] = useState<string[]>(["SE"]); // Default to Sweden
+  const { toast } = useToast();
+  const [selectedCountries, setSelectedCountries] = useState<string[]>(["SE"]);
   const [activeTab, setActiveTab] = useState<string>("yearly");
-  const [selectedInfluences, setSelectedInfluences] = useState<string[]>([]); // Changed to empty array
-  const [selectedYear, setSelectedYear] = useState<number>(2024); // Default to 2024
+  const [selectedInfluences, setSelectedInfluences] = useState<string[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number>(2024);
 
   // Get available countries
   const countries = ["SE", "NO", "DK", "FI", "NL"];
-  console.log("MainContent rendered with selectedCountries:", selectedCountries);
-
-  // Use the hook for the first selected country to get structure
-  const {
-    data: firstCountryData,
-    years: firstCountryYears,
-    influences: firstCountryInfluences,
-    isLoading: isFirstCountryLoading,
-    error: firstCountryError
-  } = useSustainabilityInfluences(selectedCountries[0] || "SE");
 
   // State for combined data from all countries
   const [combinedData, setCombinedData] = useState<Record<string, any>>({});
@@ -79,10 +70,6 @@ const MainContent = () => {
           }
         }
 
-        // Initialize selected influences if needed
-        if (uniqueInfluences.length > 0 && selectedInfluences.length === 0) {
-          // No longer automatically selecting influences
-        }
         setIsLoading(false);
       } catch (err) {
         console.error("Error fetching countries data:", err);
@@ -96,33 +83,9 @@ const MainContent = () => {
       }
     };
     fetchAllCountriesData();
-  }, [selectedCountries, selectedYear, selectedInfluences, toast]);
+  }, [selectedCountries, toast]);
 
-  // Update the hook without breaking React rules
-  useEffect(() => {
-    if (selectedCountries.length === 1) {
-      // If only one country is selected, we can rely on the hook data
-      setCombinedData({
-        [selectedCountries[0]]: firstCountryData
-      });
-      if (firstCountryYears.length > 0) {
-        setAllYears(firstCountryYears);
-        const maxYear = Math.max(...firstCountryYears);
-        if (!selectedYear || !firstCountryYears.includes(selectedYear)) {
-          setSelectedYear(maxYear);
-        }
-      }
-      if (firstCountryInfluences.length > 0) {
-        setAllInfluences(firstCountryInfluences);
-        if (selectedInfluences.length === 0) {
-          // No longer automatically selecting influences
-        }
-      }
-    }
-  }, [firstCountryData, firstCountryYears, firstCountryInfluences, selectedCountries, selectedYear, selectedInfluences]);
-
-  const handleCountryChange = (countries: string[]) => {
-    console.log("Countries selected:", countries);
+  const handleCountriesChange = (countries: string[]) => {
     setSelectedCountries(countries);
     toast({
       title: "Countries Selected",
@@ -131,77 +94,87 @@ const MainContent = () => {
     });
   };
 
-  if (isLoading || isFirstCountryLoading) {
-    console.log("Rendering loading state");
-    return <LoadingState />;
-  }
+  if (isLoading) return <LoadingState />;
+  if (error) return <ErrorState />;
 
-  if (error || firstCountryError) {
-    console.log("Rendering error state:", error || firstCountryError);
-    return <ErrorState />;
-  }
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <h1 className="text-2xl font-semibold text-[#34502b] mb-6">Sustainability Influences</h1>
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="bg-[#34502b]/10 mx-auto md:mx-0 mb-6">
+          <TabsTrigger value="yearly" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+            Yearly View
+          </TabsTrigger>
+          <TabsTrigger value="trends" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+            Trends
+          </TabsTrigger>
+        </TabsList>
 
-  console.log("Rendering main content with selected year:", selectedYear);
-  console.log("Active tab:", activeTab);
-  console.log("Currently selected influences:", selectedInfluences);
-
-  // Fall back to first country data if combinedData is empty
-  const finalCombinedData = Object.keys(combinedData).length === 0 && selectedCountries.length > 0 ? {
-    [selectedCountries[0]]: firstCountryData
-  } : combinedData;
-  const years = allYears.length > 0 ? allYears : firstCountryYears;
-  const influences = allInfluences.length > 0 ? allInfluences : firstCountryInfluences;
-
-  return <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div className="space-y-6">
-        <h1 className="text-2xl font-semibold text-[#34502b] text-center md:text-left">
-          Sustainability Influences
-        </h1>
-
-        <div className="mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-3">
-              <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-[#34502b]">Select Countries</h2>
-                  <p className="text-gray-600 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="md:col-span-1">
+            <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Select Countries</h3>
+                  <p className="text-gray-600 text-sm mb-2">
                     Select one or more countries to view and compare sustainability influences.
                   </p>
-                  <CountryMultiSelect countries={countries || []} selectedCountries={selectedCountries} setSelectedCountries={setSelectedCountries} />
+                  <CountryMultiSelect 
+                    countries={countries} 
+                    selectedCountries={selectedCountries} 
+                    setSelectedCountries={setSelectedCountries} 
+                  />
+                </div>
+                
+                {activeTab === "yearly" ? (
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-700 mb-2">Select Year</h3>
+                    <YearSelector
+                      years={allYears}
+                      selectedYear={selectedYear}
+                      onChange={setSelectedYear}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-700 mb-2">Select Influence Factors</h3>
+                    <InfluenceSelector
+                      influences={allInfluences}
+                      selectedInfluences={selectedInfluences}
+                      onChange={setSelectedInfluences}
+                    />
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
+          
+          <div className="md:col-span-3">
+            {selectedCountries.length === 0 ? (
+              <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+                <div className="text-center py-10 text-gray-500">
+                  Please select at least one country to view sustainability influences data.
                 </div>
               </Card>
-            </div>
+            ) : activeTab === "yearly" ? (
+              <InfluencesBarChart
+                data={combinedData}
+                selectedYear={selectedYear}
+                countries={selectedCountries}
+              />
+            ) : (
+              <InfluencesTrendChart
+                data={combinedData}
+                selectedInfluences={selectedInfluences}
+                countries={selectedCountries}
+              />
+            )}
           </div>
         </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-[#34502b]/10 mx-auto md:mx-0">
-            <TabsTrigger value="yearly" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-              Yearly View
-            </TabsTrigger>
-            <TabsTrigger value="trends" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-              Trends
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="yearly" className="space-y-6 pt-4 py-0">
-            
-            
-            <TabView activeTab="yearly" selectedCountries={selectedCountries} selectedYear={selectedYear} selectedInfluences={selectedInfluences} influencesData={finalCombinedData} years={years} setSelectedYear={setSelectedYear} />
-          </TabsContent>
-
-          <TabsContent value="trends" className="space-y-6 pt-4">
-            <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-              <p className="text-gray-600">
-                Analyze trends in sustainability influences over time for selected countries and areas.
-              </p>
-            </Card>
-            
-            <TabView activeTab="trends" selectedCountries={selectedCountries} selectedYear={selectedYear} selectedInfluences={selectedInfluences} influencesData={finalCombinedData} influences={influences} setSelectedInfluences={setSelectedInfluences} />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>;
+      </Tabs>
+    </div>
+  );
 };
 
 export default MainContent;

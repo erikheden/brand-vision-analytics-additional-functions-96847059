@@ -4,118 +4,125 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import CountryMultiSelect from "@/components/CountryMultiSelect";
 import YearSelector from "@/components/sustainability-priorities/YearSelector";
-import { fetchAllDiscussionTopicsData, DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
 import DiscussionTopicsComparisonChart from "./DiscussionTopicsComparisonChart";
+import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
+import LoadingState from "./LoadingState";
+import ErrorState from "./ErrorState";
 
 interface DiscussionTopicsComparisonProps {
   availableCountries: string[];
+  allCountriesData: DiscussionTopicData[];
+  isLoading: boolean;
+  error: Error | null;
 }
 
-const DiscussionTopicsComparison: React.FC<DiscussionTopicsComparisonProps> = ({ 
-  availableCountries 
+const DiscussionTopicsComparison: React.FC<DiscussionTopicsComparisonProps> = ({
+  availableCountries,
+  allCountriesData,
+  isLoading,
+  error
 }) => {
   const { toast } = useToast();
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [allCountriesData, setAllCountriesData] = useState<Record<string, DiscussionTopicData[]>>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [years, setYears] = useState<number[]>([2023, 2024]);
-  const [selectedYear, setSelectedYear] = useState<number>(2024);
   
-  // Fetch data for each selected country
+  // Process data by country
+  const countriesData = React.useMemo(() => {
+    if (!allCountriesData || allCountriesData.length === 0) return {};
+    
+    // Group data by country
+    return allCountriesData.reduce((acc, item) => {
+      if (!item.country) return acc;
+      
+      const country = item.country;
+      if (!acc[country]) {
+        acc[country] = [];
+      }
+      acc[country].push(item);
+      return acc;
+    }, {} as Record<string, DiscussionTopicData[]>);
+  }, [allCountriesData]);
+  
+  // Get all available years from the data
+  const years = React.useMemo(() => {
+    if (!allCountriesData || allCountriesData.length === 0) return [2023, 2024];
+    
+    const uniqueYears = [...new Set(allCountriesData.map(item => item.year))];
+    return uniqueYears.sort((a, b) => a - b);
+  }, [allCountriesData]);
+  
+  const [selectedYear, setSelectedYear] = useState<number>(
+    years.length > 0 ? Math.max(...years) : 2024
+  );
+  
+  // Update selectedYear when years array changes
   useEffect(() => {
-    const loadCountriesData = async () => {
-      if (!selectedCountries.length) {
-        setAllCountriesData({});
-        return;
+    if (years.length > 0) {
+      const maxYear = Math.max(...years);
+      if (!years.includes(selectedYear)) {
+        setSelectedYear(maxYear);
       }
-      
-      setIsLoading(true);
-      
-      try {
-        // Fetch all data at once instead of country by country
-        const allData = await fetchAllDiscussionTopicsData(selectedCountries);
-        
-        // Group by country
-        const countryGroups: Record<string, DiscussionTopicData[]> = {};
-        
-        allData.forEach(item => {
-          if (!countryGroups[item.country]) {
-            countryGroups[item.country] = [];
-          }
-          countryGroups[item.country].push(item);
-        });
-        
-        // Extract years for year selector
-        const allYears = [...new Set(allData.map(item => item.year))].sort();
-        if (allYears.length > 0) {
-          setYears(allYears);
-          setSelectedYear(Math.max(...allYears));
-        }
-        
-        setAllCountriesData(countryGroups);
-        console.log("Loaded data for countries:", Object.keys(countryGroups));
-        
-      } catch (error) {
-        console.error('Error fetching data for countries:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch data for some countries",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadCountriesData();
-  }, [selectedCountries, toast]);
-  
-  // Handle country selection
-  const handleCountrySelection = (countries: string[]) => {
-    if (countries.length > 5) {
-      toast({
-        title: "Selection limit",
-        description: "You can select up to 5 countries for comparison",
-        variant: "destructive",
-      });
-      return;
     }
-    
+  }, [years, selectedYear]);
+  
+  const handleCountriesChange = (countries: string[]) => {
     setSelectedCountries(countries);
+    if (countries.length > 0) {
+      toast({
+        title: "Countries Selected",
+        description: `Selected ${countries.length} countries for comparison`,
+        duration: 3000,
+      });
+    }
   };
   
+  if (isLoading) return <LoadingState />;
+  if (error) return <ErrorState />;
+  
   return (
-    <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-      <div className="space-y-6">
-        <div className="flex flex-col md:flex-row gap-4 justify-between">
-          <div className="w-full md:w-2/3">
-            <CountryMultiSelect
-              countries={availableCountries}
-              selectedCountries={selectedCountries}
-              setSelectedCountries={handleCountrySelection}
-            />
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="md:col-span-1">
+        <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Select Countries</h3>
+              <p className="text-xs text-gray-500 mb-2">Choose countries to compare discussion topics</p>
+              <CountryMultiSelect 
+                countries={availableCountries} 
+                selectedCountries={selectedCountries} 
+                setSelectedCountries={setSelectedCountries} 
+              />
+            </div>
+            
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Select Year</h3>
+              <YearSelector
+                years={years}
+                selectedYear={selectedYear}
+                onChange={setSelectedYear}
+              />
+            </div>
           </div>
-          
-          <YearSelector
-            years={years}
-            selectedYear={selectedYear}
-            onChange={setSelectedYear}
-          />
-        </div>
-        
-        {isLoading ? (
-          <div className="text-center py-12">Loading comparison data...</div>
-        ) : selectedCountries.length === 0 ? (
-          <div className="text-center py-12">Please select countries to compare discussion topics</div>
+        </Card>
+      </div>
+      
+      <div className="md:col-span-3">
+        {selectedCountries.length === 0 ? (
+          <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+            <div className="text-center py-12 text-[#34502b]/70">
+              Please select countries to compare discussion topics
+            </div>
+          </Card>
         ) : (
-          <DiscussionTopicsComparisonChart 
-            countriesData={allCountriesData} 
-            selectedYear={selectedYear}
-            selectedCountries={selectedCountries}
-          />
+          <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+            <DiscussionTopicsComparisonChart 
+              countriesData={countriesData} 
+              selectedYear={selectedYear}
+              selectedCountries={selectedCountries}
+            />
+          </Card>
         )}
       </div>
-    </Card>
+    </div>
   );
 };
 

@@ -71,9 +71,9 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     tooltip: {
       formatter: function() {
         // Access category (topic name) from the current point
-        const index = this.points?.[0]?.point?.index ?? 0;
-        const topicName = this.points?.[0]?.series?.yAxis?.categories?.[index] || 'Unknown';
-        const percentage = this.points?.[0]?.y || 0;
+        const index = this.point?.index ?? 0;
+        const topicName = this.series?.yAxis?.categories?.[index] || 'Unknown';
+        const percentage = this.y || 0;
         
         return `<b>${topicName}</b><br/>${percentage.toFixed(1)}%`;
       }

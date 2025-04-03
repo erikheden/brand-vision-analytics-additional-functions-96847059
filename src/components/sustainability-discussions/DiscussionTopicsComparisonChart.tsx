@@ -122,11 +122,11 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
     tooltip: {
       formatter: function() {
         // Access the category (topic name) from the yAxis categories using the point index
-        const index = this.points?.[0]?.point?.index ?? 0;
-        const topicName = this.points?.[0]?.series?.yAxis?.categories?.[index] || 'Unknown';
-        const percentage = this.points?.[0]?.y || 0;
+        const index = this.point?.index ?? 0;
+        const topicName = this.series?.yAxis?.categories?.[index] || 'Unknown';
+        const percentage = this.y || 0;
         
-        return `<b>${this.points?.[0]?.series?.name || ''}</b><br/>${topicName}: ${percentage.toFixed(1)}%`;
+        return `<b>${this.series?.name || ''}</b><br/>${topicName}: ${percentage.toFixed(1)}%`;
       }
     },
     plotOptions: {
