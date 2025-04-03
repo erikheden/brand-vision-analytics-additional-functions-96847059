@@ -121,9 +121,23 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
     },
     tooltip: {
       formatter: function() {
-        const index = typeof this.key === 'string' ? parseInt(this.key, 10) : -1;
-        const topicName = !isNaN(index) && this.series?.yAxis?.categories?.[index] || 'Unknown';
-        return `<b>${this.series.name}</b><br/>${topicName}: ${this.y?.toFixed(1)}%`;
+        // Fixed: Safely access category data
+        if (!this.series || !this.series.yAxis || !this.series.yAxis.categories) {
+          return 'No data available';
+        }
+        
+        // Handle the case where this.key or this.point.index might be the reference
+        let topicName = 'Unknown';
+        if (typeof this.y === 'number' && this.series.yAxis.categories) {
+          const index = this.point?.index ?? -1;
+          if (index >= 0 && index < this.series.yAxis.categories.length) {
+            topicName = String(this.series.yAxis.categories[index]);
+          }
+        }
+        
+        const percentage = typeof this.y === 'number' ? this.y : 0;
+        
+        return `<b>${this.series.name}</b><br/>${topicName}: ${percentage.toFixed(1)}%`;
       }
     },
     plotOptions: {

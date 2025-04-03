@@ -75,10 +75,8 @@ const ComparisonChartOptions = ({
         groupPadding: 0.1,
         pointPadding: 0.1,
         borderWidth: 0
-      },
-      series: {
-        // Remove the invalid pointPadding and borderWidth properties
       }
+      // Removed invalid series properties
     },
     legend: {
       backgroundColor: 'rgba(255, 255, 255, 0.85)',
