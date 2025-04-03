@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useSustainabilityInfluences } from '@/hooks/useSustainabilityInfluences';
@@ -8,13 +9,14 @@ import ErrorState from './ErrorState';
 import TabView from './TabView';
 import CountryMultiSelect from '@/components/CountryMultiSelect';
 import { fetchInfluencesData } from '@/utils/api/fetchInfluencesData';
+
 const MainContent = () => {
   const {
     toast
   } = useToast();
   const [selectedCountries, setSelectedCountries] = useState<string[]>(["SE"]); // Default to Sweden
   const [activeTab, setActiveTab] = useState<string>("yearly");
-  const [selectedInfluences, setSelectedInfluences] = useState<string[]>([]);
+  const [selectedInfluences, setSelectedInfluences] = useState<string[]>([]); // Changed to empty array
   const [selectedYear, setSelectedYear] = useState<number>(2024); // Default to 2024
 
   // Get available countries
@@ -79,7 +81,7 @@ const MainContent = () => {
 
         // Initialize selected influences if needed
         if (uniqueInfluences.length > 0 && selectedInfluences.length === 0) {
-          setSelectedInfluences(uniqueInfluences.slice(0, Math.min(3, uniqueInfluences.length)));
+          // No longer automatically selecting influences
         }
         setIsLoading(false);
       } catch (err) {
@@ -113,11 +115,12 @@ const MainContent = () => {
       if (firstCountryInfluences.length > 0) {
         setAllInfluences(firstCountryInfluences);
         if (selectedInfluences.length === 0) {
-          setSelectedInfluences(firstCountryInfluences.slice(0, Math.min(3, firstCountryInfluences.length)));
+          // No longer automatically selecting influences
         }
       }
     }
   }, [firstCountryData, firstCountryYears, firstCountryInfluences, selectedCountries, selectedYear, selectedInfluences]);
+
   const handleCountryChange = (countries: string[]) => {
     console.log("Countries selected:", countries);
     setSelectedCountries(countries);
@@ -127,14 +130,17 @@ const MainContent = () => {
       duration: 3000
     });
   };
+
   if (isLoading || isFirstCountryLoading) {
     console.log("Rendering loading state");
     return <LoadingState />;
   }
+
   if (error || firstCountryError) {
     console.log("Rendering error state:", error || firstCountryError);
     return <ErrorState />;
   }
+
   console.log("Rendering main content with selected year:", selectedYear);
   console.log("Active tab:", activeTab);
   console.log("Currently selected influences:", selectedInfluences);
@@ -145,6 +151,7 @@ const MainContent = () => {
   } : combinedData;
   const years = allYears.length > 0 ? allYears : firstCountryYears;
   const influences = allInfluences.length > 0 ? allInfluences : firstCountryInfluences;
+
   return <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="space-y-6">
         <h1 className="text-2xl font-semibold text-[#34502b] text-center md:text-left">
@@ -196,4 +203,5 @@ const MainContent = () => {
       </div>
     </div>;
 };
+
 export default MainContent;
