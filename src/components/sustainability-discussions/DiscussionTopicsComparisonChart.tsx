@@ -121,9 +121,10 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
     },
     tooltip: {
       formatter: function() {
-        // Get topic name directly from the category
-        const topicName = this.point.category || 'Unknown';
-        const percentage = this.point.y || 0;
+        // Access the category (topic name) from the yAxis categories using the point index
+        const index = this.point.y as number;
+        const topicName = this.series.yAxis.categories?.[index] || 'Unknown';
+        const percentage = this.y || 0;
         
         return `<b>${this.series.name}</b><br/>${topicName}: ${percentage.toFixed(1)}%`;
       }
