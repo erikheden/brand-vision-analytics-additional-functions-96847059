@@ -27,11 +27,16 @@ const DiscussionsContent = () => {
     years.length > 0 ? Math.max(...years) : 2024
   );
   
+  // Update selectedYear when years array changes to make sure it's always valid
   useEffect(() => {
     if (years.length > 0) {
-      setSelectedYear(Math.max(...years));
+      const maxYear = Math.max(...years);
+      // Only update if the current selectedYear isn't in the years array
+      if (!years.includes(selectedYear)) {
+        setSelectedYear(maxYear);
+      }
     }
-  }, [years]);
+  }, [years, selectedYear]);
   
   const handleCountryChange = (country: string) => {
     setSelectedCountry(country);

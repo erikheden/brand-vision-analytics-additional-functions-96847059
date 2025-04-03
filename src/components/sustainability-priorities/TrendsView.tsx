@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Info } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -77,14 +77,17 @@ const TrendsView: React.FC<TrendsViewProps> = ({
     countryData.length > 0 && countryData.every(item => !item.row_id)
   );
   
-  // When a country is selected in country focus mode, automatically set it as focused
-  React.useEffect(() => {
-    if (selectedCountries.length === 1 && trendMode === "countries") {
-      setFocusedCountry(selectedCountries[0]);
-    } else if (selectedCountries.length > 0 && !selectedCountries.includes(focusedCountry)) {
+  // When countries change, ensure focusedCountry is valid
+  useEffect(() => {
+    // If no country is focused but we have selected countries, set the first one as focused
+    if ((!focusedCountry || !selectedCountries.includes(focusedCountry)) && selectedCountries.length > 0) {
       setFocusedCountry(selectedCountries[0]);
     }
-  }, [selectedCountries, trendMode, focusedCountry]);
+    // If there are no selected countries, clear the focused country
+    else if (selectedCountries.length === 0) {
+      setFocusedCountry("");
+    }
+  }, [selectedCountries, focusedCountry]);
   
   return (
     <div className="space-y-6">
