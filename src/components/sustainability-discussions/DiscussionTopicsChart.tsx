@@ -69,7 +69,7 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
       }
     },
     tooltip: {
-      formatter: function(this: Highcharts.PointFormatterContextObject) {
+      formatter: function() {
         // Access category (topic name) from the current point
         const index = this.point?.index ?? 0;
         const topicName = this.series?.yAxis?.categories?.[index] || 'Unknown';
