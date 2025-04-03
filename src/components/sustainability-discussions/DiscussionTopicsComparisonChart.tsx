@@ -121,14 +121,16 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
     },
     tooltip: {
       formatter: function() {
-        return `<b>${this.series.name}</b><br/>${this.y}: ${this.x.toFixed(1)}%`;
+        const index = typeof this.key === 'string' ? parseInt(this.key, 10) : -1;
+        const topicName = !isNaN(index) && this.series?.yAxis?.categories?.[index] || 'Unknown';
+        return `<b>${this.series.name}</b><br/>${topicName}: ${this.y?.toFixed(1)}%`;
       }
     },
     plotOptions: {
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{point.x:.1f}%',
+          format: '{point.y:.1f}%',
           style: {
             fontWeight: 'normal',
             color: '#34502b',

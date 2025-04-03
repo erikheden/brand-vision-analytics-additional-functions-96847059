@@ -71,19 +71,11 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     tooltip: {
       formatter: function() {
         // Safely access tooltip data
-        let topicName = 'Unknown';
+        const index = typeof this.key === 'string' ? parseInt(this.key, 10) : -1;
+        const topicName = !isNaN(index) && this.series?.yAxis?.categories?.[index] || 'Unknown';
+        const percentage = this.y !== undefined ? this.y : 0;
         
-        // Check if we have access to point data through this.key (which is the point index)
-        if (this.series && this.series.yAxis && this.series.yAxis.categories) {
-          const categories = this.series.yAxis.categories;
-          const pointIndex = typeof this.key !== 'undefined' ? Number(this.key) : undefined;
-          
-          if (pointIndex !== undefined && !isNaN(pointIndex) && categories[pointIndex]) {
-            topicName = categories[pointIndex];
-          }
-        }
-        
-        return `<b>${topicName}</b><br/>${formatPercentage(this.y as number, false)}`;
+        return `<b>${topicName}</b><br/>${Math.round(percentage * 100)}%`;
       }
     },
     plotOptions: {

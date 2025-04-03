@@ -66,9 +66,6 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
   });
 
   // Chart options for horizontal bar chart
-  // Note: In Highcharts, for horizontal bar charts:
-  // - yAxis represents the category axis (shown vertically with terms)
-  // - xAxis represents the value axis (shown horizontally with percentages)
   const options: Highcharts.Options = {
     chart: {
       type: 'bar', // 'bar' creates horizontal bars
@@ -104,14 +101,18 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     },
     tooltip: {
       formatter: function() {
-        return `<b>${this.y}</b><br/>${roundPercentage(this.x, false)}%`;
+        if (typeof this.point !== 'undefined') {
+          const termName = this.point.category || 'Unknown';
+          return `<b>${termName}</b><br/>${roundPercentage(this.point.y || 0, false)}%`;
+        }
+        return '';
       }
     },
     plotOptions: {
       bar: {
         dataLabels: {
           enabled: true,
-          format: '{point.x:.0f}%', // Whole numbers without decimals
+          format: '{point.y:.0f}%', // Whole numbers without decimals
           style: {
             fontWeight: 'normal',
             color: '#34502b',
