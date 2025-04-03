@@ -126,12 +126,22 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
           return 'No data available';
         }
         
-        // Handle the case where this.key or this.point.index might be the reference
+        // Instead of using this.point.index which doesn't exist, determine the index using this.y
         let topicName = 'Unknown';
-        if (typeof this.y === 'number' && this.series.yAxis.categories) {
-          const index = this.point?.index ?? -1;
-          if (index >= 0 && index < this.series.yAxis.categories.length) {
-            topicName = String(this.series.yAxis.categories[index]);
+        const categories = this.series.yAxis.categories;
+        
+        // In bar charts, the y value corresponds to the category index
+        if (this.series.yAxis && categories) {
+          // The point index should match the category index in horizontal bar charts
+          // We can use the key as a possible reference to the category index
+          const pointIndex = typeof this.x === 'number' ? Math.round(this.x) : -1;
+          
+          // Try to get the topic name from categories
+          if (pointIndex >= 0 && pointIndex < categories.length) {
+            topicName = String(categories[pointIndex]);
+          } else if (typeof this.key === 'string' && categories.includes(this.key)) {
+            // If we have a key that matches a category name, use it
+            topicName = this.key;
           }
         }
         
