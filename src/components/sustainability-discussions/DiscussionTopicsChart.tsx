@@ -1,4 +1,3 @@
-
 import React, { useMemo } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
@@ -69,7 +68,7 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
       }
     },
     tooltip: {
-      formatter: function(this: Highcharts.TooltipFormatterContextObject) {
+      formatter: function(this: any) {
         // Access category (topic name) from the current point's index
         const index = this.point?.index ?? 0;
         const topicName = this.series?.yAxis?.categories?.[index] || 'Unknown';
