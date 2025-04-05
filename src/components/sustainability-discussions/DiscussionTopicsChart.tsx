@@ -1,3 +1,4 @@
+
 import React, { useMemo } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
@@ -69,9 +70,8 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     },
     tooltip: {
       formatter: function(this: any) {
-        // Access category (topic name) from the current point's index
-        const index = this.point?.index ?? 0;
-        const topicName = this.series?.yAxis?.categories?.[index] || 'Unknown';
+        // Use this.point.category to correctly access the topic name from the y-axis
+        const topicName = this.point?.category || 'Unknown';
         const percentage = this.y || 0;
         
         return `<b>${topicName}</b><br/>${percentage.toFixed(1)}%`;

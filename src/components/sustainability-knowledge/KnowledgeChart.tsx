@@ -100,12 +100,9 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
       }
     },
     tooltip: {
-      formatter: function() {
-        // Use a safer approach accessing the term name and percentage
-        const index = this.series && this.series.yAxis?.categories ? 
-          this.series.yAxis.categories.indexOf(this.key as string) : -1;
-        const termName = index >= 0 ? terms[index] : 
-          (typeof this.key === 'string' ? this.key : 'Unknown');
+      formatter: function(this: any) {
+        // Use this.point.category to correctly access the term name from the y-axis
+        const termName = this.point?.category || 'Unknown';
         const percentage = typeof this.y === 'number' ? this.y : 0;
         
         return `<b>${termName}</b><br/>${percentage}%`;
