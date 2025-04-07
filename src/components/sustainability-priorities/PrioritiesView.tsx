@@ -41,7 +41,7 @@ const PrioritiesView: React.FC<PrioritiesViewProps> = ({
       {isLoading || isLoadingMulti ? <div className="text-center py-10">Loading data...</div> : null}
 
       {!selectedCountries.length && !isLoading && !isLoadingMulti ? <div className="text-center py-0">
-          <p className="text-lg text-gray-600">Please select at least one country to view sustainability priorities.</p>
+          <p className="text-lg text-gray-600 my-[30px]">Please select at least one country to view sustainability priorities.</p>
         </div> : null}
 
       {selectedCountries.length > 0 && !isLoading && !isLoadingMulti && Object.keys(allCountriesData).length > 0 ? <div className="space-y-6">
