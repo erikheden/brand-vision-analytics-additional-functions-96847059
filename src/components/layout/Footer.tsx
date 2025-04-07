@@ -1,7 +1,7 @@
 import React from "react";
 const Footer = () => {
   return <div className="w-full mt-auto bg-neutral-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-[100px] py-0 my-0 bg-neutral-50">
+      <div className="max-w-7xl px-4 sm:px-6 bg-transparent lg:px-[101px] my-px mx-0 py-[31px]">
         <p className="text-[6px] text-center text-neutral-600">
           © 2025 SB Insight AB. All rights reserved.
         </p>
