@@ -7,7 +7,8 @@ import { ChartDataItem } from '../SingleCountryChart';
 export const createSingleCountryChartOptions = (
   chartData: ChartDataItem[],
   selectedYear: number,
-  country: string
+  country: string,
+  isCompact: boolean = false
 ) => {
   const countryName = getFullCountryName(country);
   
@@ -18,13 +19,16 @@ export const createSingleCountryChartOptions = (
       style: {
         fontFamily: FONT_FAMILY
       },
-      height: 500
+      height: isCompact ? 300 : 500,
+      spacingTop: isCompact ? 30 : 40,
+      spacingBottom: isCompact ? 15 : 20
     },
     title: {
-      text: `Sustainability Influences in ${countryName} (${selectedYear})`,
+      text: `${isCompact ? '' : 'Sustainability Influences in '}${countryName} (${selectedYear})`,
       style: {
         color: '#34502b',
-        fontFamily: FONT_FAMILY
+        fontFamily: FONT_FAMILY,
+        fontSize: isCompact ? '14px' : '18px'
       }
     },
     xAxis: {
@@ -32,13 +36,14 @@ export const createSingleCountryChartOptions = (
       labels: {
         style: {
           color: '#34502b',
-          fontFamily: FONT_FAMILY
+          fontFamily: FONT_FAMILY,
+          fontSize: isCompact ? '10px' : '12px'
         }
       }
     },
     yAxis: {
       title: {
-        text: 'Percentage',
+        text: isCompact ? '' : 'Percentage',
         style: {
           color: '#34502b',
           fontFamily: FONT_FAMILY
@@ -48,12 +53,13 @@ export const createSingleCountryChartOptions = (
         format: '{value}%',
         style: {
           color: '#34502b',
-          fontFamily: FONT_FAMILY
+          fontFamily: FONT_FAMILY,
+          fontSize: isCompact ? '10px' : '12px'
         }
       }
     },
     tooltip: {
-      formatter: function() {
+      formatter: function(this: any) {
         return `<b>${this.x}</b>: ${roundPercentage(this.y)}%`;
       }
     },
@@ -65,7 +71,8 @@ export const createSingleCountryChartOptions = (
           style: {
             fontWeight: 'normal',
             color: '#34502b',
-            fontFamily: FONT_FAMILY
+            fontFamily: FONT_FAMILY,
+            fontSize: isCompact ? '10px' : '12px'
           }
         },
         colorByPoint: true,
@@ -83,6 +90,11 @@ export const createSingleCountryChartOptions = (
     }],
     credits: {
       enabled: false
-    }
+    },
+    legend: {
+      enabled: false
+    },
+    // Adjust margins and spacing for compact mode
+    margin: isCompact ? [30, 30, 30, 50] : [60, 40, 60, 60]
   };
 };

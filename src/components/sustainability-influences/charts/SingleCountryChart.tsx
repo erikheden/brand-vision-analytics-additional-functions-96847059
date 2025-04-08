@@ -10,6 +10,7 @@ interface SingleCountryChartProps {
   data: InfluenceData[];
   selectedYear: number;
   country: string;
+  isCompact?: boolean;
 }
 
 export interface ChartDataItem {
@@ -20,7 +21,8 @@ export interface ChartDataItem {
 const SingleCountryChart: React.FC<SingleCountryChartProps> = ({
   data,
   selectedYear,
-  country
+  country,
+  isCompact = false
 }) => {
   // Filter data by selected year
   const yearData = data.filter(item => item.year === selectedYear);
@@ -34,7 +36,11 @@ const SingleCountryChart: React.FC<SingleCountryChartProps> = ({
     }));
 
   if (chartData.length === 0) {
-    return (
+    return isCompact ? (
+      <div className="text-center py-6 text-gray-500">
+        No data available for {country} in {selectedYear}.
+      </div>
+    ) : (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="text-center py-10 text-gray-500">
           No data available for {selectedYear}. Please select a different year.
@@ -44,8 +50,14 @@ const SingleCountryChart: React.FC<SingleCountryChartProps> = ({
   }
 
   // Generate chart options
-  const options = createSingleCountryChartOptions(chartData, selectedYear, country);
+  const options = createSingleCountryChartOptions(chartData, selectedYear, country, isCompact);
 
+  // For compact mode, return just the chart
+  if (isCompact) {
+    return <HighchartsReact highcharts={Highcharts} options={options} />;
+  }
+
+  // For regular mode, include the card wrapper
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <div className="h-[500px]">
