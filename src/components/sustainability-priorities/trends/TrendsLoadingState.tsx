@@ -28,7 +28,7 @@ const TrendsLoadingState: React.FC<TrendsLoadingStateProps> = ({
     return <div className="text-center py-10">Loading data...</div>;
   }
   if (!selectedCountries.length) {
-    return <div className="text-center py-10">
+    return <div className="text-center py-[10px]">
         <p className="text-lg text-gray-600">Please select at least one country to view sustainability trends.</p>
       </div>;
   }

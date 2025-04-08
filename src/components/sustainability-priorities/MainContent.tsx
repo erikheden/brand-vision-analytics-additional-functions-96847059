@@ -82,12 +82,8 @@ const MainContent = () => {
             <PrioritiesView selectedCountries={selectedCountries} years={years} selectedYear={selectedYear} setSelectedYear={setSelectedYear} isLoading={isLoading} error={error} />
           </TabsContent>
 
-          <TabsContent value="trends" className="space-y-6 pt-4">
-            <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-              <p className="text-gray-600">
-                Analyze trends in sustainability priorities over time for selected countries and areas.
-              </p>
-            </Card>
+          <TabsContent value="trends" className="space-y-6 pt-4 py-0">
+            
             
             <TrendsView selectedCountries={selectedCountries} areas={areas} selectedAreas={selectedAreas} setSelectedAreas={setSelectedAreas} isLoading={isLoading} error={error} />
           </TabsContent>
