@@ -1,19 +1,15 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Sidebar, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
 import { BarChart3, LineChart, PieChart, LayoutGrid, MessageSquare, BarChart, TrendingUp, BookOpen, Award } from "lucide-react";
-
 const SidebarNav = () => {
   const location = useLocation();
   const isActive = (path: string) => {
     return location.pathname === path;
   };
-  
-  return (
-    <Sidebar className="border-r bg-[#34502b] text-white font-forma">
-      <SidebarContent className="px-4">
+  return <Sidebar className="border-r bg-[#34502b] text-white font-forma">
+      <SidebarContent className="px-4 bg-[#b7c895]">
         <SidebarMenu>
           <div className="pb-2 text-xs font-medium text-white/70 uppercase px-0 mx-0 my-px py-[15px]">Dashboards</div>
           
@@ -94,8 +90,6 @@ const SidebarNav = () => {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
-    </Sidebar>
-  );
+    </Sidebar>;
 };
-
 export default SidebarNav;
