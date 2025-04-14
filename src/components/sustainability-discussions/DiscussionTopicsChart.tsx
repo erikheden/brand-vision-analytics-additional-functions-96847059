@@ -5,7 +5,6 @@ import HighchartsReact from "highcharts-react-official";
 import { Card } from "@/components/ui/card";
 import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
 import { FONT_FAMILY } from "@/utils/constants";
-import { formatPercentage } from "@/utils/formatting";
 import { getFullCountryName } from "@/components/CountrySelect";
 
 interface DiscussionTopicsChartProps {
@@ -19,6 +18,7 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
   selectedYear,
   selectedCountry 
 }) => {
+  // Use memo to prevent unnecessary recalculations
   const processedData = useMemo(() => {
     if (!data || !data.length) return [];
     
@@ -29,17 +29,27 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     return yearData.sort((a, b) => (b.percentage || 0) - (a.percentage || 0));
   }, [data, selectedYear]);
   
-  // Extract topics and percentages for the chart
-  const topics = processedData.map(item => item.discussion_topic || "Unknown");
-  const percentages = processedData.map(item => (item.percentage || 0) * 100); // Convert decimal to percentage
+  // Extract topics and percentages for the chart - also memoized
+  const { topics, percentages } = useMemo(() => {
+    const topics = processedData.map(item => item.discussion_topic || "Unknown");
+    const percentages = processedData.map(item => {
+      // Convert decimal to percentage
+      return parseFloat((item.percentage || 0) * 100).toFixed(1);
+    });
+    
+    return { topics, percentages: percentages.map(Number) };
+  }, [processedData]);
   
-  // Chart options - horizontal bar chart with topics on y-axis
-  const options: Highcharts.Options = {
+  // Chart options - memoized to prevent unnecessary re-renders
+  const options: Highcharts.Options = useMemo(() => ({
     chart: {
       type: 'bar',  // Horizontal bars
       height: Math.max(300, 50 * Math.min(topics.length, 15)),
       backgroundColor: 'white',
-      style: { fontFamily: FONT_FAMILY }
+      style: { fontFamily: FONT_FAMILY },
+      animation: {
+        duration: 500
+      }
     },
     title: {
       text: `Sustainability Discussion Topics in ${getFullCountryName(selectedCountry) || selectedCountry} (${selectedYear})`,
@@ -63,15 +73,13 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
       },
       labels: {
         style: { color: '#34502b', fontFamily: FONT_FAMILY },
-        // Ensure labels are properly aligned and visible
         align: 'right',
         reserveSpace: true
       }
     },
     tooltip: {
-      formatter: function(this: any) {
-        // Use this.point.category to correctly access the topic name from the y-axis
-        const topicName = this.point?.category || 'Unknown';
+      formatter: function() {
+        const topicName = this.series.yAxis.categories[this.point.index] || 'Unknown';
         const percentage = this.y || 0;
         
         return `<b>${topicName}</b><br/>${percentage.toFixed(1)}%`;
@@ -97,12 +105,17 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
           const shade = 80 - (index * (60 / Math.max(percentages.length, 1)));
           return `rgba(52, 80, 43, ${shade / 100})`;
         })
+      },
+      series: {
+        animation: {
+          duration: 500
+        }
       }
     },
     series: [{
       name: 'Percentage',
       type: 'bar',
-      data: percentages, // Already converted to percentage
+      data: percentages,
       color: '#5c8f4a'
     }],
     credits: {
@@ -110,8 +123,11 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     },
     legend: {
       enabled: false
+    },
+    accessibility: {
+      enabled: false // Disable accessibility to remove the warning
     }
-  };
+  }), [topics, percentages, selectedCountry, selectedYear]);
   
   if (!processedData || processedData.length === 0) {
     return (
@@ -125,9 +141,16 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
   
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-      <HighchartsReact highcharts={Highcharts} options={options} />
+      <HighchartsReact 
+        highcharts={Highcharts} 
+        options={options}
+        // Add key to ensure complete re-render when country or year changes
+        key={`${selectedCountry}-${selectedYear}`}
+        // Prevent unnecessary updates
+        immutable={true}
+      />
     </Card>
   );
 };
 
-export default DiscussionTopicsChart;
+export default React.memo(DiscussionTopicsChart);
