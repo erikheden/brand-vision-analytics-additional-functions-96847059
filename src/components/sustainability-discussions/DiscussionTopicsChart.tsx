@@ -33,11 +33,11 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
   const { topics, percentages } = useMemo(() => {
     const topics = processedData.map(item => item.discussion_topic || "Unknown");
     const percentages = processedData.map(item => {
-      // Convert decimal to percentage
-      return parseFloat((item.percentage || 0) * 100).toFixed(1);
+      // Convert decimal to percentage and parse as number
+      return Number(((item.percentage || 0) * 100).toFixed(1));
     });
     
-    return { topics, percentages: percentages.map(Number) };
+    return { topics, percentages };
   }, [processedData]);
   
   // Chart options - memoized to prevent unnecessary re-renders
@@ -79,7 +79,8 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     },
     tooltip: {
       formatter: function() {
-        const topicName = this.series.yAxis.categories[this.point.index] || 'Unknown';
+        // Access the topic name from yAxis categories using the point index
+        const topicName = this.series.yAxis.categories[this.point.index || 0] || 'Unknown';
         const percentage = this.y || 0;
         
         return `<b>${topicName}</b><br/>${percentage.toFixed(1)}%`;
