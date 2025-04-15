@@ -5,7 +5,6 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import { getFullCountryName } from '@/components/CountrySelect';
-import { formatPercentage, roundPercentage } from '@/utils/formatting';
 import { FONT_FAMILY } from '@/utils/constants';
 
 interface KnowledgeChartProps {
@@ -65,11 +64,11 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     return `rgba(52, 80, 43, ${shade / 100})`;
   });
 
-  // Chart options for horizontal bar chart
+  // Chart options for vertical bar chart
   const options: Highcharts.Options = {
     chart: {
-      type: 'bar', // 'bar' creates horizontal bars
-      height: Math.max(350, 50 * Math.min(terms.length, 15)),
+      type: 'column', // Changed from 'bar' to 'column' for vertical bars
+      height: Math.max(350, 25 * Math.min(terms.length, 15)),
       backgroundColor: 'white',
       style: { fontFamily: FONT_FAMILY }
     },
@@ -78,7 +77,20 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
       style: { color: '#34502b', fontFamily: FONT_FAMILY }
     },
     xAxis: {
-      // This represents the value axis (percentage) - displayed horizontally
+      // This represents the category axis (terms) - displayed horizontally
+      categories: terms,
+      title: {
+        text: 'Sustainability Terms',
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      },
+      labels: {
+        style: { color: '#34502b', fontFamily: FONT_FAMILY },
+        rotation: -45,
+        align: 'right'
+      }
+    },
+    yAxis: {
+      // This represents the value axis (percentage) - displayed vertically
       title: {
         text: 'Percentage',
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
@@ -88,28 +100,14 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       }
     },
-    yAxis: {
-      // This represents the category axis (terms) - displayed vertically
-      categories: terms,
-      title: {
-        text: 'Sustainability Terms',
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      },
-      labels: {
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      }
-    },
     tooltip: {
-      formatter: function(this: any) {
-        // Use this.point.category to correctly access the term name from the y-axis
-        const termName = this.point?.category || 'Unknown';
-        const percentage = typeof this.y === 'number' ? this.y : 0;
-        
-        return `<b>${termName}</b><br/>${percentage}%`;
+      formatter: function() {
+        const percentage = this.y !== undefined ? this.y : 0;
+        return `<b>${this.x}</b><br/>${percentage}%`;
       }
     },
     plotOptions: {
-      bar: {
+      column: { // Changed from 'bar' to 'column'
         dataLabels: {
           enabled: true,
           format: '{y}%', // Whole numbers without decimals
@@ -128,7 +126,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     },
     series: [{
       name: 'Knowledge Level',
-      type: 'bar',
+      type: 'column',
       data: percentages, // Already converted to percentage (0-100)
       color: '#34502b'
     }],

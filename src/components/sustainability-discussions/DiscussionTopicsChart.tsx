@@ -43,8 +43,8 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
   // Chart options - memoized to prevent unnecessary re-renders
   const options: Highcharts.Options = useMemo(() => ({
     chart: {
-      type: 'bar',  // Horizontal bars
-      height: Math.max(300, 50 * Math.min(topics.length, 15)),
+      type: 'column',  // Changed from 'bar' to 'column' for vertical bars
+      height: Math.max(350, topics.length * 25),
       backgroundColor: 'white',
       style: { fontFamily: FONT_FAMILY },
       animation: {
@@ -56,6 +56,18 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
       style: { color: '#34502b', fontFamily: FONT_FAMILY }
     },
     xAxis: {
+      categories: topics,  // Topics now on X-axis
+      title: {
+        text: 'Discussion Topics',
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      },
+      labels: {
+        style: { color: '#34502b', fontFamily: FONT_FAMILY },
+        rotation: -45,  // Rotate labels for better readability
+        align: 'right'
+      }
+    },
+    yAxis: {
       title: {
         text: 'Percentage',
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
@@ -65,30 +77,13 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       }
     },
-    yAxis: {
-      categories: topics,
-      title: {
-        text: 'Discussion Topics',
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      },
-      labels: {
-        style: { color: '#34502b', fontFamily: FONT_FAMILY },
-        align: 'right',
-        reserveSpace: true
-      }
-    },
     tooltip: {
       formatter: function() {
-        // Access the index correctly by using 'this' as a PointLabelObject
-        const pointIndex = this.series.data.indexOf(this as any);
-        const topicName = this.series.yAxis.categories[pointIndex] || 'Unknown';
-        const percentage = this.y || 0;
-        
-        return `<b>${topicName}</b><br/>${percentage.toFixed(1)}%`;
+        return `<b>${this.x}</b><br/>${this.y?.toFixed(1)}%`;
       }
     },
     plotOptions: {
-      bar: {
+      column: {  // Changed from 'bar' to 'column'
         dataLabels: {
           enabled: true,
           format: '{y:.1f}%',
@@ -116,7 +111,7 @@ const DiscussionTopicsChart: React.FC<DiscussionTopicsChartProps> = ({
     },
     series: [{
       name: 'Percentage',
-      type: 'bar',
+      type: 'column',
       data: percentages,
       color: '#5c8f4a'
     }],
