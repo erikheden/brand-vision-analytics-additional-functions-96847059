@@ -46,8 +46,31 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       });
     }
     
-    // Convert topics set to sorted array
-    const topicsArray = Array.from(allTopics).sort();
+    // Convert topics set to array
+    const topicsArray = Array.from(allTopics);
+    
+    // Calculate average value for each topic across all countries
+    const topicAverages: Record<string, number> = {};
+    
+    topicsArray.forEach(topic => {
+      let sum = 0;
+      let count = 0;
+      
+      selectedCountries.forEach(country => {
+        const countryData = filteredData[country] || [];
+        const topicData = countryData.find(item => item.discussion_topic === topic);
+        
+        if (topicData && topicData.percentage !== undefined) {
+          sum += topicData.percentage * 100; // Convert to percentage
+          count++;
+        }
+      });
+      
+      topicAverages[topic] = count > 0 ? sum / count : 0;
+    });
+    
+    // Sort topics by average value (high to low)
+    const sortedTopics = topicsArray.sort((a, b) => topicAverages[b] - topicAverages[a]);
     
     // Create series for each country
     const chartSeries: Highcharts.SeriesOptionsType[] = selectedCountries.map(country => {
@@ -57,7 +80,7 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       return {
         name: getFullCountryName(country),
         type: 'column',
-        data: topicsArray.map(topic => {
+        data: sortedTopics.map(topic => {
           const topicData = countryData.find(item => item.discussion_topic === topic);
           // Convert from decimal to percentage (0-100)
           return topicData ? (topicData.percentage || 0) * 100 : 0;
@@ -66,7 +89,7 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       };
     });
     
-    return { topics: topicsArray, series: chartSeries };
+    return { topics: sortedTopics, series: chartSeries };
   }, [countriesData, selectedCountries, selectedYear]);
   
   // Get color based on country code
