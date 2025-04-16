@@ -24,19 +24,11 @@ const KnowledgeTrendsTab: React.FC<KnowledgeTrendsTabProps> = ({
     if (selectedTerms.includes(term)) {
       setSelectedTerms(selectedTerms.filter(t => t !== term));
     } else {
-      if (selectedTerms.length >= 5) {
-        // Toast is handled in the parent component
-        return;
-      }
       setSelectedTerms([...selectedTerms, term]);
     }
   };
 
   const handleSelectAllTerms = () => {
-    if (terms.length > 5) {
-      // Toast is handled in the parent component
-      return;
-    }
     setSelectedTerms([...terms]);
   };
 

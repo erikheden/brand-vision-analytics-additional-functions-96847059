@@ -5,15 +5,19 @@ import { useSustainabilityKnowledge } from "@/hooks/useSustainabilityKnowledge";
 import LoadingState from "./LoadingState";
 import ErrorState from "./ErrorState";
 import { useToast } from "@/components/ui/use-toast";
+import CountryComparisonSelector from "@/components/sustainability-priorities/CountryComparisonSelector";
+import { Card } from "@/components/ui/card";
 
 // Import our new component files
 import SidebarPanel from "./SidebarPanel";
 import KnowledgeLevelsTab from "./KnowledgeLevelsTab";
 import KnowledgeTrendsTab from "./KnowledgeTrendsTab";
+import CountryComparisonTab from "./CountryComparisonTab";
 
 const MainContent = () => {
   const { toast } = useToast();
   const [selectedCountry, setSelectedCountry] = useState<string>("SE");
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number>(2024);
   const [selectedTerms, setSelectedTerms] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("single");
@@ -42,15 +46,16 @@ const MainContent = () => {
   };
 
   const handleSetSelectedTerms = (terms: string[]) => {
-    if (activeTab === "trends" && terms.length > 5) {
-      toast({
-        title: "Selection Limit",
-        description: "You can select up to 5 terms for trend comparison",
-        variant: "destructive",
-      });
-      return;
-    }
     setSelectedTerms(terms);
+  };
+
+  const handleCountriesChange = (countries: string[]) => {
+    setSelectedCountries(countries);
+    toast({
+      title: "Countries Selected",
+      description: `Showing data for multiple countries`,
+      duration: 3000,
+    });
   };
 
   if (isLoading) return <LoadingState />;
@@ -77,6 +82,9 @@ const MainContent = () => {
           <TabsTrigger value="trends" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
             Knowledge Trends
           </TabsTrigger>
+          <TabsTrigger value="comparison" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+            Country Comparison
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="single" className="mt-0">
@@ -98,6 +106,34 @@ const MainContent = () => {
             selectedCountry={selectedCountry}
             setSelectedTerms={handleSetSelectedTerms}
           />
+        </TabsContent>
+
+        <TabsContent value="comparison" className="mt-0">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="md:col-span-1">
+              <Card className="p-4 bg-white shadow-sm border">
+                <CountryComparisonSelector 
+                  availableCountries={countries}
+                  selectedCountries={selectedCountries}
+                  onCountriesChange={handleCountriesChange}
+                />
+              </Card>
+            </div>
+            <div className="md:col-span-3">
+              {selectedCountries.length === 0 ? (
+                <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+                  <div className="text-center py-10 text-gray-500">
+                    Please select at least one country to compare sustainability knowledge.
+                  </div>
+                </Card>
+              ) : (
+                <CountryComparisonTab
+                  selectedCountries={selectedCountries}
+                  terms={terms}
+                />
+              )}
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
