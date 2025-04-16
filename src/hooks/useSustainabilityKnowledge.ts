@@ -60,6 +60,5 @@ export const useSustainabilityKnowledge = (selectedCountry: string) => {
     terms,
     isLoading,
     error,
-    fetchKnowledgeData // Expose the fetchKnowledgeData function
   };
 };

@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { useSustainabilityKnowledge, KnowledgeData } from "@/hooks/useSustainabilityKnowledge";
+import { supabase } from "@/integrations/supabase/client";
+import { KnowledgeData } from "@/hooks/useSustainabilityKnowledge";
 
 type KnowledgePageContextType = {
   selectedCountries: string[];
@@ -37,6 +39,24 @@ export const KnowledgePageContext = React.createContext<KnowledgePageContextType
   handleCountriesChange: () => {},
   handleSetSelectedTerms: () => {},
 });
+
+// Helper function to fetch knowledge data for a specific country
+const fetchKnowledgeData = async (country: string) => {
+  console.log(`Fetching sustainability knowledge data for: ${country}`);
+  
+  const { data, error } = await supabase
+    .from('SBI_Knowledge')
+    .select('*')
+    .eq('country', country)
+    .order('year', { ascending: true });
+  
+  if (error) {
+    console.error('Error fetching knowledge data:', error);
+    throw error;
+  }
+  
+  return data as KnowledgeData[];
+};
 
 export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { toast } = useToast();
@@ -76,9 +96,8 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
         
         await Promise.all(selectedCountries.map(async (country) => {
           try {
-            // Use the hook to get the fetching function
-            const { fetchKnowledgeData } = useSustainabilityKnowledge(country);
-            const countryData = await fetchKnowledgeData();
+            // Use the fetchKnowledgeData function directly
+            const countryData = await fetchKnowledgeData(country);
             
             allData[country] = countryData;
             
