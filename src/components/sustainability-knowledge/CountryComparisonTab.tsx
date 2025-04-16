@@ -6,9 +6,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import TermSelector from './TermSelector';
-import KnowledgeComparisonChart from './KnowledgeComparisonChart';
-import KnowledgeTrendComparisonChart from './KnowledgeTrendComparisonChart';
+import { LoadingState, EmptyState } from './comparison/ComparisonStates';
+import SnapshotView from './comparison/SnapshotView';
+import TrendsView from './comparison/TrendsView';
 
 interface CountryComparisonTabProps {
   selectedCountries: string[];
@@ -84,24 +84,20 @@ const CountryComparisonTab: React.FC<CountryComparisonTabProps> = ({
     }
   }, [allTerms, selectedTerms]);
 
+  const handleTermToggle = (term: string) => {
+    if (selectedTerms.includes(term)) {
+      setSelectedTerms(selectedTerms.filter(t => t !== term));
+    } else {
+      setSelectedTerms([...selectedTerms, term]);
+    }
+  };
+
   if (isLoading) {
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-10 text-gray-500">
-          Loading knowledge data for selected countries...
-        </div>
-      </Card>
-    );
+    return <LoadingState />;
   }
 
   if (!countriesData || Object.keys(countriesData).length === 0) {
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-10 text-gray-500">
-          No knowledge data available for the selected countries.
-        </div>
-      </Card>
-    );
+    return <EmptyState />;
   }
 
   return (
@@ -117,92 +113,24 @@ const CountryComparisonTab: React.FC<CountryComparisonTabProps> = ({
         </TabsList>
         
         <TabsContent value="snapshot">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium">Knowledge Levels Comparison</h3>
-            </div>
-            
-            <KnowledgeComparisonChart 
-              countriesData={countriesData} 
-              selectedCountries={selectedCountries}
-              selectedTerms={selectedTerms}
-              selectedYear={selectedYear}
-            />
-            
-            <div className="mt-4">
-              <div className="text-sm text-gray-500 mb-2">
-                Select terms to compare:
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {allTerms.map(term => (
-                  <button
-                    key={term}
-                    onClick={() => {
-                      if (selectedTerms.includes(term)) {
-                        setSelectedTerms(selectedTerms.filter(t => t !== term));
-                      } else {
-                        setSelectedTerms([...selectedTerms, term]);
-                      }
-                    }}
-                    className={`text-xs px-2 py-1 rounded ${
-                      selectedTerms.includes(term)
-                        ? 'bg-[#34502b] text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {term}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+          <SnapshotView
+            countriesData={countriesData}
+            selectedCountries={selectedCountries}
+            selectedTerms={selectedTerms}
+            selectedYear={selectedYear}
+            allTerms={allTerms}
+            onTermToggle={handleTermToggle}
+          />
         </TabsContent>
         
         <TabsContent value="trends">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium">Knowledge Trends Comparison</h3>
-            </div>
-            
-            {selectedTerms.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                Please select at least one term to view trends
-              </div>
-            ) : (
-              <KnowledgeTrendComparisonChart 
-                countriesData={countriesData} 
-                selectedCountries={selectedCountries}
-                selectedTerms={selectedTerms}
-              />
-            )}
-            
-            <div className="mt-4">
-              <div className="text-sm text-gray-500 mb-2">
-                Select terms to compare:
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {allTerms.map(term => (
-                  <button
-                    key={term}
-                    onClick={() => {
-                      if (selectedTerms.includes(term)) {
-                        setSelectedTerms(selectedTerms.filter(t => t !== term));
-                      } else {
-                        setSelectedTerms([...selectedTerms, term]);
-                      }
-                    }}
-                    className={`text-xs px-2 py-1 rounded ${
-                      selectedTerms.includes(term)
-                        ? 'bg-[#34502b] text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {term}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+          <TrendsView
+            countriesData={countriesData}
+            selectedCountries={selectedCountries}
+            selectedTerms={selectedTerms}
+            allTerms={allTerms}
+            onTermToggle={handleTermToggle}
+          />
         </TabsContent>
       </Tabs>
     </Card>
