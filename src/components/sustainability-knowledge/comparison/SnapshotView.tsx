@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
-import KnowledgeComparisonChart from '../KnowledgeComparisonChart';
+import KnowledgeComparisonBarChart from './KnowledgeComparisonBarChart';
 import TermsSelectionPanel from './TermsSelectionPanel';
 
 interface SnapshotViewProps {
@@ -27,7 +27,7 @@ const SnapshotView: React.FC<SnapshotViewProps> = ({
         <h3 className="text-lg font-medium">Knowledge Levels Comparison</h3>
       </div>
       
-      <KnowledgeComparisonChart 
+      <KnowledgeComparisonBarChart 
         countriesData={countriesData} 
         selectedCountries={selectedCountries}
         selectedTerms={selectedTerms}

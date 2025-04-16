@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
-import KnowledgeTrendComparisonChart from '../KnowledgeTrendComparisonChart';
+import KnowledgeTrendComparisonLineChart from './KnowledgeTrendComparisonLineChart';
 import TermsSelectionPanel from './TermsSelectionPanel';
 
 interface TrendsViewProps {
@@ -25,17 +25,11 @@ const TrendsView: React.FC<TrendsViewProps> = ({
         <h3 className="text-lg font-medium">Knowledge Trends Comparison</h3>
       </div>
       
-      {selectedTerms.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          Please select at least one term to view trends
-        </div>
-      ) : (
-        <KnowledgeTrendComparisonChart 
-          countriesData={countriesData} 
-          selectedCountries={selectedCountries}
-          selectedTerms={selectedTerms}
-        />
-      )}
+      <KnowledgeTrendComparisonLineChart
+        countriesData={countriesData}
+        selectedCountries={selectedCountries}
+        selectedTerms={selectedTerms}
+      />
       
       <TermsSelectionPanel
         allTerms={allTerms}
