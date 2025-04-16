@@ -50,8 +50,8 @@ const MainContent = () => {
         
         await Promise.all(selectedCountries.map(async (country) => {
           try {
-            // Use the hook's fetch function directly
-            const { data: fetchKnowledgeData } = useSustainabilityKnowledge(country);
+            // Use the hook to get the fetching function
+            const { fetchKnowledgeData } = useSustainabilityKnowledge(country);
             const countryData = await fetchKnowledgeData();
             
             allData[country] = countryData;

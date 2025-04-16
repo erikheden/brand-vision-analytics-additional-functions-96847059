@@ -13,69 +13,21 @@ import TrendsView from './comparison/TrendsView';
 interface CountryComparisonTabProps {
   selectedCountries: string[];
   terms: string[];
+  countriesData: Record<string, KnowledgeData[]>;
+  selectedYear: number;
 }
 
 const CountryComparisonTab: React.FC<CountryComparisonTabProps> = ({ 
   selectedCountries,
-  terms: initialTerms
+  terms: initialTerms,
+  countriesData,
+  selectedYear
 }) => {
   const { toast } = useToast();
   const [selectedTerms, setSelectedTerms] = useState<string[]>([]);
   const [viewType, setViewType] = useState<'snapshot' | 'trends'>('snapshot');
   const [allTerms, setAllTerms] = useState<string[]>(initialTerms || []);
-  const [selectedYear, setSelectedYear] = useState<number>(2024);
-
-  // Fetch data for all selected countries
-  const { data: countriesData, isLoading } = useQuery({
-    queryKey: ['knowledgeComparison', selectedCountries],
-    queryFn: async () => {
-      try {
-        const result: Record<string, KnowledgeData[]> = {};
-        let allTermsList: string[] = [];
-        
-        // Fetch data for each country
-        for (const country of selectedCountries) {
-          const { data, error } = await supabase
-            .from('SBI_Knowledge')
-            .select('*')
-            .eq('country', country)
-            .order('year', { ascending: true });
-            
-          if (error) throw error;
-          
-          result[country] = data || [];
-          
-          // Collect all unique terms
-          const countryTerms = [...new Set(data?.map(item => item.term) || [])];
-          allTermsList = [...allTermsList, ...countryTerms];
-        }
-        
-        // Set all unique terms
-        const uniqueTerms = [...new Set(allTermsList)].sort();
-        setAllTerms(uniqueTerms);
-        
-        // Set most recent year
-        const allYears = [];
-        for (const country in result) {
-          allYears.push(...result[country].map(item => item.year));
-        }
-        if (allYears.length > 0) {
-          setSelectedYear(Math.max(...allYears));
-        }
-        
-        return result;
-      } catch (error) {
-        console.error('Error fetching knowledge data:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load knowledge data',
-          variant: 'destructive'
-        });
-        return {};
-      }
-    },
-    enabled: selectedCountries.length > 0
-  });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     // Select the first term by default if none selected
@@ -83,6 +35,11 @@ const CountryComparisonTab: React.FC<CountryComparisonTabProps> = ({
       setSelectedTerms([allTerms[0]]);
     }
   }, [allTerms, selectedTerms]);
+
+  useEffect(() => {
+    // Update allTerms when initialTerms changes
+    setAllTerms(initialTerms || []);
+  }, [initialTerms]);
 
   const handleTermToggle = (term: string) => {
     if (selectedTerms.includes(term)) {
