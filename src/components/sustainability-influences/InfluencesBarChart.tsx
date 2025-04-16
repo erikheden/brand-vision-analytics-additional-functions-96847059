@@ -3,6 +3,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { InfluenceData } from '@/hooks/useSustainabilityInfluences';
 import SingleCountryChart from './charts/SingleCountryChart';
+import MultiCountryChart from './charts/MultiCountryChart';
 
 interface InfluencesBarChartProps {
   data: Record<string, InfluenceData[]>;
@@ -37,21 +38,14 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
     );
   } 
   
-  // For multiple countries, use SingleCountryChart for each country in a grid
+  // For multiple countries, use MultiCountryChart instead of individual charts
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {countries.map(country => (
-          <div key={country} className="h-[400px]">
-            <SingleCountryChart 
-              data={data[country] || []} 
-              selectedYear={selectedYear} 
-              country={country}
-              isCompact={true}
-            />
-          </div>
-        ))}
-      </div>
+      <MultiCountryChart
+        data={data}
+        selectedYear={selectedYear}
+        countries={countries}
+      />
     </Card>
   );
 };
