@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useSustainabilityKnowledge, KnowledgeData } from "@/hooks/useSustainabilityKnowledge";

@@ -14,14 +14,13 @@ import ErrorState from "./ErrorState";
 const DiscussionsContent = () => {
   const { toast } = useToast();
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState<string>("single");
   const [selectedYear, setSelectedYear] = useState<number>(2024);
   
   // Get available countries
   const countries = ["Se", "No", "Dk", "Fi", "Nl"];
   
-  // For comparison view - fetch data for all countries at once
-  const { data: allCountriesData = [], isLoading: isComparisonDataLoading, error: comparisonDataError } = 
+  // For all views - fetch data for all countries at once
+  const { data: allCountriesData = [], isLoading: isDataLoading, error: dataError } = 
     useAllDiscussionTopicsData(selectedCountries);
   
   // Extract years from data
@@ -48,8 +47,8 @@ const DiscussionsContent = () => {
     }
   };
 
-  if (isComparisonDataLoading) return <LoadingState />;
-  if (comparisonDataError) return <ErrorState />;
+  if (isDataLoading) return <LoadingState />;
+  if (dataError) return <ErrorState />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -85,46 +84,21 @@ const DiscussionsContent = () => {
             <div className="text-center py-8 text-gray-500">
               Please select at least one country to view discussion topics
             </div>
+          ) : selectedCountries.length === 1 ? (
+            <DiscussionTopicsChart 
+              data={allCountriesData.filter(item => item.country === selectedCountries[0])} 
+              selectedYear={selectedYear}
+              selectedCountry={selectedCountries[0]}
+            />
           ) : (
-            <Tabs 
-              value={activeTab} 
-              onValueChange={setActiveTab}
-              className="w-full"
-            >
-              <TabsList className="bg-[#34502b]/10 mx-auto md:mx-0 mb-6">
-                <TabsTrigger value="single" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-                  Single Country Analysis
-                </TabsTrigger>
-                <TabsTrigger value="comparison" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-                  Country Comparison
-                </TabsTrigger>
-              </TabsList>
-            
-              <TabsContent value="single">
-                {selectedCountries.length === 1 ? (
-                  <DiscussionTopicsChart 
-                    data={allCountriesData.filter(item => item.country === selectedCountries[0])} 
-                    selectedYear={selectedYear}
-                    selectedCountry={selectedCountries[0]}
-                  />
-                ) : (
-                  <div className="text-center py-6 text-gray-500">
-                    Please select only one country for single country analysis
-                  </div>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="comparison">
-                <DiscussionTopicsComparison 
-                  availableCountries={countries} 
-                  allCountriesData={allCountriesData}
-                  isLoading={isComparisonDataLoading}
-                  error={comparisonDataError}
-                  selectedCountries={selectedCountries}
-                  selectedYear={selectedYear}
-                />
-              </TabsContent>
-            </Tabs>
+            <DiscussionTopicsComparison 
+              availableCountries={countries} 
+              allCountriesData={allCountriesData}
+              isLoading={isDataLoading}
+              error={dataError}
+              selectedCountries={selectedCountries}
+              selectedYear={selectedYear}
+            />
           )}
         </Card>
       </div>

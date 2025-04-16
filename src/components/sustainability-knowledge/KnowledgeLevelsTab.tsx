@@ -3,13 +3,14 @@ import React from 'react';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import KnowledgeChart from './KnowledgeChart';
 import YearSelector from '@/components/sustainability-priorities/YearSelector';
+import KnowledgeComparisonBarChart from './comparison/KnowledgeComparisonBarChart';
 
 interface KnowledgeLevelsTabProps {
-  data: KnowledgeData[];
+  data: Record<string, KnowledgeData[]>;
   years: number[];
   selectedYear: number;
   selectedTerms: string[];
-  selectedCountry: string;
+  selectedCountries: string[];
   setSelectedYear: (year: number) => void;
 }
 
@@ -18,7 +19,7 @@ const KnowledgeLevelsTab: React.FC<KnowledgeLevelsTabProps> = ({
   years,
   selectedYear,
   selectedTerms,
-  selectedCountry,
+  selectedCountries,
   setSelectedYear
 }) => {
   return (
@@ -30,7 +31,21 @@ const KnowledgeLevelsTab: React.FC<KnowledgeLevelsTabProps> = ({
       </div>
       
       <div className="md:col-span-3">
-        <KnowledgeChart data={data} selectedYear={selectedYear} country={selectedCountry} selectedTerms={selectedTerms} />
+        {selectedCountries.length === 1 ? (
+          <KnowledgeChart 
+            data={data[selectedCountries[0]] || []} 
+            selectedYear={selectedYear} 
+            country={selectedCountries[0]} 
+            selectedTerms={selectedTerms} 
+          />
+        ) : (
+          <KnowledgeComparisonBarChart
+            countriesData={data}
+            selectedCountries={selectedCountries}
+            selectedTerms={selectedTerms}
+            selectedYear={selectedYear}
+          />
+        )}
       </div>
     </div>
   );

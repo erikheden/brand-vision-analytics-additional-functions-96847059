@@ -10,10 +10,9 @@ import InfluencesTrendChart from './InfluencesTrendChart';
 import { fetchInfluencesData } from '@/utils/api/fetchInfluencesData';
 import YearSelector from '@/components/sustainability-priorities/YearSelector';
 import InfluenceSelector from './InfluenceSelector';
+
 const MainContent = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("yearly");
   const [selectedInfluences, setSelectedInfluences] = useState<string[]>([]);
@@ -89,6 +88,7 @@ const MainContent = () => {
     };
     fetchAllCountriesData();
   }, [selectedCountries, toast]);
+
   const handleCountriesChange = (countries: string[]) => {
     setSelectedCountries(countries);
     if (countries.length > 0) {
@@ -99,9 +99,12 @@ const MainContent = () => {
       });
     }
   };
+
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState />;
-  return <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <h1 className="text-2xl font-semibold text-[#34502b] mb-6">Sustainability Influences</h1>
       
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md mb-6">
@@ -115,18 +118,21 @@ const MainContent = () => {
           
           <div>
             <div className="space-y-4">
-              
+              <h3 className="text-sm font-medium text-gray-700">Select Year</h3>
               <YearSelector years={allYears} selectedYear={selectedYear} onChange={setSelectedYear} />
             </div>
           </div>
         </div>
       </Card>
       
-      {selectedCountries.length === 0 ? <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+      {selectedCountries.length === 0 ? (
+        <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
           <div className="text-center py-10 text-gray-500">
             Please select at least one country to view sustainability influences data.
           </div>
-        </Card> : <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        </Card>
+      ) : (
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="bg-[#34502b]/10 mx-auto md:mx-0 mb-6">
             <TabsTrigger value="yearly" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
               Yearly View
@@ -137,31 +143,38 @@ const MainContent = () => {
           </TabsList>
 
           <TabsContent value="yearly">
-            {activeTab === "yearly" ? <div className="space-y-6">
-                <div className="mb-4">
-                  <h3 className="text-lg font-medium">Influences by Year</h3>
-                  <p className="text-sm text-gray-500">
-                    Compare influence factors across countries for year {selectedYear}
-                  </p>
-                </div>
-                <InfluencesBarChart data={combinedData} selectedYear={selectedYear} countries={selectedCountries} />
-              </div> : null}
+            <InfluencesBarChart 
+              data={combinedData} 
+              selectedYear={selectedYear} 
+              countries={selectedCountries}
+            />
           </TabsContent>
           
           <TabsContent value="trends">
-            {activeTab === "trends" ? <div className="space-y-6">
-                <div className="mb-4">
-                  <h3 className="text-lg font-medium">Influence Trends Over Time</h3>
-                  <div className="flex flex-wrap gap-4 mt-4">
-                    <InfluenceSelector influences={allInfluences} selectedInfluences={selectedInfluences} onChange={setSelectedInfluences} />
-                  </div>
+            <div className="space-y-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-medium">Influence Trends Over Time</h3>
+                <div className="flex flex-wrap gap-4 mt-4">
+                  <InfluenceSelector influences={allInfluences} selectedInfluences={selectedInfluences} onChange={setSelectedInfluences} />
                 </div>
-                {selectedInfluences.length > 0 ? <InfluencesTrendChart data={combinedData} selectedInfluences={selectedInfluences} countries={selectedCountries} /> : <div className="text-center py-10 text-gray-500">
-                    Please select at least one influence factor to view trends.
-                  </div>}
-              </div> : null}
+              </div>
+              {selectedInfluences.length > 0 ? (
+                <InfluencesTrendChart 
+                  data={combinedData} 
+                  selectedInfluences={selectedInfluences} 
+                  countries={selectedCountries} 
+                />
+              ) : (
+                <div className="text-center py-10 text-gray-500">
+                  Please select at least one influence factor to view trends.
+                </div>
+              )}
+            </div>
           </TabsContent>
-        </Tabs>}
-    </div>;
+        </Tabs>
+      )}
+    </div>
+  );
 };
+
 export default MainContent;

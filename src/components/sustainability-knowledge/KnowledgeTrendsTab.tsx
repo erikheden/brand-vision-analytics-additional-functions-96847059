@@ -4,12 +4,13 @@ import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import KnowledgeTrendChart from './KnowledgeTrendChart';
 import TermSelector from './TermSelector';
 import { Card } from '@/components/ui/card';
+import KnowledgeTrendComparisonLineChart from './comparison/KnowledgeTrendComparisonLineChart';
 
 interface KnowledgeTrendsTabProps {
-  data: KnowledgeData[];
+  data: Record<string, KnowledgeData[]>;
   terms: string[];
   selectedTerms: string[];
-  selectedCountry: string;
+  selectedCountries: string[];
   setSelectedTerms: (terms: string[]) => void;
 }
 
@@ -17,7 +18,7 @@ const KnowledgeTrendsTab: React.FC<KnowledgeTrendsTabProps> = ({
   data,
   terms,
   selectedTerms,
-  selectedCountry,
+  selectedCountries,
   setSelectedTerms
 }) => {
   const handleTermToggle = (term: string) => {
@@ -53,11 +54,17 @@ const KnowledgeTrendsTab: React.FC<KnowledgeTrendsTabProps> = ({
               Please select at least one term to view trends over time.
             </div>
           </Card>
-        ) : (
+        ) : selectedCountries.length === 1 ? (
           <KnowledgeTrendChart
-            data={data}
+            data={data[selectedCountries[0]] || []}
             selectedTerms={selectedTerms}
-            country={selectedCountry}
+            country={selectedCountries[0]}
+          />
+        ) : (
+          <KnowledgeTrendComparisonLineChart
+            countriesData={data}
+            selectedCountries={selectedCountries}
+            selectedTerms={selectedTerms}
           />
         )}
       </div>
