@@ -13,7 +13,7 @@ const YearSelector: React.FC<YearSelectorProps> = ({
 }) => {
   // Sort years in descending order
   const sortedYears = [...years].sort((a, b) => b - a);
-  return <div className="space-y-2">
+  return <div className="space-y-2 py-0">
       <Label htmlFor="year-select" className="text-sm font-medium text-[#34502b]">
         Select Year
       </Label>
