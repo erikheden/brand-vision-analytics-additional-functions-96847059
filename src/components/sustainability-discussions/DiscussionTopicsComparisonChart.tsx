@@ -4,6 +4,7 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
 import { FONT_FAMILY } from "@/utils/constants";
+import { getFullCountryName } from "@/components/CountrySelect";
 
 interface DiscussionTopicsComparisonChartProps {
   countriesData: Record<string, DiscussionTopicData[]>;
@@ -54,8 +55,8 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       const countryColor = getCountryColor(country);
       
       return {
-        name: country,
-        type: 'bar',
+        name: getFullCountryName(country),
+        type: 'column',
         data: topicsArray.map(topic => {
           const topicData = countryData.find(item => item.discussion_topic === topic);
           // Convert from decimal to percentage (0-100)
@@ -87,11 +88,11 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
     return colorMap[country] || '#34502b';
   }
   
-  // Chart options - horizontal bar chart with topics on y-axis
+  // Chart options - vertical bar chart with topics on x-axis
   const options: Highcharts.Options = {
     chart: {
-      type: 'bar', // Horizontal bars
-      height: Math.max(400, 60 * topics.length),
+      type: 'column',
+      height: Math.max(400, 60 + 20 * topics.length),
       backgroundColor: 'white',
       style: { fontFamily: FONT_FAMILY }
     },
@@ -100,6 +101,18 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       style: { color: '#34502b', fontFamily: FONT_FAMILY }
     },
     xAxis: {
+      categories: topics,
+      title: {
+        text: 'Discussion Topics',
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+      },
+      labels: {
+        style: { color: '#34502b', fontFamily: FONT_FAMILY },
+        rotation: -45,
+        align: 'right'
+      }
+    },
+    yAxis: {
       title: {
         text: 'Percentage',
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
@@ -109,37 +122,23 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       }
     },
-    yAxis: {
-      categories: topics,
-      title: {
-        text: 'Discussion Topics',
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      },
-      labels: {
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      }
-    },
     tooltip: {
       formatter: function(this: any) {
-        // Access the category (topic name) from the yAxis categories using the point index
-        const index = this.point?.index ?? 0;
-        const topicName = this.series?.yAxis?.categories?.[index] || 'Unknown';
+        const countryName = this.series.name;
+        const topicName = this.point.category;
         const percentage = this.y || 0;
         
-        return `<b>${this.series?.name || ''}</b><br/>${topicName}: ${percentage.toFixed(1)}%`;
+        return `<b>${countryName}</b><br/>${topicName}: ${percentage.toFixed(1)}%`;
       }
     },
     plotOptions: {
-      bar: {
+      column: {
         dataLabels: {
-          enabled: true,
-          format: '{y:.1f}%',
-          style: {
-            fontWeight: 'normal',
-            color: '#34502b',
-            fontFamily: FONT_FAMILY
-          }
-        }
+          enabled: false
+        },
+        pointPadding: 0.2,
+        borderWidth: 0,
+        groupPadding: 0.1
       }
     },
     legend: {
