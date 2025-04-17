@@ -21,6 +21,7 @@ const DiscussionsContent = () => {
   const [selectedTopic, setSelectedTopic] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<string>("chart");
   
+  // Move this query execution before any conditional returns
   const { data: allCountriesData = [], isLoading, error } = 
     useAllDiscussionTopicsData(selectedCountries);
     
@@ -31,15 +32,18 @@ const DiscussionsContent = () => {
   const topics = useMemo(() => {
     const topicsSet = new Set<string>();
     
-    allCountriesData.forEach(item => {
-      if (item.discussion_topic) {
-        topicsSet.add(item.discussion_topic);
-      }
-    });
+    if (allCountriesData) {
+      allCountriesData.forEach(item => {
+        if (item.discussion_topic) {
+          topicsSet.add(item.discussion_topic);
+        }
+      });
+    }
     
     return Array.from(topicsSet).sort();
   }, [allCountriesData]);
 
+  // Create selection panel content - no conditional returns here
   const SelectionPanelContent = (
     <div className="space-y-6">
       <SelectionPanel
@@ -64,6 +68,11 @@ const DiscussionsContent = () => {
     </div>
   );
 
+  // Handle loading and error states
+  if (isLoading) return <LoadingState />;
+  if (error) return <ErrorState />;
+
+  // Render main content
   const MainContent = () => {
     if (selectedCountries.length === 0) {
       return <EmptySelection />;

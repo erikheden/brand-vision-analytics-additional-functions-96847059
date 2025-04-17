@@ -1,11 +1,10 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
 import HighchartsMapContainer from "./map/HighchartsMapContainer";
 import { createMapOptions } from "./map/createMapOptions";
 import { useMapData } from "./map/useMapData";
-import TopicSelector from "./TopicSelector";
 import MapFooter from "./map/MapFooter";
 import MapEmptyState from "./map/MapEmptyState";
 
