@@ -23,7 +23,7 @@ const SidebarNav = () => {
           <SidebarMenuItem>
             <Link to="/sustainability-priorities" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive("/sustainability-priorities") ? "bg-white/10 text-white" : "hover:bg-white/5 transition-colors")}>
               <BarChart3 className="h-5 w-5" />
-              <span>Sustainability Priorities</span>
+              <span className="text-[#34502b]">Sustainability Priorities</span>
             </Link>
           </SidebarMenuItem>
           
