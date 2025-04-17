@@ -9,6 +9,7 @@ import LoadingState from "./LoadingState";
 import ErrorState from "./ErrorState";
 import YearSelector from "@/components/sustainability-priorities/YearSelector";
 import { useAllInfluencesData } from "@/hooks/useSustainabilityInfluences";
+import DashboardLayout from "../layout/DashboardLayout";
 
 const MainContent = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
@@ -22,9 +23,10 @@ const MainContent = () => {
   if (error) return <ErrorState />;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <h1 className="text-2xl font-semibold text-[#34502b] mb-6">Sustainability Influences</h1>
-      
+    <DashboardLayout
+      title="Sustainability Influences"
+      description="Discover what influences sustainable consumer behavior across different markets and track how these influences change over time."
+    >
       <SelectionPanel
         title="Select Countries"
         description="Select one or more countries to view and compare sustainability influences."
@@ -33,7 +35,7 @@ const MainContent = () => {
       />
 
       {selectedCountries.length > 0 && (
-        <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+        <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl transition-all duration-300 hover:shadow-xl mt-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div>
               <YearSelector
@@ -72,7 +74,7 @@ const MainContent = () => {
           </Tabs>
         </Card>
       )}
-    </div>
+    </DashboardLayout>
   );
 };
 

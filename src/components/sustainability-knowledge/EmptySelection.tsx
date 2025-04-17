@@ -1,14 +1,15 @@
 
 import React from "react";
-import { Card } from "@/components/ui/card";
+import EmptyState from "../shared/EmptyState";
+import { Globe } from "lucide-react";
 
 const EmptySelection: React.FC = () => {
   return (
-    <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-      <div className="text-center py-10 text-gray-500">
-        Please select at least one country to view sustainability knowledge data.
-      </div>
-    </Card>
+    <EmptyState
+      title="No Countries Selected"
+      message="Please select one or more countries above to view sustainability knowledge data."
+      icon={<Globe className="h-6 w-6" />}
+    />
   );
 };
 

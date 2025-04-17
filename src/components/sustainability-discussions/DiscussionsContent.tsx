@@ -8,6 +8,7 @@ import { useAllDiscussionTopicsData } from "@/hooks/useDiscussionTopicsData";
 import LoadingState from "./LoadingState";
 import ErrorState from "./ErrorState";
 import YearSelector from "@/components/sustainability-priorities/YearSelector";
+import DashboardLayout from "../layout/DashboardLayout";
 
 const DiscussionsContent = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
@@ -20,9 +21,10 @@ const DiscussionsContent = () => {
   if (error) return <ErrorState />;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <h1 className="text-2xl font-semibold text-[#34502b] mb-6">Sustainability Discussions</h1>
-      
+    <DashboardLayout
+      title="Sustainability Discussions"
+      description="Explore and compare sustainability discussion topics across different markets and time periods."
+    >
       <SelectionPanel
         title="Select Countries"
         description="Select one or more countries to view and compare sustainability discussions."
@@ -55,7 +57,7 @@ const DiscussionsContent = () => {
           )}
         </Card>
       )}
-    </div>
+    </DashboardLayout>
   );
 };
 
