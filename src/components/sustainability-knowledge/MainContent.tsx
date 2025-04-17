@@ -2,18 +2,20 @@
 import React from "react";
 import { KnowledgePageProvider } from "./KnowledgePageProvider";
 import KnowledgePageLayout from "./KnowledgePageLayout";
-import DashboardLayout from "../layout/DashboardLayout";
+import SustainabilityLayout from "../sustainability-shared/SustainabilityLayout";
+import CountryYearSelector from "./CountryYearSelector";
 
 const MainContent = () => {
   return (
-    <DashboardLayout 
-      title="Sustainability Knowledge"
-      description="Track and compare consumer understanding of sustainability terms across different markets and time periods."
-    >
-      <KnowledgePageProvider>
+    <KnowledgePageProvider>
+      <SustainabilityLayout
+        title="Sustainability Knowledge"
+        description="Track and compare consumer understanding of sustainability terms across different markets and time periods."
+        selectionPanel={<CountryYearSelector />}
+      >
         <KnowledgePageLayout />
-      </KnowledgePageProvider>
-    </DashboardLayout>
+      </SustainabilityLayout>
+    </KnowledgePageProvider>
   );
 };
 
