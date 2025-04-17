@@ -5,22 +5,22 @@ import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
 import DiscussionTopicsComparisonChart from "./DiscussionTopicsComparisonChart";
 
 interface DiscussionTopicsComparisonProps {
-  data: DiscussionTopicData[];
+  countriesData: DiscussionTopicData[];
   selectedCountries: string[];
   selectedYear: number;
 }
 
 const DiscussionTopicsComparison: React.FC<DiscussionTopicsComparisonProps> = ({
-  data,
+  countriesData,
   selectedCountries,
   selectedYear
 }) => {
   // Process data by country
-  const countriesData = React.useMemo(() => {
-    if (!data || data.length === 0) return {};
+  const countriesDataMap = React.useMemo(() => {
+    if (!countriesData || countriesData.length === 0) return {};
     
     // Group data by country
-    return data.reduce((acc, item) => {
+    return countriesData.reduce((acc, item) => {
       if (!item.country) return acc;
       
       const country = item.country;
@@ -30,11 +30,11 @@ const DiscussionTopicsComparison: React.FC<DiscussionTopicsComparisonProps> = ({
       acc[country].push(item);
       return acc;
     }, {} as Record<string, DiscussionTopicData[]>);
-  }, [data]);
+  }, [countriesData]);
   
   if (selectedCountries.length === 0) {
     return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+      <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl">
         <div className="text-center py-12 text-[#34502b]/70">
           Please select countries to compare discussion topics
         </div>
@@ -43,9 +43,9 @@ const DiscussionTopicsComparison: React.FC<DiscussionTopicsComparisonProps> = ({
   }
   
   return (
-    <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+    <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl">
       <DiscussionTopicsComparisonChart 
-        countriesData={countriesData} 
+        countriesData={countriesDataMap} 
         selectedYear={selectedYear}
         selectedCountries={selectedCountries}
       />

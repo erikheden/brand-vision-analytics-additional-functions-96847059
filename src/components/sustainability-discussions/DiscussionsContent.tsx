@@ -31,15 +31,13 @@ const DiscussionsContent = () => {
       />
       
       {selectedCountries.length > 0 && (
-        <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+        <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl transition-all duration-300 hover:shadow-xl mt-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div>
-              <YearSelector
-                years={[2023, 2024]}
-                selectedYear={selectedYear}
-                onChange={setSelectedYear}
-              />
-            </div>
+            <YearSelector
+              years={[2023, 2024]}
+              selectedYear={selectedYear}
+              onChange={setSelectedYear}
+            />
           </div>
           
           {selectedCountries.length === 1 ? (
@@ -50,7 +48,7 @@ const DiscussionsContent = () => {
             />
           ) : (
             <DiscussionTopicsComparison 
-              data={allCountriesData}
+              countriesData={allCountriesData}
               selectedCountries={selectedCountries}
               selectedYear={selectedYear}
             />
