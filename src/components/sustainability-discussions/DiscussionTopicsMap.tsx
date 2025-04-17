@@ -24,25 +24,28 @@ const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
   // Create options for the map
   const mapOptions = createMapOptions(mapData, selectedYear, selectedTopic);
   
-  if (!hasData) {
-    return <MapEmptyState selectedTopic={selectedTopic} selectedYear={selectedYear} />;
-  }
-  
+  // Instead of early return, use conditional rendering
   return (
     <div className="flex flex-col space-y-4">
-      <Card className="bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <CardContent className="p-4">
-          <div className="h-[500px] w-full">
-            <HighchartsMapContainer options={mapOptions} mapData={mapData} />
-          </div>
-        </CardContent>
-      </Card>
-      
-      <MapFooter 
-        selectedTopic={selectedTopic} 
-        selectedYear={selectedYear} 
-        dataPointCount={mapData.length} 
-      />
+      {!hasData ? (
+        <MapEmptyState selectedTopic={selectedTopic} selectedYear={selectedYear} />
+      ) : (
+        <>
+          <Card className="bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+            <CardContent className="p-4">
+              <div className="h-[500px] w-full">
+                <HighchartsMapContainer options={mapOptions} mapData={mapData} />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <MapFooter 
+            selectedTopic={selectedTopic} 
+            selectedYear={selectedYear} 
+            dataPointCount={mapData.length} 
+          />
+        </>
+      )}
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import SelectionPanel from "../sustainability-shared/SelectionPanel";
@@ -21,14 +20,9 @@ const DiscussionsContent = () => {
   const [selectedTopic, setSelectedTopic] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<string>("chart");
   
-  // Move this query execution before any conditional returns
   const { data: allCountriesData = [], isLoading, error } = 
     useAllDiscussionTopicsData(selectedCountries);
-    
-  if (isLoading) return <LoadingState />;
-  if (error) return <ErrorState />;
-
-  // Get unique topics from the data
+  
   const topics = useMemo(() => {
     const topicsSet = new Set<string>();
     
@@ -43,7 +37,6 @@ const DiscussionsContent = () => {
     return Array.from(topicsSet).sort();
   }, [allCountriesData]);
 
-  // Create selection panel content - no conditional returns here
   const SelectionPanelContent = (
     <div className="space-y-6">
       <SelectionPanel
@@ -68,17 +61,11 @@ const DiscussionsContent = () => {
     </div>
   );
 
-  // Handle loading and error states
-  if (isLoading) return <LoadingState />;
-  if (error) return <ErrorState />;
-
-  // Render main content
-  const MainContent = () => {
+  const renderMainContent = () => {
     if (selectedCountries.length === 0) {
       return <EmptySelection />;
     }
 
-    // Filter data by selected topic if one is selected
     const filteredData = selectedTopic 
       ? allCountriesData.filter(item => item.discussion_topic === selectedTopic)
       : allCountriesData;
@@ -143,7 +130,13 @@ const DiscussionsContent = () => {
       description="Explore and compare sustainability discussion topics across different markets and time periods."
       selectionPanel={SelectionPanelContent}
     >
-      <MainContent />
+      {isLoading ? (
+        <LoadingState />
+      ) : error ? (
+        <ErrorState />
+      ) : (
+        renderMainContent()
+      )}
     </SustainabilityLayout>
   );
 };
