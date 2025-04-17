@@ -1,8 +1,6 @@
 
 import React from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useTrendsData } from "@/hooks/useTrendsData";
-import CountryFocusTab from "./trends/CountryFocusTab";
 import AreaFocusTab from "./trends/AreaFocusTab";
 import TrendsLoadingState from "./trends/TrendsLoadingState";
 
@@ -25,8 +23,6 @@ const TrendsView: React.FC<TrendsViewProps> = ({
 }) => {
   const {
     allCountriesData,
-    trendMode,
-    setTrendMode,
     focusedCountry,
     setFocusedCountry,
     allAreas,
@@ -34,7 +30,7 @@ const TrendsView: React.FC<TrendsViewProps> = ({
     isPlaceholderData,
     isLoading,
     error
-  } = useTrendsData(selectedCountries, selectedAreas, "areas");  // Set default mode to "areas"
+  } = useTrendsData(selectedCountries, selectedAreas);  // Remove trendMode parameter
 
   // Combine loading and error states from both sources
   const combinedIsLoading = isLoading || externalIsLoading;
@@ -62,44 +58,15 @@ const TrendsView: React.FC<TrendsViewProps> = ({
             />
           )}
           
-          <Tabs value={trendMode} onValueChange={setTrendMode} className="w-full">
-            <TabsList className="bg-[#34502b]/10 mx-auto md:mx-0">
-              <TabsTrigger 
-                value="countries" 
-                className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
-              >
-                Country Focus
-              </TabsTrigger>
-              <TabsTrigger 
-                value="areas" 
-                className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
-              >
-                Area Focus
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="countries" className="pt-4">
-              <CountryFocusTab 
-                selectedCountries={selectedCountries} 
-                focusedCountry={focusedCountry} 
-                setFocusedCountry={setFocusedCountry} 
-                allAreas={allAreas} 
-                selectedAreas={selectedAreas} 
-                setSelectedAreas={setSelectedAreas} 
-                trendData={trendData} 
-              />
-            </TabsContent>
-            
-            <TabsContent value="areas" className="pt-4">
-              <AreaFocusTab 
-                selectedCountries={selectedCountries} 
-                allAreas={allAreas} 
-                selectedAreas={selectedAreas} 
-                setSelectedAreas={setSelectedAreas} 
-                trendData={trendData} 
-              />
-            </TabsContent>
-          </Tabs>
+          <div className="pt-4">
+            <AreaFocusTab 
+              selectedCountries={selectedCountries} 
+              allAreas={allAreas} 
+              selectedAreas={selectedAreas} 
+              setSelectedAreas={setSelectedAreas} 
+              trendData={trendData} 
+            />
+          </div>
         </div>
       )}
     </div>
@@ -107,4 +74,3 @@ const TrendsView: React.FC<TrendsViewProps> = ({
 };
 
 export default TrendsView;
-
