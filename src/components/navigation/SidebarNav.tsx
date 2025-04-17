@@ -56,7 +56,7 @@ const SidebarNav = () => {
           </SidebarMenuItem>
           
           {/* Industry section */}
-          <div className="pb-2 text-xs font-medium text-white/70 uppercase px-0 mx-0 mt-6 mb-px py-[15px]">Industry</div>
+          <div className="pb-2 text-xs font-medium text-black/70 uppercase px-0 mx-0 mt-6 mb-px py-[15px]">Industry</div>
           
           <SidebarMenuItem>
             <Link to="/materiality-areas" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm text-[#34502b]", isActive("/materiality-areas") ? "bg-white/10 text-[#34502b]" : "hover:bg-white/5 transition-colors")}>
