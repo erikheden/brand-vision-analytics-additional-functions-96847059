@@ -1,10 +1,13 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { useMultiCountryMateriality } from "@/hooks/useMultiCountryMateriality";
 import { MaterialityData } from "@/hooks/useGeneralMaterialityData";
 
-export const useTrendsData = (selectedCountries: string[], selectedAreas: string[]) => {
-  const [trendMode, setTrendMode] = useState<string>("countries");
+export const useTrendsData = (
+  selectedCountries: string[], 
+  selectedAreas: string[], 
+  defaultMode: "countries" | "areas" = "countries"
+) => {
+  const [trendMode, setTrendMode] = useState<string>(defaultMode);
   const [focusedCountry, setFocusedCountry] = useState<string>("");
   
   // Fetch data for multiple countries
