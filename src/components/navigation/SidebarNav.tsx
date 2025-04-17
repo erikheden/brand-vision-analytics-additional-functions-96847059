@@ -9,7 +9,7 @@ const SidebarNav = () => {
     return location.pathname === path;
   };
   return <Sidebar className="border-r bg-[#34502b] text-white font-forma">
-      <SidebarContent className="px-4 bg-[#b7c895]">
+      <SidebarContent className="rounded-none px-[17px] bg-white">
         <SidebarMenu>
           <div className="pb-2 text-xs font-medium text-white/70 uppercase px-0 mx-0 my-px py-[15px]">Dashboards</div>
           
