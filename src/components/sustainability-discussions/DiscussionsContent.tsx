@@ -1,11 +1,10 @@
 
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import SelectionPanel from "../sustainability-shared/SelectionPanel";
 import DiscussionTopicsChart from "./DiscussionTopicsChart";
 import DiscussionTopicsComparison from "./DiscussionTopicsComparison";
-import { useDiscussionTopicsData, useAllDiscussionTopicsData } from "@/hooks/useDiscussionTopicsData";
+import { useAllDiscussionTopicsData } from "@/hooks/useDiscussionTopicsData";
 import LoadingState from "./LoadingState";
 import ErrorState from "./ErrorState";
 import YearSelector from "@/components/sustainability-priorities/YearSelector";

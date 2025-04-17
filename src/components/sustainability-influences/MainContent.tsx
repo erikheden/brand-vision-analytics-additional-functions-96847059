@@ -16,7 +16,7 @@ const MainContent = () => {
   const [selectedInfluences, setSelectedInfluences] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number>(2024);
 
-  const { data: influencesData, isLoading, error } = useAllInfluencesData(selectedCountries);
+  const { data: influencesData = {}, isLoading, error } = useAllInfluencesData(selectedCountries);
 
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState />;
