@@ -45,7 +45,9 @@ const TrendsView: React.FC<TrendsViewProps> = ({
           <Tabs value={trendMode} onValueChange={setTrendMode} className="w-full">
             <TabsList className="bg-[#34502b]/10 mx-auto md:mx-0">
               
-              
+              <TabsTrigger value="areas" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+                Area Focus
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="countries" className="pt-4">
