@@ -1,12 +1,13 @@
 
-import React from "react";
-import { Card } from "@/components/ui/card";
+import React, { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
-import { useMapData } from "./map/useMapData";
-import { createMapOptions } from "./map/createMapOptions";
 import HighchartsMapContainer from "./map/HighchartsMapContainer";
-import MapEmptyState from "./map/MapEmptyState";
+import { createMapOptions } from "./map/createMapOptions";
+import { useMapData } from "./map/useMapData";
+import TopicSelector from "./TopicSelector";
 import MapFooter from "./map/MapFooter";
+import MapEmptyState from "./map/MapEmptyState";
 
 interface DiscussionTopicsMapProps {
   data: DiscussionTopicData[];
@@ -17,31 +18,33 @@ interface DiscussionTopicsMapProps {
 const DiscussionTopicsMap: React.FC<DiscussionTopicsMapProps> = ({
   data,
   selectedYear,
-  selectedTopic,
+  selectedTopic
 }) => {
-  // Debug logs to check data coming in
-  React.useEffect(() => {
-    console.log("DiscussionTopicsMap received data:", data?.length);
-    console.log("DiscussionTopicsMap selected year:", selectedYear);
-    console.log("DiscussionTopicsMap selected topic:", selectedTopic);
-  }, [data, selectedYear, selectedTopic]);
-
-  // Process the map data
-  const { filteredData, mapData, hasData } = useMapData(data, selectedYear, selectedTopic);
-
-  // Configure the chart options
-  const options = createMapOptions(mapData, selectedYear, selectedTopic);
-
-  // Display message if no data is available
+  const { mapData, hasData } = useMapData(data, selectedYear, selectedTopic);
+  
+  // Create options for the map
+  const mapOptions = createMapOptions(mapData, selectedYear, selectedTopic);
+  
   if (!hasData) {
     return <MapEmptyState selectedTopic={selectedTopic} selectedYear={selectedYear} />;
   }
-
+  
   return (
-    <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-      <HighchartsMapContainer options={options} mapData={mapData} />
-      <MapFooter />
-    </Card>
+    <div className="flex flex-col space-y-4">
+      <Card className="bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+        <CardContent className="p-4">
+          <div className="h-[500px] w-full">
+            <HighchartsMapContainer options={mapOptions} mapData={mapData} />
+          </div>
+        </CardContent>
+      </Card>
+      
+      <MapFooter 
+        selectedTopic={selectedTopic} 
+        selectedYear={selectedYear} 
+        dataPointCount={mapData.length} 
+      />
+    </div>
   );
 };
 
