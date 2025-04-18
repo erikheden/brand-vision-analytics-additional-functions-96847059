@@ -35,7 +35,7 @@ const InfluencesTrendChart: React.FC<InfluencesTrendChartProps> = ({
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="text-center py-10 text-gray-500">
           <p className="mb-3">Please select at least one influence factor to display trend data.</p>
-          <Alert variant="info" className="max-w-md mx-auto bg-blue-50">
+          <Alert className="max-w-md mx-auto bg-blue-50">
             <Info className="h-4 w-4" />
             <AlertDescription>
               Use the sidebar controls to select influence factors.

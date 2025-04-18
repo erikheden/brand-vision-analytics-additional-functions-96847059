@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import Highcharts from 'highcharts';
@@ -53,9 +52,34 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     return filteredData.sort((a, b) => b.percentage - a.percentage);
   }, [data, effectiveYear, selectedTerms]);
 
+  // Add debugging to see the data structure
+  console.log('Knowledge Chart Data:', {
+    data: data?.length,
+    selectedYear,
+    effectiveYear,
+    chartData: chartData?.length,
+    availableYears,
+    percentages: chartData.map(item => ({
+      term: item.term,
+      percentage: item.percentage,
+      formattedPercentage: typeof item.percentage === 'number' ? Math.round(item.percentage * 100) : 0
+    }))
+  });
+
   // Extract terms and percentages for the chart
   const terms = chartData.map(item => item.term);
-  const percentages = chartData.map(item => Math.round(item.percentage * 100)); // Convert to whole percentages
+  // Convert from decimal (0-1) to percentage (0-100) if needed
+  const percentages = chartData.map(item => {
+    if (typeof item.percentage === 'number') {
+      // If it's already a whole number (like 75), keep it as is
+      if (item.percentage > 1) {
+        return Math.round(item.percentage);
+      }
+      // If it's a decimal (like 0.75), convert to percentage
+      return Math.round(item.percentage * 100);
+    }
+    return 0;
+  });
 
   // Chart colors
   const colors = percentages.map((_, index) => {

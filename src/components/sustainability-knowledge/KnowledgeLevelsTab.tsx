@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import KnowledgeChart from './KnowledgeChart';
 import YearSelector from '@/components/sustainability-priorities/YearSelector';
@@ -22,6 +22,24 @@ const KnowledgeLevelsTab: React.FC<KnowledgeLevelsTabProps> = ({
   selectedCountries,
   setSelectedYear
 }) => {
+  // Debug log the incoming data
+  console.log('KnowledgeLevelsTab props:', {
+    dataKeys: Object.keys(data),
+    sampleCountry: selectedCountries[0],
+    sampleData: selectedCountries[0] ? data[selectedCountries[0]]?.slice(0, 2) : [],
+    selectedYear,
+    years,
+    selectedTerms,
+    selectedCountries
+  });
+
+  // Ensure we have a valid year selected if years array changes
+  useEffect(() => {
+    if (years.length > 0 && !years.includes(selectedYear)) {
+      setSelectedYear(years[years.length - 1]); // Set to most recent year
+    }
+  }, [years, selectedYear, setSelectedYear]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div className="md:col-span-1">
