@@ -9,11 +9,16 @@ interface ImpactResultsDisplayProps {
   error: any;
   selectedCountry: string;
   selectedCategories: string[];
-  selectedYear: number;
-  chartData: {
+  selectedYear: number | null;
+  chartData?: {
     byLevel: Array<{ name: string, value: number, category: string }>;
     byCategory: Array<{ name: string, value: number, category: string }>;
   };
+  // Add the missing props that are being passed
+  data?: any[];
+  processedData?: Record<string, Record<string, Record<string, number>>>;
+  selectedLevels?: string[];
+  country?: string;
 }
 
 const ImpactResultsDisplay: React.FC<ImpactResultsDisplayProps> = ({
@@ -23,9 +28,13 @@ const ImpactResultsDisplay: React.FC<ImpactResultsDisplayProps> = ({
   selectedCategories,
   selectedYear,
   chartData,
+  // We can ignore the extra props since we don't use them directly
+  country = ""
 }) => {
-  const countryName = getFullCountryName(selectedCountry) || selectedCountry;
-  const categories = [...new Set(chartData.byLevel.map(item => item.category))];
+  // Use either explicitly passed country or the selectedCountry prop
+  const countryToUse = country || selectedCountry;
+  const countryName = getFullCountryName(countryToUse) || countryToUse;
+  const categories = chartData?.byLevel ? [...new Set(chartData.byLevel.map(item => item.category))] : [];
 
   if (isLoading) {
     return (
@@ -47,7 +56,7 @@ const ImpactResultsDisplay: React.FC<ImpactResultsDisplayProps> = ({
     );
   }
 
-  if (!selectedCountry) {
+  if (!countryToUse) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="text-center py-12 text-[#34502b]/70">
@@ -67,11 +76,11 @@ const ImpactResultsDisplay: React.FC<ImpactResultsDisplayProps> = ({
     );
   }
 
-  if (chartData.byLevel.length === 0) {
+  if (!chartData || !chartData.byLevel || chartData.byLevel.length === 0) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="text-center py-12 text-gray-500">
-          No impact data available for the selected criteria in {countryName} for {selectedYear}
+          No impact data available for the selected criteria in {countryName} {selectedYear ? `for ${selectedYear}` : ''}
         </div>
       </Card>
     );
@@ -82,7 +91,7 @@ const ImpactResultsDisplay: React.FC<ImpactResultsDisplayProps> = ({
       <div className="space-y-8">
         <ImpactBarChart
           data={chartData.byLevel}
-          title={`Sustainability Impact by Level in ${countryName} (${selectedYear})`}
+          title={`Sustainability Impact by Level in ${countryName} ${selectedYear ? `(${selectedYear})` : ''}`}
           categories={categories}
         />
       </div>

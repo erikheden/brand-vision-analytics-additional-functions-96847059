@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import ImpactFilters from "./impact/ImpactFilters";
 import ImpactResultsDisplay from "./impact/ImpactResultsDisplay";
 import { useSustainabilityImpactData } from "@/hooks/useSustainabilityImpactData";
@@ -107,6 +107,41 @@ const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({
     }
   };
   
+  // Prepare chart data from the processed data
+  const chartData = useMemo(() => {
+    if (!processedData || !selectedYear) {
+      return { byLevel: [], byCategory: [] };
+    }
+    
+    const byLevel: Array<{ name: string, value: number, category: string }> = [];
+    const byCategory: Array<{ name: string, value: number, category: string }> = [];
+    
+    const categoriesToUse = selectedCategories.length > 0 ? selectedCategories : categories;
+    const levelsToUse = selectedLevels.length > 0 ? selectedLevels : sortedImpactLevels;
+    
+    categoriesToUse.forEach(category => {
+      if (processedData[category] && processedData[category][selectedYear]) {
+        levelsToUse.forEach(level => {
+          if (processedData[category][selectedYear][level] !== undefined) {
+            byLevel.push({
+              name: level,
+              value: processedData[category][selectedYear][level] * 100, // Convert to percentage
+              category: category
+            });
+            
+            byCategory.push({
+              name: category,
+              value: processedData[category][selectedYear][level] * 100,
+              category: level
+            });
+          }
+        });
+      }
+    });
+    
+    return { byLevel, byCategory };
+  }, [processedData, selectedYear, selectedCategories, selectedLevels, categories, sortedImpactLevels]);
+  
   return (
     <div className="space-y-6">
       <ImpactFilters
@@ -127,14 +162,12 @@ const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({
       
       {activeCountry && (
         <ImpactResultsDisplay
-          data={data}
-          processedData={processedData}
+          selectedCountry={activeCountry}
           selectedCategories={selectedCategories.length > 0 ? selectedCategories : categories}
           selectedYear={selectedYear}
-          selectedLevels={selectedLevels.length > 0 ? selectedLevels : sortedImpactLevels}
+          chartData={chartData}
           isLoading={isLoading}
           error={error}
-          country={activeCountry}
         />
       )}
     </div>
