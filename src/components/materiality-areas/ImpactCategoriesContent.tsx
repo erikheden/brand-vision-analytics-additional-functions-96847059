@@ -1,41 +1,117 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ImpactFilters from "./impact/ImpactFilters";
 import ImpactResultsDisplay from "./impact/ImpactResultsDisplay";
-import { useImpactCategories } from "./impact/useImpactCategories";
+import { useSustainabilityImpactData } from "@/hooks/useSustainabilityImpactData";
+import { useSelectionData } from "@/hooks/useSelectionData";
 
-const ImpactCategoriesContent = () => {
+interface ImpactCategoriesContentProps {
+  selectedCountries: string[];
+}
+
+const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({ 
+  selectedCountries = [] 
+}) => {
+  const [activeCountry, setActiveCountry] = useState<string>("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+  
+  const { countries } = useSelectionData("", []);
+  
+  // Set active country when selectedCountries changes
+  useEffect(() => {
+    if (selectedCountries.length > 0 && (!activeCountry || !selectedCountries.includes(activeCountry))) {
+      setActiveCountry(selectedCountries[0]);
+    }
+  }, [selectedCountries, activeCountry]);
+  
   const {
-    selectedCountry,
-    countries,
+    data,
+    processedData,
     categories,
-    selectedCategories,
+    impactLevels,
     years,
-    selectedYear,
-    sortedImpactLevels,
-    selectedLevels,
     isLoading,
-    error,
-    chartData,
-    
-    handleCountryChange,
-    toggleCategory,
-    setSelectedYear,
-    toggleImpactLevel
-  } = useImpactCategories();
-
-  // Prepare the data in the format expected by ImpactResultsDisplay
-  const formattedChartData = {
-    byLevel: chartData, // Assign the array to byLevel property
-    byCategory: [] // Empty array for byCategory, as it's not currently used
+    error
+  } = useSustainabilityImpactData(activeCountry);
+  
+  // When years data changes, select the most recent year by default
+  useEffect(() => {
+    if (years.length > 0 && !selectedYear) {
+      setSelectedYear(years[years.length - 1]);
+    }
+  }, [years, selectedYear]);
+  
+  // Sort impact levels in a meaningful order (if needed)
+  const sortedImpactLevels = impactLevels.sort((a, b) => {
+    const order = { "high": 0, "medium": 1, "low": 2 };
+    return (order[a.toLowerCase()] || 99) - (order[b.toLowerCase()] || 99);
+  });
+  
+  // Toggle a category selection
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
   };
-
+  
+  // Toggle an impact level selection
+  const toggleImpactLevel = (level: string) => {
+    setSelectedLevels(prev => 
+      prev.includes(level)
+        ? prev.filter(l => l !== level)
+        : [...prev, level]
+    );
+  };
+  
+  // When switching between countries, reset selections if necessary
+  useEffect(() => {
+    // Reset selected categories if none match the new country's available categories
+    if (categories.length > 0 && selectedCategories.length > 0) {
+      const validCategories = selectedCategories.filter(cat => categories.includes(cat));
+      if (validCategories.length === 0) {
+        setSelectedCategories([categories[0]]);
+      } else if (validCategories.length !== selectedCategories.length) {
+        setSelectedCategories(validCategories);
+      }
+    }
+    
+    // Reset selected levels if none match the new country's available levels
+    if (impactLevels.length > 0 && selectedLevels.length > 0) {
+      const validLevels = selectedLevels.filter(lvl => impactLevels.includes(lvl));
+      if (validLevels.length === 0) {
+        setSelectedLevels([impactLevels[0]]);
+      } else if (validLevels.length !== selectedLevels.length) {
+        setSelectedLevels(validLevels);
+      }
+    }
+  }, [activeCountry, categories, impactLevels]);
+  
+  const handleCountryChange = (country: string) => {
+    if (selectedCountries.includes(country)) {
+      // Don't allow deselecting the active country if it's the only one selected
+      if (country === activeCountry && selectedCountries.length === 1) {
+        return;
+      }
+      
+      // If the active country is deselected, switch to another country
+      if (country === activeCountry) {
+        const remainingCountries = selectedCountries.filter(c => c !== country);
+        setActiveCountry(remainingCountries[0]);
+      }
+    } else if (!activeCountry) {
+      setActiveCountry(country);
+    }
+  };
+  
   return (
     <div className="space-y-6">
-      {/* Filters Section */}
-      <ImpactFilters 
-        selectedCountry={selectedCountry}
-        countries={countries}
+      <ImpactFilters
+        selectedCountry={activeCountry}
+        countries={selectedCountries}
         handleCountryChange={handleCountryChange}
         categories={categories}
         selectedCategories={selectedCategories}
@@ -49,15 +125,18 @@ const ImpactCategoriesContent = () => {
         isLoading={isLoading}
       />
       
-      {/* Results Display */}
-      <ImpactResultsDisplay 
-        isLoading={isLoading}
-        error={error}
-        selectedCountry={selectedCountry}
-        selectedCategories={selectedCategories}
-        selectedYear={selectedYear}
-        chartData={formattedChartData}
-      />
+      {activeCountry && (
+        <ImpactResultsDisplay
+          data={data}
+          processedData={processedData}
+          selectedCategories={selectedCategories.length > 0 ? selectedCategories : categories}
+          selectedYear={selectedYear}
+          selectedLevels={selectedLevels.length > 0 ? selectedLevels : sortedImpactLevels}
+          isLoading={isLoading}
+          error={error}
+          country={activeCountry}
+        />
+      )}
     </div>
   );
 };

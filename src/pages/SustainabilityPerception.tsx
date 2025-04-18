@@ -1,10 +1,10 @@
 
 import { useState } from "react";
-import SelectionPanel from "@/components/SelectionPanel";
+import SelectionPanel from "@/components/sustainability-shared/SelectionPanel";
 import ChartSection from "@/components/ChartSection";
 
 const SustainabilityPerception = () => {
-  const [selectedCountry, setSelectedCountry] = useState<string>("");
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   
   return (
@@ -13,16 +13,18 @@ const SustainabilityPerception = () => {
         <h1 className="text-2xl font-semibold text-[#34502b]">Sustainable Brand Index Dashboard</h1>
           
         <SelectionPanel 
-          selectedCountry={selectedCountry} 
-          setSelectedCountry={setSelectedCountry} 
-          selectedBrands={selectedBrands} 
-          setSelectedBrands={setSelectedBrands} 
+          title="Select Countries"
+          description="Select one or more countries to view sustainability perception."
+          selectedCountries={selectedCountries}
+          setSelectedCountries={setSelectedCountries}
         />
           
-        <ChartSection 
-          selectedCountry={selectedCountry} 
-          selectedBrands={selectedBrands} 
-        />
+        {selectedCountries.length > 0 && (
+          <ChartSection 
+            selectedCountry={selectedCountries[0]} 
+            selectedBrands={selectedBrands} 
+          />
+        )}
       </div>
     </div>
   );

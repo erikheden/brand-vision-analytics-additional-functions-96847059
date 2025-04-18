@@ -1,15 +1,18 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useMaterialityFilters } from "@/hooks/useMaterialityFilters";
 import CategorySelector from "./CategorySelector";
 import FactorToggle from "./FactorToggle";
 import MaterialityResultsDisplay from "./MaterialityResultsDisplay";
 import CountryButtonSelect from "@/components/CountryButtonSelect";
+import { useSelectionData } from "@/hooks/useSelectionData";
 
 const MaterialityAreasContent = () => {
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const { countries } = useSelectionData("", []);
+  
   const {
-    selectedCountry,
     selectedCategory,
     selectedFactors,
     filteredData,
@@ -17,12 +20,16 @@ const MaterialityAreasContent = () => {
     error,
     categories,
     setSelectedCategory,
-    handleCountryChange,
     toggleFactor
-  } = useMaterialityFilters();
+  } = useMaterialityFilters(selectedCountries[0]); // Pass the first selected country for now
   
-  // Countries available (using capital letters as specified)
-  const countries = ["NO", "SE", "DK", "FI", "NL"];
+  const handleCountryChange = (country: string) => {
+    const newSelectedCountries = selectedCountries.includes(country)
+      ? selectedCountries.filter(c => c !== country)
+      : [...selectedCountries, country];
+    
+    setSelectedCountries(newSelectedCountries);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -31,15 +38,15 @@ const MaterialityAreasContent = () => {
         
         {/* Country Selection Card */}
         <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl mb-6">
-          <h2 className="text-lg font-semibold text-[#34502b] mb-3">Select Country</h2>
+          <h2 className="text-lg font-semibold text-[#34502b] mb-3">Select Countries</h2>
           <CountryButtonSelect
-            selectedCountry={selectedCountry}
-            countries={countries}
+            countries={countries || []}
+            selectedCountries={selectedCountries}
             onCountryChange={handleCountryChange}
           />
         </Card>
         
-        {selectedCountry && (
+        {selectedCountries.length > 0 && (
           <div className="space-y-6">
             {/* Filters Section - Now placed above the chart */}
             <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl">
@@ -73,7 +80,7 @@ const MaterialityAreasContent = () => {
             <MaterialityResultsDisplay
               isLoading={isLoading}
               error={error}
-              selectedCountry={selectedCountry}
+              selectedCountry={selectedCountries[0]}
               selectedCategory={selectedCategory}
               filteredData={filteredData}
             />

@@ -9,11 +9,18 @@ export interface MaterialityFilters {
   selectedFactors: string[];
 }
 
-export function useMaterialityFilters() {
+export function useMaterialityFilters(country: string = "") {
   const { toast } = useToast();
-  const [selectedCountry, setSelectedCountry] = useState<string>("");
+  const [selectedCountry, setSelectedCountry] = useState<string>(country);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedFactors, setSelectedFactors] = useState<string[]>(["hygiene_factor"]);
+  
+  // Update selectedCountry when country prop changes
+  useEffect(() => {
+    if (country) {
+      setSelectedCountry(country);
+    }
+  }, [country]);
   
   const { data: vhoData = [], isLoading, error } = useVHOData(selectedCountry);
   
