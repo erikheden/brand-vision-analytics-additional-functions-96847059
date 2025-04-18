@@ -1,11 +1,11 @@
 
 import React from "react";
 import { Card } from "@/components/ui/card";
-import CountrySelect from "@/components/CountrySelect";
 import { useMaterialityFilters } from "@/hooks/useMaterialityFilters";
 import CategorySelector from "./CategorySelector";
 import FactorToggle from "./FactorToggle";
 import MaterialityResultsDisplay from "./MaterialityResultsDisplay";
+import CountryButtonSelect from "@/components/CountryButtonSelect";
 
 const MaterialityAreasContent = () => {
   const {
@@ -31,7 +31,8 @@ const MaterialityAreasContent = () => {
         
         {/* Country Selection Card */}
         <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl mb-6">
-          <CountrySelect
+          <h2 className="text-lg font-semibold text-[#34502b] mb-3">Select Country</h2>
+          <CountryButtonSelect
             selectedCountry={selectedCountry}
             countries={countries}
             onCountryChange={handleCountryChange}

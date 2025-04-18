@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -5,7 +6,8 @@ import PrioritiesView from "./PrioritiesView";
 import TrendsView from "./TrendsView";
 import { useGeneralMaterialityData } from "@/hooks/useGeneralMaterialityData";
 import { useSelectionData } from "@/hooks/useSelectionData";
-import CountryMultiSelect from "@/components/CountryMultiSelect";
+import CountryButtonSelect from "@/components/CountryButtonSelect";
+
 const MainContent = () => {
   const [activeView, setActiveView] = useState<string>("priorities");
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
@@ -44,7 +46,17 @@ const MainContent = () => {
       setSelectedYear(Math.max(...years));
     }
   }, [years]);
-  return <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+  const handleCountryChange = (country: string) => {
+    setSelectedCountries(current => 
+      current.includes(country) 
+        ? current.filter(c => c !== country)
+        : [...current, country]
+    );
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="space-y-6">
         <h1 className="text-2xl font-semibold text-[#34502b] text-center md:text-left">
           Sustainability Priorities
@@ -59,7 +71,11 @@ const MainContent = () => {
                   <p className="text-gray-600 text-sm">
                     Select one or more countries to view and compare sustainability priorities.
                   </p>
-                  <CountryMultiSelect countries={countries || []} selectedCountries={selectedCountries} setSelectedCountries={setSelectedCountries} />
+                  <CountryButtonSelect
+                    countries={countries || []}
+                    selectedCountries={selectedCountries}
+                    onCountryChange={handleCountryChange}
+                  />
                 </div>
               </Card>
             </div>
@@ -77,18 +93,16 @@ const MainContent = () => {
           </TabsList>
 
           <TabsContent value="priorities" className="space-y-6 pt-4 py-0">
-            
-            
             <PrioritiesView selectedCountries={selectedCountries} years={years} selectedYear={selectedYear} setSelectedYear={setSelectedYear} isLoading={isLoading} error={error} />
           </TabsContent>
 
           <TabsContent value="trends" className="space-y-6 pt-4 py-0">
-            
-            
             <TrendsView selectedCountries={selectedCountries} areas={areas} selectedAreas={selectedAreas} setSelectedAreas={setSelectedAreas} isLoading={isLoading} error={error} />
           </TabsContent>
         </Tabs>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default MainContent;

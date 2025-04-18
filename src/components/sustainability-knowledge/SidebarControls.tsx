@@ -1,11 +1,11 @@
 
 import React from 'react';
-import CountrySelect from '@/components/CountrySelect';
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { CheckSquare, Square, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import CountryButtonSelect from '@/components/CountryButtonSelect';
 
 interface SidebarControlsProps {
   countries: string[];
@@ -33,7 +33,8 @@ const SidebarControls: React.FC<SidebarControlsProps> = ({
   return (
     <div className="space-y-6 bg-white p-6 rounded-xl border-2 border-[#34502b]/20 shadow-md">
       <div className="space-y-4">
-        <CountrySelect
+        <Label className="text-sm font-medium text-[#34502b]">Select Country</Label>
+        <CountryButtonSelect
           selectedCountry={selectedCountry}
           onCountryChange={onCountryChange}
           countries={countries}
