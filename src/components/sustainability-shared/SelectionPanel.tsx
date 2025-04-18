@@ -20,11 +20,13 @@ const SelectionPanel: React.FC<SelectionPanelProps> = ({
   const countries = ["SE", "NO", "DK", "FI", "NL"];
 
   const handleCountryChange = (country: string) => {
-    setSelectedCountries(current => 
-      current.includes(country) 
-        ? current.filter(c => c !== country)
-        : [...current, country]
-    );
+    // Create a new array based on the current selection
+    const newSelectedCountries = selectedCountries.includes(country) 
+      ? selectedCountries.filter(c => c !== country)
+      : [...selectedCountries, country];
+    
+    // Use the direct setter pattern instead of a callback function
+    setSelectedCountries(newSelectedCountries);
   };
 
   return (
