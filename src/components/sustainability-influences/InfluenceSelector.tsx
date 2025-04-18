@@ -3,6 +3,8 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 
 interface InfluenceSelectorProps {
   influences: string[];
@@ -46,39 +48,43 @@ const InfluenceSelector: React.FC<InfluenceSelectorProps> = ({
   }
 
   return (
-    <Card className="p-4 bg-white shadow">
+    <Card className="p-4 bg-white shadow sticky top-4">
       <div className="mb-3">
         <h3 className="text-sm font-medium text-gray-700">Influence Factors</h3>
         <p className="text-xs text-gray-500">Select factors to show in trend chart</p>
       </div>
       
       <div className="mb-2">
-        <button
+        <Button
           onClick={handleSelectAll}
-          className="text-xs text-[#34502b] hover:text-[#34502b]/80 underline"
+          variant="outline"
+          size="sm"
+          className="text-xs text-[#34502b] hover:bg-[#34502b]/10 w-full justify-center"
           type="button"
         >
           {selectedInfluences.length === influences.length ? "Deselect All" : "Select All"}
-        </button>
+        </Button>
       </div>
       
-      <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
-        {influences.map((influence) => (
-          <div key={influence} className="flex items-center space-x-2">
-            <Checkbox
-              id={`influence-${influence}`}
-              checked={selectedInfluences.includes(influence)}
-              onCheckedChange={() => handleInfluenceChange(influence)}
-            />
-            <Label
-              htmlFor={`influence-${influence}`}
-              className="text-sm text-gray-700 cursor-pointer"
-            >
-              {influence}
-            </Label>
-          </div>
-        ))}
-      </div>
+      <ScrollArea className="h-[300px] pr-2">
+        <div className="space-y-2">
+          {influences.map((influence) => (
+            <div key={influence} className="flex items-center space-x-2">
+              <Checkbox
+                id={`influence-${influence}`}
+                checked={selectedInfluences.includes(influence)}
+                onCheckedChange={() => handleInfluenceChange(influence)}
+              />
+              <Label
+                htmlFor={`influence-${influence}`}
+                className="text-sm text-gray-700 cursor-pointer"
+              >
+                {influence}
+              </Label>
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
     </Card>
   );
 };

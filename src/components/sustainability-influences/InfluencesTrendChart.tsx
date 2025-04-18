@@ -1,10 +1,12 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { Card } from '@/components/ui/card';
 import { InfluenceData } from '@/hooks/useSustainabilityInfluences';
 import { createTrendChartOptions } from './charts/chartOptions/trendChartOptions';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 
 interface InfluencesTrendChartProps {
   data: Record<string, InfluenceData[]>;
@@ -17,12 +19,44 @@ const InfluencesTrendChart: React.FC<InfluencesTrendChartProps> = ({
   selectedInfluences,
   countries
 }) => {
-  // Display empty state if no countries or influences selected
-  if (countries.length === 0 || selectedInfluences.length === 0) {
+  // Create a more descriptive empty state
+  if (countries.length === 0) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="text-center py-10 text-gray-500">
-          Please select at least one country and one influence factor to display trend data.
+          Please select at least one country to display trend data.
+        </div>
+      </Card>
+    );
+  }
+  
+  if (selectedInfluences.length === 0) {
+    return (
+      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+        <div className="text-center py-10 text-gray-500">
+          <p className="mb-3">Please select at least one influence factor to display trend data.</p>
+          <Alert variant="info" className="max-w-md mx-auto bg-blue-50">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Use the sidebar controls to select influence factors.
+            </AlertDescription>
+          </Alert>
+        </div>
+      </Card>
+    );
+  }
+
+  // Check if we have actual data to display
+  const hasData = useMemo(() => {
+    return Object.keys(data).length > 0 && 
+      Object.values(data).some(countryData => countryData.length > 0);
+  }, [data]);
+
+  if (!hasData) {
+    return (
+      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+        <div className="text-center py-10 text-gray-500">
+          No trend data available for the selected countries and influence factors.
         </div>
       </Card>
     );
