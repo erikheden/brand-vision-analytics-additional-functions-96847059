@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCountriesWithBehaviourData } from "@/hooks/useBehaviourGroups";
+import { getFullCountryName } from "@/components/CountrySelect"; // Import the utility function
 
 interface BehaviourControlsProps {
   selectedCountry: string;
@@ -38,12 +39,14 @@ const BehaviourControls = ({
               disabled={countriesLoading}
             >
               <SelectTrigger id="country" className="w-full mt-2">
-                <SelectValue placeholder="Select country" />
+                <SelectValue placeholder="Select country">
+                  {selectedCountry ? getFullCountryName(selectedCountry) : "Select country"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {countries.map((country) => (
                   <SelectItem key={country} value={country}>
-                    {country}
+                    {getFullCountryName(country)}
                   </SelectItem>
                 ))}
               </SelectContent>
