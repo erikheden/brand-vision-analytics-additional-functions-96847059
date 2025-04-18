@@ -111,32 +111,32 @@ const DiscussionsContent = () => {
                 <span className="hidden md:inline">Trends</span>
               </TabsTrigger>
             </TabsList>
+          
+            <TabsContent value="chart">
+              {selectedCountries.length === 1 ? (
+                <DiscussionTopicsChart 
+                  data={filteredData.filter(item => item.country === selectedCountries[0])} 
+                  selectedCountry={selectedCountries[0]}
+                  selectedYear={selectedYear}
+                />
+              ) : (
+                <DiscussionTopicsComparison 
+                  countriesData={filteredData}
+                  selectedCountries={selectedCountries}
+                  selectedYear={selectedYear}
+                />
+              )}
+            </TabsContent>
+
+            <TabsContent value="trends">
+              <DiscussionTrendsChart
+                data={filteredData}
+                selectedCountries={selectedCountries}
+                selectedTopic={selectedTopic}
+              />
+            </TabsContent>
           </Tabs>
         </div>
-        
-        <TabsContent value="chart">
-          {selectedCountries.length === 1 ? (
-            <DiscussionTopicsChart 
-              data={filteredData.filter(item => item.country === selectedCountries[0])} 
-              selectedCountry={selectedCountries[0]}
-              selectedYear={selectedYear}
-            />
-          ) : (
-            <DiscussionTopicsComparison 
-              countriesData={filteredData}
-              selectedCountries={selectedCountries}
-              selectedYear={selectedYear}
-            />
-          )}
-        </TabsContent>
-
-        <TabsContent value="trends">
-          <DiscussionTrendsChart
-            data={filteredData}
-            selectedCountries={selectedCountries}
-            selectedTopic={selectedTopic}
-          />
-        </TabsContent>
       </Card>
     );
   };
