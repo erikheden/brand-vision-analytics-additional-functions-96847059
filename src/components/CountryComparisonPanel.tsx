@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useSelectionData } from "@/hooks/useSelectionData";
@@ -78,10 +77,16 @@ const CountryComparisonPanel = ({
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <div className="space-y-6">
-        <CountrySelectionSection
-          countries={countries}
+        <CountryButtonSelect
+          countries={countries || []}
           selectedCountries={selectedCountries}
-          setSelectedCountries={setSelectedCountries}
+          onCountryChange={(country) => {
+            if (selectedCountries.includes(country)) {
+              setSelectedCountries(selectedCountries.filter(c => c !== country));
+            } else {
+              setSelectedCountries([...selectedCountries, country]);
+            }
+          }}
         />
         
         {selectedCountries.length > 0 && (
