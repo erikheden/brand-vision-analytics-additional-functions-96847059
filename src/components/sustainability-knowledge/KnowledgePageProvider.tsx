@@ -112,13 +112,24 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
         }));
         
         setCountriesData(allData);
-        setAllYears(Array.from(yearsSet).sort((a, b) => a - b));
+        
+        const years = Array.from(yearsSet).sort((a, b) => a - b);
+        setAllYears(years);
         setAllTerms(Array.from(termsSet).sort());
         
         // Set default year to the most recent one
         if (yearsSet.size > 0) {
           const maxYear = Math.max(...Array.from(yearsSet));
           setSelectedYear(maxYear);
+        }
+        
+        // Auto-select top terms for initial view
+        if (termsSet.size > 0 && selectedTerms.length === 0) {
+          // Get the top 5 terms by average percentage for the selected year
+          const topTerms = getTopTermsByPercentage(allData, selectedCountries, Array.from(termsSet), selectedYear, 5);
+          if (topTerms.length > 0) {
+            setSelectedTerms(topTerms);
+          }
         }
         
         setIsLoading(false);
@@ -131,6 +142,43 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
     
     fetchAllData();
   }, [selectedCountries]);
+
+  // Helper function to get top terms by percentage
+  const getTopTermsByPercentage = (
+    data: Record<string, KnowledgeData[]>,
+    countries: string[],
+    terms: string[],
+    year: number,
+    limit: number
+  ): string[] => {
+    // Create a map to store average percentage for each term
+    const termPercentages: Record<string, { sum: number; count: number }> = {};
+    
+    // Calculate average percentage for each term across countries
+    countries.forEach(country => {
+      const countryData = data[country] || [];
+      const yearData = countryData.filter(item => item.year === year);
+      
+      yearData.forEach(item => {
+        if (!termPercentages[item.term]) {
+          termPercentages[item.term] = { sum: 0, count: 0 };
+        }
+        termPercentages[item.term].sum += item.percentage;
+        termPercentages[item.term].count += 1;
+      });
+    });
+    
+    // Calculate average and sort terms by average percentage
+    const termAverages = Object.entries(termPercentages)
+      .map(([term, data]) => ({
+        term,
+        average: data.sum / data.count
+      }))
+      .sort((a, b) => b.average - a.average);
+    
+    // Return top terms
+    return termAverages.slice(0, limit).map(item => item.term);
+  };
 
   const handleCountriesChange = (countries: string[]) => {
     setSelectedCountries(countries);

@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import Highcharts from 'highcharts';
@@ -59,6 +60,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     effectiveYear,
     chartData: chartData?.length,
     availableYears,
+    selectedTerms,
     percentages: chartData.map(item => ({
       term: item.term,
       percentage: item.percentage,
