@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -11,7 +10,6 @@ import ErrorState from "./ErrorState";
 import YearSelector from "@/components/sustainability-priorities/YearSelector";
 import { useAllInfluencesData } from "@/hooks/useSustainabilityInfluences";
 import DashboardLayout from "../layout/DashboardLayout";
-
 const MainContent = () => {
   // All state hooks at the top
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
@@ -21,13 +19,16 @@ const MainContent = () => {
   const [availableInfluences, setAvailableInfluences] = useState<string[]>([]);
 
   // Data fetching
-  const { data: influencesData = {}, isLoading, error } = useAllInfluencesData(selectedCountries);
+  const {
+    data: influencesData = {},
+    isLoading,
+    error
+  } = useAllInfluencesData(selectedCountries);
 
   // Extract all unique influence factors from the data
   useEffect(() => {
     if (Object.keys(influencesData).length > 0) {
       const allInfluences = new Set<string>();
-      
       Object.values(influencesData).forEach(countryData => {
         countryData.forEach(item => {
           if (item.english_label_short) {
@@ -35,10 +36,9 @@ const MainContent = () => {
           }
         });
       });
-      
       const sortedInfluences = Array.from(allInfluences).sort();
       setAvailableInfluences(sortedInfluences);
-      
+
       // Auto-select first few influences if none selected
       if (selectedInfluences.length === 0 && sortedInfluences.length > 0) {
         // Select the first 3 influences or all if less than 3
@@ -46,37 +46,20 @@ const MainContent = () => {
       }
     }
   }, [influencesData, selectedInfluences.length]);
-
   const handleInfluenceChange = (influences: string[]) => {
     setSelectedInfluences(influences);
   };
-
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState />;
-
-  return (
-    <DashboardLayout
-      title="Sustainability Influences"
-      description="Discover what influences sustainable consumer behavior across different markets and track how these influences change over time."
-    >
+  return <DashboardLayout title="Sustainability Influences" description="Discover what influences sustainable consumer behavior across different markets and track how these influences change over time.">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="md:col-span-3">
-          <SelectionPanel
-            title="Select Countries"
-            description="Select one or more countries to view and compare sustainability influences."
-            selectedCountries={selectedCountries}
-            setSelectedCountries={setSelectedCountries}
-          />
+          <SelectionPanel title="Select Countries" description="Select one or more countries to view and compare sustainability influences." selectedCountries={selectedCountries} setSelectedCountries={setSelectedCountries} />
 
-          {selectedCountries.length > 0 && (
-            <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl transition-all duration-300 hover:shadow-xl mt-6">
+          {selectedCountries.length > 0 && <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl transition-all duration-300 hover:shadow-xl mt-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div>
-                  <YearSelector
-                    years={[2023, 2024]}
-                    selectedYear={selectedYear}
-                    onChange={setSelectedYear}
-                  />
+                  <YearSelector years={[2023, 2024]} selectedYear={selectedYear} onChange={setSelectedYear} />
                 </div>
               </div>
 
@@ -91,38 +74,19 @@ const MainContent = () => {
                 </TabsList>
 
                 <TabsContent value="yearly">
-                  <InfluencesBarChart
-                    data={influencesData}
-                    selectedYear={selectedYear}
-                    countries={selectedCountries}
-                  />
+                  <InfluencesBarChart data={influencesData} selectedYear={selectedYear} countries={selectedCountries} />
                 </TabsContent>
                 
                 <TabsContent value="trends">
-                  <InfluencesTrendChart
-                    data={influencesData}
-                    selectedInfluences={selectedInfluences}
-                    countries={selectedCountries}
-                  />
+                  <InfluencesTrendChart data={influencesData} selectedInfluences={selectedInfluences} countries={selectedCountries} />
                 </TabsContent>
               </Tabs>
-            </Card>
-          )}
+            </Card>}
         </div>
 
         {/* Sidebar for influence selection */}
-        <div className="md:col-span-1">
-          {selectedCountries.length > 0 && (
-            <InfluenceSelector
-              influences={availableInfluences}
-              selectedInfluences={selectedInfluences}
-              onChange={handleInfluenceChange}
-            />
-          )}
-        </div>
+        
       </div>
-    </DashboardLayout>
-  );
+    </DashboardLayout>;
 };
-
 export default MainContent;
