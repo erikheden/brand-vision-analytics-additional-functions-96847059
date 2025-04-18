@@ -1,22 +1,21 @@
+
 import React, { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import SelectionPanel from "../sustainability-shared/SelectionPanel";
 import DiscussionTopicsChart from "./DiscussionTopicsChart";
 import DiscussionTopicsComparison from "./DiscussionTopicsComparison";
-import DiscussionTopicsMap from "./DiscussionTopicsMap";
 import { useAllDiscussionTopicsData } from "@/hooks/useDiscussionTopicsData";
 import LoadingState from "./LoadingState";
 import ErrorState from "./ErrorState";
-import YearSelector from "@/components/sustainability-priorities/YearSelector";
 import SustainabilityLayout from "../sustainability-shared/SustainabilityLayout";
 import EmptySelection from "./EmptySelection";
 import TopicSelector from "./TopicSelector";
+import { LineChart, TrendUp } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart3, Globe } from "lucide-react";
+import DiscussionTrendsChart from "./trends/DiscussionTrendsChart";
 
 const DiscussionsContent = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [selectedYear, setSelectedYear] = useState<number>(2024);
   const [selectedTopic, setSelectedTopic] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<string>("chart");
   
@@ -73,12 +72,6 @@ const DiscussionsContent = () => {
     return (
       <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl transition-all duration-300 hover:shadow-xl">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          <YearSelector
-            years={[2023, 2024]}
-            selectedYear={selectedYear}
-            onChange={setSelectedYear}
-          />
-          
           <Tabs 
             value={activeTab} 
             onValueChange={setActiveTab}
@@ -86,40 +79,38 @@ const DiscussionsContent = () => {
           >
             <TabsList className="grid w-full md:w-auto grid-cols-2">
               <TabsTrigger value="chart" className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4" />
-                <span className="hidden md:inline">Chart View</span>
+                <LineChart className="h-4 w-4" />
+                <span className="hidden md:inline">Distribution</span>
               </TabsTrigger>
-              <TabsTrigger value="map" className="flex items-center gap-2">
-                <Globe className="h-4 w-4" />
-                <span className="hidden md:inline">Map View</span>
+              <TabsTrigger value="trends" className="flex items-center gap-2">
+                <TrendUp className="h-4 w-4" />
+                <span className="hidden md:inline">Trends</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
         
-        {activeTab === "chart" ? (
-          <>
-            {selectedCountries.length === 1 ? (
-              <DiscussionTopicsChart 
-                data={filteredData.filter(item => item.country === selectedCountries[0])} 
-                selectedYear={selectedYear}
-                selectedCountry={selectedCountries[0]}
-              />
-            ) : (
-              <DiscussionTopicsComparison 
-                countriesData={filteredData}
-                selectedCountries={selectedCountries}
-                selectedYear={selectedYear}
-              />
-            )}
-          </>
-        ) : (
-          <DiscussionTopicsMap
+        <TabsContent value="chart">
+          {selectedCountries.length === 1 ? (
+            <DiscussionTopicsChart 
+              data={filteredData.filter(item => item.country === selectedCountries[0])} 
+              selectedCountry={selectedCountries[0]}
+            />
+          ) : (
+            <DiscussionTopicsComparison 
+              countriesData={filteredData}
+              selectedCountries={selectedCountries}
+            />
+          )}
+        </TabsContent>
+
+        <TabsContent value="trends">
+          <DiscussionTrendsChart
             data={filteredData}
-            selectedYear={selectedYear}
+            selectedCountries={selectedCountries}
             selectedTopic={selectedTopic}
           />
-        )}
+        </TabsContent>
       </Card>
     );
   };
