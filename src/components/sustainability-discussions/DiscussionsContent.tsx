@@ -10,7 +10,7 @@ import ErrorState from "./ErrorState";
 import SustainabilityLayout from "../sustainability-shared/SustainabilityLayout";
 import EmptySelection from "./EmptySelection";
 import TopicSelector from "./TopicSelector";
-import { LineChart, TrendUp } from "lucide-react";
+import { LineChart, TrendingUp } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DiscussionTrendsChart from "./trends/DiscussionTrendsChart";
 
@@ -18,9 +18,33 @@ const DiscussionsContent = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<string>("chart");
+  const [selectedYear, setSelectedYear] = useState<number>(2023); // Default to most recent year
   
   const { data: allCountriesData = [], isLoading, error } = 
     useAllDiscussionTopicsData(selectedCountries);
+  
+  // Get available years from the data
+  const years = useMemo(() => {
+    const yearsSet = new Set<number>();
+    
+    if (allCountriesData) {
+      allCountriesData.forEach(item => {
+        if (item.year) {
+          yearsSet.add(item.year);
+        }
+      });
+    }
+    
+    // Convert to array and sort in ascending order
+    return Array.from(yearsSet).sort((a, b) => a - b);
+  }, [allCountriesData]);
+  
+  // Set the most recent year when data loads
+  React.useEffect(() => {
+    if (years.length > 0) {
+      setSelectedYear(years[years.length - 1]);
+    }
+  }, [years]);
   
   const topics = useMemo(() => {
     const topicsSet = new Set<string>();
@@ -83,7 +107,7 @@ const DiscussionsContent = () => {
                 <span className="hidden md:inline">Distribution</span>
               </TabsTrigger>
               <TabsTrigger value="trends" className="flex items-center gap-2">
-                <TrendUp className="h-4 w-4" />
+                <TrendingUp className="h-4 w-4" />
                 <span className="hidden md:inline">Trends</span>
               </TabsTrigger>
             </TabsList>
@@ -95,11 +119,13 @@ const DiscussionsContent = () => {
             <DiscussionTopicsChart 
               data={filteredData.filter(item => item.country === selectedCountries[0])} 
               selectedCountry={selectedCountries[0]}
+              selectedYear={selectedYear}
             />
           ) : (
             <DiscussionTopicsComparison 
               countriesData={filteredData}
               selectedCountries={selectedCountries}
+              selectedYear={selectedYear}
             />
           )}
         </TabsContent>
