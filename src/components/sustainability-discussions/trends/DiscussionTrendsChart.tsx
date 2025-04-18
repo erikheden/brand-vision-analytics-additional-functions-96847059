@@ -8,63 +8,106 @@ import { getFullCountryName } from '@/components/CountrySelect';
 interface DiscussionTrendsChartProps {
   data: DiscussionTopicData[];
   selectedCountries: string[];
-  selectedTopic?: string;
+  selectedTopics: string[];
 }
 
 const DiscussionTrendsChart: React.FC<DiscussionTrendsChartProps> = ({
   data,
   selectedCountries,
-  selectedTopic
+  selectedTopics
 }) => {
   const chartData = useMemo(() => {
-    // Group data by year and country
+    // If no topics are selected, show data for all topics
+    const topicsToUse = selectedTopics.length > 0 ? selectedTopics : [...new Set(data.map(item => item.discussion_topic))];
+    
+    // Group data by year
     const yearGroups = data.reduce((acc, item) => {
       const year = item.year;
       if (!acc[year]) {
         acc[year] = {};
       }
       
-      // If a specific topic is selected, only use that topic's data
-      if (selectedTopic && item.discussion_topic !== selectedTopic) {
+      // Skip if this topic is not one we're interested in
+      if (!topicsToUse.includes(item.discussion_topic)) {
         return acc;
       }
       
-      // For each country, calculate the average percentage for the year
-      // If a topic is selected, use its percentage directly
-      if (!acc[year][item.country]) {
-        acc[year][item.country] = {
+      // Create a unique key for country-topic combination
+      const key = `${item.country}-${item.discussion_topic}`;
+      
+      if (!acc[year][key]) {
+        acc[year][key] = {
           count: 0,
           total: 0
         };
       }
       
-      acc[year][item.country].count++;
-      acc[year][item.country].total += item.percentage;
+      acc[year][key].count++;
+      acc[year][key].total += item.percentage;
       
       return acc;
     }, {} as Record<number, Record<string, { count: number; total: number }>>);
 
     // Convert the grouped data into chart format
     return Object.entries(yearGroups)
-      .map(([year, countries]) => {
+      .map(([year, values]) => {
         const point: Record<string, any> = {
           year: parseInt(year)
         };
         
-        // Calculate average for each country
-        Object.entries(countries).forEach(([country, data]) => {
-          point[country] = (data.total / data.count) * 100; // Convert to percentage
+        // Calculate average for each country-topic combination
+        Object.entries(values).forEach(([key, data]) => {
+          point[key] = (data.total / data.count) * 100; // Convert to percentage
         });
         
         return point;
       })
       .sort((a, b) => a.year - b.year);
-  }, [data, selectedTopic]);
+  }, [data, selectedTopics]);
 
-  const COLORS = [
-    '#34502b', '#4d7342', '#668c5a', '#7fa571', '#98be89',
-    '#257179', '#328a94', '#3fa3ae', '#4dbcc9', '#66c7d2'
-  ];
+  // Generate lines for each country-topic combination
+  const lines = useMemo(() => {
+    const result: {
+      key: string;
+      country: string;
+      topic: string;
+      color: string;
+    }[] = [];
+    
+    // If no topics are selected, use all topics from the data
+    const topicsToUse = selectedTopics.length > 0 ? selectedTopics : [...new Set(data.map(item => item.discussion_topic))];
+    
+    // Color palette
+    const COLORS = [
+      '#34502b', '#4d7342', '#668c5a', '#7fa571', '#98be89',
+      '#257179', '#328a94', '#3fa3ae', '#4dbcc9', '#66c7d2',
+      '#7153a2', '#8c69be', '#a784d9', '#c29ff4', '#d4b8f5'
+    ];
+    
+    let colorIndex = 0;
+    
+    // Create a line for each country-topic combination
+    selectedCountries.forEach(country => {
+      topicsToUse.forEach(topic => {
+        // Check if there's actually data for this combination
+        const hasData = chartData.some(point => 
+          point[`${country}-${topic}`] !== undefined
+        );
+        
+        if (hasData) {
+          result.push({
+            key: `${country}-${topic}`,
+            country,
+            topic,
+            color: COLORS[colorIndex % COLORS.length]
+          });
+          colorIndex++;
+        }
+      });
+    });
+    
+    return result;
+  }, [chartData, selectedCountries, selectedTopics, data]);
 
   if (chartData.length === 0) {
     return (
@@ -75,6 +118,33 @@ const DiscussionTrendsChart: React.FC<DiscussionTrendsChartProps> = ({
       </Card>
     );
   }
+
+  // Custom tooltip to show both country and topic
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload || payload.length === 0) return null;
+    
+    return (
+      <div className="custom-tooltip bg-white p-3 border border-gray-200 shadow-md rounded-md">
+        <p className="font-medium text-gray-700">{`Year: ${label}`}</p>
+        <div className="mt-2 space-y-1">
+          {payload.map((entry: any, index: number) => {
+            const [country, topic] = entry.name.split('-');
+            return (
+              <div key={index} className="flex items-center gap-2">
+                <div 
+                  className="w-3 h-3 rounded-full" 
+                  style={{ backgroundColor: entry.color }}
+                />
+                <span className="text-sm font-medium">{getFullCountryName(country)}</span>
+                <span className="text-xs text-gray-500">({topic})</span>
+                <span className="ml-auto font-medium">{entry.value.toFixed(1)}%</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="w-full h-[500px]">
@@ -101,21 +171,22 @@ const DiscussionTrendsChart: React.FC<DiscussionTrendsChartProps> = ({
             }}
             tickFormatter={(value) => `${value}%`}
           />
-          <Tooltip 
-            formatter={(value: number) => [`${value.toFixed(1)}%`, 'Discussion Level']}
-            labelFormatter={(year) => `Year: ${year}`}
-          />
+          <Tooltip content={<CustomTooltip />} />
           <Legend 
-            formatter={(value) => getFullCountryName(value)}
+            formatter={(value) => {
+              const [country, topic] = value.split('-');
+              return `${getFullCountryName(country)} - ${topic}`;
+            }}
+            wrapperStyle={{ maxHeight: '100px', overflowY: 'auto' }}
           />
           
-          {selectedCountries.map((country, index) => (
+          {lines.map((line) => (
             <Line
-              key={country}
+              key={line.key}
               type="monotone"
-              dataKey={country}
-              name={country}
-              stroke={COLORS[index % COLORS.length]}
+              dataKey={line.key}
+              name={line.key}
+              stroke={line.color}
               strokeWidth={2}
               dot={{ r: 4 }}
               activeDot={{ r: 6 }}

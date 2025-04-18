@@ -16,7 +16,7 @@ import DiscussionTrendsChart from "./trends/DiscussionTrendsChart";
 
 const DiscussionsContent = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [selectedTopic, setSelectedTopic] = useState<string | undefined>(undefined);
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("chart");
   const [selectedYear, setSelectedYear] = useState<number>(2023); // Default to most recent year
   
@@ -75,8 +75,8 @@ const DiscussionsContent = () => {
             <h2 className="text-lg font-semibold text-[#34502b]">Filter Options</h2>
             <TopicSelector 
               topics={topics}
-              selectedTopic={selectedTopic}
-              onTopicChange={setSelectedTopic}
+              selectedTopics={selectedTopics}
+              onTopicChange={setSelectedTopics}
             />
           </div>
         </Card>
@@ -89,18 +89,18 @@ const DiscussionsContent = () => {
       return <EmptySelection />;
     }
 
-    const filteredData = selectedTopic 
-      ? allCountriesData.filter(item => item.discussion_topic === selectedTopic)
+    const filteredData = selectedTopics.length > 0 
+      ? allCountriesData.filter(item => selectedTopics.includes(item.discussion_topic))
       : allCountriesData;
 
     return (
       <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl transition-all duration-300 hover:shadow-xl">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          <Tabs 
-            value={activeTab} 
-            onValueChange={setActiveTab}
-            className="w-full md:w-auto"
-          >
+        <Tabs 
+          value={activeTab} 
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <TabsList className="grid w-full md:w-auto grid-cols-2">
               <TabsTrigger value="chart" className="flex items-center gap-2">
                 <LineChart className="h-4 w-4" />
@@ -111,32 +111,32 @@ const DiscussionsContent = () => {
                 <span className="hidden md:inline">Trends</span>
               </TabsTrigger>
             </TabsList>
-          
-            <TabsContent value="chart">
-              {selectedCountries.length === 1 ? (
-                <DiscussionTopicsChart 
-                  data={filteredData.filter(item => item.country === selectedCountries[0])} 
-                  selectedCountry={selectedCountries[0]}
-                  selectedYear={selectedYear}
-                />
-              ) : (
-                <DiscussionTopicsComparison 
-                  countriesData={filteredData}
-                  selectedCountries={selectedCountries}
-                  selectedYear={selectedYear}
-                />
-              )}
-            </TabsContent>
-
-            <TabsContent value="trends">
-              <DiscussionTrendsChart
-                data={filteredData}
-                selectedCountries={selectedCountries}
-                selectedTopic={selectedTopic}
+          </div>
+        
+          <TabsContent value="chart" className="w-full">
+            {selectedCountries.length === 1 ? (
+              <DiscussionTopicsChart 
+                data={filteredData.filter(item => item.country === selectedCountries[0])} 
+                selectedCountry={selectedCountries[0]}
+                selectedYear={selectedYear}
               />
-            </TabsContent>
-          </Tabs>
-        </div>
+            ) : (
+              <DiscussionTopicsComparison 
+                countriesData={filteredData}
+                selectedCountries={selectedCountries}
+                selectedYear={selectedYear}
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="trends" className="w-full">
+            <DiscussionTrendsChart
+              data={filteredData}
+              selectedCountries={selectedCountries}
+              selectedTopics={selectedTopics}
+            />
+          </TabsContent>
+        </Tabs>
       </Card>
     );
   };

@@ -15,19 +15,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
 
 interface TopicSelectorProps {
   topics: string[];
-  selectedTopic: string | undefined;
-  onTopicChange: (topic: string | undefined) => void;
+  selectedTopics: string[];
+  onTopicChange: (topics: string[]) => void;
   className?: string;
 }
 
 const TopicSelector = ({
   topics,
-  selectedTopic,
+  selectedTopics,
   onTopicChange,
   className,
 }: TopicSelectorProps) => {
@@ -39,13 +40,27 @@ const TopicSelector = ({
   // Add debug log to check the topics array
   useEffect(() => {
     console.log("TopicSelector received topics:", safeTopics);
-    console.log("TopicSelector selected topic:", selectedTopic);
-  }, [safeTopics, selectedTopic]);
+    console.log("TopicSelector selected topics:", selectedTopics);
+  }, [safeTopics, selectedTopics]);
 
-  const handleSelectTopic = (topic: string) => {
-    // If selecting the same topic, clear the selection
-    onTopicChange(topic === selectedTopic ? undefined : topic);
-    setOpen(false);
+  const handleToggleTopic = (topic: string) => {
+    // Check if the topic is already selected
+    if (selectedTopics.includes(topic)) {
+      // Remove it from selection
+      onTopicChange(selectedTopics.filter(t => t !== topic));
+    } else {
+      // Add it to selection
+      onTopicChange([...selectedTopics, topic]);
+    }
+  };
+
+  const handleRemoveTopic = (topic: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent the popover from closing
+    onTopicChange(selectedTopics.filter(t => t !== topic));
+  };
+
+  const clearAllTopics = () => {
+    onTopicChange([]);
   };
 
   return (
@@ -56,15 +71,45 @@ const TopicSelector = ({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between bg-white border-[#34502b]/30 text-left font-normal"
+            className="w-full justify-between bg-white border-[#34502b]/30 text-left font-normal min-h-[40px]"
           >
-            {selectedTopic || "Select discussion topic (optional)"}
+            {selectedTopics.length > 0 ? (
+              <div className="flex flex-wrap gap-1 max-w-[90%]">
+                {selectedTopics.map(topic => (
+                  <Badge 
+                    key={topic} 
+                    variant="outline" 
+                    className="bg-[#34502b]/10 text-[#34502b] border-[#34502b]/30"
+                  >
+                    {topic}
+                    <X 
+                      className="ml-1 h-3 w-3 cursor-pointer" 
+                      onClick={(e) => handleRemoveTopic(topic, e)}
+                    />
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              "Select discussion topics"
+            )}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
           <Command>
             <CommandInput placeholder="Search topics..." />
+            {selectedTopics.length > 0 && (
+              <div className="p-2 border-b border-gray-200">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={clearAllTopics}
+                  className="text-xs text-gray-500 hover:text-red-500"
+                >
+                  Clear all
+                </Button>
+              </div>
+            )}
             <CommandList>
               <CommandEmpty>No topics found.</CommandEmpty>
               <CommandGroup>
@@ -73,14 +118,14 @@ const TopicSelector = ({
                     <CommandItem
                       key={topic}
                       value={topic}
-                      onSelect={() => handleSelectTopic(topic)}
+                      onSelect={() => handleToggleTopic(topic)}
                       className="flex items-center gap-2"
                     >
                       <div className={cn(
                         "flex h-4 w-4 items-center justify-center rounded-sm border border-[#34502b]",
-                        selectedTopic === topic ? "bg-[#34502b] text-white" : "opacity-50"
+                        selectedTopics.includes(topic) ? "bg-[#34502b] text-white" : "opacity-50"
                       )}>
-                        {selectedTopic === topic && <Check className="h-3 w-3" />}
+                        {selectedTopics.includes(topic) && <Check className="h-3 w-3" />}
                       </div>
                       <span>{topic}</span>
                     </CommandItem>
