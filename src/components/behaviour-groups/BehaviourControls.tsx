@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCountriesWithBehaviourData } from "@/hooks/useBehaviourGroups";
-import { getFullCountryName } from "@/components/CountrySelect"; // Import the utility function
+import CountryButtonSelect from "@/components/CountryButtonSelect";
 
 interface BehaviourControlsProps {
   selectedCountry: string;
@@ -32,25 +32,14 @@ const BehaviourControls = ({
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="space-y-4">
           <div>
-            <Label htmlFor="country">Select Country</Label>
-            <Select
-              value={selectedCountry}
-              onValueChange={setSelectedCountry}
+            <Label>Select Country</Label>
+            <CountryButtonSelect
+              selectedCountry={selectedCountry}
+              countries={countries}
+              onCountryChange={setSelectedCountry}
               disabled={countriesLoading}
-            >
-              <SelectTrigger id="country" className="w-full mt-2">
-                <SelectValue placeholder="Select country">
-                  {selectedCountry ? getFullCountryName(selectedCountry) : "Select country"}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {countries.map((country) => (
-                  <SelectItem key={country} value={country}>
-                    {getFullCountryName(country)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              className="mt-2"
+            />
           </div>
           
           <div>

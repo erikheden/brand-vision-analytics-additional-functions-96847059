@@ -1,6 +1,6 @@
 
 import React from 'react';
-import CountrySelect from '@/components/CountrySelect';
+import CountryButtonSelect from '@/components/CountryButtonSelect';
 import YearSelector from './YearSelector';
 import InfluenceSelector from './InfluenceSelector';
 
@@ -31,7 +31,7 @@ const SidebarControls: React.FC<SidebarControlsProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <CountrySelect
+      <CountryButtonSelect
         selectedCountry={selectedCountry}
         onCountryChange={onCountryChange}
         countries={countries}

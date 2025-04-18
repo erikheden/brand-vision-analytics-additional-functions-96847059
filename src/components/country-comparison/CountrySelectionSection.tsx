@@ -2,8 +2,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Globe, X } from "lucide-react";
-import CountryMultiSelect from "../CountryMultiSelect";
 import { getFullCountryName } from "../CountrySelect";
+import CountryButtonSelect from "@/components/CountryButtonSelect";
 
 interface CountrySelectionSectionProps {
   countries: string[];
@@ -16,6 +16,14 @@ const CountrySelectionSection = ({
   selectedCountries,
   setSelectedCountries
 }: CountrySelectionSectionProps) => {
+  const handleToggleCountry = (country: string) => {
+    if (selectedCountries.includes(country)) {
+      setSelectedCountries(selectedCountries.filter(c => c !== country));
+    } else {
+      setSelectedCountries([...selectedCountries, country]);
+    }
+  };
+
   return (
     <div className="space-y-2">
       <h3 className="text-lg font-medium flex items-center gap-2 text-[#34502b]">
@@ -23,10 +31,10 @@ const CountrySelectionSection = ({
         Select Countries to Compare
       </h3>
       
-      <CountryMultiSelect
+      <CountryButtonSelect
         countries={countries}
         selectedCountries={selectedCountries}
-        setSelectedCountries={setSelectedCountries}
+        onCountryChange={handleToggleCountry}
       />
       
       {selectedCountries.length > 0 && (
