@@ -59,3 +59,8 @@ export const getTopTermsByPercentage = (
   // Return top terms (limit to available terms if fewer than requested)
   return termAverages.slice(0, Math.min(limit, termAverages.length)).map(item => item.term);
 };
+
+// Helper function to normalize country codes for consistent handling
+export const normalizeCountryCode = (code: string): string => {
+  return code.toUpperCase();
+};

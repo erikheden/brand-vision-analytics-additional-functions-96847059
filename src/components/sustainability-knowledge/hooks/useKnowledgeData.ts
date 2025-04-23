@@ -13,13 +13,15 @@ export const useKnowledgeData = (selectedCountries: string[]) => {
   const [error, setError] = useState<Error | null>(null);
 
   const fetchData = useCallback(async (country: string) => {
-    console.log(`Fetching data for country: ${country}`);
+    // Convert country code to uppercase for database query
+    const countryCode = country.toUpperCase();
+    console.log(`Fetching data for country: ${country} (using ${countryCode} for query)`);
     
     try {
       const { data, error } = await supabase
         .from('SBI_Knowledge')
         .select('*')
-        .eq('country', country)
+        .eq('country', countryCode)
         .order('year', { ascending: true });
       
       if (error) {
@@ -31,7 +33,7 @@ export const useKnowledgeData = (selectedCountries: string[]) => {
         console.log(`Received ${data.length} records for ${country}`);
         return data as KnowledgeData[];
       } else {
-        console.log(`No data found for ${country}`);
+        console.log(`No data found for ${country} using ${countryCode}`);
         
         // For debugging purposes, let's query without the country filter to see if the table has any data
         const { data: debugData, error: debugError } = await supabase

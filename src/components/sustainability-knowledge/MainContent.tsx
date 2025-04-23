@@ -9,6 +9,7 @@ import LoadingState from "./LoadingState";
 import ErrorState from "./ErrorState";
 import { useSelectionData } from "@/hooks/useSelectionData";
 import { useToast } from "@/components/ui/use-toast";
+import { normalizeCountryCode } from "./utils/knowledgeUtils";
 
 const MainContent = () => {
   const { toast } = useToast();
