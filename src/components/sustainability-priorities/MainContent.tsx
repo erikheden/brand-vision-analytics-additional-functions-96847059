@@ -68,10 +68,6 @@ const MainContent = () => {
 
         {selectedCountries.length > 0 && (
           <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl w-full">
-            <div className="grid grid-cols-1 gap-6 mb-6">
-              <YearSelector years={[2023, 2024]} selectedYear={selectedYear} onChange={setSelectedYear} />
-            </div>
-
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="bg-[#34502b]/10 mx-auto mb-6 w-full md:w-auto">
                 <TabsTrigger value="priorities" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
