@@ -43,9 +43,9 @@ const DiscussionTopicsComparison: React.FC<DiscussionTopicsComparisonProps> = ({
       <div className="lg:col-span-1">
         <Card className="p-4 h-full bg-white border border-gray-200 rounded-lg shadow-sm">
           <TopicSelector
-            allTopics={allTopics}
+            topics={allTopics}
             selectedTopics={selectedTopics}
-            onTopicToggle={handleTopicToggle}
+            onTopicChange={setSelectedTopics}
           />
         </Card>
       </div>

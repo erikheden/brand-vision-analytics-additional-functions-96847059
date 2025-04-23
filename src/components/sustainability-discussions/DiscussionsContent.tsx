@@ -17,6 +17,7 @@ import { useToast } from "@/components/ui/use-toast";
 const DiscussionsContent: React.FC = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [activeView, setActiveView] = useState<string>("map");
+  const [selectedYear, setSelectedYear] = useState<number>(2024); // Default to most recent year
   const { countries } = useSelectionData("", []);
   const { toast } = useToast();
 
@@ -26,6 +27,16 @@ const DiscussionsContent: React.FC = () => {
     isLoading, 
     error 
   } = useAllDiscussionTopicsData(selectedCountries);
+
+  // Set default year based on available data
+  useEffect(() => {
+    if (discussionData && discussionData.length > 0) {
+      // Get most recent year from the data
+      const years = discussionData.map(item => item.year);
+      const maxYear = Math.max(...years);
+      setSelectedYear(maxYear);
+    }
+  }, [discussionData]);
 
   const handleCountryChange = (country: string) => {
     setSelectedCountries(current => {
@@ -84,7 +95,8 @@ const DiscussionsContent: React.FC = () => {
 
               <TabsContent value="map" className="mt-0">
                 <DiscussionTopicsMap 
-                  selectedCountries={selectedCountries} 
+                  data={discussionData || []}
+                  selectedYear={selectedYear}
                 />
               </TabsContent>
 
@@ -92,7 +104,8 @@ const DiscussionsContent: React.FC = () => {
                 {selectedCountries.length === 1 ? (
                   <DiscussionTopicsChart 
                     data={discussionData || []} 
-                    selectedCountry={selectedCountries[0]} 
+                    selectedCountry={selectedCountries[0]}
+                    selectedYear={selectedYear}
                   />
                 ) : (
                   <div className="text-center py-6 text-gray-500">
