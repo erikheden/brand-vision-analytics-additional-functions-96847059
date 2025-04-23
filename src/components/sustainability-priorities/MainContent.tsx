@@ -20,7 +20,8 @@ const MainContent = () => {
   // Fetch data for error and loading states to pass to child components
   const {
     isLoading: dataLoading,
-    error: dataError
+    error: dataError,
+    data: materialityData
   } = useMultiCountryMateriality(selectedCountries);
   
   const handleCountryChange = (country: string) => {
@@ -31,8 +32,19 @@ const MainContent = () => {
     );
   };
   
-  // Get all available areas (we'll pass empty array for now, the component will handle fetching them)
-  const areas: string[] = [];
+  // Get all available areas from the materialityData
+  const areas = React.useMemo(() => {
+    if (!materialityData) return [];
+    const areasSet = new Set<string>();
+    
+    Object.values(materialityData).forEach(countryData => {
+      countryData.forEach(item => {
+        if (item.area) areasSet.add(item.area);
+      });
+    });
+    
+    return Array.from(areasSet).sort();
+  }, [materialityData]);
 
   return (
     <DashboardLayout
@@ -77,7 +89,7 @@ const MainContent = () => {
                   selectedYear={selectedYear}
                   setSelectedYear={setSelectedYear}
                   isLoading={dataLoading}
-                  error={dataError || null}
+                  error={dataError}
                 />
               </TabsContent>
               
@@ -88,7 +100,7 @@ const MainContent = () => {
                   selectedAreas={selectedAreas}
                   setSelectedAreas={setSelectedAreas}
                   isLoading={dataLoading}
-                  error={dataError || null}
+                  error={dataError}
                 />
               </TabsContent>
             </Tabs>
