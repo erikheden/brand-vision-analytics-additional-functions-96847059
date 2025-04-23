@@ -29,7 +29,7 @@ const KnowledgeComparisonBarChart: React.FC<KnowledgeComparisonBarChartProps> = 
     );
   }
 
-  // Process data for chart
+  // Process data for chart with sorting
   const chartData = selectedTerms.map(term => {
     const data: Record<string, number> = {};
     
@@ -48,12 +48,20 @@ const KnowledgeComparisonBarChart: React.FC<KnowledgeComparisonBarChartProps> = 
       name: term,
       data: Object.values(data)
     };
+  }).sort((a, b) => {
+    // Sort by the average percentage across all countries
+    const avgA = a.data.reduce((sum, val) => sum + val, 0) / a.data.length;
+    const avgB = b.data.reduce((sum, val) => sum + val, 0) / b.data.length;
+    return avgB - avgA; // Descending order
   });
+
+  // Adjust chart height dynamically based on number of terms
+  const chartHeight = Math.max(400, 60 + 40 * selectedTerms.length);
 
   const options: Highcharts.Options = {
     chart: {
       type: 'column',
-      height: Math.max(400, 60 + 20 * selectedTerms.length),
+      height: chartHeight,
       style: {
         fontFamily: FONT_FAMILY
       }
@@ -66,7 +74,7 @@ const KnowledgeComparisonBarChart: React.FC<KnowledgeComparisonBarChartProps> = 
       }
     },
     xAxis: {
-      categories: selectedTerms,
+      categories: chartData.map(item => item.name), // Use sorted names
       title: {
         text: 'Knowledge Terms',
         style: {
