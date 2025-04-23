@@ -14,6 +14,7 @@ import { useAllDiscussionTopicsData } from "@/hooks/useDiscussionTopicsData";
 const DiscussionsContent = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("yearly");
+  const [selectedYear, setSelectedYear] = useState<number>(2024);
   const { countries } = useSelectionData("", []);
   
   const { data: topicsData, isLoading, error } = useAllDiscussionTopicsData(selectedCountries);
@@ -62,16 +63,25 @@ const DiscussionsContent = () => {
               </TabsList>
 
               <TabsContent value="yearly" className="mt-0">
-                <DiscussionTopicsChart 
-                  data={topicsData || []}
-                  selectedCountries={selectedCountries}
-                />
+                {selectedCountries.length === 1 && (
+                  <DiscussionTopicsChart 
+                    data={topicsData?.filter(item => item.country === selectedCountries[0]) || []}
+                    selectedYear={selectedYear}
+                    selectedCountry={selectedCountries[0]}
+                  />
+                )}
+                {selectedCountries.length > 1 && (
+                  <div className="text-center py-6">
+                    <p>Please select only one country to view yearly topics overview.</p>
+                  </div>
+                )}
               </TabsContent>
               
               <TabsContent value="comparison" className="mt-0">
                 <DiscussionTopicsComparison
-                  data={topicsData || []}
+                  countriesData={topicsData || []}
                   selectedCountries={selectedCountries}
+                  selectedYear={selectedYear}
                 />
               </TabsContent>
             </Tabs>

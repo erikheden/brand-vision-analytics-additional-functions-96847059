@@ -8,12 +8,20 @@ import TrendsView from "./TrendsView";
 import YearSelector from "./YearSelector";
 import { useSelectionData } from "@/hooks/useSelectionData";
 import DashboardLayout from "../layout/DashboardLayout";
+import { useMultiCountryMateriality } from "@/hooks/useMultiCountryMateriality";
 
 const MainContent = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("priorities");
   const [selectedYear, setSelectedYear] = useState<number>(2024);
+  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const { countries } = useSelectionData("", []);
+  
+  // Fetch data for error and loading states to pass to child components
+  const {
+    isLoading: dataLoading,
+    error: dataError
+  } = useMultiCountryMateriality(selectedCountries);
   
   const handleCountryChange = (country: string) => {
     setSelectedCountries(current => 
@@ -22,6 +30,9 @@ const MainContent = () => {
         : [...current, country]
     );
   };
+  
+  // Get all available areas (we'll pass empty array for now, the component will handle fetching them)
+  const areas: string[] = [];
 
   return (
     <DashboardLayout
@@ -65,12 +76,19 @@ const MainContent = () => {
                   years={[2023, 2024]}
                   selectedYear={selectedYear}
                   setSelectedYear={setSelectedYear}
+                  isLoading={dataLoading}
+                  error={dataError || null}
                 />
               </TabsContent>
               
               <TabsContent value="trends" className="mt-0">
                 <TrendsView
                   selectedCountries={selectedCountries}
+                  areas={areas}
+                  selectedAreas={selectedAreas}
+                  setSelectedAreas={setSelectedAreas}
+                  isLoading={dataLoading}
+                  error={dataError || null}
                 />
               </TabsContent>
             </Tabs>

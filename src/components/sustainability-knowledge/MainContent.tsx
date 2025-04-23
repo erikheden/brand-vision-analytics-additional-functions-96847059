@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import CountryButtonSelect from "@/components/CountryButtonSelect";
@@ -11,7 +11,17 @@ import { useSelectionData } from "@/hooks/useSelectionData";
 
 const MainContent = () => {
   const [activeTab, setActiveTab] = useState<string>("levels");
-  const { selectedCountries, handleCountriesChange, selectedYear, setSelectedYear } = useKnowledgePage();
+  const { 
+    selectedCountries, 
+    handleCountriesChange, 
+    selectedYear, 
+    setSelectedYear,
+    countriesData,
+    allYears,
+    allTerms,
+    selectedTerms,
+    handleSetSelectedTerms
+  } = useKnowledgePage();
   const { countries } = useSelectionData("", []);
 
   const handleCountryChange = (country: string) => {
@@ -54,11 +64,24 @@ const MainContent = () => {
               </TabsList>
 
               <TabsContent value="levels" className="mt-0">
-                <KnowledgeLevelsTab />
+                <KnowledgeLevelsTab 
+                  data={countriesData}
+                  years={allYears}
+                  selectedYear={selectedYear}
+                  selectedTerms={selectedTerms}
+                  selectedCountries={selectedCountries}
+                  setSelectedYear={setSelectedYear}
+                />
               </TabsContent>
               
               <TabsContent value="trends" className="mt-0">
-                <KnowledgeTrendsTab />
+                <KnowledgeTrendsTab 
+                  data={countriesData}
+                  terms={allTerms}
+                  selectedTerms={selectedTerms}
+                  selectedCountries={selectedCountries}
+                  setSelectedTerms={handleSetSelectedTerms}
+                />
               </TabsContent>
             </Tabs>
           </Card>
