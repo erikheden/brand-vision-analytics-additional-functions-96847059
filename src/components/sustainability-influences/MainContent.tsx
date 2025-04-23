@@ -74,63 +74,59 @@ const MainContent = () => {
       title="Sustainability Influences" 
       description="Discover what influences sustainable consumer behavior across different markets and track how these influences change over time."
     >
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="md:col-span-3">
-          <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-[#34502b]">Select Countries</h2>
-              <p className="text-gray-600 text-sm">
-                Select one or more countries to view and compare sustainability influences.
-              </p>
-              <CountryButtonSelect
-                countries={countries || []}
-                selectedCountries={selectedCountries}
-                onCountryChange={handleCountryChange}
-              />
-            </div>
-          </Card>
+      <div className="grid grid-cols-1 gap-6 w-full">
+        <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md w-full">
+          <div className="space-y-4 w-full">
+            <h2 className="text-lg font-semibold text-[#34502b]">Select Countries</h2>
+            <p className="text-gray-600 text-sm">
+              Select one or more countries to view and compare sustainability influences.
+            </p>
+            <CountryButtonSelect
+              countries={countries || []}
+              selectedCountries={selectedCountries}
+              onCountryChange={handleCountryChange}
+            />
+          </div>
+        </Card>
 
-          {selectedCountries.length > 0 && (
-            <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl transition-all duration-300 hover:shadow-xl mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div>
-                  <YearSelector years={[2023, 2024]} selectedYear={selectedYear} onChange={setSelectedYear} />
-                </div>
+        {selectedCountries.length > 0 && (
+          <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl transition-all duration-300 hover:shadow-xl w-full">
+            <div className="grid grid-cols-1 gap-6 mb-6 w-full">
+              <div>
+                <YearSelector years={[2023, 2024]} selectedYear={selectedYear} onChange={setSelectedYear} />
               </div>
+            </div>
 
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="bg-[#34502b]/10 mx-auto md:mx-0 mb-6">
-                  <TabsTrigger value="yearly" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-                    Yearly View
-                  </TabsTrigger>
-                  <TabsTrigger value="trends" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-                    Trends
-                  </TabsTrigger>
-                </TabsList>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="bg-[#34502b]/10 mx-auto mb-6 w-full md:w-auto">
+                <TabsTrigger value="yearly" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+                  Yearly View
+                </TabsTrigger>
+                <TabsTrigger value="trends" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+                  Trends
+                </TabsTrigger>
+              </TabsList>
 
-                <TabsContent value="yearly">
-                  <InfluencesBarChart data={influencesData} selectedYear={selectedYear} countries={selectedCountries} />
-                </TabsContent>
-                
-                <TabsContent value="trends">
-                  <InfluencesTrendChart data={influencesData} selectedInfluences={selectedInfluences} countries={selectedCountries} />
-                </TabsContent>
-              </Tabs>
-            </Card>
-          )}
-        </div>
+              <TabsContent value="yearly" className="w-full">
+                <InfluencesBarChart data={influencesData} selectedYear={selectedYear} countries={selectedCountries} />
+              </TabsContent>
+              
+              <TabsContent value="trends" className="w-full">
+                <InfluencesTrendChart data={influencesData} selectedInfluences={selectedInfluences} countries={selectedCountries} />
+              </TabsContent>
+            </Tabs>
+          </Card>
+        )}
 
         {/* Sidebar for influence selection */}
         {selectedCountries.length > 0 && activeTab === "trends" && (
-          <div className="md:col-span-1">
-            <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-              <InfluenceSelector 
-                influences={availableInfluences}
-                selectedInfluences={selectedInfluences}
-                onChange={handleInfluenceChange}
-              />
-            </Card>
-          </div>
+          <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md w-full">
+            <InfluenceSelector 
+              influences={availableInfluences}
+              selectedInfluences={selectedInfluences}
+              onChange={handleInfluenceChange}
+            />
+          </Card>
         )}
       </div>
     </DashboardLayout>
@@ -138,3 +134,4 @@ const MainContent = () => {
 };
 
 export default MainContent;
+
