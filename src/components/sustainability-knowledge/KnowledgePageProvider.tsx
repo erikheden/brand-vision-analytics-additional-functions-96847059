@@ -111,6 +111,9 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
           }
         }));
         
+        console.log('Fetched data for countries:', Object.keys(allData));
+        console.log('Sample data:', Object.values(allData)[0]?.slice(0, 2));
+        
         setCountriesData(allData);
         
         const years = Array.from(yearsSet).sort((a, b) => a - b);
@@ -141,7 +144,7 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
     };
     
     fetchAllData();
-  }, [selectedCountries, selectedYear]);
+  }, [selectedCountries]);
 
   // Helper function to get top terms by percentage
   const getTopTermsByPercentage = (
@@ -188,7 +191,7 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
     if (countries.length > 0) {
       toast({
         title: "Countries Selected",
-        description: "Showing sustainability knowledge for selected countries",
+        description: "Loading sustainability knowledge data for selected countries",
         duration: 3000,
       });
     }

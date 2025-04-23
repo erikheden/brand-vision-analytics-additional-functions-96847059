@@ -29,11 +29,12 @@ const KnowledgeComparisonBarChart: React.FC<KnowledgeComparisonBarChartProps> = 
     selectedCountries,
     selectedTerms,
     selectedYear,
-    chartDataLength: selectedTerms.length
+    chartDataLength: selectedTerms?.length || 0,
+    countriesData: Object.keys(countriesData || {})
   });
   
   const chartData = useMemo(() => {
-    if (!countriesData || selectedTerms.length === 0) return [];
+    if (!countriesData || !selectedTerms || selectedTerms.length === 0) return [];
     
     // Create data for the selected terms across all countries
     return selectedTerms.map(term => {
@@ -59,12 +60,14 @@ const KnowledgeComparisonBarChart: React.FC<KnowledgeComparisonBarChartProps> = 
     });
   }, [countriesData, selectedCountries, selectedTerms, selectedYear]);
 
-  if (chartData.length === 0) {
+  console.log("Chart data prepared:", chartData?.length || 0);
+
+  if (!selectedTerms || chartData.length === 0) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="flex justify-center items-center h-60">
           <p className="text-gray-500">
-            {selectedTerms.length === 0 
+            {!selectedTerms || selectedTerms.length === 0 
               ? "Please select at least one term to compare"
               : "No data available for the selected terms and year"}
           </p>

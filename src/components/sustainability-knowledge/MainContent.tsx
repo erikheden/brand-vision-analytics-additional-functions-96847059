@@ -16,10 +16,20 @@ const MainContent = () => {
     selectedCountries, 
     handleCountriesChange,
     isLoading,
-    error
+    error,
+    allYears,
+    allTerms
   } = useKnowledgePage();
   
   const { countries } = useSelectionData("", []);
+  
+  console.log("MainContent render:", {
+    selectedCountries,
+    countriesCount: countries?.length || 0,
+    hasYears: allYears?.length || 0,
+    hasTerms: allTerms?.length || 0,
+    isLoading
+  });
 
   // Helper function to adapt the handleCountriesChange to work with CountryButtonSelect
   const handleCountryToggle = (country: string) => {

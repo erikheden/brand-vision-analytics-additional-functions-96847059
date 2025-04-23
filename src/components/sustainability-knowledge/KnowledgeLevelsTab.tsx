@@ -23,7 +23,7 @@ const KnowledgeLevelsTab: React.FC<KnowledgeLevelsTabProps> = ({
 }) => {
   // Debug log the incoming data
   console.log('KnowledgeLevelsTab props:', {
-    dataKeys: Object.keys(data),
+    dataKeys: Object.keys(data || {}),
     sampleCountry: selectedCountries[0],
     sampleData: selectedCountries[0] ? data[selectedCountries[0]]?.slice(0, 2) : [],
     selectedYear,
@@ -34,7 +34,7 @@ const KnowledgeLevelsTab: React.FC<KnowledgeLevelsTabProps> = ({
 
   // Ensure we have a valid year selected if years array changes
   useEffect(() => {
-    if (years.length > 0 && !years.includes(selectedYear)) {
+    if (years && years.length > 0 && !years.includes(selectedYear)) {
       setSelectedYear(years[years.length - 1]); // Set to most recent year
     }
   }, [years, selectedYear, setSelectedYear]);
@@ -44,24 +44,41 @@ const KnowledgeLevelsTab: React.FC<KnowledgeLevelsTabProps> = ({
     const termSet = new Set<string>();
     
     // For each country, add its terms for the selected year to the set
-    selectedCountries.forEach(country => {
-      const countryData = data[country] || [];
-      const yearData = countryData.filter(item => item.year === selectedYear);
-      yearData.forEach(item => termSet.add(item.term));
-    });
+    if (data && selectedCountries) {
+      selectedCountries.forEach(country => {
+        const countryData = data[country] || [];
+        const yearData = countryData.filter(item => item.year === selectedYear);
+        yearData.forEach(item => termSet.add(item.term));
+      });
+    }
     
     return Array.from(termSet).sort();
   }, [data, selectedCountries, selectedYear]);
 
+  // Check if we have data to display
+  const hasData = React.useMemo(() => {
+    return selectedCountries && selectedCountries.length > 0 && 
+      data && Object.keys(data).length > 0 && 
+      availableTerms.length > 0;
+  }, [data, selectedCountries, availableTerms]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
       <div>
-        {selectedCountries.length === 1 ? (
+        {!hasData ? (
+          <div className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+            <div className="text-center py-10 text-gray-500">
+              {selectedCountries.length === 0 
+                ? "Please select at least one country"
+                : "No knowledge data available for the selected countries and year"}
+            </div>
+          </div>
+        ) : selectedCountries.length === 1 ? (
           <KnowledgeChart 
             data={data[selectedCountries[0]] || []} 
             selectedYear={selectedYear} 
             country={selectedCountries[0]} 
-            selectedTerms={selectedTerms.length > 0 ? selectedTerms : availableTerms} 
+            selectedTerms={selectedTerms.length > 0 ? selectedTerms : availableTerms}
           />
         ) : (
           <KnowledgeComparisonBarChart
