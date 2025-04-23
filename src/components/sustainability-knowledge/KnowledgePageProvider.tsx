@@ -65,14 +65,11 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
   const [selectedTerms, setSelectedTerms] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("levels");
 
-  // Available countries
-  const countries = ["SE", "NO", "DK", "FI", "NL"];
-  
   // State to hold combined data from all selected countries
   const [countriesData, setCountriesData] = useState<Record<string, KnowledgeData[]>>({});
   const [allYears, setAllYears] = useState<number[]>([]);
   const [allTerms, setAllTerms] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   
   // Fetch data for each selected country
@@ -96,15 +93,18 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
         
         await Promise.all(selectedCountries.map(async (country) => {
           try {
-            // Use the fetchKnowledgeData function directly
             const countryData = await fetchKnowledgeData(country);
             
             allData[country] = countryData;
             
             // Extract years and terms
             countryData.forEach(item => {
-              yearsSet.add(item.year);
-              termsSet.add(item.term);
+              if (typeof item.year === 'number') {
+                yearsSet.add(item.year);
+              }
+              if (item.term) {
+                termsSet.add(item.term);
+              }
             });
           } catch (err) {
             console.error(`Error fetching data for ${country}:`, err);
@@ -118,12 +118,12 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
         setAllTerms(Array.from(termsSet).sort());
         
         // Set default year to the most recent one
-        if (yearsSet.size > 0) {
-          const maxYear = Math.max(...Array.from(yearsSet));
+        if (years.length > 0) {
+          const maxYear = Math.max(...years);
           setSelectedYear(maxYear);
         }
         
-        // Auto-select top terms for initial view
+        // Auto-select top terms for initial view if no terms are selected
         if (termsSet.size > 0 && selectedTerms.length === 0) {
           // Get the top 5 terms by average percentage for the selected year
           const topTerms = getTopTermsByPercentage(allData, selectedCountries, Array.from(termsSet), selectedYear, 5);
@@ -141,7 +141,7 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
     };
     
     fetchAllData();
-  }, [selectedCountries]);
+  }, [selectedCountries, selectedYear]);
 
   // Helper function to get top terms by percentage
   const getTopTermsByPercentage = (
@@ -182,6 +182,7 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleCountriesChange = (countries: string[]) => {
     setSelectedCountries(countries);
+    // Reset selected terms when countries change to trigger auto-selection of top terms
     setSelectedTerms([]);
     
     if (countries.length > 0) {

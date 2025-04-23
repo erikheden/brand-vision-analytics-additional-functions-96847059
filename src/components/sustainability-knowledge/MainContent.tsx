@@ -39,7 +39,7 @@ const MainContent = () => {
     }
   };
 
-  if (isLoading) return <LoadingState />;
+  if (isLoading && selectedCountries.length > 0) return <LoadingState />;
   if (error) return <ErrorState />;
 
   return (
