@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { KnowledgeData } from "@/hooks/useSustainabilityKnowledge";
@@ -26,7 +25,7 @@ type KnowledgePageContextType = {
 export const KnowledgePageContext = React.createContext<KnowledgePageContextType>({
   selectedCountries: [],
   setSelectedCountries: () => {},
-  selectedYear: 2023, // Changed from 2024 to 2023 to match likely available data
+  selectedYear: 2023,
   setSelectedYear: () => {},
   selectedTerms: [],
   setSelectedTerms: () => {},
@@ -44,11 +43,10 @@ export const KnowledgePageContext = React.createContext<KnowledgePageContextType
 export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { toast } = useToast();
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [selectedYear, setSelectedYear] = useState<number>(2023); // Changed from 2024 to 2023
+  const [selectedYear, setSelectedYear] = useState<number>(2023);
   const [selectedTerms, setSelectedTerms] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("levels");
 
-  // Use the custom hook for data fetching
   const { countriesData, allYears, allTerms, isLoading, error } = useKnowledgeData(selectedCountries);
 
   console.log("KnowledgePageProvider state:", {
@@ -60,20 +58,19 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
     isLoading
   });
 
-  // Update selected year when years array changes
   useEffect(() => {
     if (allYears.length > 0 && !allYears.includes(selectedYear)) {
       const mostRecentYear = allYears[allYears.length - 1];
       console.log(`Updating selected year to most recent: ${mostRecentYear}`);
-      setSelectedYear(mostRecentYear); // Set to most recent year
+      setSelectedYear(mostRecentYear);
     }
   }, [allYears, selectedYear]);
 
   const handleCountriesChange = (countries: string[]) => {
     console.log(`Countries selection changed to: ${countries.join(', ')}`);
     setSelectedCountries(countries);
-    setSelectedTerms([]); // Reset selected terms to trigger auto-selection
-    
+    setSelectedTerms([]);
+
     if (countries.length > 0) {
       toast({
         title: "Countries Selected",
@@ -83,45 +80,17 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // Auto-select top terms when data changes
   useEffect(() => {
-    // Only proceed if we have data, countries, and no terms are selected yet
     if (countriesData && 
         Object.keys(countriesData).length > 0 && 
         selectedCountries.length > 0 && 
         allTerms.length > 0 && 
         selectedTerms.length === 0) {
       
-      console.log("Trying to auto-select terms with:", {
-        hasCountriesData: Object.keys(countriesData).length > 0,
-        countriesCount: selectedCountries.length,
-        termsCount: allTerms.length,
-        selectedYear
-      });
-      
-      const topTerms = getTopTermsByPercentage(
-        countriesData,
-        selectedCountries,
-        allTerms,
-        selectedYear,
-        5
-      );
-      
-      console.log(`Auto-selecting top terms: ${topTerms.join(', ')}`);
-      
-      if (topTerms.length > 0) {
-        setSelectedTerms(topTerms);
-      } else {
-        // If no top terms were found, but we have terms available,
-        // just select the first few as a fallback
-        if (allTerms.length > 0) {
-          const fallbackTerms = allTerms.slice(0, Math.min(5, allTerms.length));
-          console.log(`Using fallback terms: ${fallbackTerms.join(', ')}`);
-          setSelectedTerms(fallbackTerms);
-        }
-      }
+      console.log("Auto-selecting all terms");
+      setSelectedTerms(allTerms);
     }
-  }, [countriesData, selectedCountries, allTerms, selectedYear, selectedTerms.length]);
+  }, [countriesData, selectedCountries, allTerms, selectedTerms.length]);
 
   const handleSetSelectedTerms = useCallback((terms: string[]) => {
     console.log(`Setting selected terms: ${terms.join(', ')}`);
