@@ -35,13 +35,18 @@ export const useKnowledgeData = (selectedCountries: string[]) => {
         await Promise.all(selectedCountries.map(async (country) => {
           try {
             console.log(`Fetching data for country: ${country}`);
+            
+            // Let's verify the table name and query
             const { data, error } = await supabase
               .from('SBI_Knowledge')
               .select('*')
               .eq('country', country)
               .order('year', { ascending: true });
             
-            if (error) throw error;
+            if (error) {
+              console.error(`Database error for ${country}:`, error);
+              throw error;
+            }
             
             if (data && data.length > 0) {
               console.log(`Received ${data.length} records for ${country}`);
@@ -78,6 +83,11 @@ export const useKnowledgeData = (selectedCountries: string[]) => {
       } catch (err) {
         console.error("Error fetching knowledge data:", err);
         setError(err as Error);
+        toast({
+          title: "Error",
+          description: "Failed to load sustainability knowledge data",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }

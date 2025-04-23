@@ -54,11 +54,14 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
   // Update selected year when years array changes
   useEffect(() => {
     if (allYears.length > 0 && !allYears.includes(selectedYear)) {
-      setSelectedYear(allYears[allYears.length - 1]); // Set to most recent year
+      const mostRecentYear = allYears[allYears.length - 1];
+      console.log(`Updating selected year to most recent: ${mostRecentYear}`);
+      setSelectedYear(mostRecentYear); // Set to most recent year
     }
   }, [allYears, selectedYear]);
 
   const handleCountriesChange = (countries: string[]) => {
+    console.log(`Countries selection changed to: ${countries.join(', ')}`);
     setSelectedCountries(countries);
     setSelectedTerms([]); // Reset selected terms to trigger auto-selection
     
@@ -73,7 +76,9 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Auto-select top terms when data changes
   useEffect(() => {
-    if (allTerms.length > 0 && selectedTerms.length === 0) {
+    if (countriesData && Object.keys(countriesData).length > 0 && 
+        allTerms.length > 0 && selectedTerms.length === 0) {
+      
       const topTerms = getTopTermsByPercentage(
         countriesData,
         selectedCountries,
@@ -81,6 +86,9 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
         selectedYear,
         5
       );
+      
+      console.log(`Auto-selecting top terms: ${topTerms.join(', ')}`);
+      
       if (topTerms.length > 0) {
         setSelectedTerms(topTerms);
       }
@@ -88,6 +96,7 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [countriesData, selectedCountries, allTerms, selectedYear, selectedTerms.length]);
 
   const handleSetSelectedTerms = (terms: string[]) => {
+    console.log(`Setting selected terms: ${terms.join(', ')}`);
     setSelectedTerms(terms);
   };
 

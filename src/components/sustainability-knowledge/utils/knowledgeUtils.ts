@@ -8,8 +8,9 @@ export const getTopTermsByPercentage = (
   year: number,
   limit: number
 ): string[] => {
-  // If no data, return empty array
+  // If no data or no countries, return empty array
   if (!data || Object.keys(data).length === 0 || !countries || countries.length === 0) {
+    console.log('No data or countries available for top terms calculation');
     return [];
   }
   
@@ -32,6 +33,7 @@ export const getTopTermsByPercentage = (
   
   // If no data was found, return empty array
   if (Object.keys(termPercentages).length === 0) {
+    console.log('No term percentages found for the selected year:', year);
     return [];
   }
   
@@ -42,6 +44,8 @@ export const getTopTermsByPercentage = (
       average: data.sum / data.count
     }))
     .sort((a, b) => b.average - a.average);
+  
+  console.log(`Found ${termAverages.length} terms with percentages, selecting top ${Math.min(limit, termAverages.length)}`);
   
   // Return top terms (limit to available terms if fewer than requested)
   return termAverages.slice(0, Math.min(limit, termAverages.length)).map(item => item.term);
