@@ -1,6 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useMemo } from "react";
 
 export interface DiscussionTopicData {
   row_id?: number;
@@ -133,7 +134,7 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
 // Hook to get all countries' data
 export const useAllDiscussionTopicsData = (countries: string[]) => {
   // Normalize country codes to uppercase
-  const normalizedCountries = React.useMemo(() => {
+  const normalizedCountries = useMemo(() => {
     return countries.map(country => country.toUpperCase());
   }, [countries]);
   
