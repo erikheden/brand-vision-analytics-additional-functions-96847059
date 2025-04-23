@@ -14,7 +14,8 @@ export const useKnowledgeData = (selectedCountries: string[]) => {
 
   useEffect(() => {
     const fetchAllData = async () => {
-      if (selectedCountries.length === 0) {
+      // If no countries selected, reset state and return
+      if (!selectedCountries || selectedCountries.length === 0) {
         setCountriesData({});
         setAllYears([]);
         setAllTerms([]);
@@ -30,8 +31,10 @@ export const useKnowledgeData = (selectedCountries: string[]) => {
         let yearsSet = new Set<number>();
         let termsSet = new Set<string>();
         
+        // Use Promise.all to fetch data for all selected countries in parallel
         await Promise.all(selectedCountries.map(async (country) => {
           try {
+            console.log(`Fetching data for country: ${country}`);
             const { data, error } = await supabase
               .from('SBI_Knowledge')
               .select('*')
@@ -40,17 +43,22 @@ export const useKnowledgeData = (selectedCountries: string[]) => {
             
             if (error) throw error;
             
-            allData[country] = data as KnowledgeData[];
-            
-            // Extract years and terms
-            data.forEach(item => {
-              if (typeof item.year === 'number') {
-                yearsSet.add(item.year);
-              }
-              if (item.term) {
-                termsSet.add(item.term);
-              }
-            });
+            if (data && data.length > 0) {
+              console.log(`Received ${data.length} records for ${country}`);
+              allData[country] = data as KnowledgeData[];
+              
+              // Extract years and terms
+              data.forEach(item => {
+                if (typeof item.year === 'number') {
+                  yearsSet.add(item.year);
+                }
+                if (item.term) {
+                  termsSet.add(item.term);
+                }
+              });
+            } else {
+              console.log(`No data found for ${country}`);
+            }
           } catch (err) {
             console.error(`Error fetching data for ${country}:`, err);
             toast({
@@ -61,13 +69,16 @@ export const useKnowledgeData = (selectedCountries: string[]) => {
           }
         }));
         
+        console.log(`Data fetched for ${Object.keys(allData).length} countries`);
+        console.log(`Found ${yearsSet.size} unique years and ${termsSet.size} unique terms`);
+        
         setCountriesData(allData);
         setAllYears(Array.from(yearsSet).sort((a, b) => a - b));
         setAllTerms(Array.from(termsSet).sort());
-        setIsLoading(false);
       } catch (err) {
         console.error("Error fetching knowledge data:", err);
         setError(err as Error);
+      } finally {
         setIsLoading(false);
       }
     };
@@ -83,4 +94,3 @@ export const useKnowledgeData = (selectedCountries: string[]) => {
     error
   };
 };
-

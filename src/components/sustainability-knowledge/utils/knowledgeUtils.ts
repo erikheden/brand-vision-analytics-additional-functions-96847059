@@ -8,6 +8,11 @@ export const getTopTermsByPercentage = (
   year: number,
   limit: number
 ): string[] => {
+  // If no data, return empty array
+  if (!data || Object.keys(data).length === 0 || !countries || countries.length === 0) {
+    return [];
+  }
+  
   // Create a map to store average percentage for each term
   const termPercentages: Record<string, { sum: number; count: number }> = {};
   
@@ -25,6 +30,11 @@ export const getTopTermsByPercentage = (
     });
   });
   
+  // If no data was found, return empty array
+  if (Object.keys(termPercentages).length === 0) {
+    return [];
+  }
+  
   // Calculate average and sort terms by average percentage
   const termAverages = Object.entries(termPercentages)
     .map(([term, data]) => ({
@@ -33,7 +43,6 @@ export const getTopTermsByPercentage = (
     }))
     .sort((a, b) => b.average - a.average);
   
-  // Return top terms
-  return termAverages.slice(0, limit).map(item => item.term);
+  // Return top terms (limit to available terms if fewer than requested)
+  return termAverages.slice(0, Math.min(limit, termAverages.length)).map(item => item.term);
 };
-
