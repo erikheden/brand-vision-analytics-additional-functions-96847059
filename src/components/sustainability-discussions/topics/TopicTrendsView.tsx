@@ -6,6 +6,7 @@ import TopicTrendsChart from './TopicTrendsChart';
 import LoadingState from '../LoadingState';
 import ErrorState from '../ErrorState';
 import TopicSelector from '../TopicSelector';
+import TrendsDescription from '@/components/sustainability-shared/TrendsDescription';
 
 interface TopicTrendsViewProps {
   data: DiscussionTopicData[];
@@ -36,21 +37,29 @@ const TopicTrendsView: React.FC<TopicTrendsViewProps> = ({
 
   return (
     <div className="space-y-6">
-      <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <TopicSelector
-          topics={topics}
-          selectedTopics={selectedTopics}
-          onTopicChange={setSelectedTopics}
-        />
-      </Card>
+      <TrendsDescription 
+        description="Compare trends of the same sustainability discussion topic across different countries."
+      />
 
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <TopicTrendsChart
-          data={normalizedData}
-          selectedCountries={selectedCountries.map(c => c.toUpperCase())}
-          selectedTopics={selectedTopics}
-        />
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="md:col-span-1">
+          <TopicSelector
+            topics={topics}
+            selectedTopics={selectedTopics}
+            onTopicChange={setSelectedTopics}
+          />
+        </div>
+
+        <div className="md:col-span-3">
+          <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+            <TopicTrendsChart
+              data={normalizedData}
+              selectedCountries={selectedCountries.map(c => c.toUpperCase())}
+              selectedTopics={selectedTopics}
+            />
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };

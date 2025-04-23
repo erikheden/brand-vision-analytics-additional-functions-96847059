@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { DiscussionTopicData } from '@/hooks/useDiscussionTopicsData';
@@ -15,7 +14,6 @@ const TopicTrendsChart: React.FC<TopicTrendsChartProps> = ({
   selectedCountries,
   selectedTopics
 }) => {
-  // If no topics are selected, show message
   if (selectedTopics.length === 0) {
     return (
       <div className="flex justify-center items-center h-60">
@@ -24,7 +22,6 @@ const TopicTrendsChart: React.FC<TopicTrendsChartProps> = ({
     );
   }
 
-  // Process data for the chart
   const processedData = React.useMemo(() => {
     const yearGroups = data.reduce((acc, item) => {
       if (!selectedTopics.includes(item.discussion_topic)) return acc;
@@ -53,18 +50,30 @@ const TopicTrendsChart: React.FC<TopicTrendsChartProps> = ({
   return (
     <div className="w-full h-[500px]">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <LineChart 
+          data={processedData}
+          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+        >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
+          <XAxis
             dataKey="year"
-            label={{ value: 'Year', position: 'insideBottom', offset: -5 }}
+            padding={{ left: 20, right: 20 }}
+            tickLine={false}
+            axisLine={{ stroke: '#E5E7EB' }}
           />
           <YAxis
             domain={[0, 100]}
-            label={{ value: 'Percentage (%)', angle: -90, position: 'insideLeft' }}
             tickFormatter={(value) => `${value}%`}
+            tickLine={false}
+            axisLine={{ stroke: '#E5E7EB' }}
+            label={{ 
+              value: 'Percentage (%)', 
+              angle: -90, 
+              position: 'insideLeft',
+              style: { fill: '#6B7280' }
+            }}
           />
-          <Tooltip 
+          <Tooltip
             formatter={(value: number) => [`${value}%`, '']}
             labelFormatter={(label) => `Year: ${label}`}
           />
@@ -80,6 +89,7 @@ const TopicTrendsChart: React.FC<TopicTrendsChartProps> = ({
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
+                connectNulls
               />
             ))
           )}
