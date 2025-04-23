@@ -1,52 +1,20 @@
 
-import React, { useState, useEffect } from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import CountryButtonSelect from "@/components/CountryButtonSelect";
 import PrioritiesView from "./PrioritiesView";
 import TrendsView from "./TrendsView";
-import { useGeneralMaterialityData } from "@/hooks/useGeneralMaterialityData";
+import YearSelector from "./YearSelector";
 import { useSelectionData } from "@/hooks/useSelectionData";
-import CountryButtonSelect from "@/components/CountryButtonSelect";
+import DashboardLayout from "../layout/DashboardLayout";
 
 const MainContent = () => {
-  const [activeView, setActiveView] = useState<string>("priorities");
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
-  const [selectedYear, setSelectedYear] = useState<number>(2023);
-
-  // Get available countries
-  const {
-    countries
-  } = useSelectionData("", []);
-
-  // Get the data for all selected countries
-  const {
-    data: materialityData,
-    isLoading,
-    error
-  } = useGeneralMaterialityData(selectedCountries[0] || "");
-
-  // Extract unique years from data
-  const years = React.useMemo(() => {
-    if (!materialityData || materialityData.length === 0) return [2023, 2024];
-    const yearsSet = new Set(materialityData.map(item => item.year));
-    return Array.from(yearsSet).sort((a, b) => a - b);
-  }, [materialityData]);
-
-  // Extract areas from data
-  const areas = React.useMemo(() => {
-    if (!materialityData || materialityData.length === 0) return [];
-    const areasSet = new Set(materialityData.map(item => item.materiality_area));
-    return Array.from(areasSet).sort();
-  }, [materialityData]);
-
-  // Set default year when years change
-  useEffect(() => {
-    if (years.length > 0) {
-      setSelectedYear(Math.max(...years));
-    }
-  }, [years]);
-
+  const [activeTab, setActiveTab] = useState<string>("priorities");
+  const [selectedYear, setSelectedYear] = useState<number>(2024);
+  const { countries } = useSelectionData("", []);
+  
   const handleCountryChange = (country: string) => {
     setSelectedCountries(current => 
       current.includes(country) 
@@ -56,52 +24,60 @@ const MainContent = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div className="space-y-6">
-        <h1 className="text-2xl font-semibold text-[#34502b] text-center md:text-left">
-          Sustainability Priorities
-        </h1>
-
-        <div className="mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-3">
-              <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-[#34502b]">Select Countries</h2>
-                  <p className="text-gray-600 text-sm">
-                    Select one or more countries to view and compare sustainability priorities.
-                  </p>
-                  <CountryButtonSelect
-                    countries={countries || []}
-                    selectedCountries={selectedCountries}
-                    onCountryChange={handleCountryChange}
-                  />
-                </div>
-              </Card>
-            </div>
+    <DashboardLayout
+      title="Sustainability Priorities"
+      description="Track and compare sustainability priorities across different markets and time periods."
+    >
+      <div className="grid grid-cols-1 gap-6 w-full">
+        <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md w-full">
+          <div className="space-y-4 w-full">
+            <h2 className="text-lg font-semibold text-[#34502b]">Select Countries</h2>
+            <p className="text-gray-600 text-sm">
+              Select one or more countries to view and compare sustainability priorities.
+            </p>
+            <CountryButtonSelect
+              countries={countries || []}
+              selectedCountries={selectedCountries}
+              onCountryChange={handleCountryChange}
+            />
           </div>
-        </div>
+        </Card>
 
-        <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
-          <TabsList className="bg-[#34502b]/10 mx-auto md:mx-0">
-            <TabsTrigger value="priorities" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-              Priorities
-            </TabsTrigger>
-            <TabsTrigger value="trends" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-              Trends
-            </TabsTrigger>
-          </TabsList>
+        {selectedCountries.length > 0 && (
+          <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl w-full">
+            <div className="grid grid-cols-1 gap-6 mb-6">
+              <YearSelector years={[2023, 2024]} selectedYear={selectedYear} onChange={setSelectedYear} />
+            </div>
 
-          <TabsContent value="priorities" className="space-y-6 pt-4 py-0">
-            <PrioritiesView selectedCountries={selectedCountries} years={years} selectedYear={selectedYear} setSelectedYear={setSelectedYear} isLoading={isLoading} error={error} />
-          </TabsContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="bg-[#34502b]/10 mx-auto mb-6 w-full md:w-auto">
+                <TabsTrigger value="priorities" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+                  Priorities View
+                </TabsTrigger>
+                <TabsTrigger value="trends" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+                  Trends
+                </TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="trends" className="space-y-6 pt-4 py-0">
-            <TrendsView selectedCountries={selectedCountries} areas={areas} selectedAreas={selectedAreas} setSelectedAreas={setSelectedAreas} isLoading={isLoading} error={error} />
-          </TabsContent>
-        </Tabs>
+              <TabsContent value="priorities" className="mt-0">
+                <PrioritiesView
+                  selectedCountries={selectedCountries}
+                  years={[2023, 2024]}
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                />
+              </TabsContent>
+              
+              <TabsContent value="trends" className="mt-0">
+                <TrendsView
+                  selectedCountries={selectedCountries}
+                />
+              </TabsContent>
+            </Tabs>
+          </Card>
+        )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
