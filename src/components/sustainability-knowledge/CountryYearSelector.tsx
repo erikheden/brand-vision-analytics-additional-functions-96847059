@@ -14,6 +14,17 @@ const CountryYearSelector: React.FC = () => {
     allYears
   } = useKnowledgePage();
 
+  // Adapter function to convert single country toggle to the expected array format
+  const handleCountryToggle = (country: string) => {
+    // If country is already selected, remove it, otherwise add it
+    const updatedCountries = selectedCountries.includes(country)
+      ? selectedCountries.filter(c => c !== country)
+      : [...selectedCountries, country];
+    
+    // Pass the updated array to the original handler
+    handleCountriesChange(updatedCountries);
+  };
+
   return (
     <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <div className="space-y-6">
@@ -23,7 +34,7 @@ const CountryYearSelector: React.FC = () => {
           <CountryButtonSelect 
             countries={["SE", "NO", "DK", "FI", "NL"]}
             selectedCountries={selectedCountries} 
-            onCountryChange={handleCountriesChange}
+            onCountryChange={handleCountryToggle}
           />
         </div>
         
