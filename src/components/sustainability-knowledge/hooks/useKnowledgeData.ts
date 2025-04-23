@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
@@ -11,6 +11,47 @@ export const useKnowledgeData = (selectedCountries: string[]) => {
   const [allTerms, setAllTerms] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
+
+  const fetchData = useCallback(async (country: string) => {
+    console.log(`Fetching data for country: ${country}`);
+    
+    try {
+      const { data, error } = await supabase
+        .from('SBI_Knowledge')
+        .select('*')
+        .eq('country', country)
+        .order('year', { ascending: true });
+      
+      if (error) {
+        console.error(`Database error for ${country}:`, error);
+        throw error;
+      }
+      
+      if (data && data.length > 0) {
+        console.log(`Received ${data.length} records for ${country}`);
+        return data as KnowledgeData[];
+      } else {
+        console.log(`No data found for ${country}`);
+        
+        // For debugging purposes, let's query without the country filter to see if the table has any data
+        const { data: debugData, error: debugError } = await supabase
+          .from('SBI_Knowledge')
+          .select('country')
+          .limit(5);
+        
+        if (debugError) {
+          console.error('Debug query error:', debugError);
+        } else {
+          console.log('Available countries in SBI_Knowledge:', debugData?.map(d => d.country));
+        }
+        
+        return [];
+      }
+    } catch (err) {
+      console.error(`Error fetching data for ${country}:`, err);
+      throw err;
+    }
+  }, []);
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -32,47 +73,27 @@ export const useKnowledgeData = (selectedCountries: string[]) => {
         let termsSet = new Set<string>();
         
         // Use Promise.all to fetch data for all selected countries in parallel
-        await Promise.all(selectedCountries.map(async (country) => {
-          try {
-            console.log(`Fetching data for country: ${country}`);
+        const results = await Promise.all(
+          selectedCountries.map(country => fetchData(country))
+        );
+        
+        // Process results
+        selectedCountries.forEach((country, index) => {
+          const countryData = results[index];
+          if (countryData && countryData.length > 0) {
+            allData[country] = countryData;
             
-            // Let's verify the table name and query
-            const { data, error } = await supabase
-              .from('SBI_Knowledge')
-              .select('*')
-              .eq('country', country)
-              .order('year', { ascending: true });
-            
-            if (error) {
-              console.error(`Database error for ${country}:`, error);
-              throw error;
-            }
-            
-            if (data && data.length > 0) {
-              console.log(`Received ${data.length} records for ${country}`);
-              allData[country] = data as KnowledgeData[];
-              
-              // Extract years and terms
-              data.forEach(item => {
-                if (typeof item.year === 'number') {
-                  yearsSet.add(item.year);
-                }
-                if (item.term) {
-                  termsSet.add(item.term);
-                }
-              });
-            } else {
-              console.log(`No data found for ${country}`);
-            }
-          } catch (err) {
-            console.error(`Error fetching data for ${country}:`, err);
-            toast({
-              title: "Error",
-              description: `Failed to fetch data for ${country}`,
-              variant: "destructive",
+            // Extract years and terms
+            countryData.forEach(item => {
+              if (typeof item.year === 'number') {
+                yearsSet.add(item.year);
+              }
+              if (item.term) {
+                termsSet.add(item.term);
+              }
             });
           }
-        }));
+        });
         
         console.log(`Data fetched for ${Object.keys(allData).length} countries`);
         console.log(`Found ${yearsSet.size} unique years and ${termsSet.size} unique terms`);
@@ -94,7 +115,7 @@ export const useKnowledgeData = (selectedCountries: string[]) => {
     };
     
     fetchAllData();
-  }, [selectedCountries, toast]);
+  }, [selectedCountries, fetchData, toast]);
 
   return {
     countriesData,

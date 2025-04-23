@@ -15,19 +15,23 @@ export const getTopTermsByPercentage = (
   }
   
   // Create a map to store average percentage for each term
-  const termPercentages: Record<string, { sum: number; count: number }> = {};
+  const termPercentages: Record<string, { sum: number; count: number; terms: string[] }> = {};
   
   // Calculate average percentage for each term across countries
   countries.forEach(country => {
     const countryData = data[country] || [];
+    console.log(`Processing country ${country} with ${countryData.length} data points`);
+    
     const yearData = countryData.filter(item => item.year === year);
+    console.log(`Found ${yearData.length} items for year ${year}`);
     
     yearData.forEach(item => {
       if (!termPercentages[item.term]) {
-        termPercentages[item.term] = { sum: 0, count: 0 };
+        termPercentages[item.term] = { sum: 0, count: 0, terms: [] };
       }
       termPercentages[item.term].sum += item.percentage;
       termPercentages[item.term].count += 1;
+      termPercentages[item.term].terms.push(`${country}-${item.year}-${item.percentage}`);
     });
   });
   
@@ -36,6 +40,11 @@ export const getTopTermsByPercentage = (
     console.log('No term percentages found for the selected year:', year);
     return [];
   }
+  
+  // Log the term data for debugging
+  Object.entries(termPercentages).forEach(([term, data]) => {
+    console.log(`Term: ${term}, Avg: ${data.sum/data.count}, Datapoints: ${data.terms.join(', ')}`);
+  });
   
   // Calculate average and sort terms by average percentage
   const termAverages = Object.entries(termPercentages)

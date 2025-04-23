@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { KnowledgeData } from "@/hooks/useSustainabilityKnowledge";
 import { useKnowledgeData } from "./hooks/useKnowledgeData";
@@ -26,7 +26,7 @@ type KnowledgePageContextType = {
 export const KnowledgePageContext = React.createContext<KnowledgePageContextType>({
   selectedCountries: [],
   setSelectedCountries: () => {},
-  selectedYear: 2024,
+  selectedYear: 2023, // Changed from 2024 to 2023 to match likely available data
   setSelectedYear: () => {},
   selectedTerms: [],
   setSelectedTerms: () => {},
@@ -44,12 +44,21 @@ export const KnowledgePageContext = React.createContext<KnowledgePageContextType
 export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { toast } = useToast();
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [selectedYear, setSelectedYear] = useState<number>(2024);
+  const [selectedYear, setSelectedYear] = useState<number>(2023); // Changed from 2024 to 2023
   const [selectedTerms, setSelectedTerms] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("levels");
 
   // Use the custom hook for data fetching
   const { countriesData, allYears, allTerms, isLoading, error } = useKnowledgeData(selectedCountries);
+
+  console.log("KnowledgePageProvider state:", {
+    countriesCount: Object.keys(countriesData || {}).length,
+    allYears,
+    allTerms,
+    selectedYear,
+    selectedTerms,
+    isLoading
+  });
 
   // Update selected year when years array changes
   useEffect(() => {
@@ -76,8 +85,19 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Auto-select top terms when data changes
   useEffect(() => {
-    if (countriesData && Object.keys(countriesData).length > 0 && 
-        allTerms.length > 0 && selectedTerms.length === 0) {
+    // Only proceed if we have data, countries, and no terms are selected yet
+    if (countriesData && 
+        Object.keys(countriesData).length > 0 && 
+        selectedCountries.length > 0 && 
+        allTerms.length > 0 && 
+        selectedTerms.length === 0) {
+      
+      console.log("Trying to auto-select terms with:", {
+        hasCountriesData: Object.keys(countriesData).length > 0,
+        countriesCount: selectedCountries.length,
+        termsCount: allTerms.length,
+        selectedYear
+      });
       
       const topTerms = getTopTermsByPercentage(
         countriesData,
@@ -91,14 +111,22 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
       
       if (topTerms.length > 0) {
         setSelectedTerms(topTerms);
+      } else {
+        // If no top terms were found, but we have terms available,
+        // just select the first few as a fallback
+        if (allTerms.length > 0) {
+          const fallbackTerms = allTerms.slice(0, Math.min(5, allTerms.length));
+          console.log(`Using fallback terms: ${fallbackTerms.join(', ')}`);
+          setSelectedTerms(fallbackTerms);
+        }
       }
     }
   }, [countriesData, selectedCountries, allTerms, selectedYear, selectedTerms.length]);
 
-  const handleSetSelectedTerms = (terms: string[]) => {
+  const handleSetSelectedTerms = useCallback((terms: string[]) => {
     console.log(`Setting selected terms: ${terms.join(', ')}`);
     setSelectedTerms(terms);
-  };
+  }, []);
 
   const value = {
     selectedCountries,
