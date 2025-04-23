@@ -1,195 +1,94 @@
 
-import React, { useMemo } from "react";
-import Highcharts from "highcharts";
-import HighchartsReact from "highcharts-react-official";
-import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
-import { FONT_FAMILY } from "@/utils/constants";
-import { getFullCountryName } from "@/components/CountrySelect";
+import React, { useMemo } from 'react';
+import { Card } from '@/components/ui/card';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { DiscussionTopicData } from '@/hooks/useDiscussionTopicsData';
 
 interface DiscussionTopicsComparisonChartProps {
-  countriesData: Record<string, DiscussionTopicData[]>;
-  selectedYear: number;
   selectedCountries: string[];
+  selectedTopics: string[];
+  discussionData: DiscussionTopicData[];
 }
 
-const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartProps> = ({ 
-  countriesData, 
-  selectedYear,
-  selectedCountries 
+const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartProps> = ({
+  selectedCountries,
+  selectedTopics,
+  discussionData
 }) => {
-  // Process data for the chart
-  const { topics, series } = useMemo(() => {
-    // Check if we have valid data
-    if (!countriesData || Object.keys(countriesData).length === 0 || selectedCountries.length === 0) {
-      console.log("No valid data for chart", { 
-        countriesDataKeys: Object.keys(countriesData || {}),
-        selectedCountries 
-      });
-      return { topics: [], series: [] };
-    }
+  // Colors for the bars
+  const COLORS = ['#34502b', '#4d7342', '#668c5a', '#7fa571', '#98be89', '#257179', '#328a94'];
+  
+  // Process the data for the chart
+  const chartData = useMemo(() => {
+    if (!selectedTopics.length) return [];
     
-    // Get all unique topics across all countries
-    const allTopics = new Set<string>();
-    const filteredData: Record<string, DiscussionTopicData[]> = {};
-    
-    // Filter data for the selected year and collect all topics
-    for (const country of selectedCountries) {
-      const countryData = countriesData[country] || [];
-      const yearData = countryData.filter(item => item.year === selectedYear);
+    return selectedTopics.map(topic => {
+      const topicData: Record<string, any> = { topic };
       
-      filteredData[country] = yearData;
-      
-      yearData.forEach(item => {
-        if (item.discussion_topic) {
-          allTopics.add(item.discussion_topic);
-        }
-      });
-    }
-    
-    // Convert topics set to array
-    const topicsArray = Array.from(allTopics);
-    
-    // Calculate average value for each topic across all countries
-    const topicAverages: Record<string, number> = {};
-    
-    topicsArray.forEach(topic => {
-      let sum = 0;
-      let count = 0;
-      
-      selectedCountries.forEach(country => {
-        const countryData = filteredData[country] || [];
-        const topicData = countryData.find(item => item.discussion_topic === topic);
+      selectedCountries.forEach((country, index) => {
+        const countryData = discussionData.find(item => 
+          item.discussion_topic === topic && item.country.toUpperCase() === country.toUpperCase()
+        );
         
-        if (topicData && topicData.percentage !== undefined) {
-          sum += topicData.percentage * 100; // Convert to percentage
-          count++;
-        }
+        // Convert from decimal (0-1) to percentage (0-100) if needed
+        const percentage = countryData 
+          ? Math.round(countryData.percentage * 100) 
+          : 0;
+        
+        topicData[country] = percentage;
       });
       
-      topicAverages[topic] = count > 0 ? sum / count : 0;
+      return topicData;
     });
-    
-    // Sort topics by average value (high to low)
-    const sortedTopics = topicsArray.sort((a, b) => topicAverages[b] - topicAverages[a]);
-    
-    // Create series for each country
-    const chartSeries: Highcharts.SeriesOptionsType[] = selectedCountries.map(country => {
-      const countryData = filteredData[country] || [];
-      const countryColor = getCountryColor(country);
-      
-      return {
-        name: getFullCountryName(country),
-        type: 'column',
-        data: sortedTopics.map(topic => {
-          const topicData = countryData.find(item => item.discussion_topic === topic);
-          // Convert from decimal to percentage (0-100)
-          return topicData ? (topicData.percentage || 0) * 100 : 0;
-        }),
-        color: countryColor
-      };
-    });
-    
-    return { topics: sortedTopics, series: chartSeries };
-  }, [countriesData, selectedCountries, selectedYear]);
-  
-  // Get color based on country code
-  function getCountryColor(country: string): string {
-    const colorMap: Record<string, string> = {
-      'Se': '#34502b',
-      'No': '#5c8f4a',
-      'Dk': '#84c066',
-      'Fi': '#aad68b',
-      'Nl': '#d1ebc1',
-      // Add uppercase variants
-      'SE': '#34502b',
-      'NO': '#5c8f4a',
-      'DK': '#84c066',
-      'FI': '#aad68b',
-      'NL': '#d1ebc1'
-    };
-    
-    return colorMap[country] || '#34502b';
-  }
-  
-  // Chart options - vertical bar chart with topics on x-axis
-  const options: Highcharts.Options = {
-    chart: {
-      type: 'column',
-      height: Math.max(400, 60 + 20 * topics.length),
-      backgroundColor: 'white',
-      style: { fontFamily: FONT_FAMILY }
-    },
-    title: {
-      text: `Sustainability Discussion Topics Comparison (${selectedYear})`,
-      style: { color: '#34502b', fontFamily: FONT_FAMILY }
-    },
-    xAxis: {
-      categories: topics,
-      title: {
-        text: 'Discussion Topics',
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      },
-      labels: {
-        style: { color: '#34502b', fontFamily: FONT_FAMILY },
-        rotation: -45,
-        align: 'right'
-      }
-    },
-    yAxis: {
-      title: {
-        text: 'Percentage',
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      },
-      labels: {
-        format: '{value}%',
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
-      }
-    },
-    tooltip: {
-      formatter: function(this: any) {
-        const countryName = this.series.name;
-        const topicName = this.point.category;
-        const percentage = this.y || 0;
-        
-        return `<b>${countryName}</b><br/>${topicName}: ${percentage.toFixed(1)}%`;
-      }
-    },
-    plotOptions: {
-      column: {
-        dataLabels: {
-          enabled: false
-        },
-        pointPadding: 0.2,
-        borderWidth: 0,
-        groupPadding: 0.1
-      }
-    },
-    legend: {
-      backgroundColor: 'rgba(255, 255, 255, 0.85)',
-      itemStyle: {
-        color: '#34502b',
-        fontFamily: FONT_FAMILY
-      },
-      maxHeight: 80
-    },
-    series: series,
-    credits: {
-      enabled: false
-    }
-  };
-  
-  if (topics.length === 0) {
+  }, [selectedTopics, selectedCountries, discussionData]);
+
+  if (selectedTopics.length === 0) {
     return (
-      <div className="text-center py-12">
-        No discussion topics data available for the selected countries in {selectedYear}
-      </div>
+      <Card className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm h-full flex items-center justify-center">
+        <p className="text-gray-500 text-center">
+          Please select at least one topic to compare across countries.
+        </p>
+      </Card>
     );
   }
-  
+
   return (
-    <div>
-      <HighchartsReact highcharts={Highcharts} options={options} />
-    </div>
+    <Card className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm h-full">
+      <h3 className="text-lg font-medium mb-4">Discussion Topics Comparison</h3>
+      
+      <div className="w-full h-[450px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={chartData}
+            margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+              dataKey="topic" 
+              angle={-45} 
+              textAnchor="end"
+              height={80} 
+              interval={0}
+            />
+            <YAxis 
+              label={{ value: 'Percentage (%)', angle: -90, position: 'insideLeft' }} 
+              domain={[0, 100]}
+            />
+            <Tooltip formatter={(value) => [`${value}%`, '']} />
+            <Legend />
+            
+            {selectedCountries.map((country, index) => (
+              <Bar 
+                key={country} 
+                dataKey={country} 
+                name={country}
+                fill={COLORS[index % COLORS.length]} 
+              />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </Card>
   );
 };
 

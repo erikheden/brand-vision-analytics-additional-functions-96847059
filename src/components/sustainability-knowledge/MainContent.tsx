@@ -8,8 +8,10 @@ import KnowledgeTabs from "./KnowledgeTabs";
 import LoadingState from "./LoadingState";
 import ErrorState from "./ErrorState";
 import { useSelectionData } from "@/hooks/useSelectionData";
+import { useToast } from "@/components/ui/use-toast";
 
 const MainContent = () => {
+  const { toast } = useToast();
   const { 
     selectedCountries, 
     handleCountriesChange,
@@ -27,6 +29,14 @@ const MainContent = () => {
       : [...selectedCountries, country];
     
     handleCountriesChange(updatedCountries);
+    
+    // Show toast when country is selected
+    if (!selectedCountries.includes(country)) {
+      toast({
+        title: `${country} Selected`,
+        description: "Data for this country is being loaded",
+      });
+    }
   };
 
   if (isLoading) return <LoadingState />;

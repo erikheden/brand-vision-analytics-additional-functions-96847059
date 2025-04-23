@@ -1,55 +1,63 @@
 
-import React from "react";
-import { Card } from "@/components/ui/card";
-import { DiscussionTopicData } from "@/hooks/useDiscussionTopicsData";
-import DiscussionTopicsComparisonChart from "./DiscussionTopicsComparisonChart";
+import React, { useMemo, useState } from 'react';
+import { Card } from '@/components/ui/card';
+import DiscussionTopicsComparisonChart from './DiscussionTopicsComparisonChart';
+import TopicSelector from './TopicSelector';
+import { DiscussionTopicData } from '@/hooks/useDiscussionTopicsData';
 
 interface DiscussionTopicsComparisonProps {
-  countriesData: DiscussionTopicData[];
   selectedCountries: string[];
-  selectedYear: number;
+  discussionData: DiscussionTopicData[];
 }
 
-const DiscussionTopicsComparison: React.FC<DiscussionTopicsComparisonProps> = ({
-  countriesData,
+const DiscussionTopicsComparison: React.FC<DiscussionTopicsComparisonProps> = ({ 
   selectedCountries,
-  selectedYear
+  discussionData
 }) => {
-  // Process data by country
-  const countriesDataMap = React.useMemo(() => {
-    if (!countriesData || countriesData.length === 0) return {};
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+
+  // Extract all unique topics from the discussion data
+  const allTopics = useMemo(() => {
+    const topicsSet = new Set<string>();
     
-    // Group data by country
-    return countriesData.reduce((acc, item) => {
-      if (!item.country) return acc;
-      
-      const country = item.country;
-      if (!acc[country]) {
-        acc[country] = [];
+    discussionData.forEach(item => {
+      if (item.discussion_topic) {
+        topicsSet.add(item.discussion_topic);
       }
-      acc[country].push(item);
-      return acc;
-    }, {} as Record<string, DiscussionTopicData[]>);
-  }, [countriesData]);
-  
-  if (selectedCountries.length === 0) {
-    return (
-      <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl">
-        <div className="text-center py-12 text-[#34502b]/70">
-          Please select countries to compare discussion topics
-        </div>
-      </Card>
+    });
+    
+    return Array.from(topicsSet).sort();
+  }, [discussionData]);
+
+  // Handle topic selection toggle
+  const handleTopicToggle = (topic: string) => {
+    setSelectedTopics(current => 
+      current.includes(topic)
+        ? current.filter(t => t !== topic)
+        : [...current, topic]
     );
-  }
-  
+  };
+
   return (
-    <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl">
-      <DiscussionTopicsComparisonChart 
-        countriesData={countriesDataMap} 
-        selectedYear={selectedYear}
-        selectedCountries={selectedCountries}
-      />
-    </Card>
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="lg:col-span-1">
+        <Card className="p-4 h-full bg-white border border-gray-200 rounded-lg shadow-sm">
+          <TopicSelector
+            allTopics={allTopics}
+            selectedTopics={selectedTopics}
+            onTopicToggle={handleTopicToggle}
+          />
+        </Card>
+      </div>
+      
+      <div className="lg:col-span-3">
+        <DiscussionTopicsComparisonChart
+          selectedCountries={selectedCountries}
+          selectedTopics={selectedTopics}
+          discussionData={discussionData}
+        />
+      </div>
+    </div>
   );
 };
 
