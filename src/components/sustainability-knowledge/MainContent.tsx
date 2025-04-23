@@ -19,6 +19,16 @@ const MainContent = () => {
   
   const { countries } = useSelectionData("", []);
 
+  // Helper function to adapt the handleCountriesChange to work with CountryButtonSelect
+  const handleCountryToggle = (country: string) => {
+    // If country is already in the array, remove it, otherwise add it
+    const updatedCountries = selectedCountries.includes(country)
+      ? selectedCountries.filter(c => c !== country)
+      : [...selectedCountries, country];
+    
+    handleCountriesChange(updatedCountries);
+  };
+
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState />;
 
@@ -37,7 +47,7 @@ const MainContent = () => {
             <CountryButtonSelect
               countries={countries || []}
               selectedCountries={selectedCountries}
-              onCountryChange={handleCountriesChange}
+              onCountryChange={handleCountryToggle}
             />
           </div>
         </Card>

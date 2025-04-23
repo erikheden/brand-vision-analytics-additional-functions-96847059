@@ -39,7 +39,7 @@ const MainContent = () => {
     
     Object.values(materialityData).forEach(countryData => {
       countryData.forEach(item => {
-        if (item.area) areasSet.add(item.area);
+        if (item.materiality_area) areasSet.add(item.materiality_area);
       });
     });
     
