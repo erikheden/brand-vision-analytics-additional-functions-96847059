@@ -20,11 +20,14 @@ export const useDiscussionTopicsData = (country: string) => {
       console.log("Fetching discussion topics for country:", country);
       
       try {
+        // Normalize country code to uppercase
+        const normalizedCountry = country.toUpperCase();
+        
         // Make query case-insensitive for country code
         const { data, error } = await supabase
           .from('SBI_Discussion_Topics')
           .select('*')
-          .ilike('country', country);
+          .ilike('country', normalizedCountry);
         
         if (error) {
           console.error('Error fetching discussion topics:', error);
@@ -32,7 +35,7 @@ export const useDiscussionTopicsData = (country: string) => {
         }
         
         if (!data || data.length === 0) {
-          console.log(`No discussion topics found for country: ${country}`);
+          console.log(`No discussion topics found for country: ${normalizedCountry}`);
           return [];
         }
         
@@ -44,8 +47,8 @@ export const useDiscussionTopicsData = (country: string) => {
           .filter(item => item && item.discussion_topic && item.discussion_topic.trim() !== '')
           .map(item => ({
             ...item,
-            // Convert country code to consistent case if needed
-            country: item.country || country,
+            // Ensure country code is consistent (uppercase)
+            country: normalizedCountry,
             // Ensure percentage is a number between 0-1 for consistent handling
             percentage: typeof item.percentage === 'number' ? item.percentage : 
                        typeof item.percentage === 'string' ? parseFloat(item.percentage) : 0
@@ -72,12 +75,8 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
     // Add debugging log
     console.log("Fetching topics for countries:", countries);
     
-    // Prepare array of countries in both lowercase and uppercase for matching
-    const countryVariants = countries.flatMap(country => [
-      country, 
-      country.toLowerCase(), 
-      country.toUpperCase()
-    ]);
+    // Normalize all country codes to uppercase
+    const normalizedCountries = countries.map(country => country.toUpperCase());
     
     // Get all data first - we'll filter client-side to be more flexible
     const { data, error } = await supabase
@@ -100,10 +99,8 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
     const filteredData = data.filter(item => {
       if (!item.country) return false;
       
-      const normalizedCountry = item.country.toLowerCase();
-      return countries.some(country => 
-        country.toLowerCase() === normalizedCountry
-      );
+      const normalizedItemCountry = item.country.toUpperCase();
+      return normalizedCountries.includes(normalizedItemCountry);
     });
     
     // Filter out any rows with empty discussion_topic values
@@ -111,6 +108,8 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
       .filter(item => item && item.discussion_topic && item.discussion_topic.trim() !== '')
       .map(item => ({
         ...item,
+        // Ensure country code is consistent (uppercase)
+        country: item.country.toUpperCase(),
         // Ensure percentage is a number
         percentage: typeof item.percentage === 'number' ? item.percentage : 
                    typeof item.percentage === 'string' ? parseFloat(item.percentage) : 0
@@ -133,9 +132,14 @@ export const fetchAllDiscussionTopicsData = async (countries: string[]): Promise
 
 // Hook to get all countries' data
 export const useAllDiscussionTopicsData = (countries: string[]) => {
+  // Normalize country codes to uppercase
+  const normalizedCountries = React.useMemo(() => {
+    return countries.map(country => country.toUpperCase());
+  }, [countries]);
+  
   return useQuery({
-    queryKey: ['all-discussion-topics', countries],
-    queryFn: () => fetchAllDiscussionTopicsData(countries || []),
-    enabled: countries && countries.length > 0,
+    queryKey: ['all-discussion-topics', normalizedCountries],
+    queryFn: () => fetchAllDiscussionTopicsData(normalizedCountries || []),
+    enabled: normalizedCountries && normalizedCountries.length > 0,
   });
 };

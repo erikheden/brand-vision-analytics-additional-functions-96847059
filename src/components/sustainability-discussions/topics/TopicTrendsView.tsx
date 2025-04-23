@@ -25,8 +25,14 @@ const TopicTrendsView: React.FC<TopicTrendsViewProps> = ({
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState />;
 
+  // Normalize country codes in the data
+  const normalizedData = data.map(item => ({
+    ...item,
+    country: item.country.toUpperCase()
+  }));
+  
   // Get unique topics from the data
-  const topics = [...new Set(data.map(item => item.discussion_topic))].sort();
+  const topics = [...new Set(normalizedData.map(item => item.discussion_topic))].sort();
 
   return (
     <div className="space-y-6">
@@ -40,8 +46,8 @@ const TopicTrendsView: React.FC<TopicTrendsViewProps> = ({
 
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <TopicTrendsChart
-          data={data}
-          selectedCountries={selectedCountries}
+          data={normalizedData}
+          selectedCountries={selectedCountries.map(c => c.toUpperCase())}
           selectedTopics={selectedTopics}
         />
       </Card>

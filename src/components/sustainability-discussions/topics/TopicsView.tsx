@@ -23,15 +23,21 @@ const TopicsView: React.FC<TopicsViewProps> = ({
 }) => {
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState />;
+  
+  // Normalize country codes in the data to match the selectedCountries format
+  const normalizedData = data.map(item => ({
+    ...item,
+    country: item.country.toUpperCase()
+  }));
 
   // Get unique topics from the data
-  const topics = [...new Set(data.map(item => item.discussion_topic))].sort();
+  const topics = [...new Set(normalizedData.map(item => item.discussion_topic))].sort();
 
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <TopicsBarChart
-        discussionData={data}
-        selectedCountries={selectedCountries}
+        discussionData={normalizedData}
+        selectedCountries={selectedCountries.map(c => c.toUpperCase())}
         selectedYear={selectedYear}
         topics={topics}
       />
