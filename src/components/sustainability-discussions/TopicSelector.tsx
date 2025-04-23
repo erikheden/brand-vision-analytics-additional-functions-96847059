@@ -31,7 +31,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({
   };
 
   return (
-    <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+    <Card className="p-4 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <div className="space-y-2">
         <div className="flex justify-between items-center">
           <Label className="text-sm font-medium text-[#34502b]">

@@ -38,7 +38,7 @@ const TopicTrendsView: React.FC<TopicTrendsViewProps> = ({
   return (
     <div className="space-y-6">
       <TrendsDescription 
-        description="Compare trends of the same sustainability discussion topic across different countries."
+        description="Compare sustainability discussion topic trends across different countries and time periods."
       />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -51,7 +51,7 @@ const TopicTrendsView: React.FC<TopicTrendsViewProps> = ({
         </div>
 
         <div className="md:col-span-3">
-          <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+          <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 rounded-xl shadow-md">
             <TopicTrendsChart
               data={normalizedData}
               selectedCountries={selectedCountries.map(c => c.toUpperCase())}
