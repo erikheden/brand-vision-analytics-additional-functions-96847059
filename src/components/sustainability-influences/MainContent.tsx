@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import SelectionPanel from "@/components/sustainability-shared/SelectionPanel";
 import InfluencesBarChart from "./InfluencesBarChart";
 import InfluencesTrendChart from "./InfluencesTrendChart";
+import InfluenceSelector from "./InfluenceSelector";
 import LoadingState from "./LoadingState";
 import ErrorState from "./ErrorState";
 import YearSelector from "./YearSelector";
