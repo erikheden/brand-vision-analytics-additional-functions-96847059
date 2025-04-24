@@ -36,26 +36,40 @@ const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({
     error
   } = useSustainabilityImpactData(activeCountry);
   
+  console.log("Impact data loaded:", {
+    activeCountry,
+    categoriesLoaded: categories.length > 0,
+    selectedCategories: selectedCategories,
+    impactLevels,
+    selectedLevels,
+    years,
+    selectedYear,
+    hasProcessedData: !!processedData && Object.keys(processedData).length > 0
+  });
+  
   // When years data changes, select the most recent year by default
   useEffect(() => {
     if (years.length > 0 && !selectedYear) {
+      console.log("Auto-selecting most recent year:", years[years.length - 1]);
       setSelectedYear(years[years.length - 1]);
     }
   }, [years, selectedYear]);
-
+  
   // Auto-select first category when categories load
   useEffect(() => {
     if (categories.length > 0 && selectedCategories.length === 0) {
+      console.log("Auto-selecting first category:", categories[0]);
       setSelectedCategories([categories[0]]);
     }
-  }, [categories, selectedCategories.length]);
+  }, [categories, selectedCategories]);
   
   // Auto-select all impact levels when they load
   useEffect(() => {
     if (impactLevels.length > 0 && selectedLevels.length === 0) {
+      console.log("Auto-selecting all impact levels:", impactLevels);
       setSelectedLevels([...impactLevels]);
     }
-  }, [impactLevels, selectedLevels.length]);
+  }, [impactLevels, selectedLevels]);
   
   // Sort impact levels in a meaningful order (if needed)
   const sortedImpactLevels = impactLevels.sort((a, b) => {
@@ -176,12 +190,16 @@ const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({
       
       {activeCountry && (
         <ImpactResultsDisplay
-          selectedCountry={activeCountry}
-          selectedCategories={selectedCategories.length > 0 ? selectedCategories : categories}
-          selectedYear={selectedYear}
-          chartData={chartData}
           isLoading={isLoading}
           error={error}
+          selectedCountry={activeCountry}
+          selectedCategories={selectedCategories}
+          selectedYear={selectedYear}
+          chartData={chartData}
+          data={data}
+          processedData={processedData}
+          selectedLevels={selectedLevels}
+          country={activeCountry}
         />
       )}
     </div>

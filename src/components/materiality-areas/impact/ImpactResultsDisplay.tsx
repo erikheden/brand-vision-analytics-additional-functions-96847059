@@ -34,7 +34,19 @@ const ImpactResultsDisplay: React.FC<ImpactResultsDisplayProps> = ({
   // Use either explicitly passed country or the selectedCountry prop
   const countryToUse = country || selectedCountry;
   const countryName = getFullCountryName(countryToUse) || countryToUse;
+  
+  // Consider categories from the chart data if available
   const categories = chartData?.byLevel ? [...new Set(chartData.byLevel.map(item => item.category))] : [];
+  
+  console.log("ImpactResultsDisplay rendering", { 
+    isLoading, 
+    hasError: !!error, 
+    selectedCountry, 
+    selectedCategoriesCount: selectedCategories.length, 
+    selectedYear,
+    hasChartData: chartData && chartData.byLevel && chartData.byLevel.length > 0,
+    categories
+  });
 
   if (isLoading) {
     return (
@@ -66,21 +78,24 @@ const ImpactResultsDisplay: React.FC<ImpactResultsDisplayProps> = ({
     );
   }
 
-  if (selectedCategories.length === 0) {
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-12 text-[#34502b]/70">
-          Please select at least one category to view impact data
-        </div>
-      </Card>
-    );
-  }
-
+  // Changed condition to check chart data directly rather than selected categories
   if (!chartData || !chartData.byLevel || chartData.byLevel.length === 0) {
+    if (isLoading) {
+      return (
+        <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+          <div className="text-center py-12">
+            <div className="animate-pulse text-[#34502b]">Loading impact data...</div>
+          </div>
+        </Card>
+      );
+    }
+
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="text-center py-12 text-gray-500">
-          No impact data available for the selected criteria in {countryName} {selectedYear ? `for ${selectedYear}` : ''}
+          {selectedCategories.length === 0 
+            ? "Please select at least one category to view impact data" 
+            : `No impact data available for the selected criteria in ${countryName} ${selectedYear ? `for ${selectedYear}` : ''}`}
         </div>
       </Card>
     );
