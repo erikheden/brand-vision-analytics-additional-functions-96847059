@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { KnowledgeData } from "@/hooks/useSustainabilityKnowledge";
@@ -44,7 +45,7 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
   const { toast } = useToast();
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number>(2023);
-  const [selectedTerms, setSelectedTerms] = useState<string[]>([]);
+  const [selectedTerms, setSelectedTerms] = useState<string[]>([]); // Initialize with empty array
   const [activeTab, setActiveTab] = useState<string>("levels");
 
   const { countriesData, allYears, allTerms, isLoading, error } = useKnowledgeData(selectedCountries);
@@ -69,7 +70,7 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
   const handleCountriesChange = (countries: string[]) => {
     console.log(`Countries selection changed to: ${countries.join(', ')}`);
     setSelectedCountries(countries);
-    setSelectedTerms([]);
+    setSelectedTerms([]); // Reset terms selection when countries change
 
     if (countries.length > 0) {
       toast({
@@ -80,17 +81,8 @@ export const KnowledgePageProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  useEffect(() => {
-    if (countriesData && 
-        Object.keys(countriesData).length > 0 && 
-        selectedCountries.length > 0 && 
-        allTerms.length > 0 && 
-        selectedTerms.length === 0) {
-      
-      console.log("Auto-selecting all terms");
-      setSelectedTerms(allTerms);
-    }
-  }, [countriesData, selectedCountries, allTerms, selectedTerms.length]);
+  // Remove the auto-select effect that was setting all terms
+  // This ensures no terms are selected by default
 
   const handleSetSelectedTerms = useCallback((terms: string[]) => {
     console.log(`Setting selected terms: ${terms.join(', ')}`);

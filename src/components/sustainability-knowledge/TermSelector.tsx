@@ -26,7 +26,7 @@ const TermSelector: React.FC<TermSelectorProps> = ({ terms, selectedTerms, onCha
     onChange([...terms]);
   };
 
-  // Clear all selected terms
+  // Clear all selected terms - Make sure this function passes an empty array
   const handleClearAll = () => {
     onChange([]);
   };
