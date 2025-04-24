@@ -1,7 +1,5 @@
 
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { DiscussionTopicData } from '@/hooks/useDiscussionTopicsData';
 import TopicTrendsChart from './TopicTrendsChart';
 import LoadingState from '../LoadingState';
 import ErrorState from '../ErrorState';
@@ -51,13 +49,11 @@ const TopicTrendsView: React.FC<TopicTrendsViewProps> = ({
         </div>
 
         <div className="md:col-span-3">
-          <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 rounded-xl shadow-md">
-            <TopicTrendsChart
-              data={normalizedData}
-              selectedCountries={selectedCountries.map(c => c.toUpperCase())}
-              selectedTopics={selectedTopics}
-            />
-          </Card>
+          <TopicTrendsChart
+            data={normalizedData}
+            selectedCountries={selectedCountries.map(c => c.toUpperCase())}
+            selectedTopics={selectedTopics}
+          />
         </div>
       </div>
     </div>
@@ -65,3 +61,4 @@ const TopicTrendsView: React.FC<TopicTrendsViewProps> = ({
 };
 
 export default TopicTrendsView;
+
