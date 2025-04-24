@@ -62,7 +62,9 @@ export const createKnowledgeTrendChartOptions = (
 
   // Calculate the years range for nice x-axis display
   const years = new Set<number>();
-  series.forEach(s => {
+  
+  // Fixed: Use proper type checking and casting
+  series.forEach((s: any) => {
     if (s.data && Array.isArray(s.data)) {
       s.data.forEach((point: any) => {
         if (typeof point === 'object' && point.x) {
@@ -74,8 +76,8 @@ export const createKnowledgeTrendChartOptions = (
     }
   });
   
-  const minYear = Math.min(...Array.from(years));
-  const maxYear = Math.max(...Array.from(years));
+  const minYear = years.size > 0 ? Math.min(...Array.from(years)) : new Date().getFullYear() - 5;
+  const maxYear = years.size > 0 ? Math.max(...Array.from(years)) : new Date().getFullYear();
 
   return {
     chart: {
@@ -150,9 +152,9 @@ export const createKnowledgeTrendChartOptions = (
         let html = `<div style="font-family:${FONT_FAMILY}"><b>Year: ${this.x}</b><br/>`;
         this.points.forEach(point => {
           const [country, term] = (point.series.name as string).split(' - ');
-          // Access the custom 'change' property safely using the point's options
-          const pointData = point.point.options as any;
-          const change = pointData.change;
+          // Fixed: Access the custom properties from options
+          const pointOptions = point.point.options as any;
+          const change = pointOptions.change;
           
           html += `<span style="color: ${point.color}">\u25CF</span> ${country} - ${term}: <b>${point.y?.toFixed(1)}%</b>`;
           
