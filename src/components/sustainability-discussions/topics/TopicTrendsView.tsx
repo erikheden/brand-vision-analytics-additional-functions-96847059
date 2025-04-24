@@ -5,6 +5,7 @@ import LoadingState from '../LoadingState';
 import ErrorState from '../ErrorState';
 import TopicSelector from '../TopicSelector';
 import TrendsDescription from '@/components/sustainability-shared/TrendsDescription';
+import { DiscussionTopicData } from '@/hooks/useDiscussionTopicsData';
 
 interface TopicTrendsViewProps {
   data: DiscussionTopicData[];
