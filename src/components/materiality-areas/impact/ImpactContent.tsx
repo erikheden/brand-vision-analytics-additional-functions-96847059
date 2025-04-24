@@ -1,8 +1,9 @@
 
 import React from "react";
-import ImpactFilters from "./ImpactFilters";
-import ImpactResultsDisplay from "./ImpactResultsDisplay";
 import { useImpactCategories } from "@/hooks/useImpactCategories";
+import { useImpactChartData } from "@/hooks/useImpactChartData";
+import ImpactFiltersContainer from "./ImpactFiltersContainer";
+import ImpactResultsDisplay from "./ImpactResultsDisplay";
 
 interface ImpactContentProps {
   selectedCountries: string[];
@@ -27,46 +28,20 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
     toggleImpactLevel
   } = useImpactCategories(selectedCountries);
 
-  // Prepare chart data from the processed data
-  const chartData = React.useMemo(() => {
-    if (!processedData || !selectedYear) {
-      return { byLevel: [], byCategory: [] };
-    }
-
-    const byLevel: Array<{ name: string, value: number, category: string }> = [];
-    const byCategory: Array<{ name: string, value: number, category: string }> = [];
-
-    const categoriesToUse = selectedCategories.length > 0 ? selectedCategories : categories;
-    const levelsToUse = selectedLevels.length > 0 ? selectedLevels : impactLevels;
-
-    categoriesToUse.forEach(category => {
-      if (processedData[category] && processedData[category][selectedYear]) {
-        levelsToUse.forEach(level => {
-          if (processedData[category][selectedYear][level] !== undefined) {
-            byLevel.push({
-              name: level,
-              value: processedData[category][selectedYear][level] * 100,
-              category: category
-            });
-
-            byCategory.push({
-              name: category,
-              value: processedData[category][selectedYear][level] * 100,
-              category: level
-            });
-          }
-        });
-      }
-    });
-
-    return { byLevel, byCategory };
-  }, [processedData, selectedYear, selectedCategories, selectedLevels, categories, impactLevels]);
+  const chartData = useImpactChartData(
+    processedData,
+    selectedYear,
+    selectedCategories,
+    selectedLevels,
+    categories,
+    impactLevels
+  );
 
   return (
     <div className="space-y-6">
-      <ImpactFilters
-        selectedCountry={activeCountry}
-        countries={selectedCountries}
+      <ImpactFiltersContainer
+        activeCountry={activeCountry}
+        selectedCountries={selectedCountries}
         handleCountryChange={handleCountryChange}
         categories={categories}
         selectedCategories={selectedCategories}
@@ -74,7 +49,7 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
         years={years}
         selectedYear={selectedYear}
         setSelectedYear={setSelectedYear}
-        sortedImpactLevels={impactLevels}
+        impactLevels={impactLevels}
         selectedLevels={selectedLevels}
         toggleImpactLevel={toggleImpactLevel}
         isLoading={isLoading}
