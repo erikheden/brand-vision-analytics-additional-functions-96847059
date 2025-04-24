@@ -28,11 +28,18 @@ const ChartSection = ({
     isLoading
   } = useChartData(selectedCountry, selectedBrands);
   
-  // Process chart data using the extracted hook without infinite loop
+  // Process chart data using the extracted hook
   const processedData = useProcessedChartData(scores, standardized);
   
   // Check if we have actual data after processing
   const hasAverageScores = processedData.averageScores && processedData.averageScores.size > 0;
+
+  // Early return if no country is selected
+  if (!selectedCountry) {
+    return <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+      <div className="text-center py-10">Select a country to view data</div>
+    </Card>;
+  }
 
   if (isLoading) {
     return <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">

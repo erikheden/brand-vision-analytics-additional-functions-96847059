@@ -23,37 +23,41 @@ export const useProcessedChartData = (
   // Process chart data when scores change
   useEffect(() => {
     // Prevent unnecessary processing by checking if scores actually changed
+    if (scores.length === 0) {
+      setProcessedData([]);
+      return;
+    }
+
+    // Create a key based on score IDs to detect changes
     const scoresKey = JSON.stringify(scores.map(s => s.id || s["Row ID"]));
-    if (scoresKey === prevScoresRef.current && scores.length > 0) {
+    
+    // Skip processing if the data hasn't changed
+    if (scoresKey === prevScoresRef.current) {
       return;
     }
     
+    // Update our reference for next comparison
     prevScoresRef.current = scoresKey;
     
-    if (scores.length > 0) {
-      // Get average scores to attach to processed data
-      const averageScores = scores.averageScores;
-      const hasAverageScores = averageScores && typeof averageScores.get === 'function' && averageScores.size > 0;
-      
-      // Always use non-standardized processing (ignore standardized parameter)
-      const data = processChartData(scores, false) as ScoresArray;
-      
-      // Copy metadata to processed data for access in child components
-      if (hasAverageScores) {
-        // Set directly as a property rather than using Object.defineProperty
-        data.averageScores = averageScores;
-      }
-      
-      // Also copy countryYearStats if available
-      if (scores.countryYearStats) {
-        data.countryYearStats = scores.countryYearStats;
-      }
-      
-      setProcessedData(data);
-    } else {
-      setProcessedData([]);
+    // Get average scores to attach to processed data
+    const averageScores = scores.averageScores;
+    const hasAverageScores = averageScores && typeof averageScores.get === 'function' && averageScores.size > 0;
+    
+    // Always use non-standardized processing
+    const data = processChartData(scores, false) as ScoresArray;
+    
+    // Copy metadata to processed data for access in child components
+    if (hasAverageScores) {
+      data.averageScores = averageScores;
     }
-  }, [scores]); // Only depend on scores changing, not standardized
+    
+    // Also copy countryYearStats if available
+    if (scores.countryYearStats) {
+      data.countryYearStats = scores.countryYearStats;
+    }
+    
+    setProcessedData(data);
+  }, [scores]); // Only depend on scores changing
 
   return processedData;
 };
