@@ -1,7 +1,8 @@
 
+import Highcharts from 'highcharts';
 import { FONT_FAMILY } from '@/utils/constants';
 
-export const createTooltipFormatter = function(this: Highcharts.PointLabelObject | Highcharts.TooltipFormatterCallbackFunction): string {
+export const createTooltipFormatter = function(this: Highcharts.TooltipFormatterCallbackFunction): string {
   if (!this.points) return '';
   
   let html = `<div style="font-family:${FONT_FAMILY}"><b>Year: ${this.x}</b><br/>`;
@@ -26,3 +27,4 @@ export const createTooltipFormatter = function(this: Highcharts.PointLabelObject
   html += '</div>';
   return html;
 };
+
