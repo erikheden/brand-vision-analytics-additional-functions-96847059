@@ -2,10 +2,18 @@
 import { useState } from "react";
 import SelectionPanel from "@/components/sustainability-shared/SelectionPanel";
 import ChartSection from "@/components/ChartSection";
+import { normalizeCountry } from "@/components/CountrySelect";
 
 const SustainabilityPerception = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  
+  // Add a handler that normalizes country codes
+  const handleCountrySelection = (countries: string[]) => {
+    // Normalize all country codes to ensure consistent format
+    const normalizedCountries = countries.map(country => normalizeCountry(country));
+    setSelectedCountries(normalizedCountries);
+  };
   
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -16,7 +24,7 @@ const SustainabilityPerception = () => {
           title="Select Countries"
           description="Select one or more countries to view sustainability perception."
           selectedCountries={selectedCountries}
-          setSelectedCountries={setSelectedCountries}
+          setSelectedCountries={handleCountrySelection}
         />
           
         {selectedCountries.length > 0 && (

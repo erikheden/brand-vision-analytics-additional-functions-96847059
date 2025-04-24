@@ -2,6 +2,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import CountryButtonSelect from "@/components/CountryButtonSelect";
+import { normalizeCountry } from "@/components/CountrySelect";
 
 interface SelectionPanelProps {
   title: string;
@@ -16,14 +17,17 @@ const SelectionPanel: React.FC<SelectionPanelProps> = ({
   selectedCountries,
   setSelectedCountries
 }) => {
-  // Available countries
-  const countries = ["SE", "NO", "DK", "FI", "NL"];
+  // Available countries - normalize them
+  const countries = ["SE", "NO", "DK", "FI", "NL"].map(normalizeCountry);
 
   const handleCountryChange = (country: string) => {
+    // Normalize the country code to ensure consistent format
+    const normalizedCountry = normalizeCountry(country);
+    
     // Create a new array based on the current selection
-    const newSelectedCountries = selectedCountries.includes(country) 
-      ? selectedCountries.filter(c => c !== country)
-      : [...selectedCountries, country];
+    const newSelectedCountries = selectedCountries.includes(normalizedCountry) 
+      ? selectedCountries.filter(c => c !== normalizedCountry)
+      : [...selectedCountries, normalizedCountry];
     
     // Use the direct setter pattern instead of a callback function
     setSelectedCountries(newSelectedCountries);
