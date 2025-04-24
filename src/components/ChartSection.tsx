@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useChartData } from "@/hooks/useChartData";
@@ -27,24 +28,11 @@ const ChartSection = ({
     isLoading
   } = useChartData(selectedCountry, selectedBrands);
   
-  // Debug: Log the scores data and properties to check if averageScores exists
-  console.log("Scores data received:", scores.length > 0 ? "Yes" : "No");
-  console.log("Scores has averageScores property:", !!scores.averageScores);
-  
-  if (scores.averageScores) {
-    console.log("averageScores size:", scores.averageScores.size);
-    console.log("averageScores countries:", Array.from(scores.averageScores.keys()));
-  }
-  
-  // Process chart data using the extracted hook
+  // Process chart data using the extracted hook without infinite loop
   const processedData = useProcessedChartData(scores, standardized);
   
-  // Debug: Check processed data too
-  console.log("Processed data has averageScores:", !!processedData.averageScores);
-  
-  if (processedData.averageScores) {
-    console.log("Processed data averageScores size:", processedData.averageScores.size);
-  }
+  // Check if we have actual data after processing
+  const hasAverageScores = processedData.averageScores && processedData.averageScores.size > 0;
 
   if (isLoading) {
     return <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
@@ -57,10 +45,6 @@ const ChartSection = ({
         <EmptyChartState selectedCountry={selectedCountry} />
       </Card>;
   }
-
-  // Check if average scores data is available for averages line
-  const hasAverageScores = !!processedData.averageScores && processedData.averageScores.size > 0;
-  console.log("Has average scores in ChartSection:", hasAverageScores);
 
   const years = calculateYearRange(scores);
   // Create a yearRange object compatible with BrandChart's expected format
