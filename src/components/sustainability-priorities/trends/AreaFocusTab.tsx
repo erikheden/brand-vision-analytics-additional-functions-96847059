@@ -24,8 +24,7 @@ const AreaFocusTab: React.FC<AreaFocusTabProps> = ({
     setSelectedAreas([]);
   };
 
-  // For area-focused tab, we need to transform the selected areas
-  // to include country information
+  // Only transform and display areas that are actually selected
   const transformedSelectedAreas = selectedAreas.flatMap(area => 
     selectedCountries.map(country => `${area} (${country})`)
   );
@@ -46,10 +45,18 @@ const AreaFocusTab: React.FC<AreaFocusTabProps> = ({
           onClearAreas={handleClearAreas}
         />
 
-        <PrioritiesTrendChart
-          data={trendData}
-          selectedAreas={transformedSelectedAreas}
-        />
+        {selectedAreas.length > 0 ? (
+          <PrioritiesTrendChart
+            data={trendData}
+            selectedAreas={transformedSelectedAreas}
+          />
+        ) : (
+          <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+            <div className="text-center py-10 text-gray-500">
+              Select at least one sustainability area to view trends
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );
