@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TopicTrendsChart from './TopicTrendsChart';
 import LoadingState from '../LoadingState';
 import ErrorState from '../ErrorState';
@@ -22,9 +22,6 @@ const TopicTrendsView: React.FC<TopicTrendsViewProps> = ({
 }) => {
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
-  if (isLoading) return <LoadingState />;
-  if (error) return <ErrorState />;
-
   // Normalize country codes in the data
   const normalizedData = data.map(item => ({
     ...item,
@@ -33,6 +30,16 @@ const TopicTrendsView: React.FC<TopicTrendsViewProps> = ({
   
   // Get unique topics from the data
   const topics = [...new Set(normalizedData.map(item => item.discussion_topic))].sort();
+
+  // Auto-select the first topic when data changes and no topics are selected
+  useEffect(() => {
+    if (topics.length > 0 && selectedTopics.length === 0) {
+      setSelectedTopics([topics[0]]);
+    }
+  }, [topics, selectedTopics.length]);
+
+  if (isLoading) return <LoadingState />;
+  if (error) return <ErrorState />;
 
   return (
     <div className="space-y-6">
@@ -62,4 +69,3 @@ const TopicTrendsView: React.FC<TopicTrendsViewProps> = ({
 };
 
 export default TopicTrendsView;
-

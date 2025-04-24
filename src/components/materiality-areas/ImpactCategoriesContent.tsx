@@ -42,6 +42,20 @@ const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({
       setSelectedYear(years[years.length - 1]);
     }
   }, [years, selectedYear]);
+
+  // Auto-select first category when categories load
+  useEffect(() => {
+    if (categories.length > 0 && selectedCategories.length === 0) {
+      setSelectedCategories([categories[0]]);
+    }
+  }, [categories, selectedCategories.length]);
+  
+  // Auto-select all impact levels when they load
+  useEffect(() => {
+    if (impactLevels.length > 0 && selectedLevels.length === 0) {
+      setSelectedLevels([...impactLevels]);
+    }
+  }, [impactLevels, selectedLevels.length]);
   
   // Sort impact levels in a meaningful order (if needed)
   const sortedImpactLevels = impactLevels.sort((a, b) => {
