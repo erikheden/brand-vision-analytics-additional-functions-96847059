@@ -30,7 +30,7 @@ const TrendsView: React.FC<TrendsViewProps> = ({
     isPlaceholderData,
     isLoading,
     error
-  } = useTrendsData(selectedCountries, selectedAreas);  // Remove trendMode parameter
+  } = useTrendsData(selectedCountries, []); // Remove default areas selection
 
   // Combine loading and error states from both sources
   const combinedIsLoading = isLoading || externalIsLoading;
@@ -62,7 +62,7 @@ const TrendsView: React.FC<TrendsViewProps> = ({
             <AreaFocusTab 
               selectedCountries={selectedCountries} 
               allAreas={allAreas} 
-              selectedAreas={selectedAreas} 
+              selectedAreas={[]} // Explicitly set to empty array
               setSelectedAreas={setSelectedAreas} 
               trendData={trendData} 
             />
