@@ -6,7 +6,8 @@ import { getFullCountryName } from '@/components/CountrySelect';
 export const createKnowledgeTrendChartOptions = (
   data: any,
   selectedTerms: string[],
-  selectedCountries: string[]
+  selectedCountries: string[],
+  chartType: 'line' | 'column' = 'line'
 ): Highcharts.Options => {
   // Create series data
   const series: Highcharts.SeriesOptionsType[] = [];
@@ -26,20 +27,49 @@ export const createKnowledgeTrendChartOptions = (
         const color = `rgba(52, 80, 43, ${Math.max(0.3, colorIntensity)})`;
         const dashStyle = countryIndex % 2 === 0 ? 'Solid' : 'Dash';
         
+        // Calculate year-over-year change
+        const chartData = termData.map((d, idx, arr) => {
+          let change = 0;
+          if (idx > 0) {
+            change = (d.percentage - arr[idx-1].percentage) / arr[idx-1].percentage;
+          }
+          
+          return {
+            x: d.year,
+            y: Math.round(d.percentage * 100),
+            change: change !== 0 ? (change * 100).toFixed(1) : null
+          };
+        });
+
         series.push({
-          type: 'line',
+          type: chartType,
           name: `${getFullCountryName(country)} - ${term}`,
-          data: termData.map(d => [d.year, Math.round(d.percentage * 100)]),
+          data: chartData,
           color,
-          dashStyle: dashStyle as Highcharts.DashStyleValue
+          dashStyle: chartType === 'line' ? dashStyle as Highcharts.DashStyleValue : undefined
         });
       }
     });
   });
 
+  // Calculate the years range for nice x-axis display
+  const years = new Set<number>();
+  series.forEach(s => {
+    s.data?.forEach((point: any) => {
+      if (typeof point === 'object' && point.x) {
+        years.add(point.x);
+      } else if (Array.isArray(point)) {
+        years.add(point[0] as number);
+      }
+    });
+  });
+  
+  const minYear = Math.min(...Array.from(years));
+  const maxYear = Math.max(...Array.from(years));
+
   return {
     chart: {
-      type: 'line',
+      type: chartType,
       backgroundColor: 'white',
       style: {
         fontFamily: FONT_FAMILY
@@ -75,7 +105,14 @@ export const createKnowledgeTrendChartOptions = (
           color: '#34502b',
           fontFamily: FONT_FAMILY
         }
-      }
+      },
+      type: 'linear',
+      min: minYear - 0.5,
+      max: maxYear + 0.5,
+      tickInterval: 1,
+      startOnTick: false,
+      endOnTick: false,
+      gridLineWidth: chartType === 'column' ? 0 : 1
     },
     yAxis: {
       title: {
@@ -91,18 +128,34 @@ export const createKnowledgeTrendChartOptions = (
           color: '#34502b',
           fontFamily: FONT_FAMILY
         }
-      }
+      },
+      gridLineWidth: 1
     },
     tooltip: {
       shared: true,
+      useHTML: true,
       formatter: function() {
         if (!this.points) return '';
         
-        let html = `<b>Year: ${this.x}</b><br/>`;
+        let html = `<div style="font-family:${FONT_FAMILY}"><b>Year: ${this.x}</b><br/>`;
         this.points.forEach(point => {
           const [country, term] = (point.series.name as string).split(' - ');
-          html += `<span style="color: ${point.color}">\u25CF</span> ${country} - ${term}: <b>${point.y?.toFixed(1)}%</b><br/>`;
+          const change = (point.point as any).change;
+          
+          html += `<span style="color: ${point.color}">\u25CF</span> ${country} - ${term}: <b>${point.y?.toFixed(1)}%</b>`;
+          
+          // Add year-over-year change if available
+          if (change) {
+            const changeValue = parseFloat(change);
+            const changeIcon = changeValue > 0 ? '▲' : '▼';
+            const changeColor = changeValue > 0 ? '#34502b' : '#ea4444';
+            html += ` <span style="color:${changeColor}">${changeIcon} ${Math.abs(changeValue).toFixed(1)}%</span>`;
+          }
+          
+          html += `<br/>`;
         });
+        html += '</div>';
+        
         return html;
       }
     },
@@ -114,6 +167,11 @@ export const createKnowledgeTrendChartOptions = (
           radius: 4
         },
         lineWidth: 2
+      },
+      column: {
+        groupPadding: 0.1,
+        pointPadding: 0.1,
+        borderWidth: 0
       }
     },
     series,

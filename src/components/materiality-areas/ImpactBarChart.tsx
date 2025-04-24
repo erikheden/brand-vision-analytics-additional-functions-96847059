@@ -9,7 +9,9 @@ import {
   CartesianGrid, 
   Tooltip, 
   Legend,
-  Cell
+  Cell,
+  AreaChart,
+  Area
 } from 'recharts';
 import { roundPercentage } from '@/utils/formatting';
 
@@ -21,9 +23,15 @@ interface ImpactBarChartProps {
   }>;
   title: string;
   categories: string[];
+  chartType?: 'bar' | 'stacked';
 }
 
-const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title, categories }) => {
+const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ 
+  data, 
+  title, 
+  categories,
+  chartType = 'bar'
+}) => {
   // Color mapping for impact levels
   const getColor = (category: string, index: number) => {
     const colors = [
@@ -70,8 +78,8 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title, categories
       return a.localeCompare(b);
     });
     
-    // Create data structure for grouped bar chart
-    return sortedLevels.map(level => {
+    // Create data structure for chart
+    const chartData = sortedLevels.map(level => {
       const result: Record<string, any> = { name: level };
       
       // Add value for each category
@@ -80,9 +88,18 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title, categories
         result[category] = item ? item.value : 0;
       });
       
+      // For the stacked chart, add a total
+      if (chartType === 'stacked') {
+        result.total = Object.keys(result)
+          .filter(key => key !== 'name' && key !== 'total')
+          .reduce((sum, key) => sum + (result[key] || 0), 0);
+      }
+      
       return result;
     });
-  }, [data, categories, impactLevelOrder]);
+    
+    return chartData;
+  }, [data, categories, impactLevelOrder, chartType]);
   
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -103,9 +120,69 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title, categories
     return null;
   };
   
-  return (
-    <div className="w-full h-full">
-      <h3 className="text-xl font-medium text-center mb-6 text-[#34502b]">{title}</h3>
+  // Render different chart types
+  const renderChart = () => {
+    if (chartType === 'stacked') {
+      // Prepare stacked data
+      const stackedData = categories.map(category => {
+        const result: Record<string, any> = { category };
+        processedData.forEach(item => {
+          result[item.name] = item[category] || 0;
+        });
+        return result;
+      });
+      
+      return (
+        <ResponsiveContainer width="100%" height={400}>
+          <RechartsBarChart
+            data={stackedData}
+            margin={{
+              top: 20,
+              right: 30,
+              left: 20,
+              bottom: 20,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis 
+              dataKey="category"
+              tick={{ fill: '#4b5563', fontSize: 12 }}
+              height={60}
+              interval={0}
+              tickLine={false}
+              axisLine={false}
+            />
+            <YAxis 
+              label={{ 
+                value: 'Percentage (%)', 
+                angle: -90, 
+                position: 'insideLeft',
+                style: { textAnchor: 'middle' } 
+              }}
+              tick={{ fill: '#4b5563', fontSize: 12 }}
+              tickFormatter={(value) => `${value}%`}
+              domain={[0, 100]}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+            
+            {impactLevelOrder.map((level, index) => (
+              <Bar 
+                key={level}
+                dataKey={level} 
+                stackId="a"
+                fill={getColor(level, index)} 
+                name={level}
+                radius={index === impactLevelOrder.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+              />
+            ))}
+          </RechartsBarChart>
+        </ResponsiveContainer>
+      );
+    }
+    
+    // Default bar chart
+    return (
       <ResponsiveContainer width="100%" height={400}>
         <RechartsBarChart
           data={processedData}
@@ -144,6 +221,19 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({ data, title, categories
           ))}
         </RechartsBarChart>
       </ResponsiveContainer>
+    );
+  };
+  
+  return (
+    <div className="w-full h-full">
+      <h3 className="text-xl font-medium text-center mb-6 text-[#34502b]">{title}</h3>
+      {renderChart()}
+      
+      {chartType === 'stacked' && (
+        <div className="mt-4 text-center text-sm text-gray-500">
+          Stacked view shows the distribution of impact levels within each category
+        </div>
+      )}
     </div>
   );
 };
