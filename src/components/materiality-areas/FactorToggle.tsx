@@ -21,7 +21,7 @@ const FactorToggle: React.FC<FactorToggleProps> = ({
     <div className="space-y-2">
       <Label>Factor Types</Label>
       <div className="flex flex-col gap-2">
-        <ToggleGroup type="multiple" variant="outline" className="justify-start">
+        <ToggleGroup type="multiple" className="justify-start">
           <ToggleGroupItem 
             value="hygiene_factor" 
             className={`border ${selectedFactors.includes('hygiene_factor') ? 'bg-[#34502b] text-white' : ''}`}

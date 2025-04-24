@@ -41,13 +41,21 @@ export const createKnowledgeTrendChartOptions = (
           };
         });
 
-        series.push({
+        const seriesObj: any = {
           type: chartType,
           name: `${getFullCountryName(country)} - ${term}`,
-          data: chartData,
           color,
-          dashStyle: chartType === 'line' ? dashStyle as Highcharts.DashStyleValue : undefined
-        });
+        };
+        
+        if (Array.isArray(chartData) && chartData.length > 0) {
+          seriesObj.data = chartData;
+        }
+        
+        if (chartType === 'line') {
+          seriesObj.dashStyle = dashStyle as Highcharts.DashStyleValue;
+        }
+        
+        series.push(seriesObj);
       }
     });
   });
@@ -55,13 +63,15 @@ export const createKnowledgeTrendChartOptions = (
   // Calculate the years range for nice x-axis display
   const years = new Set<number>();
   series.forEach(s => {
-    s.data?.forEach((point: any) => {
-      if (typeof point === 'object' && point.x) {
-        years.add(point.x);
-      } else if (Array.isArray(point)) {
-        years.add(point[0] as number);
-      }
-    });
+    if (s.data && Array.isArray(s.data)) {
+      s.data.forEach((point: any) => {
+        if (typeof point === 'object' && point.x) {
+          years.add(point.x);
+        } else if (Array.isArray(point)) {
+          years.add(point[0] as number);
+        }
+      });
+    }
   });
   
   const minYear = Math.min(...Array.from(years));
@@ -140,7 +150,9 @@ export const createKnowledgeTrendChartOptions = (
         let html = `<div style="font-family:${FONT_FAMILY}"><b>Year: ${this.x}</b><br/>`;
         this.points.forEach(point => {
           const [country, term] = (point.series.name as string).split(' - ');
-          const change = (point.point as any).change;
+          // Access the custom 'change' property safely using the point's options
+          const pointData = point.point.options as any;
+          const change = pointData.change;
           
           html += `<span style="color: ${point.color}">\u25CF</span> ${country} - ${term}: <b>${point.y?.toFixed(1)}%</b>`;
           
