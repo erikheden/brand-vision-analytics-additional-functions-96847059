@@ -1,18 +1,16 @@
-
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import SelectionPanel from "../sustainability-shared/SelectionPanel";
+import SelectionPanel from "@/components/sustainability-shared/SelectionPanel";
 import InfluencesBarChart from "./InfluencesBarChart";
 import InfluencesTrendChart from "./InfluencesTrendChart";
-import InfluenceSelector from "./InfluenceSelector";
 import LoadingState from "./LoadingState";
 import ErrorState from "./ErrorState";
-import YearSelector from "@/components/sustainability-priorities/YearSelector";
-import { useAllInfluencesData } from "@/hooks/useSustainabilityInfluences";
+import YearSelector from "./YearSelector";
 import DashboardLayout from "../layout/DashboardLayout";
 import CountryButtonSelect from "@/components/CountryButtonSelect";
 import { useSelectionData } from "@/hooks/useSelectionData";
+import { useAllInfluencesData } from "@/hooks/useSustainabilityInfluences";
 
 const MainContent = () => {
   // All state hooks at the top
@@ -45,14 +43,8 @@ const MainContent = () => {
       });
       const sortedInfluences = Array.from(allInfluences).sort();
       setAvailableInfluences(sortedInfluences);
-
-      // Auto-select first few influences if none selected
-      if (selectedInfluences.length === 0 && sortedInfluences.length > 0) {
-        // Select the first 3 influences or all if less than 3
-        setSelectedInfluences(sortedInfluences.slice(0, Math.min(3, sortedInfluences.length)));
-      }
     }
-  }, [influencesData, selectedInfluences.length]);
+  }, [influencesData]);
 
   const handleInfluenceChange = (influences: string[]) => {
     setSelectedInfluences(influences);
@@ -134,4 +126,3 @@ const MainContent = () => {
 };
 
 export default MainContent;
-
