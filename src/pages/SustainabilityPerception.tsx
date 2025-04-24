@@ -7,14 +7,14 @@ import { Card } from "@/components/ui/card";
 import BrandSelection from "@/components/BrandSelection";
 
 const SustainabilityPerception = () => {
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   
-  // Add a handler that normalizes country codes
-  const handleCountrySelection = (countries: string[]) => {
-    // Normalize all country codes to ensure consistent format
-    const normalizedCountries = countries.map(country => normalizeCountry(country));
-    setSelectedCountries(normalizedCountries);
+  // Update handler to only accept a single country
+  const handleCountrySelection = (country: string) => {
+    // Normalize country code to ensure consistent format
+    const normalizedCountry = normalizeCountry(country);
+    setSelectedCountry(normalizedCountry);
     // Reset brand selection when changing countries
     setSelectedBrands([]);
   };
@@ -25,19 +25,19 @@ const SustainabilityPerception = () => {
         <h1 className="text-2xl font-semibold text-[#34502b]">Sustainable Brand Index Dashboard</h1>
           
         <SelectionPanel 
-          title="Select Countries"
-          description="Select one or more countries to view sustainability perception."
-          selectedCountries={selectedCountries}
-          setSelectedCountries={handleCountrySelection}
+          title="Select Country"
+          description="Select a country to view sustainability perception."
+          selectedCountry={selectedCountry}
+          setSelectedCountry={handleCountrySelection}
         />
           
-        {selectedCountries.length > 0 && (
+        {selectedCountry && (
           <>
             <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
               <BrandSelection 
                 brands={[]} 
                 selectedBrands={selectedBrands}
-                selectedCountries={selectedCountries}
+                selectedCountries={[selectedCountry]}
                 onBrandToggle={(brand, checked) => {
                   if (checked) {
                     setSelectedBrands(prev => [...prev, brand]);
@@ -57,7 +57,7 @@ const SustainabilityPerception = () => {
             </Card>
 
             <ChartSection 
-              selectedCountry={selectedCountries[0]} 
+              selectedCountry={selectedCountry} 
               selectedBrands={selectedBrands} 
             />
           </>

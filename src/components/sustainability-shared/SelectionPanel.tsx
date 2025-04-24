@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card } from "@/components/ui/card";
 import CountryButtonSelect from "@/components/CountryButtonSelect";
@@ -7,15 +6,15 @@ import { normalizeCountry } from "@/components/CountrySelect";
 interface SelectionPanelProps {
   title: string;
   description: string;
-  selectedCountries: string[];
-  setSelectedCountries: (countries: string[]) => void;
+  selectedCountry: string;
+  setSelectedCountry: (country: string) => void;
 }
 
 const SelectionPanel: React.FC<SelectionPanelProps> = ({
   title,
   description,
-  selectedCountries,
-  setSelectedCountries
+  selectedCountry,
+  setSelectedCountry
 }) => {
   // Available countries - normalize them
   const countries = ["SE", "NO", "DK", "FI", "NL"].map(normalizeCountry);
@@ -24,13 +23,13 @@ const SelectionPanel: React.FC<SelectionPanelProps> = ({
     // Normalize the country code to ensure consistent format
     const normalizedCountry = normalizeCountry(country);
     
-    // Create a new array based on the current selection
-    const newSelectedCountries = selectedCountries.includes(normalizedCountry) 
-      ? selectedCountries.filter(c => c !== normalizedCountry)
-      : [...selectedCountries, normalizedCountry];
-    
-    // Use the direct setter pattern instead of a callback function
-    setSelectedCountries(newSelectedCountries);
+    // If clicking the currently selected country, clear selection
+    if (selectedCountry === normalizedCountry) {
+      setSelectedCountry("");
+    } else {
+      // Otherwise set to the new country
+      setSelectedCountry(normalizedCountry);
+    }
   };
 
   return (
@@ -40,7 +39,7 @@ const SelectionPanel: React.FC<SelectionPanelProps> = ({
         <p className="text-gray-600 text-sm">{description}</p>
         <CountryButtonSelect 
           countries={countries} 
-          selectedCountries={selectedCountries} 
+          selectedCountries={selectedCountry ? [selectedCountry] : []} 
           onCountryChange={handleCountryChange} 
         />
       </div>

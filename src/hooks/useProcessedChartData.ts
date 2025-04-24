@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { processChartData } from "@/utils/chartDataUtils";
 
 /**
@@ -18,9 +18,18 @@ export const useProcessedChartData = (
   standardized: boolean = false // Kept for compatibility, but will be ignored
 ) => {
   const [processedData, setProcessedData] = useState<ScoresArray>([]);
+  const prevScoresRef = useRef<string>("");
   
   // Process chart data when scores change
   useEffect(() => {
+    // Prevent unnecessary processing by checking if scores actually changed
+    const scoresKey = JSON.stringify(scores.map(s => s.id || s["Row ID"]));
+    if (scoresKey === prevScoresRef.current && scores.length > 0) {
+      return;
+    }
+    
+    prevScoresRef.current = scoresKey;
+    
     if (scores.length > 0) {
       // Get average scores to attach to processed data
       const averageScores = scores.averageScores;
