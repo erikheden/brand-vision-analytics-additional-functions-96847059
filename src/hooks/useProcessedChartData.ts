@@ -22,30 +22,15 @@ export const useProcessedChartData = (
   // Process chart data when scores change
   useEffect(() => {
     if (scores.length > 0) {
-      console.log("Processing chart data");
-      console.log("Raw scores before processing:", scores.slice(0, 3));
-      
       // Get average scores to attach to processed data
       const averageScores = scores.averageScores;
       const hasAverageScores = averageScores && typeof averageScores.get === 'function' && averageScores.size > 0;
       
-      if (hasAverageScores) {
-        console.log("Average scores found in raw data:", 
-          Array.from(averageScores.entries()).map(([country, yearMap]) => 
-            `${country}: ${Array.from(yearMap.entries()).length} years`
-          )
-        );
-      } else {
-        console.log("No average scores found in raw data");
-      }
-      
       // Always use non-standardized processing (ignore standardized parameter)
       const data = processChartData(scores, false) as ScoresArray;
-      console.log("Processed data sample:", data.slice(0, 3));
       
       // Copy metadata to processed data for access in child components
       if (hasAverageScores) {
-        console.log("Attaching average scores to processed data");
         // Set directly as a property rather than using Object.defineProperty
         data.averageScores = averageScores;
       }
@@ -59,7 +44,7 @@ export const useProcessedChartData = (
     } else {
       setProcessedData([]);
     }
-  }, [scores]);
+  }, [scores]); // Only depend on scores changing, not standardized
 
   return processedData;
 };

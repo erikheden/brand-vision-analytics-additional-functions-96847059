@@ -40,7 +40,7 @@ const ChartSection = ({
     </Card>;
   }
 
-  if (scores.length === 0) {
+  if (scores.length === 0 || selectedBrands.length === 0) {
     return <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <EmptyChartState selectedCountry={selectedCountry} />
       </Card>;
