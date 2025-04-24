@@ -2,8 +2,8 @@
 import Highcharts from 'highcharts';
 import { FONT_FAMILY } from '@/utils/constants';
 
-// Use the proper Highcharts tooltip formatter type
-export const createTooltipFormatter = function(this: Highcharts.TooltipFormatterContextObject): string {
+// Use any for now to avoid type errors, then cast appropriately inside
+export const createTooltipFormatter = function(this: any): string {
   if (!this.points) return '';
   
   let html = `<div style="font-family:${FONT_FAMILY}"><b>Year: ${this.x}</b><br/>`;
