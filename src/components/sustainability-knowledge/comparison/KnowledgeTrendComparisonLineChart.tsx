@@ -1,12 +1,13 @@
 
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { getFullCountryName } from '@/components/CountrySelect';
-import { useProcessedTrendData } from '@/hooks/sustainability-knowledge/useProcessedTrendData';
-import { EmptyState } from './ComparisonStates';
+import React, { useMemo } from 'react';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
+import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
+import { createKnowledgeTrendChartOptions } from '../charts/chartOptions/knowledgeTrendOptions';
+import { Card } from '@/components/ui/card';
 
 interface KnowledgeTrendComparisonLineChartProps {
-  countriesData: Record<string, any[]>;
+  countriesData: Record<string, KnowledgeData[]>;
   selectedCountries: string[];
   selectedTerms: string[];
 }
@@ -16,70 +17,56 @@ const KnowledgeTrendComparisonLineChart: React.FC<KnowledgeTrendComparisonLineCh
   selectedCountries,
   selectedTerms
 }) => {
-  // Process data using the custom hook
-  const { chartData, lineConfigs, COUNTRY_COLORS, TERM_PATTERNS } = useProcessedTrendData(countriesData, selectedCountries, selectedTerms);
+  const { chartData, series } = useMemo(() => {
+    const allData: any[] = [];
+    const seriesData: Highcharts.SeriesOptionsType[] = [];
 
-  if (chartData.length === 0) {
+    selectedCountries.forEach((country, countryIndex) => {
+      const countryData = countriesData[country] || [];
+      selectedTerms.forEach((term, termIndex) => {
+        const termData = countryData
+          .filter(item => item.term === term)
+          .sort((a, b) => a.year - b.year);
+
+        if (termData.length > 0) {
+          const colorIntensity = 0.9 - (countryIndex * 0.15) - (termIndex * 0.05);
+          const color = `rgba(52, 80, 43, ${Math.max(0.3, colorIntensity)})`;
+          const dashStyle = countryIndex % 2 === 0 ? 'Solid' : 'Dash';
+
+          seriesData.push({
+            type: 'line',
+            name: `${country} - ${term}`,
+            data: termData.map(d => [d.year, Math.round(d.percentage * 100)]),
+            color,
+            dashStyle: dashStyle as Highcharts.DashStyleValue,
+          });
+        }
+      });
+    });
+
+    return { chartData: allData, series: seriesData };
+  }, [countriesData, selectedCountries, selectedTerms]);
+
+  if (selectedCountries.length === 0 || selectedTerms.length === 0) {
     return (
-      <div className="flex justify-center items-center h-60">
-        <p className="text-gray-500">No trend data available for the selected criteria</p>
-      </div>
+      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+        <div className="text-center py-10 text-gray-500">
+          Please select countries and terms to view the comparison.
+        </div>
+      </Card>
     );
   }
 
+  const options = createKnowledgeTrendChartOptions(chartData, selectedTerms, selectedCountries);
+  options.series = series;
+
   return (
-    <div className="w-full h-[400px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={chartData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
-            dataKey="year" 
-            label={{ value: 'Year', position: 'insideBottomRight', offset: -5 }}
-          />
-          <YAxis 
-            domain={[0, 100]} 
-            label={{ value: 'Knowledge Level (%)', angle: -90, position: 'insideLeft' }}
-            tickFormatter={(value) => `${value}%`}
-          />
-          <Tooltip 
-            formatter={(value: number | null) => {
-              if (value === null) return ['N/A', ''];
-              return [`${value}%`, 'Knowledge Level'];
-            }}
-            labelFormatter={(year) => `Year: ${year}`}
-          />
-          <Legend 
-            formatter={(value) => {
-              const [country, term] = value.split('-');
-              return `${getFullCountryName(country)} - ${term}`;
-            }}
-          />
-          
-          {lineConfigs.map(({ dataKey, country, term }, index) => {
-            const countryIndex = selectedCountries.indexOf(country);
-            const termIndex = selectedTerms.indexOf(term);
-            
-            return (
-              <Line
-                key={dataKey}
-                type="monotone"
-                dataKey={dataKey}
-                name={dataKey}
-                stroke={COUNTRY_COLORS[countryIndex % COUNTRY_COLORS.length]}
-                strokeDasharray={termIndex > 0 ? TERM_PATTERNS[termIndex % TERM_PATTERNS.length] : undefined}
-                strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-                connectNulls={false}
-              />
-            );
-          })}
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
+    <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+      <HighchartsReact 
+        highcharts={Highcharts} 
+        options={options}
+      />
+    </Card>
   );
 };
 
