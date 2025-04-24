@@ -4,11 +4,40 @@ import { FONT_FAMILY } from '@/utils/constants';
 import { getFullCountryName } from '@/components/CountrySelect';
 
 export const createKnowledgeTrendChartOptions = (
-  data: any[],
+  data: any,
   selectedTerms: string[],
   selectedCountries: string[]
 ): Highcharts.Options => {
-  const options: Highcharts.Options = {
+  // Create series data
+  const series: Highcharts.SeriesOptionsType[] = [];
+  
+  selectedCountries.forEach((country, countryIndex) => {
+    const countryData = data[country] || [];
+    
+    selectedTerms.forEach((term, termIndex) => {
+      // Get data for this term across all years
+      const termData = countryData
+        .filter(item => item.term === term)
+        .sort((a, b) => a.year - b.year);
+      
+      if (termData.length > 0) {
+        // Calculate color with varying intensity
+        const colorIntensity = 0.9 - (countryIndex * 0.15) - (termIndex * 0.05);
+        const color = `rgba(52, 80, 43, ${Math.max(0.3, colorIntensity)})`;
+        const dashStyle = countryIndex % 2 === 0 ? 'Solid' : 'Dash';
+        
+        series.push({
+          type: 'line',
+          name: `${getFullCountryName(country)} - ${term}`,
+          data: termData.map(d => [d.year, Math.round(d.percentage * 100)]),
+          color,
+          dashStyle: dashStyle as Highcharts.DashStyleValue
+        });
+      }
+    });
+  });
+
+  return {
     chart: {
       type: 'line',
       backgroundColor: 'white',
@@ -34,11 +63,13 @@ export const createKnowledgeTrendChartOptions = (
       }
     },
     xAxis: {
-      type: 'linear',
-      tickInterval: 1,
-      gridLineWidth: 1,
-      gridLineColor: '#E5E7EB',
-      lineColor: '#E5E7EB',
+      title: {
+        text: 'Year',
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY
+        }
+      },
       labels: {
         style: {
           color: '#34502b',
@@ -54,7 +85,6 @@ export const createKnowledgeTrendChartOptions = (
           fontFamily: FONT_FAMILY
         }
       },
-      gridLineColor: '#E5E7EB',
       labels: {
         format: '{value}%',
         style: {
@@ -71,7 +101,7 @@ export const createKnowledgeTrendChartOptions = (
         let html = `<b>Year: ${this.x}</b><br/>`;
         this.points.forEach(point => {
           const [country, term] = (point.series.name as string).split(' - ');
-          html += `<span style="color: ${point.color}">\u25CF</span> ${getFullCountryName(country)} - ${term}: <b>${point.y?.toFixed(1)}%</b><br/>`;
+          html += `<span style="color: ${point.color}">\u25CF</span> ${country} - ${term}: <b>${point.y?.toFixed(1)}%</b><br/>`;
         });
         return html;
       }
@@ -86,17 +116,15 @@ export const createKnowledgeTrendChartOptions = (
         lineWidth: 2
       }
     },
-    legend: {
-      enabled: true,
-      itemStyle: {
-        fontFamily: FONT_FAMILY,
-        color: '#34502b'
-      }
-    },
+    series,
     credits: {
       enabled: false
+    },
+    legend: {
+      itemStyle: {
+        color: '#34502b',
+        fontFamily: FONT_FAMILY
+      }
     }
   };
-
-  return options;
 };
