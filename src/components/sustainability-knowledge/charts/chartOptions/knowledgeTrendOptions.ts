@@ -152,8 +152,8 @@ export const createKnowledgeTrendChartOptions = (
         let html = `<div style="font-family:${FONT_FAMILY}"><b>Year: ${this.x}</b><br/>`;
         this.points.forEach(point => {
           const [country, term] = (point.series.name as string).split(' - ');
-          // Fixed: Access the custom properties from options
-          const pointOptions = point.point.options as any;
+          // Fixed: Access the custom properties directly from options without using 'point'
+          const pointOptions = point.options as any;
           const change = pointOptions.change;
           
           html += `<span style="color: ${point.color}">\u25CF</span> ${country} - ${term}: <b>${point.y?.toFixed(1)}%</b>`;
