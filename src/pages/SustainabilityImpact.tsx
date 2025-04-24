@@ -4,15 +4,19 @@ import ImpactCategoriesContent from "@/components/materiality-areas/ImpactCatego
 import { Card } from "@/components/ui/card";
 import CountryButtonSelect from "@/components/CountryButtonSelect";
 import { useSelectionData } from "@/hooks/useSelectionData";
+import { normalizeCountry } from "@/components/CountrySelect";
 
 const SustainabilityImpact = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const { countries } = useSelectionData("", []);
   
   const handleCountryChange = (country: string) => {
-    const newSelectedCountries = selectedCountries.includes(country)
-      ? selectedCountries.filter(c => c !== country)
-      : [...selectedCountries, country];
+    // Normalize the country code to ensure consistent format
+    const normalizedCountry = normalizeCountry(country);
+    
+    const newSelectedCountries = selectedCountries.includes(normalizedCountry)
+      ? selectedCountries.filter(c => c !== normalizedCountry)
+      : [...selectedCountries, normalizedCountry];
     
     setSelectedCountries(newSelectedCountries);
   };
@@ -35,7 +39,7 @@ const SustainabilityImpact = () => {
               Select one or more countries to view sustainability impact data.
             </p>
             <CountryButtonSelect
-              countries={countries || []}
+              countries={countries ? countries.map(c => normalizeCountry(c)) : []}
               selectedCountries={selectedCountries}
               onCountryChange={handleCountryChange}
             />

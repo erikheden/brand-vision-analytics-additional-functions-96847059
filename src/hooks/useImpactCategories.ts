@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useSustainabilityImpactData } from '@/hooks/useSustainabilityImpactData';
 import { useToast } from '@/components/ui/use-toast';
+import { normalizeCountry } from '@/components/CountrySelect';
 
 export const useImpactCategories = (selectedCountries: string[]) => {
   const { toast } = useToast();
@@ -10,13 +11,18 @@ export const useImpactCategories = (selectedCountries: string[]) => {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
 
-  // Set active country when selectedCountries changes
+  // Set active country when selectedCountries changes and normalize the country code
   useEffect(() => {
     if (selectedCountries.length > 0 && (!activeCountry || !selectedCountries.includes(activeCountry))) {
-      console.log("Setting active country to:", selectedCountries[0]);
-      setActiveCountry(selectedCountries[0]);
+      const normalizedCountry = normalizeCountry(selectedCountries[0]);
+      console.log("Setting active country to:", normalizedCountry);
+      setActiveCountry(normalizedCountry);
     }
   }, [selectedCountries, activeCountry]);
+
+  // Use the normalized country code for data fetching
+  const normalizedActiveCountry = activeCountry ? normalizeCountry(activeCountry) : "";
+  console.log("Using normalized active country for data fetching:", normalizedActiveCountry);
 
   const {
     data,
@@ -26,7 +32,7 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     years,
     isLoading,
     error
-  } = useSustainabilityImpactData(activeCountry);
+  } = useSustainabilityImpactData(normalizedActiveCountry);
 
   // Auto-select first category when categories load
   useEffect(() => {
@@ -71,22 +77,26 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     );
   };
 
-  // Handle country change
+  // Handle country change with normalized country codes
   const handleCountryChange = (country: string) => {
-    if (!selectedCountries.includes(country)) {
+    const normalizedCountry = normalizeCountry(country);
+    
+    if (!selectedCountries.includes(normalizedCountry)) {
       if (!activeCountry) {
-        setActiveCountry(country);
+        setActiveCountry(normalizedCountry);
       }
       return;
     }
 
-    if (country === activeCountry && selectedCountries.length === 1) {
+    if (normalizedCountry === activeCountry && selectedCountries.length === 1) {
       return;
     }
 
-    if (country === activeCountry) {
-      const remainingCountries = selectedCountries.filter(c => c !== country);
-      setActiveCountry(remainingCountries[0]);
+    if (normalizedCountry === activeCountry) {
+      const remainingCountries = selectedCountries.filter(c => c !== normalizedCountry);
+      if (remainingCountries.length > 0) {
+        setActiveCountry(normalizeCountry(remainingCountries[0]));
+      }
     }
   };
 

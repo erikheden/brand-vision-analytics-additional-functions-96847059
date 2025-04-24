@@ -22,10 +22,13 @@ export function useSustainabilityImpactData(country: string) {
       
       console.log("Fetching sustainability impact data for country:", country);
       
+      // Make sure to use uppercase country codes for the database query
+      const upperCountry = country.toUpperCase();
+      
       const { data, error } = await supabase
         .from('SBI_purchasing_decision_industries')
         .select('*')
-        .eq('country', country)
+        .eq('country', upperCountry)
         .order('year', { ascending: true });
       
       if (error) {
