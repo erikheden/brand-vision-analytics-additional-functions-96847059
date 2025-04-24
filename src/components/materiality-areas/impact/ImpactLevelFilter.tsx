@@ -16,6 +16,19 @@ const ImpactLevelFilter: React.FC<ImpactLevelFilterProps> = ({
   toggleImpactLevel,
   isLoading
 }) => {
+  if (sortedImpactLevels.length === 0) {
+    return (
+      <>
+        <Label className="block text-sm font-medium text-gray-700 mb-2">
+          Impact Levels
+        </Label>
+        <div className="p-4 text-center text-gray-500 text-sm border border-gray-200 rounded-md">
+          {isLoading ? "Loading impact levels..." : "No impact levels available"}
+        </div>
+      </>
+    );
+  }
+  
   return (
     <>
       <Label className="block text-sm font-medium text-gray-700 mb-2">

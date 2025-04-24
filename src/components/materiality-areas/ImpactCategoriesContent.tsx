@@ -4,6 +4,7 @@ import ImpactFilters from "./impact/ImpactFilters";
 import ImpactResultsDisplay from "./impact/ImpactResultsDisplay";
 import { useSustainabilityImpactData } from "@/hooks/useSustainabilityImpactData";
 import { useSelectionData } from "@/hooks/useSelectionData";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ImpactCategoriesContentProps {
   selectedCountries: string[];
@@ -12,6 +13,7 @@ interface ImpactCategoriesContentProps {
 const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({ 
   selectedCountries = [] 
 }) => {
+  const { toast } = useToast();
   const [activeCountry, setActiveCountry] = useState<string>("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -22,6 +24,7 @@ const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({
   // Set active country when selectedCountries changes
   useEffect(() => {
     if (selectedCountries.length > 0 && (!activeCountry || !selectedCountries.includes(activeCountry))) {
+      console.log("Setting active country to:", selectedCountries[0]);
       setActiveCountry(selectedCountries[0]);
     }
   }, [selectedCountries, activeCountry]);
@@ -44,14 +47,16 @@ const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({
     selectedLevels,
     years,
     selectedYear,
-    hasProcessedData: !!processedData && Object.keys(processedData).length > 0
+    hasProcessedData: !!processedData && Object.keys(processedData).length > 0,
+    dataSize: data ? data.length : 0
   });
   
   // When years data changes, select the most recent year by default
   useEffect(() => {
     if (years.length > 0 && !selectedYear) {
-      console.log("Auto-selecting most recent year:", years[years.length - 1]);
-      setSelectedYear(years[years.length - 1]);
+      const mostRecentYear = years[years.length - 1];
+      console.log("Auto-selecting most recent year:", mostRecentYear);
+      setSelectedYear(mostRecentYear);
     }
   }, [years, selectedYear]);
   
@@ -61,7 +66,7 @@ const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({
       console.log("Auto-selecting first category:", categories[0]);
       setSelectedCategories([categories[0]]);
     }
-  }, [categories, selectedCategories]);
+  }, [categories]);
   
   // Auto-select all impact levels when they load
   useEffect(() => {
@@ -69,13 +74,15 @@ const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({
       console.log("Auto-selecting all impact levels:", impactLevels);
       setSelectedLevels([...impactLevels]);
     }
-  }, [impactLevels, selectedLevels]);
+  }, [impactLevels]);
   
   // Sort impact levels in a meaningful order (if needed)
-  const sortedImpactLevels = impactLevels.sort((a, b) => {
-    const order = { "high": 0, "medium": 1, "low": 2 };
-    return (order[a.toLowerCase()] || 99) - (order[b.toLowerCase()] || 99);
-  });
+  const sortedImpactLevels = useMemo(() => {
+    return impactLevels.sort((a, b) => {
+      const order = { "high": 0, "medium": 1, "low": 2 };
+      return (order[a.toLowerCase()] || 99) - (order[b.toLowerCase()] || 99);
+    });
+  }, [impactLevels]);
   
   // Toggle a category selection
   const toggleCategory = (category: string) => {
@@ -169,6 +176,28 @@ const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({
     
     return { byLevel, byCategory };
   }, [processedData, selectedYear, selectedCategories, selectedLevels, categories, sortedImpactLevels]);
+  
+  // Report any errors
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error loading impact data",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
+  
+  // Notify user if no data is available
+  useEffect(() => {
+    if (!isLoading && activeCountry && data && data.length === 0) {
+      toast({
+        title: "No data available",
+        description: `No sustainability impact data is available for ${activeCountry}`,
+        variant: "default",
+      });
+    }
+  }, [activeCountry, data, isLoading, toast]);
   
   return (
     <div className="space-y-6">

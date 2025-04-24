@@ -15,6 +15,19 @@ const ImpactYearFilter: React.FC<ImpactYearFilterProps> = ({
   setSelectedYear,
   isLoading
 }) => {
+  if (years.length === 0) {
+    return (
+      <>
+        <Label className="block text-sm font-medium text-gray-700 mb-2">
+          Select Year
+        </Label>
+        <div className="p-4 text-center text-gray-500 text-sm border border-gray-200 rounded-md">
+          {isLoading ? "Loading years..." : "No years available"}
+        </div>
+      </>
+    );
+  }
+  
   return (
     <>
       <Label className="block text-sm font-medium text-gray-700 mb-2">

@@ -20,6 +20,8 @@ export function useSustainabilityImpactData(country: string) {
     queryFn: async () => {
       if (!country) return [];
       
+      console.log("Fetching sustainability impact data for country:", country);
+      
       const { data, error } = await supabase
         .from('SBI_purchasing_decision_industries')
         .select('*')
@@ -36,6 +38,7 @@ export function useSustainabilityImpactData(country: string) {
         throw error;
       }
       
+      console.log("Fetched data:", data ? data.length : 0, "rows");
       return data as ImpactData[];
     },
     enabled: !!country,
@@ -44,18 +47,24 @@ export function useSustainabilityImpactData(country: string) {
   // Extract unique categories and impact levels
   const categories = useMemo(() => {
     if (!data || data.length === 0) return [];
-    return [...new Set(data.map(item => item.category))].sort();
+    const uniqueCategories = [...new Set(data.map(item => item.category))].sort();
+    console.log("Extracted categories:", uniqueCategories);
+    return uniqueCategories;
   }, [data]);
   
   const impactLevels = useMemo(() => {
     if (!data || data.length === 0) return [];
-    return [...new Set(data.map(item => item.impact_level))].sort();
+    const uniqueLevels = [...new Set(data.map(item => item.impact_level))].sort();
+    console.log("Extracted impact levels:", uniqueLevels);
+    return uniqueLevels;
   }, [data]);
   
   // Extract unique years
   const years = useMemo(() => {
     if (!data || data.length === 0) return [];
-    return [...new Set(data.map(item => item.year))].sort((a, b) => a - b);
+    const uniqueYears = [...new Set(data.map(item => item.year))].sort((a, b) => a - b);
+    console.log("Extracted years:", uniqueYears);
+    return uniqueYears;
   }, [data]);
   
   // Process data for visualization

@@ -16,6 +16,19 @@ const ImpactCategoryFilter: React.FC<ImpactCategoryFilterProps> = ({
   toggleCategory,
   isLoading
 }) => {
+  if (categories.length === 0) {
+    return (
+      <>
+        <Label className="block text-sm font-medium text-gray-700 mb-2">
+          Select Categories
+        </Label>
+        <div className="p-4 text-center text-gray-500 text-sm border border-gray-200 rounded-md">
+          {isLoading ? "Loading categories..." : "No categories available"}
+        </div>
+      </>
+    );
+  }
+  
   return (
     <>
       <Label className="block text-sm font-medium text-gray-700 mb-2">
