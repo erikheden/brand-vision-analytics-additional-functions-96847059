@@ -9,6 +9,8 @@ export interface ChartPoint {
   x: number;
   y: number;
   change?: string | null;
+  // Add any other properties that might be needed by the tooltip formatter
+  options?: any;
 }
 
 export interface ChartSeriesData {
