@@ -5,6 +5,7 @@ import { useImpactChartData } from "@/hooks/useImpactChartData";
 import ImpactFiltersContainer from "./ImpactFiltersContainer";
 import ImpactResultsDisplay from "./ImpactResultsDisplay";
 import ImpactTrendsView from "./ImpactTrendsView";
+import ImpactCountryComparison from "./ImpactCountryComparison";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { BarChart, TrendingUp, Users } from "lucide-react";
 
