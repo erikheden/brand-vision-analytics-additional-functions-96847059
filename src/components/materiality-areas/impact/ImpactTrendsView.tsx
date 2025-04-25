@@ -5,21 +5,33 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { FONT_FAMILY } from '@/utils/constants';
 import { createTooltipFormatter } from '../../sustainability-knowledge/charts/utils/tooltipUtils';
+import CategorySelector from '../CategorySelector';
 
 interface ImpactTrendsViewProps {
   processedData: Record<string, Record<string, Record<string, number>>>;
-  selectedCategory: string;
+  selectedCategories: string[];
   years: number[];
   impactLevels: string[];
 }
 
 const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
   processedData,
-  selectedCategory,
+  selectedCategories,
   years,
   impactLevels
 }) => {
-  if (!selectedCategory || !processedData[selectedCategory]) {
+  const [selectedCategory, setSelectedCategory] = React.useState<string>('');
+  
+  // Set the first category as default when the component loads or categories change
+  React.useEffect(() => {
+    if (selectedCategories.length > 0 && !selectedCategory) {
+      setSelectedCategory(selectedCategories[0]);
+    } else if (selectedCategories.length > 0 && !selectedCategories.includes(selectedCategory)) {
+      setSelectedCategory(selectedCategories[0]);
+    }
+  }, [selectedCategories, selectedCategory]);
+  
+  if (selectedCategories.length === 0 || !selectedCategory) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="text-center py-10 text-gray-500">
@@ -31,7 +43,7 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
 
   const series = impactLevels.map((level, index) => {
     const data = years.map(year => {
-      const value = processedData[selectedCategory][year]?.[level] || 0;
+      const value = processedData[selectedCategory]?.[year]?.[level] || 0;
       return [year, value * 100]; // Convert to percentage
     });
 
@@ -101,6 +113,13 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
 
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+      <div className="mb-6">
+        <CategorySelector 
+          categories={selectedCategories}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+        />
+      </div>
       <HighchartsReact highcharts={Highcharts} options={options} />
     </Card>
   );

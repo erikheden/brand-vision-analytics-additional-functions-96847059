@@ -91,7 +91,7 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
           <TabsContent value="trends" className="mt-0">
             <ImpactTrendsView
               processedData={processedData}
-              selectedCategory={selectedCategories[0]}
+              selectedCategories={selectedCategories}
               years={years}
               impactLevels={impactLevels}
             />
