@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
@@ -14,6 +14,7 @@ interface ImpactData {
 
 export function useSustainabilityImpactData(country: string) {
   const { toast } = useToast();
+  const [cachedData, setCachedData] = useState<Record<string, ImpactData[]>>({});
   
   const { data, isLoading, error } = useQuery({
     queryKey: ['sustainabilityImpact', country],
@@ -24,6 +25,12 @@ export function useSustainabilityImpactData(country: string) {
       
       // Make sure to use uppercase country codes for the database query
       const upperCountry = country.toUpperCase();
+      
+      // Check if we already have cached data for this country
+      if (cachedData[upperCountry]) {
+        console.log("Using cached data for country:", upperCountry);
+        return cachedData[upperCountry];
+      }
       
       const { data, error } = await supabase
         .from('SBI_purchasing_decision_industries')
@@ -42,9 +49,17 @@ export function useSustainabilityImpactData(country: string) {
       }
       
       console.log("Fetched data:", data ? data.length : 0, "rows");
+      
+      // Cache the data for this country
+      setCachedData(prev => ({
+        ...prev,
+        [upperCountry]: data as ImpactData[]
+      }));
+      
       return data as ImpactData[];
     },
     enabled: !!country,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
   
   // Extract unique categories and impact levels

@@ -5,6 +5,7 @@ interface ChartDataItem {
   name: string;
   value: number;
   category: string;
+  country?: string;
 }
 
 interface ProcessedChartData {

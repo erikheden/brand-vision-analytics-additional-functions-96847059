@@ -6,7 +6,7 @@ import ImpactFiltersContainer from "./ImpactFiltersContainer";
 import ImpactResultsDisplay from "./ImpactResultsDisplay";
 import ImpactTrendsView from "./ImpactTrendsView";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { BarChart, TrendingUp } from "lucide-react";
+import { BarChart, TrendingUp, Users } from "lucide-react";
 
 interface ImpactContentProps {
   selectedCountries: string[];
@@ -14,9 +14,11 @@ interface ImpactContentProps {
 
 const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
   const [activeTab, setActiveTab] = React.useState<string>("levels");
+  const [comparisonMode, setComparisonMode] = React.useState<boolean>(false);
   
   const {
     activeCountry,
+    activeCountries,
     selectedCategories,
     selectedYear,
     selectedLevels,
@@ -30,8 +32,15 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
     handleCountryChange,
     toggleCategory,
     setSelectedYear,
-    toggleImpactLevel
+    toggleImpactLevel,
+    toggleComparisonMode,
+    setActiveCountries
   } = useImpactCategories(selectedCountries);
+
+  // Set comparison mode based on the number of active countries
+  React.useEffect(() => {
+    setComparisonMode(activeCountries.length > 1);
+  }, [activeCountries]);
 
   const chartData = useImpactChartData(
     processedData,
@@ -46,6 +55,7 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
     <div className="space-y-6">
       <ImpactFiltersContainer
         activeCountry={activeCountry}
+        activeCountries={activeCountries}
         selectedCountries={selectedCountries}
         handleCountryChange={handleCountryChange}
         categories={categories}
@@ -58,6 +68,9 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
         selectedLevels={selectedLevels}
         toggleImpactLevel={toggleImpactLevel}
         isLoading={isLoading}
+        comparisonMode={comparisonMode}
+        toggleComparisonMode={toggleComparisonMode}
+        setActiveCountries={setActiveCountries}
       />
 
       {activeCountry && (
@@ -71,6 +84,12 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
               <TrendingUp className="h-4 w-4 mr-2" />
               Trends
             </TabsTrigger>
+            {comparisonMode && (
+              <TabsTrigger value="comparison" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
+                <Users className="h-4 w-4 mr-2" />
+                Country Comparison
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="levels" className="mt-0">
@@ -85,6 +104,8 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
               processedData={processedData}
               selectedLevels={selectedLevels}
               country={activeCountry}
+              comparisonMode={comparisonMode}
+              activeCountries={activeCountries}
             />
           </TabsContent>
 
@@ -94,8 +115,23 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
               selectedCategories={selectedCategories}
               years={years}
               impactLevels={impactLevels}
+              comparisonMode={comparisonMode}
+              activeCountries={activeCountries}
             />
           </TabsContent>
+
+          {comparisonMode && (
+            <TabsContent value="comparison" className="mt-0">
+              <ImpactCountryComparison
+                processedData={processedData}
+                selectedCategories={selectedCategories}
+                selectedYear={selectedYear}
+                years={years}
+                impactLevels={impactLevels}
+                activeCountries={activeCountries}
+              />
+            </TabsContent>
+          )}
         </Tabs>
       )}
     </div>

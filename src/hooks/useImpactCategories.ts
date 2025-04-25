@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSustainabilityImpactData } from '@/hooks/useSustainabilityImpactData';
 import { useToast } from '@/components/ui/use-toast';
@@ -7,9 +6,11 @@ import { normalizeCountry } from '@/components/CountrySelect';
 export const useImpactCategories = (selectedCountries: string[]) => {
   const { toast } = useToast();
   const [activeCountry, setActiveCountry] = useState<string>("");
+  const [activeCountries, setActiveCountries] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+  const [comparisonMode, setComparisonMode] = useState<boolean>(false);
 
   // Set active country when selectedCountries changes and normalize the country code
   useEffect(() => {
@@ -17,10 +18,17 @@ export const useImpactCategories = (selectedCountries: string[]) => {
       const normalizedCountry = normalizeCountry(selectedCountries[0]);
       console.log("Setting active country to:", normalizedCountry);
       setActiveCountry(normalizedCountry);
+      
+      // Initialize active countries with just the first country
+      if (activeCountries.length === 0) {
+        setActiveCountries([normalizedCountry]);
+      }
     }
   }, [selectedCountries, activeCountry]);
 
-  // Use the normalized country code for data fetching
+  // When comparing countries, we need to load data for all active countries
+  // For now, we'll use the first active country for data loading
+  // Later we'll update this to handle multiple countries
   const normalizedActiveCountry = activeCountry ? normalizeCountry(activeCountry) : "";
   console.log("Using normalized active country for data fetching:", normalizedActiveCountry);
 
@@ -84,18 +92,48 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     if (!selectedCountries.includes(normalizedCountry)) {
       if (!activeCountry) {
         setActiveCountry(normalizedCountry);
+        setActiveCountries([normalizedCountry]);
       }
       return;
     }
 
+    // In comparison mode, toggle the country in active countries list
+    if (comparisonMode) {
+      setActiveCountries(prev => {
+        // If the country is already active, remove it (unless it's the last one)
+        if (prev.includes(normalizedCountry)) {
+          return prev.length > 1 ? prev.filter(c => c !== normalizedCountry) : prev;
+        } else {
+          // Otherwise add it to the active countries
+          return [...prev, normalizedCountry];
+        }
+      });
+      return;
+    }
+
+    // In single country mode, just set the active country
     if (normalizedCountry === activeCountry && selectedCountries.length === 1) {
       return;
     }
 
-    if (normalizedCountry === activeCountry) {
-      const remainingCountries = selectedCountries.filter(c => c !== normalizedCountry);
-      if (remainingCountries.length > 0) {
-        setActiveCountry(normalizeCountry(remainingCountries[0]));
+    setActiveCountry(normalizedCountry);
+    setActiveCountries([normalizedCountry]);
+  };
+
+  // Toggle comparison mode
+  const toggleComparisonMode = (enabled: boolean) => {
+    setComparisonMode(enabled);
+    
+    if (enabled) {
+      // When enabling comparison mode, start with the active country
+      if (activeCountries.length === 0 && activeCountry) {
+        setActiveCountries([activeCountry]);
+      }
+    } else {
+      // When disabling comparison mode, just keep the first active country
+      if (activeCountries.length > 0) {
+        setActiveCountry(activeCountries[0]);
+        setActiveCountries([activeCountries[0]]);
       }
     }
   };
@@ -125,6 +163,8 @@ export const useImpactCategories = (selectedCountries: string[]) => {
   return {
     // State
     activeCountry,
+    activeCountries,
+    comparisonMode,
     selectedCategories,
     selectedYear,
     selectedLevels,
@@ -138,9 +178,11 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     error,
     // Actions
     setActiveCountry,
+    setActiveCountries,
     handleCountryChange,
     toggleCategory,
     setSelectedYear,
-    toggleImpactLevel
+    toggleImpactLevel,
+    toggleComparisonMode
   };
 };

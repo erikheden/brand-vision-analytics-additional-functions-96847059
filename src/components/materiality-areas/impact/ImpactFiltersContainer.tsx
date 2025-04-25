@@ -4,6 +4,7 @@ import ImpactFilters from "./ImpactFilters";
 
 interface ImpactFiltersContainerProps {
   activeCountry: string;
+  activeCountries: string[];
   selectedCountries: string[];
   handleCountryChange: (country: string) => void;
   categories: string[];
@@ -16,10 +17,14 @@ interface ImpactFiltersContainerProps {
   selectedLevels: string[];
   toggleImpactLevel: (level: string) => void;
   isLoading: boolean;
+  comparisonMode: boolean;
+  toggleComparisonMode: (enabled: boolean) => void;
+  setActiveCountries: (countries: string[]) => void;
 }
 
 const ImpactFiltersContainer: React.FC<ImpactFiltersContainerProps> = ({
   activeCountry,
+  activeCountries,
   selectedCountries,
   handleCountryChange,
   categories,
@@ -31,13 +36,17 @@ const ImpactFiltersContainer: React.FC<ImpactFiltersContainerProps> = ({
   impactLevels,
   selectedLevels,
   toggleImpactLevel,
-  isLoading
+  isLoading,
+  comparisonMode,
+  toggleComparisonMode,
+  setActiveCountries
 }) => {
   return (
     <div className="space-y-6">
       <ImpactFilters
         selectedCountry={activeCountry}
-        countries={selectedCountries}
+        selectedCountries={activeCountries}
+        availableCountries={selectedCountries}
         handleCountryChange={handleCountryChange}
         categories={categories}
         selectedCategories={selectedCategories}
@@ -49,6 +58,9 @@ const ImpactFiltersContainer: React.FC<ImpactFiltersContainerProps> = ({
         selectedLevels={selectedLevels}
         toggleImpactLevel={toggleImpactLevel}
         isLoading={isLoading}
+        comparisonMode={comparisonMode}
+        toggleComparisonMode={toggleComparisonMode}
+        setSelectedCountries={setActiveCountries}
       />
     </div>
   );
