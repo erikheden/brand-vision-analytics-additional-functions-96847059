@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import ComparisonChartControls from './ComparisonChartControls';
-import ComparisonAnalysisPanel from './ComparisonAnalysisPanel';
+import ComparisonAnalysisPanel from './comparison/ComparisonAnalysisPanel';
 import { useComparisonChartData } from '@/hooks/impact-comparison/useComparisonChartData';
 
 interface ImpactCountryComparisonProps {
