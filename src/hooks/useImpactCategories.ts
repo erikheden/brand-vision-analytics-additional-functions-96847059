@@ -1,38 +1,28 @@
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useSustainabilityImpactData } from '@/hooks/useSustainabilityImpactData';
 import { useToast } from '@/components/ui/use-toast';
 import { normalizeCountry } from '@/components/CountrySelect';
 
 export const useImpactCategories = (selectedCountries: string[]) => {
   const { toast } = useToast();
-  const [activeCountry, setActiveCountry] = useState<string>("");
   const [activeCountries, setActiveCountries] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
-  const [comparisonMode, setComparisonMode] = useState<boolean>(false);
   const [countryDataMap, setCountryDataMap] = useState<Record<string, any>>({});
 
-  // Set active country when selectedCountries changes and normalize the country code
+  // Initialize active countries when selectedCountries changes
   useEffect(() => {
-    if (selectedCountries.length > 0 && (!activeCountry || !selectedCountries.includes(activeCountry))) {
-      const normalizedCountry = normalizeCountry(selectedCountries[0]);
-      console.log("Setting active country to:", normalizedCountry);
-      setActiveCountry(normalizedCountry);
-      
-      // Initialize active countries with just the first country
-      if (activeCountries.length === 0) {
-        setActiveCountries([normalizedCountry]);
-      }
+    if (selectedCountries.length > 0) {
+      const normalizedCountries = selectedCountries.map(country => normalizeCountry(country));
+      setActiveCountries(normalizedCountries);
+    } else {
+      setActiveCountries([]);
     }
-  }, [selectedCountries, activeCountry]);
+  }, [selectedCountries]);
 
-  // When comparing countries, fetch data for each active country
-  // Main data for active country (primary view)
-  const normalizedActiveCountry = activeCountry ? normalizeCountry(activeCountry) : "";
-  console.log("Using normalized active country for data fetching:", normalizedActiveCountry);
-
+  // Main data fetching for all active countries
   const {
     data,
     processedData,
@@ -41,56 +31,44 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     years,
     isLoading,
     error
-  } = useSustainabilityImpactData(normalizedActiveCountry);
+  } = useSustainabilityImpactData(activeCountries[0] || "");
 
-  // Fetch data for all active countries in comparison mode
+  // Fetch data for all active countries
   useEffect(() => {
-    if (comparisonMode && activeCountries.length > 1) {
+    if (activeCountries.length > 0) {
       const fetchDataForAllCountries = async () => {
         const dataMap: Record<string, any> = {};
         
         for (const country of activeCountries) {
-          if (country !== normalizedActiveCountry) {
-            try {
-              const normalizedCountry = normalizeCountry(country);
-              const { data: countryData, processedData: countryProcessedData } = 
-                await useSustainabilityImpactData(normalizedCountry).getCountryData();
-              
-              dataMap[normalizedCountry] = {
-                data: countryData,
-                processedData: countryProcessedData
-              };
-              
-              console.log(`Fetched data for comparison country ${normalizedCountry}:`, 
-                countryData ? countryData.length : 0, "rows");
-            } catch (e) {
-              console.error(`Error fetching data for country ${country}:`, e);
-            }
+          try {
+            const normalizedCountry = normalizeCountry(country);
+            const { data: countryData, processedData: countryProcessedData } = 
+              await useSustainabilityImpactData(normalizedCountry).getCountryData();
+            
+            dataMap[normalizedCountry] = {
+              data: countryData,
+              processedData: countryProcessedData
+            };
+            
+            console.log(`Fetched data for country ${normalizedCountry}:`, 
+              countryData ? countryData.length : 0, "rows");
+          } catch (e) {
+            console.error(`Error fetching data for country ${country}:`, e);
           }
         }
-        
-        // Add the main active country data to the map
-        dataMap[normalizedActiveCountry] = {
-          data,
-          processedData
-        };
         
         setCountryDataMap(dataMap);
       };
       
       fetchDataForAllCountries();
-    } else if (!comparisonMode || activeCountries.length <= 1) {
-      // Reset the map if not in comparison mode
-      setCountryDataMap({
-        [normalizedActiveCountry]: { data, processedData }
-      });
+    } else {
+      setCountryDataMap({});
     }
-  }, [comparisonMode, activeCountries, normalizedActiveCountry, data, processedData]);
+  }, [activeCountries]);
 
   // Auto-select first category when categories load
   useEffect(() => {
     if (categories.length > 0 && selectedCategories.length === 0) {
-      console.log("Auto-selecting first category:", categories[0]);
       setSelectedCategories([categories[0]]);
     }
   }, [categories]);
@@ -99,7 +77,6 @@ export const useImpactCategories = (selectedCountries: string[]) => {
   useEffect(() => {
     if (years.length > 0 && !selectedYear) {
       const mostRecentYear = years[years.length - 1];
-      console.log("Auto-selecting most recent year:", mostRecentYear);
       setSelectedYear(mostRecentYear);
     }
   }, [years, selectedYear]);
@@ -107,12 +84,10 @@ export const useImpactCategories = (selectedCountries: string[]) => {
   // Auto-select all impact levels when they load
   useEffect(() => {
     if (impactLevels.length > 0 && selectedLevels.length === 0) {
-      console.log("Auto-selecting all impact levels:", impactLevels);
       setSelectedLevels([...impactLevels]);
     }
   }, [impactLevels]);
 
-  // Toggle category selection
   const toggleCategory = (category: string) => {
     setSelectedCategories(prev => 
       prev.includes(category)
@@ -121,7 +96,6 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     );
   };
 
-  // Toggle impact level selection
   const toggleImpactLevel = (level: string) => {
     setSelectedLevels(prev => 
       prev.includes(level)
@@ -130,57 +104,14 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     );
   };
 
-  // Handle country change with normalized country codes
+  // Handle country selection
   const handleCountryChange = (country: string) => {
-    const normalizedCountry = normalizeCountry(country);
-    
-    if (!selectedCountries.includes(normalizedCountry)) {
-      if (!activeCountry) {
-        setActiveCountry(normalizedCountry);
-        setActiveCountries([normalizedCountry]);
-      }
-      return;
-    }
-
-    // In comparison mode, toggle the country in active countries list
-    if (comparisonMode) {
-      setActiveCountries(prev => {
-        // If the country is already active, remove it (unless it's the last one)
-        if (prev.includes(normalizedCountry)) {
-          return prev.length > 1 ? prev.filter(c => c !== normalizedCountry) : prev;
-        } else {
-          // Otherwise add it to the active countries
-          return [...prev, normalizedCountry];
-        }
-      });
-      return;
-    }
-
-    // In single country mode, just set the active country
-    if (normalizedCountry === activeCountry && selectedCountries.length === 1) {
-      return;
-    }
-
-    setActiveCountry(normalizedCountry);
-    setActiveCountries([normalizedCountry]);
-  };
-
-  // Toggle comparison mode
-  const toggleComparisonMode = (enabled: boolean) => {
-    setComparisonMode(enabled);
-    
-    if (enabled) {
-      // When enabling comparison mode, start with the active country
-      if (activeCountries.length === 0 && activeCountry) {
-        setActiveCountries([activeCountry]);
-      }
-    } else {
-      // When disabling comparison mode, just keep the first active country
-      if (activeCountries.length > 0) {
-        setActiveCountry(activeCountries[0]);
-        setActiveCountries([activeCountries[0]]);
-      }
-    }
+    setActiveCountries(prev => {
+      const normalizedCountry = normalizeCountry(country);
+      return prev.includes(normalizedCountry)
+        ? prev.filter(c => c !== normalizedCountry)
+        : [...prev, normalizedCountry];
+    });
   };
 
   // Report any errors
@@ -194,26 +125,11 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     }
   }, [error, toast]);
 
-  // Notify user if no data is available
-  useEffect(() => {
-    if (!isLoading && activeCountry && data && data.length === 0) {
-      toast({
-        title: "No data available",
-        description: `No sustainability impact data is available for ${activeCountry}`,
-        variant: "default",
-      });
-    }
-  }, [activeCountry, data, isLoading, toast]);
-
   return {
-    // State
-    activeCountry,
     activeCountries,
-    comparisonMode,
     selectedCategories,
     selectedYear,
     selectedLevels,
-    // Data
     data,
     processedData,
     countryDataMap,
@@ -222,13 +138,10 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     years,
     isLoading,
     error,
-    // Actions
-    setActiveCountry,
     setActiveCountries,
     handleCountryChange,
     toggleCategory,
     setSelectedYear,
     toggleImpactLevel,
-    toggleComparisonMode
   };
 };

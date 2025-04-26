@@ -5,13 +5,10 @@ import CountryButtonSelect from "@/components/CountryButtonSelect";
 import ImpactCategoryFilter from "./ImpactCategoryFilter";
 import ImpactYearFilter from "./ImpactYearFilter";
 import ImpactLevelFilter from "./ImpactLevelFilter";
-import { Toggle } from "@/components/ui/toggle";
-import { Users } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { getFullCountryName } from "@/components/CountrySelect";
+import { Badge } from "@/components/ui/badge";
 
 interface ImpactFiltersProps {
-  selectedCountry: string;
   selectedCountries: string[];
   availableCountries: string[];
   handleCountryChange: (country: string) => void;
@@ -25,13 +22,9 @@ interface ImpactFiltersProps {
   selectedLevels: string[];
   toggleImpactLevel: (level: string) => void;
   isLoading: boolean;
-  comparisonMode: boolean;
-  toggleComparisonMode: (enabled: boolean) => void;
-  setSelectedCountries: (countries: string[]) => void;
 }
 
 const ImpactFilters: React.FC<ImpactFiltersProps> = ({
-  selectedCountry,
   selectedCountries,
   availableCountries,
   handleCountryChange,
@@ -44,71 +37,40 @@ const ImpactFilters: React.FC<ImpactFiltersProps> = ({
   sortedImpactLevels,
   selectedLevels,
   toggleImpactLevel,
-  isLoading,
-  comparisonMode,
-  toggleComparisonMode,
-  setSelectedCountries
+  isLoading
 }) => {
   return (
     <>
       {/* Country Selection Card */}
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 shadow-lg rounded-xl">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-          <h2 className="text-lg font-semibold text-[#34502b]">
-            {comparisonMode ? "Selected Countries" : "Active Country"}
-          </h2>
-
-          {/* Comparison Mode Toggle */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-[#34502b] hidden md:inline">Country Comparison</span>
-            <Toggle 
-              pressed={comparisonMode} 
-              onPressedChange={toggleComparisonMode}
-              aria-label="Toggle country comparison mode"
-              className="bg-[#34502b]/10 data-[state=on]:bg-[#34502b] data-[state=on]:text-white"
-            >
-              <Users className="h-4 w-4 mr-1" /> 
-              <span className="text-xs">Compare</span>
-            </Toggle>
-          </div>
-        </div>
-
-        {comparisonMode ? (
-          // In comparison mode, show the selected countries as badges
-          <div className="mb-4">
-            <p className="text-gray-600 text-sm mb-4">
-              Select countries to compare their impact data
-            </p>
-            <div className="flex flex-wrap gap-2 mb-3">
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-[#34502b]">Select Countries</h2>
+          <p className="text-gray-600 text-sm mt-1 mb-4">
+            Select one or more countries to view and compare impact data
+          </p>
+          
+          {selectedCountries.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
               {selectedCountries.map(country => (
                 <Badge 
                   key={country}
-                  className={`px-3 py-1.5 rounded-md ${
-                    availableCountries.includes(country) ? "bg-[#34502b] text-white" : "bg-gray-200 text-gray-500"
-                  }`}
+                  className="px-3 py-1.5 rounded-md bg-[#34502b] text-white"
                 >
                   {getFullCountryName(country)}
                 </Badge>
               ))}
             </div>
-          </div>
-        ) : (
-          // In single country mode, show the description for active country
-          <p className="text-gray-600 text-sm mb-4">
-            Select which country to view detailed impact data for
-          </p>
-        )}
+          )}
 
-        {/* Country Selection */}
-        <CountryButtonSelect 
-          selectedCountry={comparisonMode ? undefined : selectedCountry}
-          selectedCountries={comparisonMode ? selectedCountries : undefined}
-          countries={availableCountries} 
-          onCountryChange={handleCountryChange}
-        />
+          <CountryButtonSelect 
+            countries={availableCountries}
+            selectedCountries={selectedCountries}
+            onCountryChange={handleCountryChange}
+          />
+        </div>
       </Card>
       
-      {(selectedCountry || (comparisonMode && selectedCountries.length > 0)) && (
+      {selectedCountries.length > 0 && (
         <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl">
           <div className="flex flex-col md:flex-row md:items-start gap-6">
             {/* Category Filter */}
