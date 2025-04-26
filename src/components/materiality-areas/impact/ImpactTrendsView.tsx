@@ -15,7 +15,7 @@ interface ImpactTrendsViewProps {
   years: number[];
   impactLevels: string[];
   comparisonMode?: boolean;
-  activeCountries?: string[];
+  activeCountries: string[]; // Changed from optional to required
 }
 
 const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
@@ -57,10 +57,16 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
     );
   }
 
+  // Add debug logging to trace data flow issues
+  console.log('ImpactTrendsView - activeCountries:', activeCountries);
+  console.log('ImpactTrendsView - comparisonMode:', comparisonMode);
+  console.log('ImpactTrendsView - selectedCategory:', selectedCategory);
+
   // Helper function to create chart options
   const createChartOptions = (country?: string): Highcharts.Options => {
     const series = impactLevels.map((level, index) => {
       const data = years.map(year => {
+        // Check if we have data for this country and category
         const value = processedData[selectedCategory]?.[year]?.[level] || 0;
         return [year, value * 100]; // Convert to percentage
       });

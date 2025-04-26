@@ -1,71 +1,46 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useImpactCategories } from "@/hooks/useImpactCategories";
-import { useImpactChartData } from "@/hooks/useImpactChartData";
 import ImpactFiltersContainer from "./ImpactFiltersContainer";
-import ImpactResultsDisplay from "./ImpactResultsDisplay";
+import ImpactVisualizations from "./ImpactVisualizations";
 import ImpactTrendsView from "./ImpactTrendsView";
-import ImpactCountryComparison from "./comparison/ImpactCountryComparison";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { BarChart, TrendingUp, Users } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import ImpactCountryComparison from "./comparison/ImpactCountryComparison";
 
 interface ImpactContentProps {
   selectedCountries: string[];
 }
 
 const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
-  const [activeTab, setActiveTab] = React.useState<string>("levels");
+  const [activeView, setActiveView] = React.useState<string>("categoriesView");
   
   const {
-    activeCountries,
-    selectedCategories,
-    selectedYear,
-    selectedLevels,
-    data,
     processedData,
-    countryDataMap,
     categories,
     impactLevels,
     years,
     isLoading,
     error,
-    handleCountryChange,
+    selectedCategories,
     toggleCategory,
+    selectedYear,
     setSelectedYear,
+    selectedLevels,
     toggleImpactLevel,
+    activeCountries,
     setActiveCountries,
+    handleCountryChange,
+    countryDataMap
   } = useImpactCategories(selectedCountries);
 
-  // Determine if we're in comparison mode based on number of active countries
-  const comparisonMode = activeCountries.length > 1;
-
-  const chartData = useImpactChartData(
-    processedData,
-    selectedYear,
-    selectedCategories,
-    selectedLevels,
-    categories,
-    impactLevels
-  );
-
-  // Debug logs to verify data
-  useEffect(() => {
-    if (comparisonMode && selectedYear && countryDataMap) {
-      console.log("Country Data Map Keys:", Object.keys(countryDataMap));
-      console.log("Selected Year:", selectedYear);
-      
-      activeCountries.forEach(country => {
-        if (countryDataMap[country]) {
-          console.log(`Data for ${country}:`, 
-            countryDataMap[country].processedData ? 
-            "ProcessedData exists" : "No ProcessedData");
-        } else {
-          console.log(`No data found for ${country}`);
-        }
-      });
-    }
-  }, [comparisonMode, countryDataMap, activeCountries, selectedYear]);
-
+  // Debug logging to track data flow
+  React.useEffect(() => {
+    console.log("ImpactContent: Selected Countries:", selectedCountries);
+    console.log("ImpactContent: Active Countries:", activeCountries);
+    console.log("ImpactContent: Selected Year:", selectedYear);
+  }, [selectedCountries, activeCountries, selectedYear]);
+  
   return (
     <div className="space-y-6">
       <ImpactFiltersContainer
@@ -84,55 +59,54 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
         isLoading={isLoading}
         setActiveCountries={setActiveCountries}
       />
-
+      
       {activeCountries.length > 0 && (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-[#34502b]/10 mx-auto mb-6">
-            <TabsTrigger value="levels" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-              <BarChart className="h-4 w-4 mr-2" />
-              Impact Levels
-            </TabsTrigger>
-            <TabsTrigger value="trends" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Trends
-            </TabsTrigger>
-            {comparisonMode && (
-              <TabsTrigger value="comparison" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-                <Users className="h-4 w-4 mr-2" />
+        <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+          <Tabs value={activeView} onValueChange={setActiveView}>
+            <TabsList className="mb-6 bg-[#34502b]/10">
+              <TabsTrigger 
+                value="categoriesView" 
+                className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
+              >
+                Categories Overview
+              </TabsTrigger>
+              <TabsTrigger 
+                value="trendsView" 
+                className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
+              >
+                Trends
+              </TabsTrigger>
+              <TabsTrigger 
+                value="comparisonView" 
+                className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
+              >
                 Country Comparison
               </TabsTrigger>
-            )}
-          </TabsList>
+            </TabsList>
 
-          <TabsContent value="levels" className="mt-0">
-            <ImpactResultsDisplay
-              isLoading={isLoading}
-              error={error}
-              selectedCountry={activeCountries[0]}
-              selectedCategories={selectedCategories}
-              selectedYear={selectedYear}
-              chartData={chartData}
-              processedData={processedData}
-              selectedLevels={selectedLevels}
-              country={activeCountries[0]}
-              comparisonMode={comparisonMode}
-              activeCountries={activeCountries}
-            />
-          </TabsContent>
-
-          <TabsContent value="trends" className="mt-0">
-            <ImpactTrendsView
-              processedData={processedData}
-              selectedCategories={selectedCategories}
-              years={years}
-              impactLevels={impactLevels}
-              comparisonMode={comparisonMode}
-              activeCountries={activeCountries}
-            />
-          </TabsContent>
-
-          {comparisonMode && (
-            <TabsContent value="comparison" className="mt-0">
+            <TabsContent value="categoriesView">
+              <ImpactVisualizations
+                processedData={processedData}
+                selectedCategories={selectedCategories}
+                selectedYear={selectedYear}
+                selectedLevels={selectedLevels}
+                isLoading={isLoading}
+                error={error}
+              />
+            </TabsContent>
+            
+            <TabsContent value="trendsView">
+              <ImpactTrendsView
+                processedData={processedData}
+                selectedCategories={selectedCategories}
+                years={years}
+                impactLevels={impactLevels}
+                comparisonMode={activeCountries.length > 1}
+                activeCountries={activeCountries}
+              />
+            </TabsContent>
+            
+            <TabsContent value="comparisonView">
               <ImpactCountryComparison
                 processedData={processedData}
                 selectedCategories={selectedCategories}
@@ -140,11 +114,11 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
                 years={years}
                 impactLevels={impactLevels}
                 activeCountries={activeCountries}
-                countryDataMap={countryDataMap} // Pass the country-specific data map
+                countryDataMap={countryDataMap}
               />
             </TabsContent>
-          )}
-        </Tabs>
+          </Tabs>
+        </Card>
       )}
     </div>
   );

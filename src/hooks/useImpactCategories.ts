@@ -76,6 +76,7 @@ export const useImpactCategories = (selectedCountries: string[]) => {
           }
         }
         
+        console.log("Country Data Map Keys:", Object.keys(dataMap));
         setCountryDataMap(dataMap);
       };
       
@@ -96,6 +97,7 @@ export const useImpactCategories = (selectedCountries: string[]) => {
   useEffect(() => {
     if (years.length > 0 && !selectedYear) {
       const mostRecentYear = years[years.length - 1];
+      console.log("Selected Year:", mostRecentYear);
       setSelectedYear(mostRecentYear);
     }
   }, [years, selectedYear]);
@@ -106,6 +108,20 @@ export const useImpactCategories = (selectedCountries: string[]) => {
       setSelectedLevels([...impactLevels]);
     }
   }, [impactLevels]);
+
+  // Improved country data map validation to help with debugging
+  useEffect(() => {
+    if (Object.keys(countryDataMap).length > 0) {
+      console.log("Selected Year:", selectedYear);
+      for (const country of activeCountries) {
+        if (countryDataMap[country]?.processedData) {
+          console.log(`Data for ${country}: ProcessedData exists`);
+        } else {
+          console.log(`Data for ${country}: ProcessedData MISSING`);
+        }
+      }
+    }
+  }, [countryDataMap, activeCountries, selectedYear]);
 
   const toggleCategory = (category: string) => {
     setSelectedCategories(prev => 
@@ -138,29 +154,31 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     if (error) {
       toast({
         title: "Error loading impact data",
-        description: error instanceof Error ? error.message : "Unknown error",
-        variant: "destructive",
+        description: error.message,
+        variant: "destructive"
       });
     }
   }, [error, toast]);
 
   return {
-    activeCountries,
-    selectedCategories,
-    selectedYear,
-    selectedLevels,
     data,
     processedData,
-    countryDataMap,
     categories,
     impactLevels,
     years,
     isLoading,
     error,
+    selectedCategories,
+    setSelectedCategories,
+    toggleCategory,
+    selectedYear,
+    setSelectedYear,
+    selectedLevels,
+    setSelectedLevels,
+    toggleImpactLevel,
+    activeCountries,
     setActiveCountries,
     handleCountryChange,
-    toggleCategory,
-    setSelectedYear,
-    toggleImpactLevel,
+    countryDataMap
   };
 };

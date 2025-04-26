@@ -41,6 +41,12 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     }
   }, [selectedCategories, impactLevels, selectedCategory, selectedImpactLevel]);
   
+  // Add debug logging to help identify data flow issues
+  console.log('ImpactCountryComparison - activeCountries:', activeCountries);
+  console.log('ImpactCountryComparison - selectedCategories:', selectedCategories);
+  console.log('ImpactCountryComparison - selectedYear:', selectedYear);
+  console.log('ImpactCountryComparison - countryDataMap keys:', countryDataMap ? Object.keys(countryDataMap) : 'undefined');
+  
   const { createCategoryChart, createImpactLevelChart } = useComparisonChartData(
     processedData,
     selectedCategory,
