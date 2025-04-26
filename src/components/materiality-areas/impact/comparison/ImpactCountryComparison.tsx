@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
@@ -41,11 +41,18 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     }
   }, [selectedCategories, impactLevels, selectedCategory, selectedImpactLevel]);
   
-  // Add debug logging to help identify data flow issues
-  console.log('ImpactCountryComparison - activeCountries:', activeCountries);
-  console.log('ImpactCountryComparison - selectedCategories:', selectedCategories);
-  console.log('ImpactCountryComparison - selectedYear:', selectedYear);
-  console.log('ImpactCountryComparison - countryDataMap keys:', countryDataMap ? Object.keys(countryDataMap) : 'undefined');
+  // Only log when values actually change
+  useEffect(() => {
+    console.log('ImpactCountryComparison - activeCountries:', activeCountries);
+    console.log('ImpactCountryComparison - selectedCategories:', selectedCategories);
+    console.log('ImpactCountryComparison - selectedYear:', selectedYear);
+    console.log('ImpactCountryComparison - countryDataMap keys:', countryDataMap ? Object.keys(countryDataMap) : 'undefined');
+  }, [
+    activeCountries.length, 
+    selectedCategories.length, 
+    selectedYear, 
+    countryDataMap ? Object.keys(countryDataMap).join() : 'undefined'
+  ]);
   
   const { createCategoryChart, createImpactLevelChart } = useComparisonChartData(
     processedData,
@@ -58,35 +65,44 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     countryDataMap
   );
 
-  // Render appropriate messaging based on data availability
-  if (activeCountries.length <= 1) {
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-10 text-gray-500">
-          Please select at least two countries to compare impact data.
-        </div>
-      </Card>
-    );
-  }
+  // Memoized messaging component
+  const EmptyStateMessage = useMemo(() => {
+    if (activeCountries.length <= 1) {
+      return (
+        <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+          <div className="text-center py-10 text-gray-500">
+            Please select at least two countries to compare impact data.
+          </div>
+        </Card>
+      );
+    }
+    
+    if (selectedCategories.length === 0) {
+      return (
+        <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+          <div className="text-center py-10 text-gray-500">
+            Please select at least one category to view comparison data.
+          </div>
+        </Card>
+      );
+    }
+    
+    if (!selectedYear) {
+      return (
+        <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+          <div className="text-center py-10 text-gray-500">
+            Please select a year to view comparison data.
+          </div>
+        </Card>
+      );
+    }
+    
+    return null;
+  }, [activeCountries.length, selectedCategories.length, selectedYear]);
   
-  if (selectedCategories.length === 0) {
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-10 text-gray-500">
-          Please select at least one category to view comparison data.
-        </div>
-      </Card>
-    );
-  }
-  
-  if (!selectedYear) {
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-10 text-gray-500">
-          Please select a year to view comparison data.
-        </div>
-      </Card>
-    );
+  // Early return for empty states
+  if (EmptyStateMessage) {
+    return EmptyStateMessage;
   }
   
   // Use the appropriate chart options based on view mode
@@ -106,7 +122,11 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
           selectedCategories={selectedCategories}
         />
         
-        <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+        <HighchartsReact 
+          highcharts={Highcharts} 
+          options={chartOptions} 
+          immutable={true}
+        />
         
         <ComparisonAnalysisPanel viewMode={viewMode} />
       </div>
@@ -114,4 +134,5 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
   );
 };
 
-export default ImpactCountryComparison;
+// Use React.memo to prevent unnecessary re-renders
+export default React.memo(ImpactCountryComparison);

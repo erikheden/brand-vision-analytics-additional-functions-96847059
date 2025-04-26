@@ -18,16 +18,16 @@ export const useProcessedChartData = (
       return [];
     }
     
-    // Debug logging
+    // Log only when key parameters change
     console.log('Creating series data with:', {
-      activeCountries,
+      activeCountriesCount: activeCountries.length,
       selectedYear,
       selectedImpactLevel,
-      selectedCategories: selectedCategories.length
+      selectedCategoriesCount: selectedCategories.length
     });
     
     if (countryDataMap) {
-      console.log('Country data map available for:', Object.keys(countryDataMap));
+      console.log('Country data map available for:', Object.keys(countryDataMap).length, 'countries');
     }
     
     return activeCountries.map(country => {
@@ -45,15 +45,10 @@ export const useProcessedChartData = (
             countrySpecificData[category][selectedYear][selectedImpactLevel] !== undefined) {
           
           value = countrySpecificData[category][selectedYear][selectedImpactLevel];
-          // Debug log successful data retrieval
-          console.log(`Found data for ${country}, ${category}, ${selectedYear}, ${selectedImpactLevel}: ${value}`);
         } 
         // Fall back to default processedData if specific data is not available
         else if (processedData[category]?.[selectedYear]?.[selectedImpactLevel] !== undefined) {
           value = processedData[category][selectedYear][selectedImpactLevel];
-          console.log(`Using fallback data for ${country}, ${category}: ${value}`);
-        } else {
-          console.log(`No data found for ${country}, ${category}, ${selectedYear}, ${selectedImpactLevel}`);
         }
         
         return value * 100; // Convert to percentage for display
@@ -66,12 +61,12 @@ export const useProcessedChartData = (
       };
     });
   }, [
-    activeCountries, 
-    selectedCategories, 
-    processedData, 
+    activeCountries.length && activeCountries.join('-'), // Only recalculate when countries change
+    selectedCategories.length && JSON.stringify(selectedCategories), // Stringify to compare contents, not reference
+    processedData && Object.keys(processedData).length, // Only update when processedData changes
     selectedYear, 
     selectedImpactLevel, 
-    countryDataMap
+    countryDataMap && Object.keys(countryDataMap).length // Only update when countryDataMap changes
   ]);
 
   // Create series data for impact level comparison chart
@@ -80,12 +75,12 @@ export const useProcessedChartData = (
       return [];
     }
     
-    // Debug logging
+    // Reduced logging to prevent console spam
     console.log('Creating impact level data with:', {
-      activeCountries,
+      activeCountriesCount: activeCountries.length,
       selectedYear,
       selectedCategory,
-      impactLevels: impactLevels.length
+      impactLevelsCount: impactLevels.length
     });
     
     return activeCountries.map(country => {
@@ -103,14 +98,10 @@ export const useProcessedChartData = (
             countrySpecificData[selectedCategory][selectedYear][level] !== undefined) {
           
           value = countrySpecificData[selectedCategory][selectedYear][level];
-          console.log(`Found level data for ${country}, ${selectedCategory}, ${selectedYear}, ${level}: ${value}`);
         } 
         // Fall back to default processedData if specific data is not available
         else if (processedData[selectedCategory]?.[selectedYear]?.[level] !== undefined) {
           value = processedData[selectedCategory][selectedYear][level];
-          console.log(`Using fallback level data for ${country}: ${value}`);
-        } else {
-          console.log(`No level data found for ${country}, ${selectedCategory}, ${selectedYear}, ${level}`);
         }
         
         return value * 100; // Convert to percentage for display
@@ -123,12 +114,12 @@ export const useProcessedChartData = (
       };
     });
   }, [
-    activeCountries, 
-    impactLevels, 
-    processedData, 
+    activeCountries.length && activeCountries.join('-'), // Only recalculate when countries change
+    impactLevels.length && JSON.stringify(impactLevels), // Stringify to compare contents, not reference
+    processedData && Object.keys(processedData).length, // Only update when processedData changes
     selectedCategory, 
     selectedYear, 
-    countryDataMap
+    countryDataMap && Object.keys(countryDataMap).length // Only update when countryDataMap changes
   ]);
 
   return {

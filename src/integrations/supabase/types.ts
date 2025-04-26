@@ -938,6 +938,42 @@ export type Database = {
         }
         Relationships: []
       }
+      "SBI SBA 2011-2025": {
+        Row: {
+          company: string | null
+          country: string | null
+          gut_feeling_environment: number | null
+          gut_feeling_social: number | null
+          knowledge_environment: number | null
+          knowledge_social: number | null
+          no_knowledge_environment: number | null
+          no_knowledge_social: number | null
+          year: number | null
+        }
+        Insert: {
+          company?: string | null
+          country?: string | null
+          gut_feeling_environment?: number | null
+          gut_feeling_social?: number | null
+          knowledge_environment?: number | null
+          knowledge_social?: number | null
+          no_knowledge_environment?: number | null
+          no_knowledge_social?: number | null
+          year?: number | null
+        }
+        Update: {
+          company?: string | null
+          country?: string | null
+          gut_feeling_environment?: number | null
+          gut_feeling_social?: number | null
+          knowledge_environment?: number | null
+          knowledge_social?: number | null
+          no_knowledge_environment?: number | null
+          no_knowledge_social?: number | null
+          year?: number | null
+        }
+        Relationships: []
+      }
       "SBI SBQ 2011-2025": {
         Row: {
           company: string | null

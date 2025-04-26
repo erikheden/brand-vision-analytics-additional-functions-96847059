@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { useImpactChartData } from '@/hooks/useImpactChartData';
 import Highcharts from 'highcharts';
@@ -33,14 +33,14 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
     selectedLevels
   );
   
-  // Debug data
+  // Debug data - wrapped with useEffect to prevent unnecessary logging
   React.useEffect(() => {
     console.log('ImpactVisualizations - Chart Data:', {
       byLevel: chartData.byLevel.length,
       byCategory: chartData.byCategory.length
     });
     console.log('ImpactVisualizations - Selected Year:', selectedYear);
-  }, [chartData, selectedYear]);
+  }, [chartData.byLevel.length, chartData.byCategory.length, selectedYear]);
   
   // Loading state
   if (isLoading) {
@@ -87,8 +87,8 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
     );
   }
   
-  // Create category chart options
-  const categoryChartOptions = {
+  // Memoize chart options to prevent unnecessary re-renders
+  const categoryChartOptions = useMemo(() => ({
     chart: {
       type: 'bar',
       backgroundColor: 'white',
@@ -166,10 +166,10 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
     credits: {
       enabled: false
     }
-  };
+  }), [chartData.byCategory, selectedLevels, selectedYear]);
   
-  // Create level chart options
-  const levelChartOptions = {
+  // Memoize level chart options to prevent unnecessary re-renders
+  const levelChartOptions = useMemo(() => ({
     chart: {
       type: 'pie',
       backgroundColor: 'white',
@@ -220,18 +220,28 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
     credits: {
       enabled: false
     }
-  };
+  }), [chartData.byLevel, selectedLevels, selectedYear]);
   
   return (
     <div className="space-y-8">
       {/* Bar chart showing categories */}
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <HighchartsReact highcharts={Highcharts} options={categoryChartOptions} />
+        <HighchartsReact 
+          highcharts={Highcharts} 
+          options={categoryChartOptions}
+          // Add immutable flag to improve performance
+          immutable={true}
+        />
       </Card>
       
       {/* Pie chart showing impact level distribution */}
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <HighchartsReact highcharts={Highcharts} options={levelChartOptions} />
+        <HighchartsReact 
+          highcharts={Highcharts} 
+          options={levelChartOptions}
+          // Add immutable flag to improve performance
+          immutable={true}
+        />
       </Card>
       
       {/* Analysis summary */}
@@ -249,4 +259,5 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
   );
 };
 
-export default ImpactVisualizations;
+// Use React.memo to prevent unnecessary re-renders
+export default React.memo(ImpactVisualizations);

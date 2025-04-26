@@ -22,6 +22,7 @@ export const useImpactChartData = (
   impactLevels: string[]
 ): ProcessedChartData => {
   return useMemo(() => {
+    // Early return if data is missing
     if (!processedData || !selectedYear) {
       return { byLevel: [], byCategory: [] };
     }
@@ -32,26 +33,38 @@ export const useImpactChartData = (
     const categoriesToUse = selectedCategories.length > 0 ? selectedCategories : categories;
     const levelsToUse = selectedLevels.length > 0 ? selectedLevels : impactLevels;
 
-    categoriesToUse.forEach(category => {
-      if (processedData[category] && processedData[category][selectedYear]) {
-        levelsToUse.forEach(level => {
-          if (processedData[category][selectedYear][level] !== undefined) {
-            byLevel.push({
-              name: level,
-              value: processedData[category][selectedYear][level] * 100,
-              category: category
-            });
-
-            byCategory.push({
-              name: category,
-              value: processedData[category][selectedYear][level] * 100,
-              category: level
-            });
-          }
-        });
+    // Avoid nested loops when possible to optimize performance
+    for (const category of categoriesToUse) {
+      if (!processedData[category] || !processedData[category][selectedYear]) {
+        continue;
       }
-    });
+      
+      for (const level of levelsToUse) {
+        if (processedData[category][selectedYear][level] !== undefined) {
+          byLevel.push({
+            name: level,
+            value: processedData[category][selectedYear][level] * 100,
+            category: category
+          });
+
+          byCategory.push({
+            name: category,
+            value: processedData[category][selectedYear][level] * 100,
+            category: level
+          });
+        }
+      }
+    }
 
     return { byLevel, byCategory };
-  }, [processedData, selectedYear, selectedCategories, selectedLevels, categories, impactLevels]);
+  }, [
+    processedData, 
+    selectedYear, 
+    // Use JSON.stringify for array dependencies to prevent unnecessary recalculations
+    // when the arrays have the same items but different references
+    JSON.stringify(selectedCategories), 
+    JSON.stringify(selectedLevels), 
+    JSON.stringify(categories),
+    JSON.stringify(impactLevels)
+  ]);
 };
