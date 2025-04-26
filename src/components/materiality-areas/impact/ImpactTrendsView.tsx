@@ -1,12 +1,9 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { FONT_FAMILY } from '@/utils/constants';
-import { createTooltipFormatter } from '../../sustainability-knowledge/charts/utils/tooltipUtils';
-import CategorySelector from '../CategorySelector';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { getFullCountryName } from '@/components/CountrySelect';
 
 interface ImpactTrendsViewProps {
@@ -14,8 +11,9 @@ interface ImpactTrendsViewProps {
   selectedCategories: string[];
   years: number[];
   impactLevels: string[];
-  comparisonMode?: boolean;
-  activeCountries: string[]; // Changed from optional to required
+  comparisonMode: boolean;
+  activeCountries: string[];
+  countryDataMap?: Record<string, any>;
 }
 
 const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
@@ -23,167 +21,152 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
   selectedCategories,
   years,
   impactLevels,
-  comparisonMode = false,
-  activeCountries = []
+  comparisonMode,
+  activeCountries,
+  countryDataMap
 }) => {
-  const [selectedCategory, setSelectedCategory] = React.useState<string>('');
-  const [activeCountryTab, setActiveCountryTab] = React.useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedLevel, setSelectedLevel] = useState<string>('');
   
-  // Set the first category as default when the component loads or categories change
-  React.useEffect(() => {
+  // Set initial selected values when data is available
+  useEffect(() => {
     if (selectedCategories.length > 0 && !selectedCategory) {
       setSelectedCategory(selectedCategories[0]);
-    } else if (selectedCategories.length > 0 && !selectedCategories.includes(selectedCategory)) {
-      setSelectedCategory(selectedCategories[0]);
     }
-  }, [selectedCategories, selectedCategory]);
-  
-  // Set the first country as default for the tabs
-  React.useEffect(() => {
-    if (comparisonMode && activeCountries.length > 0 && !activeCountryTab) {
-      setActiveCountryTab(activeCountries[0]);
-    } else if (comparisonMode && activeCountries.length > 0 && !activeCountries.includes(activeCountryTab)) {
-      setActiveCountryTab(activeCountries[0]);
+    
+    if (impactLevels.length > 0 && !selectedLevel) {
+      setSelectedLevel(impactLevels[0]);
     }
-  }, [comparisonMode, activeCountries, activeCountryTab]);
+  }, [selectedCategories, impactLevels, selectedCategory, selectedLevel]);
   
-  if (selectedCategories.length === 0 || !selectedCategory) {
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-10 text-gray-500">
-          Please select a category to view trends.
-        </div>
-      </Card>
-    );
-  }
-
-  // Add debug logging to trace data flow issues
-  console.log('ImpactTrendsView - activeCountries:', activeCountries);
-  console.log('ImpactTrendsView - comparisonMode:', comparisonMode);
-  console.log('ImpactTrendsView - selectedCategory:', selectedCategory);
-
-  // Helper function to create chart options
-  const createChartOptions = (country?: string): Highcharts.Options => {
-    // Get the correct country data from the countryDataMap
-    let countryData: Record<string, Record<string, Record<string, number>>> = processedData;
+  // Create chart options based on current selections
+  const chartOptions = React.useMemo(() => {
+    if (!selectedCategory || !selectedLevel || years.length === 0 || activeCountries.length === 0) {
+      return { series: [] };
+    }
     
-    console.log('Creating chart options for country:', country || 'default');
-    
-    const series = impactLevels.map((level, index) => {
+    // Create series for each country
+    const series = activeCountries.map(country => {
+      // Use country-specific data from the map if available
+      const countrySpecificData = countryDataMap?.[country]?.processedData || {};
+      
+      // Map years to data points for this country, category, and level
       const data = years.map(year => {
-        // Check if we have data for this category-year-level combination
-        const value = countryData[selectedCategory]?.[year]?.[level] || 0;
-        console.log(`Data point for ${country || 'default'}, ${selectedCategory}, ${year}, ${level}: ${value}`);
-        return [year, value * 100]; // Convert to percentage
+        // First try to get value from country-specific data
+        let value = 0;
+        if (countrySpecificData[selectedCategory]?.[year]?.[selectedLevel] !== undefined) {
+          value = countrySpecificData[selectedCategory][year][selectedLevel];
+        } 
+        // Fall back to default processedData if specific data is not available
+        else if (processedData[selectedCategory]?.[year]?.[selectedLevel] !== undefined) {
+          value = processedData[selectedCategory][year][selectedLevel];
+        }
+        
+        console.log(`Data point for ${country}, ${selectedCategory}, ${year}, ${selectedLevel}: ${value}`);
+        return [year, value * 100]; // Convert to percentage for display
       });
-  
-      const colorIntensity = 0.9 - (index * 0.2);
+      
       return {
-        name: level,
-        data: data,
-        type: 'line' as const,
-        color: `rgba(52, 80, 43, ${Math.max(0.3, colorIntensity)})`,
+        name: getFullCountryName(country),
+        data,
+        type: 'line' as const
       };
     });
-  
+    
+    // Create chart options
     return {
       chart: {
         type: 'line',
         backgroundColor: 'white',
-        style: {
-          fontFamily: FONT_FAMILY
-        }
+        style: { fontFamily: FONT_FAMILY }
       },
       title: {
-        text: `Impact Level Trends - ${selectedCategory}${country ? ` in ${getFullCountryName(country)}` : ''}`,
-        style: {
-          color: '#34502b',
-          fontFamily: FONT_FAMILY
-        }
+        text: `${selectedCategory} - ${selectedLevel} Impact Level Trend`,
+        style: { color: '#34502b', fontFamily: FONT_FAMILY }
       },
       xAxis: {
         title: {
           text: 'Year',
-          style: {
-            color: '#34502b',
-            fontFamily: FONT_FAMILY
-          }
-        },
-        categories: years.map(String)
+          style: { color: '#34502b', fontFamily: FONT_FAMILY }
+        }
       },
       yAxis: {
         title: {
           text: 'Percentage',
-          style: {
-            color: '#34502b',
-            fontFamily: FONT_FAMILY
-          }
+          style: { color: '#34502b', fontFamily: FONT_FAMILY }
         },
-        labels: {
-          format: '{value}%'
-        }
+        min: 0,
+        max: 100,
+        labels: { format: '{value}%' }
       },
       tooltip: {
-        shared: true,
-        useHTML: true,
-        formatter: createTooltipFormatter
+        headerFormat: '<b>{series.name}</b><br/>',
+        pointFormat: '{point.x}: {point.y:.1f}%'
       },
-      series: series,
       legend: {
-        enabled: true,
-        itemStyle: {
-          color: '#34502b',
-          fontFamily: FONT_FAMILY
-        }
+        enabled: true
       },
-      credits: {
-        enabled: false
-      }
-    };
-  };
-
+      series
+    } as Highcharts.Options;
+  }, [selectedCategory, selectedLevel, years, activeCountries, processedData, countryDataMap]);
+  
+  // Display empty state if no data is available
+  if (activeCountries.length === 0) {
+    return (
+      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+        <div className="text-center py-10 text-gray-500">
+          Please select at least one country to view impact trends.
+        </div>
+      </Card>
+    );
+  }
+  
   return (
-    <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-      <div className="mb-6">
-        <CategorySelector 
-          categories={selectedCategories}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-        />
-      </div>
-
-      {comparisonMode && activeCountries.length > 0 ? (
-        // Country comparison tabs
-        <Tabs value={activeCountryTab} onValueChange={setActiveCountryTab}>
-          <TabsList className="mb-4 bg-[#34502b]/10">
-            {activeCountries.map(country => (
-              <TabsTrigger 
-                key={country} 
-                value={country} 
-                className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
-              >
-                {getFullCountryName(country)}
-              </TabsTrigger>
+    <div className="space-y-6">
+      {/* Category and Level selectors */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md"
+          >
+            {selectedCategories.map(category => (
+              <option key={category} value={category}>{category}</option>
             ))}
-          </TabsList>
-
-          {activeCountries.map(country => (
-            <TabsContent key={country} value={country} className="pt-4">
-              <HighchartsReact highcharts={Highcharts} options={createChartOptions(country)} />
-              
-              <div className="mt-4 p-3 bg-[#f1f0fb] rounded-md">
-                <p className="text-sm text-gray-600">
-                  <strong>Trend Analysis:</strong> The chart shows how different impact levels for {selectedCategory} have evolved over time in {getFullCountryName(country)}.
-                </p>
-              </div>
-            </TabsContent>
-          ))}
-        </Tabs>
-      ) : (
-        // Single view (original implementation)
-        <HighchartsReact highcharts={Highcharts} options={createChartOptions()} />
-      )}
-    </Card>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Impact Level</label>
+          <select
+            value={selectedLevel}
+            onChange={(e) => setSelectedLevel(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md"
+          >
+            {impactLevels.map(level => (
+              <option key={level} value={level}>{level}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+      
+      {/* Chart display */}
+      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+        {(chartOptions.series as any[]).length > 0 ? (
+          <div className="h-[400px]">
+            <HighchartsReact 
+              highcharts={Highcharts} 
+              options={chartOptions} 
+            />
+          </div>
+        ) : (
+          <div className="text-center py-10 text-gray-500">
+            No trend data available for the selected category and impact level.
+          </div>
+        )}
+      </Card>
+    </div>
   );
 };
 

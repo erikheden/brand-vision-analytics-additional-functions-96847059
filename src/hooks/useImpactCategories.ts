@@ -43,6 +43,8 @@ export const useImpactCategories = (selectedCountries: string[]) => {
         for (const country of activeCountries) {
           try {
             const normalizedCountry = normalizeCountry(country);
+            console.log(`Fetching data for country: ${normalizedCountry}`);
+            
             const { data: countryData, processedData: countryProcessedData } = 
               await getCountryData(normalizedCountry);
             
@@ -76,7 +78,6 @@ export const useImpactCategories = (selectedCountries: string[]) => {
           }
         }
         
-        console.log("Country Data Map Keys:", Object.keys(dataMap));
         setCountryDataMap(dataMap);
       };
       
@@ -86,7 +87,7 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     }
   }, [activeCountries, getCountryData]);
 
-  // Auto-select first category when categories load
+  // Auto-select first category when categories change
   useEffect(() => {
     if (categories.length > 0 && selectedCategories.length === 0) {
       setSelectedCategories([categories[0]]);
@@ -109,7 +110,7 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     }
   }, [impactLevels]);
 
-  // Improved country data map validation to help with debugging
+  // Log countryDataMap for debugging
   useEffect(() => {
     if (Object.keys(countryDataMap).length > 0) {
       console.log("Selected Year:", selectedYear);

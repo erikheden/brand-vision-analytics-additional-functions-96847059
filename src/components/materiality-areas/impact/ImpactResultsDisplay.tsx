@@ -1,158 +1,68 @@
 
-import React, { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import ImpactBarChart from "../ImpactBarChart";
-import { getFullCountryName } from "@/components/CountrySelect";
-import { LoadingState } from "./components/LoadingState";
-import { ErrorState } from "./components/ErrorState";
-import { EmptyState } from "./components/EmptyState";
-import { ChartControls } from "./components/ChartControls";
-import { AnalysisPanel } from "./components/AnalysisPanel";
-
-type ChartDisplayMode = 'bar' | 'stacked';
+import React from 'react';
+import ImpactVisualizations from './ImpactVisualizations';
+import { LoadingState } from './components/LoadingState';
+import { EmptyState } from './components/EmptyState';
+import { ErrorState } from './components/ErrorState';
 
 interface ImpactResultsDisplayProps {
-  isLoading: boolean;
-  error: any;
-  selectedCountry: string;
+  processedData: Record<string, Record<string, Record<string, number>>>;
   selectedCategories: string[];
   selectedYear: number | null;
-  chartData?: {
-    byLevel: Array<{ name: string, value: number, category: string }>;
-    byCategory: Array<{ name: string, value: number, category: string }>;
-  };
-  // Add the missing properties that are being passed from ImpactContent.tsx
-  processedData?: Record<string, Record<string, Record<string, number>>>;
-  selectedLevels?: string[];
-  country?: string;
-  comparisonMode?: boolean;
-  activeCountries?: string[];
+  selectedLevels: string[];
+  isLoading: boolean;
+  error: Error | null;
+  selectedCountry: string;
 }
 
 const ImpactResultsDisplay: React.FC<ImpactResultsDisplayProps> = ({
-  isLoading,
-  error,
-  selectedCountry,
+  processedData,
   selectedCategories,
   selectedYear,
-  chartData,
-  // Include the added props in the component function parameters
-  processedData,
   selectedLevels,
-  country = "",
-  comparisonMode = false,
-  activeCountries = []
+  isLoading,
+  error,
+  selectedCountry
 }) => {
-  const [chartMode, setChartMode] = useState<ChartDisplayMode>('bar');
-  const [activeCountryTab, setActiveCountryTab] = useState<string>(selectedCountry);
-  
-  const countryToUse = comparisonMode ? activeCountryTab : (country || selectedCountry);
-  const countryName = getFullCountryName(countryToUse) || countryToUse;
-  const categories = chartData?.byLevel ? [...new Set(chartData.byLevel.map(item => item.category))] : [];
-
+  // Add debug logging
   React.useEffect(() => {
-    if (comparisonMode && activeCountries.length > 0) {
-      setActiveCountryTab(activeCountries[0]);
-    } else {
-      setActiveCountryTab(selectedCountry);
-    }
-  }, [comparisonMode, activeCountries, selectedCountry]);
+    console.log('ImpactResultsDisplay rendering with:', {
+      hasProcessedData: !!processedData && Object.keys(processedData).length > 0,
+      selectedCategoriesCount: selectedCategories.length,
+      selectedYear,
+      selectedLevelsCount: selectedLevels.length,
+      isLoading,
+      hasError: !!error,
+      selectedCountry
+    });
+  }, [processedData, selectedCategories, selectedYear, selectedLevels, isLoading, error, selectedCountry]);
 
-  if (isLoading) return <LoadingState />;
-  if (error) return <ErrorState error={error} />;
-  if (!countryToUse) {
-    return <EmptyState message="Please select a country to view sustainability impact data" />;
-  }
-  if (!chartData || !chartData.byLevel || chartData.byLevel.length === 0) {
-    return <EmptyState message={
-      selectedCategories.length === 0 
-        ? "Please select at least one category to view impact data" 
-        : `No impact data available for the selected criteria in ${countryName} ${selectedYear ? `for ${selectedYear}` : ''}`
-    } />;
+  if (isLoading) {
+    return <LoadingState />;
   }
 
-  const handleChartModeChange = (value: string) => {
-    if (value) setChartMode(value as ChartDisplayMode);
-  };
+  if (error) {
+    return <ErrorState error={error} />;
+  }
 
-  const renderSingleCountryView = () => (
-    <>
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-medium text-[#34502b]">
-          Impact by Level in {countryName} {selectedYear ? `(${selectedYear})` : ''}
-        </h2>
-        <ChartControls chartMode={chartMode} onChartModeChange={handleChartModeChange} />
-      </div>
-      
-      <ImpactBarChart
-        data={chartData.byLevel}
-        title={`Sustainability Impact by Level in ${countryName} ${selectedYear ? `(${selectedYear})` : ''}`}
-        categories={categories}
-        chartType={chartMode}
-      />
-      
-      {selectedCategories.length > 0 && (
-        <AnalysisPanel 
-          selectedCategories={selectedCategories}
-          countryName={countryName}
-          chartData={chartData.byLevel}
-        />
-      )}
-    </>
-  );
-
-  const renderComparisonView = () => (
-    <Tabs value={activeCountryTab} onValueChange={setActiveCountryTab}>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-medium text-[#34502b]">
-          Impact Levels {selectedYear ? `(${selectedYear})` : ''}
-        </h2>
-        <ChartControls chartMode={chartMode} onChartModeChange={handleChartModeChange} />
-      </div>
-      
-      <TabsList className="mb-4 bg-[#34502b]/10">
-        {activeCountries.map(country => (
-          <TabsTrigger 
-            key={country} 
-            value={country} 
-            className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
-          >
-            {getFullCountryName(country)}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-
-      {activeCountries.map(country => (
-        <TabsContent key={country} value={country} className="pt-4">
-          <ImpactBarChart
-            data={chartData.byLevel}
-            title={`Sustainability Impact by Level in ${getFullCountryName(country)} ${selectedYear ? `(${selectedYear})` : ''}`}
-            categories={categories}
-            chartType={chartMode}
-          />
-          
-          {selectedCategories.length > 0 && (
-            <AnalysisPanel 
-              selectedCategories={selectedCategories}
-              countryName={getFullCountryName(country)}
-              chartData={chartData.byLevel}
-            />
-          )}
-        </TabsContent>
-      ))}
-    </Tabs>
-  );
+  if (!selectedYear || !selectedCountry || selectedCategories.length === 0) {
+    const message = !selectedCountry
+      ? "Please select a country to view data."
+      : !selectedCategories.length
+        ? "Please select at least one category."
+        : "Please select a year to view data.";
+    return <EmptyState message={message} />;
+  }
 
   return (
-    <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-      <div className="space-y-8">
-        {comparisonMode && activeCountries.length > 0 
-          ? renderComparisonView()
-          : renderSingleCountryView()
-        }
-      </div>
-    </Card>
+    <ImpactVisualizations 
+      processedData={processedData}
+      selectedCategories={selectedCategories}
+      selectedYear={selectedYear}
+      selectedLevels={selectedLevels}
+      isLoading={isLoading}
+      error={error}
+    />
   );
 };
 
