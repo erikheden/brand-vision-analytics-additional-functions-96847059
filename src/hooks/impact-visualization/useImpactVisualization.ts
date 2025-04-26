@@ -18,10 +18,10 @@ export const useImpactVisualization = (
     selectedLevels     // Using selectedLevels as impactLevels to reduce props
   );
 
-  // Calculate hasData efficiently
+  // Calculate hasData efficiently with proper dependency tracking
   const hasData = useMemo(() => 
     byLevel.length > 0 && byCategory.length > 0, 
-    [byLevel.length, byCategory.length]
+    [byLevel, byCategory] // Track the actual arrays, not just their length
   );
 
   return {
