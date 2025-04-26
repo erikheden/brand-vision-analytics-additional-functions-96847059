@@ -4,6 +4,9 @@ import { Card } from '@/components/ui/card';
 import { useImpactVisualization } from '@/hooks/impact-visualization/useImpactVisualization';
 import ImpactCategoryChart from './charts/ImpactCategoryChart';
 import ImpactLevelChart from './charts/ImpactLevelChart';
+import { LoadingState } from './components/LoadingState';
+import { EmptyState } from './components/EmptyState';
+import { ErrorState } from './components/ErrorState';
 
 interface ImpactVisualizationsProps {
   processedData: Record<string, Record<string, Record<string, number>>>;
@@ -30,35 +33,16 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
   );
 
   if (isLoading) {
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#34502b] mx-auto"></div>
-            <p className="mt-4 text-gray-500">Loading impact data...</p>
-          </div>
-        </div>
-      </Card>
-    );
+    return <LoadingState />;
   }
 
   if (error) {
-    return (
-      <Card className="p-6 bg-white border-2 border-red-200 rounded-xl shadow-md">
-        <div className="text-center py-10 text-red-500">
-          Error loading data: {error.message}
-        </div>
-      </Card>
-    );
+    return <ErrorState error={error} />;
   }
 
   if (!hasData || !selectedYear) {
     return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-10 text-gray-500">
-          No data available for the selected filters.
-        </div>
-      </Card>
+      <EmptyState message="No data available for the selected filters." />
     );
   }
 
