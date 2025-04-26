@@ -22,6 +22,9 @@ interface ImpactResultsDisplayProps {
     byLevel: Array<{ name: string, value: number, category: string }>;
     byCategory: Array<{ name: string, value: number, category: string }>;
   };
+  // Add the missing properties that are being passed from ImpactContent.tsx
+  processedData?: Record<string, Record<string, Record<string, number>>>;
+  selectedLevels?: string[];
   country?: string;
   comparisonMode?: boolean;
   activeCountries?: string[];
@@ -34,6 +37,9 @@ const ImpactResultsDisplay: React.FC<ImpactResultsDisplayProps> = ({
   selectedCategories,
   selectedYear,
   chartData,
+  // Include the added props in the component function parameters
+  processedData,
+  selectedLevels,
   country = "",
   comparisonMode = false,
   activeCountries = []
