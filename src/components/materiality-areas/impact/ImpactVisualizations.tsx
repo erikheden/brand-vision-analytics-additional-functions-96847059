@@ -32,6 +32,7 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
     selectedLevels
   );
 
+  // Make all rendering decisions based on props values, not hook return values
   if (isLoading) {
     return <LoadingState />;
   }
@@ -40,6 +41,7 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
     return <ErrorState error={error} />;
   }
 
+  // Only render charts when we have data and a selected year
   if (!hasData || !selectedYear) {
     return (
       <EmptyState message="No data available for the selected filters." />
@@ -77,4 +79,5 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
   );
 };
 
+// Use React.memo to prevent unnecessary re-rendering
 export default React.memo(ImpactVisualizations);

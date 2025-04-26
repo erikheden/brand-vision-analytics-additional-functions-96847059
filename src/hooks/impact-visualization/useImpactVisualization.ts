@@ -8,15 +8,17 @@ export const useImpactVisualization = (
   selectedYear: number | null,
   selectedLevels: string[]
 ) => {
+  // Get chart data using the optimized hook
   const { byLevel, byCategory } = useImpactChartData(
     processedData,
     selectedYear,
     selectedCategories,
     selectedLevels,
-    selectedCategories,
-    selectedLevels
+    selectedCategories, // Using selectedCategories as categories to reduce props
+    selectedLevels     // Using selectedLevels as impactLevels to reduce props
   );
 
+  // Calculate hasData efficiently
   const hasData = useMemo(() => 
     byLevel.length > 0 && byCategory.length > 0, 
     [byLevel.length, byCategory.length]

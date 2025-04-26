@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useCategoryChartOptions } from '../hooks/useCategoryChartOptions';
@@ -16,13 +16,19 @@ const ImpactCategoryChart: React.FC<ImpactCategoryChartProps> = ({
   selectedLevels
 }) => {
   const chartOptions = useCategoryChartOptions(data, selectedYear, selectedLevels);
+  
+  // Add debug logging to track rendering
+  useEffect(() => {
+    console.log('Category Chart rendering with data:', data.length, 'items');
+  }, [data.length]);
 
   return (
     <div className="h-[400px]">
       <HighchartsReact 
         highcharts={Highcharts} 
         options={chartOptions}
-        immutable={true}
+        immutable={true} // This ensures that only changed options trigger re-renders
+        constructorType={'chart'}
       />
     </div>
   );

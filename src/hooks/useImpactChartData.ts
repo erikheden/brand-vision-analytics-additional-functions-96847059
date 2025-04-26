@@ -30,38 +30,40 @@ export const useImpactChartData = (
     const byLevel: ChartDataItem[] = [];
     const byCategory: ChartDataItem[] = [];
 
+    // Use provided categories/levels or fallback to full lists
     const categoriesToUse = selectedCategories.length > 0 ? selectedCategories : categories;
     const levelsToUse = selectedLevels.length > 0 ? selectedLevels : impactLevels;
 
-    // Avoid nested loops when possible to optimize performance
-    for (const category of categoriesToUse) {
-      if (!processedData[category] || !processedData[category][selectedYear]) {
-        continue;
-      }
+    // Process the data more efficiently with fewer nested loops
+    categoriesToUse.forEach(category => {
+      const categoryData = processedData[category];
+      if (!categoryData || !categoryData[selectedYear]) return;
       
-      for (const level of levelsToUse) {
-        if (processedData[category][selectedYear][level] !== undefined) {
+      const yearData = categoryData[selectedYear];
+      
+      levelsToUse.forEach(level => {
+        const value = yearData[level];
+        if (value !== undefined) {
           byLevel.push({
             name: level,
-            value: processedData[category][selectedYear][level] * 100,
-            category: category
+            value: value * 100,
+            category
           });
 
           byCategory.push({
             name: category,
-            value: processedData[category][selectedYear][level] * 100,
+            value: value * 100,
             category: level
           });
         }
-      }
-    }
+      });
+    });
 
     return { byLevel, byCategory };
   }, [
     processedData, 
     selectedYear, 
-    // Use JSON.stringify for array dependencies to prevent unnecessary recalculations
-    // when the arrays have the same items but different references
+    // Use stable dependencies by converting arrays to strings
     JSON.stringify(selectedCategories), 
     JSON.stringify(selectedLevels), 
     JSON.stringify(categories),

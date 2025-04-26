@@ -7,6 +7,7 @@ import ImpactTrendsView from "./ImpactTrendsView";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import ImpactCountryComparison from "./comparison/ImpactCountryComparison";
+import ChartErrorBoundary from "./components/ChartErrorBoundary";
 
 interface ImpactContentProps {
   selectedCountries: string[];
@@ -85,37 +86,43 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
             </TabsList>
 
             <TabsContent value="categoriesView">
-              <ImpactVisualizations
-                processedData={processedData}
-                selectedCategories={selectedCategories}
-                selectedYear={selectedYear}
-                selectedLevels={selectedLevels}
-                isLoading={isLoading}
-                error={error}
-              />
+              <ChartErrorBoundary>
+                <ImpactVisualizations
+                  processedData={processedData}
+                  selectedCategories={selectedCategories}
+                  selectedYear={selectedYear}
+                  selectedLevels={selectedLevels}
+                  isLoading={isLoading}
+                  error={error}
+                />
+              </ChartErrorBoundary>
             </TabsContent>
             
             <TabsContent value="trendsView">
-              <ImpactTrendsView
-                processedData={processedData}
-                selectedCategories={selectedCategories}
-                years={years}
-                impactLevels={impactLevels}
-                comparisonMode={activeCountries.length > 1}
-                activeCountries={activeCountries}
-              />
+              <ChartErrorBoundary>
+                <ImpactTrendsView
+                  processedData={processedData}
+                  selectedCategories={selectedCategories}
+                  years={years}
+                  impactLevels={impactLevels}
+                  comparisonMode={activeCountries.length > 1}
+                  activeCountries={activeCountries}
+                />
+              </ChartErrorBoundary>
             </TabsContent>
             
             <TabsContent value="comparisonView">
-              <ImpactCountryComparison
-                processedData={processedData}
-                selectedCategories={selectedCategories}
-                selectedYear={selectedYear}
-                years={years}
-                impactLevels={impactLevels}
-                activeCountries={activeCountries}
-                countryDataMap={countryDataMap}
-              />
+              <ChartErrorBoundary>
+                <ImpactCountryComparison
+                  processedData={processedData}
+                  selectedCategories={selectedCategories}
+                  selectedYear={selectedYear}
+                  years={years}
+                  impactLevels={impactLevels}
+                  activeCountries={activeCountries}
+                  countryDataMap={countryDataMap}
+                />
+              </ChartErrorBoundary>
             </TabsContent>
           </Tabs>
         </Card>
