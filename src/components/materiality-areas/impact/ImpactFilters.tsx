@@ -13,10 +13,12 @@ interface ImpactFiltersProps {
   years: number[];
   selectedYear: number | null;
   setSelectedYear: (year: number) => void;
-  sortedImpactLevels: string[];
+  impactLevels: string[];  // Changed from sortedImpactLevels to match what's being passed
   selectedLevels: string[];
   toggleImpactLevel: (level: string) => void;
   isLoading: boolean;
+  activeCountries?: string[];
+  handleCountryChange?: (country: string) => void;
 }
 
 const ImpactFilters: React.FC<ImpactFiltersProps> = ({
@@ -27,7 +29,7 @@ const ImpactFilters: React.FC<ImpactFiltersProps> = ({
   years,
   selectedYear,
   setSelectedYear,
-  sortedImpactLevels,
+  impactLevels, // Changed from sortedImpactLevels
   selectedLevels,
   toggleImpactLevel,
   isLoading
@@ -60,7 +62,7 @@ const ImpactFilters: React.FC<ImpactFiltersProps> = ({
             {/* Impact Level Filter */}
             <div className="md:w-1/3">
               <ImpactLevelFilter 
-                sortedImpactLevels={sortedImpactLevels} 
+                sortedImpactLevels={impactLevels} // Changed parameter name
                 selectedLevels={selectedLevels} 
                 toggleImpactLevel={toggleImpactLevel} 
                 isLoading={isLoading} 

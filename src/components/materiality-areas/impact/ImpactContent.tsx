@@ -63,12 +63,13 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
           years={years}
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
-          impactLevels={impactLevels}
+          impactLevels={impactLevels} // Changed from sortedImpactLevels to impactLevels
           selectedLevels={selectedLevels}
           toggleImpactLevel={toggleImpactLevel}
           activeCountries={activeCountries}
           selectedCountries={selectedCountries}
           handleCountryChange={handleCountryChange}
+          isLoading={isLoading}
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
@@ -101,6 +102,7 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
               selectedLevels={selectedLevels}
               isLoading={isLoading}
               error={error}
+              selectedCountry={activeCountries[0] || ""} // Add the missing selectedCountry prop
             />
           </TabsContent>
           
