@@ -1,7 +1,6 @@
 
 import { useMemo } from 'react';
 import { getFullCountryName } from '@/components/CountrySelect';
-import { ProcessedChartData } from '@/types/impact';
 
 export const useProcessedChartData = (
   processedData: Record<string, Record<string, Record<string, number>>>,
@@ -18,8 +17,6 @@ export const useProcessedChartData = (
     if (!selectedYear || !selectedImpactLevel || selectedCategories.length === 0 || activeCountries.length === 0) {
       return [];
     }
-
-    console.log('Creating series data for countries:', activeCountries);
     
     return activeCountries.map(country => {
       // Use country-specific data from the map if available
@@ -35,12 +32,10 @@ export const useProcessedChartData = (
             countrySpecificData[category][selectedYear][selectedImpactLevel] !== undefined) {
           
           value = countrySpecificData[category][selectedYear][selectedImpactLevel];
-          console.log(`Using country-specific data for ${country}, category ${category}: ${value}`);
         } 
         // Fall back to default processedData if specific data is not available
         else if (processedData[category]?.[selectedYear]?.[selectedImpactLevel] !== undefined) {
           value = processedData[category][selectedYear][selectedImpactLevel];
-          console.log(`Using fallback data for ${country}, category ${category}: ${value}`);
         }
         
         return value * 100; // Convert to percentage for display
@@ -81,12 +76,10 @@ export const useProcessedChartData = (
             countrySpecificData[selectedCategory][selectedYear][level] !== undefined) {
           
           value = countrySpecificData[selectedCategory][selectedYear][level];
-          console.log(`Using country-specific data for ${country}, impact level ${level}: ${value}`);
         } 
         // Fall back to default processedData if specific data is not available
         else if (processedData[selectedCategory]?.[selectedYear]?.[level] !== undefined) {
           value = processedData[selectedCategory][selectedYear][level];
-          console.log(`Using fallback data for ${country}, impact level ${level}: ${value}`);
         }
         
         return value * 100; // Convert to percentage for display

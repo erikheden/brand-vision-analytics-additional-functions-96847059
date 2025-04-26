@@ -41,15 +41,6 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     }
   }, [selectedCategories, impactLevels, selectedCategory, selectedImpactLevel]);
   
-  // Use a minimal debug log to avoid excessive logging
-  useEffect(() => {
-    if (activeCountries.length > 0 && countryDataMap) {
-      console.log("ImpactCountryComparison - Active Countries:", activeCountries);
-      console.log("ImpactCountryComparison - Country Data Map available:", !!countryDataMap);
-      console.log("ImpactCountryComparison - Country Data Map keys:", Object.keys(countryDataMap));
-    }
-  }, [activeCountries, countryDataMap]);
-  
   const { createCategoryChart, createImpactLevelChart } = useComparisonChartData(
     processedData,
     selectedCategory,
