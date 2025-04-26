@@ -948,6 +948,7 @@ export type Database = {
           knowledge_social: number | null
           no_knowledge_environment: number | null
           no_knowledge_social: number | null
+          row_id: number
           year: number | null
         }
         Insert: {
@@ -959,6 +960,7 @@ export type Database = {
           knowledge_social?: number | null
           no_knowledge_environment?: number | null
           no_knowledge_social?: number | null
+          row_id?: number
           year?: number | null
         }
         Update: {
@@ -970,6 +972,7 @@ export type Database = {
           knowledge_social?: number | null
           no_knowledge_environment?: number | null
           no_knowledge_social?: number | null
+          row_id?: number
           year?: number | null
         }
         Relationships: []
