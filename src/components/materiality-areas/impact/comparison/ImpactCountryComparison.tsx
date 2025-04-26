@@ -53,6 +53,23 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     selectedYear, 
     countryDataMap ? Object.keys(countryDataMap).join() : 'undefined'
   ]);
+
+  // Extract country-specific data
+  const countrySpecificData = useMemo(() => {
+    if (!countryDataMap || Object.keys(countryDataMap).length === 0) {
+      return {};
+    }
+
+    const result: Record<string, Record<string, Record<string, Record<string, number>>>> = {};
+    
+    activeCountries.forEach(country => {
+      if (countryDataMap[country]?.processedData) {
+        result[country] = countryDataMap[country].processedData;
+      }
+    });
+    
+    return result;
+  }, [countryDataMap, activeCountries]);
   
   const { createCategoryChart, createImpactLevelChart } = useComparisonChartData(
     processedData,

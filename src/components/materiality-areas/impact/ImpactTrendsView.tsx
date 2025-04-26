@@ -64,10 +64,16 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
 
   // Helper function to create chart options
   const createChartOptions = (country?: string): Highcharts.Options => {
+    // Get the correct country data from the countryDataMap
+    let countryData: Record<string, Record<string, Record<string, number>>> = processedData;
+    
+    console.log('Creating chart options for country:', country || 'default');
+    
     const series = impactLevels.map((level, index) => {
       const data = years.map(year => {
-        // Check if we have data for this country and category
-        const value = processedData[selectedCategory]?.[year]?.[level] || 0;
+        // Check if we have data for this category-year-level combination
+        const value = countryData[selectedCategory]?.[year]?.[level] || 0;
+        console.log(`Data point for ${country || 'default'}, ${selectedCategory}, ${year}, ${level}: ${value}`);
         return [year, value * 100]; // Convert to percentage
       });
   
