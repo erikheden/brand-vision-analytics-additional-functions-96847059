@@ -938,6 +938,45 @@ export type Database = {
         }
         Relationships: []
       }
+      "SBI SBQ 2011-2025": {
+        Row: {
+          company: string | null
+          country: string | null
+          negative_environment: number | null
+          negative_social: number | null
+          neutral_environment: number | null
+          neutral_social: number | null
+          positive_environment: number | null
+          positive_social: number | null
+          row_id: number
+          year: number | null
+        }
+        Insert: {
+          company?: string | null
+          country?: string | null
+          negative_environment?: number | null
+          negative_social?: number | null
+          neutral_environment?: number | null
+          neutral_social?: number | null
+          positive_environment?: number | null
+          positive_social?: number | null
+          row_id?: number
+          year?: number | null
+        }
+        Update: {
+          company?: string | null
+          country?: string | null
+          negative_environment?: number | null
+          negative_social?: number | null
+          neutral_environment?: number | null
+          neutral_social?: number | null
+          positive_environment?: number | null
+          positive_social?: number | null
+          row_id?: number
+          year?: number | null
+        }
+        Relationships: []
+      }
       SBI_behaviour_groups: {
         Row: {
           behaviour_group: string | null
