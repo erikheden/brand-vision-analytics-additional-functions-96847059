@@ -28,13 +28,18 @@ export const useComparisonChartData = (
       console.log("useComparisonChartData - Country Data Map keys:", Object.keys(countryDataMap));
       activeCountries.forEach(country => {
         if (countryDataMap[country]?.processedData) {
-          console.log(`Data available for ${country}`);
+          const sampleCategory = selectedCategories[0];
+          const sampleImpactLevel = selectedImpactLevel;
+          if (sampleCategory && selectedYear && sampleImpactLevel) {
+            console.log(`Sample data for ${country}, ${sampleCategory}, ${selectedYear}, ${sampleImpactLevel}:`, 
+              countryDataMap[country]?.processedData[sampleCategory]?.[selectedYear]?.[sampleImpactLevel]);
+          }
         } else {
           console.log(`No processed data for ${country}`);
         }
       });
     }
-  }, [countryDataMap, activeCountries]);
+  }, [countryDataMap, activeCountries, selectedCategories, selectedYear, selectedImpactLevel]);
 
   const { seriesData, impactLevelData } = useProcessedChartData(
     processedData,

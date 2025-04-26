@@ -53,6 +53,24 @@ export const useImpactCategories = (selectedCountries: string[]) => {
             
             console.log(`Fetched data for country ${normalizedCountry}:`, 
               countryData ? countryData.length : 0, "rows");
+            
+            // Log some sample data to help debug
+            if (countryProcessedData) {
+              const sampleCategories = Object.keys(countryProcessedData).slice(0, 2);
+              for (const cat of sampleCategories) {
+                if (countryProcessedData[cat]) {
+                  const years = Object.keys(countryProcessedData[cat]);
+                  if (years.length > 0) {
+                    const year = years[0];
+                    const levels = Object.keys(countryProcessedData[cat][year]);
+                    if (levels.length > 0) {
+                      console.log(`Sample data for ${normalizedCountry}, ${cat}, ${year}, ${levels[0]}: 
+                        ${countryProcessedData[cat][year][levels[0]]}`);
+                    }
+                  }
+                }
+              }
+            }
           } catch (e) {
             console.error(`Error fetching data for country ${country}:`, e);
           }

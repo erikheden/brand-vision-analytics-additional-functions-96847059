@@ -21,13 +21,29 @@ export const useProcessedChartData = (
     console.log('Creating series data for countries:', activeCountries);
     
     return activeCountries.map(country => {
-      // Use country-specific data if available, otherwise fall back to processedData
-      const countryData = countryDataMap?.[country]?.processedData || processedData;
-      console.log(`Using data for ${country}:`, countryData ? 'Country-specific data' : 'Fallback data');
+      // Use country-specific data from the map if available
+      const countrySpecificData = countryDataMap?.[country]?.processedData;
+      
+      if (!countrySpecificData) {
+        console.warn(`No specific data found for country ${country}, falling back to default data`);
+      }
       
       // Map each selected category to its value for this country and impact level
       const data = selectedCategories.map(category => {
-        const value = countryData[category]?.[selectedYear]?.[selectedImpactLevel] || 0;
+        // First try to get value from country-specific data
+        if (countrySpecificData && 
+            countrySpecificData[category] && 
+            countrySpecificData[category][selectedYear] && 
+            countrySpecificData[category][selectedYear][selectedImpactLevel] !== undefined) {
+          
+          const value = countrySpecificData[category][selectedYear][selectedImpactLevel];
+          console.log(`Using country-specific data for ${country}, category ${category}: ${value}`);
+          return value * 100; // Convert to percentage for display
+        } 
+        
+        // Fall back to default processedData if specific data is not available
+        const value = processedData[category]?.[selectedYear]?.[selectedImpactLevel] || 0;
+        console.log(`Using fallback data for ${country}, category ${category}: ${value}`);
         return value * 100; // Convert to percentage for display
       });
 
@@ -45,12 +61,29 @@ export const useProcessedChartData = (
     }
     
     return activeCountries.map(country => {
-      // Use country-specific data if available, otherwise fall back to processedData
-      const countryData = countryDataMap?.[country]?.processedData || processedData;
+      // Use country-specific data from the map if available
+      const countrySpecificData = countryDataMap?.[country]?.processedData;
+      
+      if (!countrySpecificData) {
+        console.warn(`No specific data found for country ${country} for impact levels, falling back to default data`);
+      }
       
       // Map each impact level to its value for this country and selected category
       const data = impactLevels.map(level => {
-        const value = countryData[selectedCategory]?.[selectedYear]?.[level] || 0;
+        // First try to get value from country-specific data
+        if (countrySpecificData && 
+            countrySpecificData[selectedCategory] && 
+            countrySpecificData[selectedCategory][selectedYear] && 
+            countrySpecificData[selectedCategory][selectedYear][level] !== undefined) {
+          
+          const value = countrySpecificData[selectedCategory][selectedYear][level];
+          console.log(`Using country-specific data for ${country}, impact level ${level}: ${value}`);
+          return value * 100; // Convert to percentage for display
+        } 
+        
+        // Fall back to default processedData if specific data is not available
+        const value = processedData[selectedCategory]?.[selectedYear]?.[level] || 0;
+        console.log(`Using fallback data for ${country}, impact level ${level}: ${value}`);
         return value * 100; // Convert to percentage for display
       });
 
