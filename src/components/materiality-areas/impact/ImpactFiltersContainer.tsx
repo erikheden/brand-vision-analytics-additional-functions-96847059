@@ -39,8 +39,6 @@ const ImpactFiltersContainer: React.FC<ImpactFiltersContainerProps> = ({
     <div className="space-y-6">
       <ImpactFilters
         selectedCountries={activeCountries}
-        availableCountries={selectedCountries}
-        handleCountryChange={handleCountryChange}
         categories={categories}
         selectedCategories={selectedCategories}
         toggleCategory={toggleCategory}
