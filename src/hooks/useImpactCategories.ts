@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useMemo } from 'react';
 import { useSustainabilityImpactData } from '@/hooks/useSustainabilityImpactData';
 import { useToast } from '@/components/ui/use-toast';
 import { normalizeCountry } from '@/components/CountrySelect';
@@ -11,6 +12,7 @@ export const useImpactCategories = (selectedCountries: string[]) => {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   const [comparisonMode, setComparisonMode] = useState<boolean>(false);
+  const [countryDataMap, setCountryDataMap] = useState<Record<string, any>>({});
 
   // Set active country when selectedCountries changes and normalize the country code
   useEffect(() => {
@@ -26,9 +28,8 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     }
   }, [selectedCountries, activeCountry]);
 
-  // When comparing countries, we need to load data for all active countries
-  // For now, we'll use the first active country for data loading
-  // Later we'll update this to handle multiple countries
+  // When comparing countries, fetch data for each active country
+  // Main data for active country (primary view)
   const normalizedActiveCountry = activeCountry ? normalizeCountry(activeCountry) : "";
   console.log("Using normalized active country for data fetching:", normalizedActiveCountry);
 
@@ -41,6 +42,50 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     isLoading,
     error
   } = useSustainabilityImpactData(normalizedActiveCountry);
+
+  // Fetch data for all active countries in comparison mode
+  useEffect(() => {
+    if (comparisonMode && activeCountries.length > 1) {
+      const fetchDataForAllCountries = async () => {
+        const dataMap: Record<string, any> = {};
+        
+        for (const country of activeCountries) {
+          if (country !== normalizedActiveCountry) {
+            try {
+              const normalizedCountry = normalizeCountry(country);
+              const { data: countryData, processedData: countryProcessedData } = 
+                await useSustainabilityImpactData(normalizedCountry).getCountryData();
+              
+              dataMap[normalizedCountry] = {
+                data: countryData,
+                processedData: countryProcessedData
+              };
+              
+              console.log(`Fetched data for comparison country ${normalizedCountry}:`, 
+                countryData ? countryData.length : 0, "rows");
+            } catch (e) {
+              console.error(`Error fetching data for country ${country}:`, e);
+            }
+          }
+        }
+        
+        // Add the main active country data to the map
+        dataMap[normalizedActiveCountry] = {
+          data,
+          processedData
+        };
+        
+        setCountryDataMap(dataMap);
+      };
+      
+      fetchDataForAllCountries();
+    } else if (!comparisonMode || activeCountries.length <= 1) {
+      // Reset the map if not in comparison mode
+      setCountryDataMap({
+        [normalizedActiveCountry]: { data, processedData }
+      });
+    }
+  }, [comparisonMode, activeCountries, normalizedActiveCountry, data, processedData]);
 
   // Auto-select first category when categories load
   useEffect(() => {
@@ -171,6 +216,7 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     // Data
     data,
     processedData,
+    countryDataMap,
     categories,
     impactLevels,
     years,

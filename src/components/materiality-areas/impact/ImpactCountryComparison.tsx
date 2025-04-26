@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
@@ -32,8 +32,18 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
   const [selectedImpactLevel, setSelectedImpactLevel] = useState<string>('');
   const [viewMode, setViewMode] = useState<'byCategory' | 'byImpactLevel'>('byCategory');
   
+  // Debug the data
+  useEffect(() => {
+    if (processedData && selectedYear && activeCountries.length > 0) {
+      console.log("Country comparison data check:");
+      activeCountries.forEach(country => {
+        console.log(`Data for ${country}:`, processedData);
+      });
+    }
+  }, [processedData, selectedYear, activeCountries]);
+  
   // Set defaults when component loads or dependencies change
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedCategories.length > 0 && !selectedCategory) {
       setSelectedCategory(selectedCategories[0]);
     }
@@ -81,8 +91,9 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
       return {
         name: getFullCountryName(country),
         data: selectedCategories.map(category => {
-          const value = processedData[category]?.[selectedYear]?.[selectedImpactLevel] || 0;
-          return value * 100; // Convert to percentage
+          // Get data for this specific country
+          const countryData = processedData[category]?.[selectedYear]?.[selectedImpactLevel] || 0;
+          return countryData * 100; // Convert to percentage
         }),
         type: 'column' as const
       };
@@ -175,8 +186,9 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
       return {
         name: getFullCountryName(country),
         data: impactLevels.map(level => {
-          const value = processedData[selectedCategory]?.[selectedYear]?.[level] || 0;
-          return value * 100; // Convert to percentage
+          // Get data for this specific country
+          const countryData = processedData[selectedCategory]?.[selectedYear]?.[level] || 0;
+          return countryData * 100; // Convert to percentage
         }),
         type: 'column' as const
       };

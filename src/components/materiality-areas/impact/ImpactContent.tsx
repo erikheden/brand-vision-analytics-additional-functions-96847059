@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useImpactCategories } from "@/hooks/useImpactCategories";
 import { useImpactChartData } from "@/hooks/useImpactChartData";
 import ImpactFiltersContainer from "./ImpactFiltersContainer";
@@ -15,7 +15,6 @@ interface ImpactContentProps {
 
 const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
   const [activeTab, setActiveTab] = React.useState<string>("levels");
-  const [comparisonMode, setComparisonMode] = React.useState<boolean>(false);
   
   const {
     activeCountry,
@@ -25,6 +24,7 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
     selectedLevels,
     data,
     processedData,
+    countryDataMap,
     categories,
     impactLevels,
     years,
@@ -35,12 +35,13 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
     setSelectedYear,
     toggleImpactLevel,
     toggleComparisonMode,
-    setActiveCountries
+    setActiveCountries,
+    comparisonMode
   } = useImpactCategories(selectedCountries);
 
   // Set comparison mode based on the number of active countries
   React.useEffect(() => {
-    setComparisonMode(activeCountries.length > 1);
+    toggleComparisonMode(activeCountries.length > 1);
   }, [activeCountries]);
 
   const chartData = useImpactChartData(
