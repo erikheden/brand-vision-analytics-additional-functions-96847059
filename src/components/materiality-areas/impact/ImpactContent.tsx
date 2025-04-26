@@ -17,7 +17,6 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
   const [activeTab, setActiveTab] = React.useState<string>("levels");
   
   const {
-    activeCountry,
     activeCountries,
     selectedCategories,
     selectedYear,
@@ -34,15 +33,11 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
     toggleCategory,
     setSelectedYear,
     toggleImpactLevel,
-    toggleComparisonMode,
     setActiveCountries,
-    comparisonMode
   } = useImpactCategories(selectedCountries);
 
-  // Set comparison mode based on the number of active countries
-  React.useEffect(() => {
-    toggleComparisonMode(activeCountries.length > 1);
-  }, [activeCountries]);
+  // Determine if we're in comparison mode based on number of active countries
+  const comparisonMode = activeCountries.length > 1;
 
   const chartData = useImpactChartData(
     processedData,
@@ -56,7 +51,6 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
   return (
     <div className="space-y-6">
       <ImpactFiltersContainer
-        activeCountry={activeCountry}
         activeCountries={activeCountries}
         selectedCountries={selectedCountries}
         handleCountryChange={handleCountryChange}
@@ -70,12 +64,10 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
         selectedLevels={selectedLevels}
         toggleImpactLevel={toggleImpactLevel}
         isLoading={isLoading}
-        comparisonMode={comparisonMode}
-        toggleComparisonMode={toggleComparisonMode}
         setActiveCountries={setActiveCountries}
       />
 
-      {activeCountry && (
+      {activeCountries.length > 0 && (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="bg-[#34502b]/10 mx-auto mb-6">
             <TabsTrigger value="levels" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
@@ -98,13 +90,13 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
             <ImpactResultsDisplay
               isLoading={isLoading}
               error={error}
-              selectedCountry={activeCountry}
+              selectedCountry={activeCountries[0]}
               selectedCategories={selectedCategories}
               selectedYear={selectedYear}
               chartData={chartData}
               processedData={processedData}
               selectedLevels={selectedLevels}
-              country={activeCountry}
+              country={activeCountries[0]}
               comparisonMode={comparisonMode}
               activeCountries={activeCountries}
             />
