@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import Highcharts from 'highcharts';
@@ -13,6 +14,7 @@ interface ImpactCountryComparisonProps {
   years: number[];
   impactLevels: string[];
   activeCountries: string[];
+  countryDataMap?: Record<string, any>;  // Added country data map
 }
 
 const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
@@ -21,7 +23,8 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
   selectedYear,
   years,
   impactLevels,
-  activeCountries
+  activeCountries,
+  countryDataMap  // Get the country-specific data
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedImpactLevel, setSelectedImpactLevel] = useState<string>('');
@@ -38,6 +41,15 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     }
   }, [selectedCategories, impactLevels, selectedCategory, selectedImpactLevel]);
   
+  // Log to check what data we're receiving
+  useEffect(() => {
+    console.log("ImpactCountryComparison - Active Countries:", activeCountries);
+    console.log("ImpactCountryComparison - Country Data Map available:", !!countryDataMap);
+    if (countryDataMap) {
+      console.log("ImpactCountryComparison - Country Data Map keys:", Object.keys(countryDataMap));
+    }
+  }, [activeCountries, countryDataMap]);
+  
   const { createCategoryChart, createImpactLevelChart } = useComparisonChartData(
     processedData,
     selectedCategory,
@@ -45,7 +57,8 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     selectedYear,
     selectedCategories,
     impactLevels,
-    activeCountries
+    activeCountries,
+    countryDataMap  // Pass the country-specific data
   );
 
   if (activeCountries.length <= 1) {

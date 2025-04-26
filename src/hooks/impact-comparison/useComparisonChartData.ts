@@ -10,7 +10,8 @@ export const useComparisonChartData = (
   selectedYear: number | null,
   selectedCategories: string[],
   impactLevels: string[],
-  activeCountries: string[]
+  activeCountries: string[],
+  countryDataMap?: Record<string, any>  // Add country data map parameter
 ) => {
   const { createCategoryChart: categoryChartOptions, createImpactLevelChart: impactLevelChartOptions } = useChartOptions(
     'byCategory',
@@ -21,6 +22,20 @@ export const useComparisonChartData = (
     activeCountries
   );
 
+  // Debug log for countryDataMap
+  useMemo(() => {
+    if (countryDataMap) {
+      console.log("useComparisonChartData - Country Data Map keys:", Object.keys(countryDataMap));
+      activeCountries.forEach(country => {
+        if (countryDataMap[country]?.processedData) {
+          console.log(`Data available for ${country}`);
+        } else {
+          console.log(`No processed data for ${country}`);
+        }
+      });
+    }
+  }, [countryDataMap, activeCountries]);
+
   const { seriesData, impactLevelData } = useProcessedChartData(
     processedData,
     selectedCategory,
@@ -28,7 +43,8 @@ export const useComparisonChartData = (
     selectedYear,
     selectedCategories,
     impactLevels,
-    activeCountries
+    activeCountries,
+    countryDataMap  // Pass the country data map
   );
 
   const createCategoryChart = useMemo(() => {

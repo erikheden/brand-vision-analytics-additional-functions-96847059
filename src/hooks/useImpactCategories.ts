@@ -22,7 +22,7 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     }
   }, [selectedCountries]);
 
-  // Main data fetching for all active countries
+  // Main data fetching for primary country (first active country)
   const {
     data,
     processedData,
@@ -30,7 +30,8 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     impactLevels,
     years,
     isLoading,
-    error
+    error,
+    getCountryData
   } = useSustainabilityImpactData(activeCountries[0] || "");
 
   // Fetch data for all active countries
@@ -43,7 +44,7 @@ export const useImpactCategories = (selectedCountries: string[]) => {
           try {
             const normalizedCountry = normalizeCountry(country);
             const { data: countryData, processedData: countryProcessedData } = 
-              await useSustainabilityImpactData(normalizedCountry).getCountryData();
+              await getCountryData(normalizedCountry);
             
             dataMap[normalizedCountry] = {
               data: countryData,
@@ -64,7 +65,7 @@ export const useImpactCategories = (selectedCountries: string[]) => {
     } else {
       setCountryDataMap({});
     }
-  }, [activeCountries]);
+  }, [activeCountries, getCountryData]);
 
   // Auto-select first category when categories load
   useEffect(() => {

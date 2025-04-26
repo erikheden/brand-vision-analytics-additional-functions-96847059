@@ -5,7 +5,7 @@ import { useImpactChartData } from "@/hooks/useImpactChartData";
 import ImpactFiltersContainer from "./ImpactFiltersContainer";
 import ImpactResultsDisplay from "./ImpactResultsDisplay";
 import ImpactTrendsView from "./ImpactTrendsView";
-import ImpactCountryComparison from "./ImpactCountryComparison";
+import ImpactCountryComparison from "./comparison/ImpactCountryComparison";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { BarChart, TrendingUp, Users } from "lucide-react";
 
@@ -47,6 +47,24 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
     categories,
     impactLevels
   );
+
+  // Debug logs to verify data
+  useEffect(() => {
+    if (comparisonMode && selectedYear && countryDataMap) {
+      console.log("Country Data Map Keys:", Object.keys(countryDataMap));
+      console.log("Selected Year:", selectedYear);
+      
+      activeCountries.forEach(country => {
+        if (countryDataMap[country]) {
+          console.log(`Data for ${country}:`, 
+            countryDataMap[country].processedData ? 
+            "ProcessedData exists" : "No ProcessedData");
+        } else {
+          console.log(`No data found for ${country}`);
+        }
+      });
+    }
+  }, [comparisonMode, countryDataMap, activeCountries, selectedYear]);
 
   return (
     <div className="space-y-6">
@@ -122,6 +140,7 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
                 years={years}
                 impactLevels={impactLevels}
                 activeCountries={activeCountries}
+                countryDataMap={countryDataMap} // Pass the country-specific data map
               />
             </TabsContent>
           )}
