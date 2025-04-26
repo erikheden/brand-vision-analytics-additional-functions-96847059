@@ -1,4 +1,3 @@
-
 import { useMemo } from 'react';
 import { useChartOptions } from './useChartOptions';
 import { useProcessedChartData } from './useProcessedChartData';
@@ -13,6 +12,7 @@ export const useComparisonChartData = (
   activeCountries: string[],
   countryDataMap?: Record<string, any>  // Add country data map parameter
 ) => {
+  // Only create chart options when all dependencies are available
   const { createCategoryChart: categoryChartOptions, createImpactLevelChart: impactLevelChartOptions } = useChartOptions(
     'byCategory',
     selectedYear,
@@ -22,25 +22,22 @@ export const useComparisonChartData = (
     activeCountries
   );
 
-  // Debug log for countryDataMap
+  // Debug log for countryDataMap - keeping limited to avoid excessive logging
   useMemo(() => {
-    if (countryDataMap) {
+    if (countryDataMap && Object.keys(countryDataMap).length > 0 && selectedYear) {
       console.log("useComparisonChartData - Country Data Map keys:", Object.keys(countryDataMap));
-      activeCountries.forEach(country => {
-        if (countryDataMap[country]?.processedData) {
-          const sampleCategory = selectedCategories[0];
-          const sampleImpactLevel = selectedImpactLevel;
-          if (sampleCategory && selectedYear && sampleImpactLevel) {
-            console.log(`Sample data for ${country}, ${sampleCategory}, ${selectedYear}, ${sampleImpactLevel}:`, 
-              countryDataMap[country]?.processedData[sampleCategory]?.[selectedYear]?.[sampleImpactLevel]);
-          }
-        } else {
-          console.log(`No processed data for ${country}`);
-        }
-      });
+      // Only log sample data for the first country and category to reduce console spam
+      const sampleCountry = activeCountries[0];
+      const sampleCategory = selectedCategories[0];
+      
+      if (sampleCountry && sampleCategory && countryDataMap[sampleCountry]?.processedData) {
+        console.log(`Sample data for ${sampleCountry}, ${sampleCategory}, ${selectedYear}, ${selectedImpactLevel}:`, 
+          countryDataMap[sampleCountry]?.processedData[sampleCategory]?.[selectedYear]?.[selectedImpactLevel]);
+      }
     }
-  }, [countryDataMap, activeCountries, selectedCategories, selectedYear, selectedImpactLevel]);
+  }, [countryDataMap, selectedYear, selectedCategories[0], activeCountries[0], selectedImpactLevel]);
 
+  // Get processed series data for charts
   const { seriesData, impactLevelData } = useProcessedChartData(
     processedData,
     selectedCategory,
@@ -49,11 +46,12 @@ export const useComparisonChartData = (
     selectedCategories,
     impactLevels,
     activeCountries,
-    countryDataMap  // Pass the country data map
+    countryDataMap
   );
 
+  // Memoize the final chart options with series data
   const createCategoryChart = useMemo(() => {
-    if (!categoryChartOptions) return { chart: { type: 'bar' }, series: [] };
+    if (!categoryChartOptions || !seriesData.length) return { chart: { type: 'bar' }, series: [] };
     return {
       ...categoryChartOptions,
       series: seriesData
@@ -61,7 +59,7 @@ export const useComparisonChartData = (
   }, [categoryChartOptions, seriesData]);
 
   const createImpactLevelChart = useMemo(() => {
-    if (!impactLevelChartOptions) return { chart: { type: 'bar' }, series: [] };
+    if (!impactLevelChartOptions || !impactLevelData.length) return { chart: { type: 'bar' }, series: [] };
     return {
       ...impactLevelChartOptions,
       series: impactLevelData

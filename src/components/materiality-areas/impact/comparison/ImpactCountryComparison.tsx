@@ -14,7 +14,7 @@ interface ImpactCountryComparisonProps {
   years: number[];
   impactLevels: string[];
   activeCountries: string[];
-  countryDataMap?: Record<string, any>;  // Added country data map
+  countryDataMap?: Record<string, any>;
 }
 
 const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
@@ -24,7 +24,7 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
   years,
   impactLevels,
   activeCountries,
-  countryDataMap  // Get the country-specific data
+  countryDataMap
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedImpactLevel, setSelectedImpactLevel] = useState<string>('');
@@ -41,11 +41,11 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     }
   }, [selectedCategories, impactLevels, selectedCategory, selectedImpactLevel]);
   
-  // Log to check what data we're receiving
+  // Use a minimal debug log to avoid excessive logging
   useEffect(() => {
-    console.log("ImpactCountryComparison - Active Countries:", activeCountries);
-    console.log("ImpactCountryComparison - Country Data Map available:", !!countryDataMap);
-    if (countryDataMap) {
+    if (activeCountries.length > 0 && countryDataMap) {
+      console.log("ImpactCountryComparison - Active Countries:", activeCountries);
+      console.log("ImpactCountryComparison - Country Data Map available:", !!countryDataMap);
       console.log("ImpactCountryComparison - Country Data Map keys:", Object.keys(countryDataMap));
     }
   }, [activeCountries, countryDataMap]);
@@ -58,9 +58,10 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     selectedCategories,
     impactLevels,
     activeCountries,
-    countryDataMap  // Pass the country-specific data
+    countryDataMap
   );
 
+  // Render appropriate messaging based on data availability
   if (activeCountries.length <= 1) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
@@ -91,6 +92,7 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     );
   }
   
+  // Use the appropriate chart options based on view mode
   const chartOptions = viewMode === 'byCategory' ? createCategoryChart : createImpactLevelChart;
   
   return (
