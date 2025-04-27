@@ -37,7 +37,8 @@ export const VHOAreaBarChart: React.FC<{ data: VHOData[] }> = ({ data }) => {
     return factorTypes.map(factor => ({
       name: factor === 'hygiene_factor' ? 'Hygiene Factors' : 'More of Factors',
       data: formattedData.map(item => item[factor] || 0),
-      color: factor === 'hygiene_factor' ? '#34502b' : '#7c9457'
+      color: factor === 'hygiene_factor' ? '#34502b' : '#7c9457',
+      type: 'column' // Add the required 'type' property
     }));
   }, [formattedData, data]);
 
