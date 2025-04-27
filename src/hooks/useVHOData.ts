@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getFullCountryName } from "@/components/CountrySelect";
@@ -21,7 +20,6 @@ export const useVHOData = (selectedCountry: string) => {
   return useQuery({
     queryKey: ["vhoData", selectedCountry],
     queryFn: async (): Promise<VHOData[]> => {
-      // If no country is selected, return empty array
       if (!selectedCountry) {
         console.log("No country selected for VHO data");
         return [];
@@ -29,47 +27,61 @@ export const useVHOData = (selectedCountry: string) => {
 
       console.log(`Fetching VHO data for country: ${selectedCountry}`);
       
-      // Convert country code to uppercase for database query
       const countryCode = selectedCountry.toUpperCase();
-      
-      // Get the full country name if we have a country code
       const fullCountryName = getFullCountryName(selectedCountry);
       console.log(`Using country name for query: ${fullCountryName}`);
       
-      // Try both country code and full name formats
-      let { data: codeData, error: codeError } = await supabase
+      const { data: allData, error: codeError } = await supabase
         .from("SBI_VHO_2021-2024")
         .select("*")
-        .eq("country", countryCode)
-        .eq("year", 2024);
+        .eq("country", countryCode);
 
       if (codeError) {
         console.error("Error fetching VHO data with country code:", codeError);
       }
       
       // If no data found with code, try with full country name
-      if (!codeData || codeData.length === 0) {
+      let finalData = allData;
+      if (!allData || allData.length === 0) {
         console.log(`No data found with country code, trying full name: ${fullCountryName}`);
         const { data: nameData, error: nameError } = await supabase
           .from("SBI_VHO_2021-2024")
           .select("*")
-          .eq("country", fullCountryName)
-          .eq("year", 2024);
+          .eq("country", fullCountryName);
 
         if (nameError) {
           console.error("Error fetching VHO data with full country name:", nameError);
           throw nameError;
         }
         
-        if (nameData && nameData.length > 0) {
-          console.log(`Fetched ${nameData.length} VHO records for ${fullCountryName}`);
-          return nameData as VHOData[];
-        }
-      } else {
-        console.log(`Fetched ${codeData.length} VHO records for ${countryCode}`);
-        return codeData as VHOData[];
+        finalData = nameData;
       }
-      
+
+      // Process the data to get only the most recent year per category
+      if (finalData && finalData.length > 0) {
+        console.log(`Processing ${finalData.length} VHO records`);
+        
+        // Group data by category
+        const categoryGroups = finalData.reduce((acc, item) => {
+          if (!acc[item.category]) {
+            acc[item.category] = [];
+          }
+          acc[item.category].push(item);
+          return acc;
+        }, {} as Record<string, VHOData[]>);
+
+        // For each category, keep only the most recent year's data
+        const processedData = Object.values(categoryGroups).map(categoryData => {
+          // Sort by year descending and take the first (most recent) entries
+          const sortedByYear = categoryData.sort((a, b) => b.year - a.year);
+          const mostRecentYear = sortedByYear[0].year;
+          return sortedByYear.filter(item => item.year === mostRecentYear);
+        }).flat();
+
+        console.log(`Processed down to ${processedData.length} records after year filtering`);
+        return processedData;
+      }
+
       // If no data found in the database, generate sample data for demonstration
       console.log("No VHO data found in database, generating sample data");
       
