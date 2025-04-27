@@ -12,35 +12,52 @@ interface ChartData {
 
 export const VHOAreaBarChart: React.FC<{ data: VHOData[] }> = ({ data }) => {
   const formattedData = useMemo(() => {
-    // Sort data by priority_percentage in descending order
-    const sortedData = [...data].sort((a, b) => b.priority_percentage - a.priority_percentage);
-    
-    // Log data to help debug
-    console.log('Raw VHO data for chart:', sortedData);
-    
-    const result = sortedData.map(item => ({
-      name: item.vho_area,
-      value: Math.round(item.priority_percentage * 100), // Ensure we convert from decimal to percentage
-      category: item.type_of_factor
-    }));
-    
-    console.log('Formatted chart data:', result);
-    return result;
+    // Group data by VHO area and include both factor types
+    const groupedData = data.reduce((acc, item) => {
+      if (!acc[item.vho_area]) {
+        acc[item.vho_area] = {};
+      }
+      acc[item.vho_area][item.type_of_factor] = Math.round(item.priority_percentage * 100);
+      return acc;
+    }, {} as Record<string, Record<string, number>>);
+
+    // Convert to array and sort by the first selected factor type
+    const firstFactorType = data[0]?.type_of_factor || 'hygiene_factor';
+    return Object.entries(groupedData)
+      .map(([area, values]) => ({
+        area,
+        ...values
+      }))
+      .sort((a, b) => (b[firstFactorType] || 0) - (a[firstFactorType] || 0));
   }, [data]);
 
-  // Create the chart options without year information
-  const chartOptions = {
+  // Create series for each factor type
+  const series = useMemo(() => {
+    const factorTypes = [...new Set(data.map(item => item.type_of_factor))];
+    return factorTypes.map(factor => ({
+      name: factor === 'hygiene_factor' ? 'Hygiene Factors' : 'More of Factors',
+      data: formattedData.map(item => item[factor] || 0),
+      color: factor === 'hygiene_factor' ? '#34502b' : '#7c9457'
+    }));
+  }, [formattedData, data]);
+
+  const chartOptions: Highcharts.Options = {
     chart: {
-      type: 'bar',
+      type: 'column',
       height: 600
     },
     title: {
       text: 'Impact Areas by Priority'
     },
     xAxis: {
-      categories: formattedData.map(item => item.name),
+      categories: formattedData.map(item => item.area),
       title: {
         text: 'Impact Areas'
+      },
+      labels: {
+        style: {
+          fontSize: '11px'
+        }
       }
     },
     yAxis: {
@@ -48,29 +65,32 @@ export const VHOAreaBarChart: React.FC<{ data: VHOData[] }> = ({ data }) => {
         text: 'Priority Level (%)'
       },
       max: 100,
-      min: 0 // Set minimum to ensure scale starts at 0
+      min: 0
     },
-    series: [{
-      name: 'Priority',
-      data: formattedData.map(item => item.value)
-    }],
-    credits: {
-      enabled: false
+    plotOptions: {
+      column: {
+        grouping: true,
+        pointPadding: 0.2,
+        borderWidth: 0,
+        dataLabels: {
+          enabled: true,
+          format: '{y}%'
+        }
+      }
     },
     tooltip: {
       formatter: function() {
-        return `<b>${this.x}</b><br/>${this.y.toFixed(1)}%`;
+        return `<b>${this.x}</b><br/>${this.series.name}: ${this.y.toFixed(1)}%`;
       }
     },
-    plotOptions: {
-      bar: {
-        dataLabels: {
-          enabled: true,
-          format: '{y}%' // Add percentage sign to data labels
-        }
-      }
-    }
+    credits: {
+      enabled: false
+    },
+    series
   };
+
+  console.log('Chart data:', formattedData);
+  console.log('Chart series:', series);
 
   return (
     <div className="w-full h-[600px]">
