@@ -55,6 +55,9 @@ const KnowledgeLevelsTab: React.FC<KnowledgeLevelsTabProps> = ({
     return Array.from(termSet).sort();
   }, [data, selectedCountries, selectedYear]);
 
+  // Use all available terms if no terms are selected
+  const termsToUse = selectedTerms.length > 0 ? selectedTerms : availableTerms;
+
   // Check if we have data to display
   const hasData = React.useMemo(() => {
     return selectedCountries && selectedCountries.length > 0 && 
@@ -78,13 +81,13 @@ const KnowledgeLevelsTab: React.FC<KnowledgeLevelsTabProps> = ({
             data={data[selectedCountries[0]] || []} 
             selectedYear={selectedYear} 
             country={selectedCountries[0]} 
-            selectedTerms={selectedTerms.length > 0 ? selectedTerms : availableTerms}
+            selectedTerms={termsToUse}
           />
         ) : (
           <KnowledgeComparisonBarChart
             countriesData={data}
             selectedCountries={selectedCountries}
-            selectedTerms={selectedTerms.length > 0 ? selectedTerms : availableTerms.slice(0, 5)} // Show top 5 terms by default
+            selectedTerms={termsToUse}
             selectedYear={selectedYear}
           />
         )}

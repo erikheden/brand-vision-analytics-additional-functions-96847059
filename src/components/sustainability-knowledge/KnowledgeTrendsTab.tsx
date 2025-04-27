@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import { Card } from '@/components/ui/card';
 import TermSelector from './TermSelector';
@@ -18,8 +18,6 @@ interface KnowledgeTrendsTabProps {
   setSelectedTerms: (terms: string[]) => void;
 }
 
-type ChartType = 'line' | 'column';
-
 const KnowledgeTrendsTab: React.FC<KnowledgeTrendsTabProps> = ({
   data,
   terms,
@@ -27,41 +25,19 @@ const KnowledgeTrendsTab: React.FC<KnowledgeTrendsTabProps> = ({
   selectedCountries,
   setSelectedTerms
 }) => {
-  const [chartType, setChartType] = useState<ChartType>('line');
+  const [chartType, setChartType] = React.useState<'line' | 'column'>('line');
 
-  if (selectedTerms.length === 0) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="md:col-span-1">
-          <TermSelector 
-            terms={terms} 
-            selectedTerms={selectedTerms} 
-            onChange={setSelectedTerms} 
-          />
-        </div>
-        
-        <div className="md:col-span-3">
-          <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-            <div className="text-center py-10 text-gray-500">
-              Please select at least one term to view trends
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  const options = createKnowledgeTrendChartOptions(data, selectedTerms, selectedCountries, chartType);
-  
   const handleChartTypeChange = (newType: string) => {
     if (newType) {
-      setChartType(newType as ChartType);
+      setChartType(newType as 'line' | 'column');
     }
   };
 
+  const options = createKnowledgeTrendChartOptions(data, selectedTerms, selectedCountries, chartType);
+  
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-      <div className="md:col-span-1">
+    <div className="flex flex-col gap-6">
+      <div className="w-full">
         <TermSelector 
           terms={terms} 
           selectedTerms={selectedTerms} 
@@ -69,7 +45,7 @@ const KnowledgeTrendsTab: React.FC<KnowledgeTrendsTabProps> = ({
         />
       </div>
       
-      <div className="md:col-span-3">
+      <div className="w-full">
         <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-medium text-[#34502b]">Knowledge Trends</h2>
