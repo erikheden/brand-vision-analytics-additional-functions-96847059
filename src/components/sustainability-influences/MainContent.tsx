@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -106,18 +107,22 @@ const MainContent = () => {
                 )}
                 
                 {activeTab === "trends" && (
-                  <>
-                    <InfluenceSelector 
-                      influences={availableInfluences}
-                      selectedInfluences={selectedInfluences}
-                      onChange={handleInfluenceChange}
-                    />
-                    <InfluencesTrendChart 
-                      data={influencesData} 
-                      selectedInfluences={selectedInfluences} 
-                      countries={selectedCountries} 
-                    />
-                  </>
+                  <div className="flex flex-col gap-6">
+                    <div className="w-full">
+                      <InfluenceSelector 
+                        influences={availableInfluences}
+                        selectedInfluences={selectedInfluences}
+                        onChange={handleInfluenceChange}
+                      />
+                    </div>
+                    <div className="w-full">
+                      <InfluencesTrendChart 
+                        data={influencesData} 
+                        selectedInfluences={selectedInfluences} 
+                        countries={selectedCountries} 
+                      />
+                    </div>
+                  </div>
                 )}
               </div>
             </Tabs>

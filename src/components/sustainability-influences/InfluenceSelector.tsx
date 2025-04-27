@@ -48,7 +48,7 @@ const InfluenceSelector: React.FC<InfluenceSelectorProps> = ({
   }
 
   return (
-    <Card className="p-4 bg-white shadow sticky top-4">
+    <Card className="p-4 bg-white shadow">
       <div className="mb-3">
         <h3 className="text-sm font-medium text-gray-700">Influence Factors</h3>
         <p className="text-xs text-gray-500">Select factors to show in trend chart</p>
