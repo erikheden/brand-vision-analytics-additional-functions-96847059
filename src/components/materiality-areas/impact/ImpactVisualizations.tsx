@@ -1,12 +1,7 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { useImpactVisualization } from '@/hooks/impact-visualization/useImpactVisualization';
 import ImpactCategoryChart from './charts/ImpactCategoryChart';
-import ImpactLevelChart from './charts/ImpactLevelChart';
-import { LoadingState } from './components/LoadingState';
-import { EmptyState } from './components/EmptyState';
-import { ErrorState } from './components/ErrorState';
 
 interface ImpactVisualizationsProps {
   processedData: Record<string, Record<string, Record<string, number>>>;
@@ -25,43 +20,13 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
   isLoading,
   error
 }) => {
-  const { byLevel, byCategory, hasData } = useImpactVisualization(
-    processedData,
-    selectedCategories,
-    selectedYear,
-    selectedLevels
-  );
-
-  // Make all rendering decisions based on props values, not hook return values
-  if (isLoading) {
-    return <LoadingState />;
-  }
-
-  if (error) {
-    return <ErrorState error={error} />;
-  }
-
-  // Only render charts when we have data and a selected year
-  if (!hasData || !selectedYear) {
-    return (
-      <EmptyState message="No data available for the selected filters." />
-    );
-  }
-
   return (
     <div className="space-y-8">
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <ImpactCategoryChart 
-          data={byCategory}
+          data={processedData}
           selectedYear={selectedYear}
           selectedLevels={selectedLevels}
-        />
-      </Card>
-
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <ImpactLevelChart 
-          data={byLevel}
-          selectedYear={selectedYear}
         />
       </Card>
 
@@ -79,5 +44,4 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
   );
 };
 
-// Use React.memo to prevent unnecessary re-rendering
 export default React.memo(ImpactVisualizations);
