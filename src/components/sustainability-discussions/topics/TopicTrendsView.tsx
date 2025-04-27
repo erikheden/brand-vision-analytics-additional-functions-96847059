@@ -47,8 +47,8 @@ const TopicTrendsView: React.FC<TopicTrendsViewProps> = ({
         description="Compare sustainability discussion topic trends across different countries and time periods."
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="md:col-span-1">
+      <div className="space-y-6">
+        <div className="w-full">
           <TopicSelector
             topics={topics}
             selectedTopics={selectedTopics}
@@ -56,7 +56,7 @@ const TopicTrendsView: React.FC<TopicTrendsViewProps> = ({
           />
         </div>
 
-        <div className="md:col-span-3">
+        <div className="w-full">
           <TopicTrendsChart
             data={normalizedData}
             selectedCountries={selectedCountries.map(c => c.toUpperCase())}
