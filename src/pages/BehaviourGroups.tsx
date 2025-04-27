@@ -1,9 +1,9 @@
 
 import React from "react";
-import MainContainer from "@/components/behaviour-groups/MainContainer";
+import BehaviourGroupsContent from "@/components/behaviour-groups/BehaviourGroupsContent";
 
 const BehaviourGroups = () => {
-  return <MainContainer />;
+  return <BehaviourGroupsContent />;
 };
 
 export default BehaviourGroups;
