@@ -3,6 +3,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import VHOAreaBarChart from './VHOAreaBarChart';
 import { VHOData } from '@/hooks/useVHOData';
+import { EmptyState } from './impact/components/EmptyState';
 
 interface MaterialityResultsDisplayProps {
   isLoading: boolean;
@@ -47,6 +48,12 @@ const MaterialityResultsDisplay: React.FC<MaterialityResultsDisplayProps> = ({
           Please select a country to view materiality areas.
         </div>
       </Card>
+    );
+  }
+
+  if (!selectedCategory) {
+    return (
+      <EmptyState message="Please select a category to view materiality areas." />
     );
   }
   

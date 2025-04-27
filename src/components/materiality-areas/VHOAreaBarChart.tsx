@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
@@ -11,7 +12,10 @@ interface ChartData {
 
 export const VHOAreaBarChart: React.FC<{ data: VHOData[] }> = ({ data }) => {
   const formattedData = useMemo(() => {
-    return data.map(item => ({
+    // Sort data by priority_percentage in descending order
+    const sortedData = [...data].sort((a, b) => b.priority_percentage - a.priority_percentage);
+    
+    return sortedData.map(item => ({
       name: item.vho_area,
       value: item.priority_percentage * 100,
       category: item.type_of_factor
@@ -28,12 +32,16 @@ export const VHOAreaBarChart: React.FC<{ data: VHOData[] }> = ({ data }) => {
       text: 'Impact Areas by Priority'
     },
     xAxis: {
-      categories: Array.from(new Set(formattedData.map(item => item.name)))
+      categories: formattedData.map(item => item.name),
+      title: {
+        text: 'Impact Areas'
+      }
     },
     yAxis: {
       title: {
         text: 'Priority Level (%)'
-      }
+      },
+      max: 100
     },
     series: [{
       name: 'Priority',
@@ -41,6 +49,11 @@ export const VHOAreaBarChart: React.FC<{ data: VHOData[] }> = ({ data }) => {
     }],
     credits: {
       enabled: false
+    },
+    tooltip: {
+      formatter: function() {
+        return `<b>${this.x}</b><br/>${this.y.toFixed(1)}%`;
+      }
     }
   };
 
