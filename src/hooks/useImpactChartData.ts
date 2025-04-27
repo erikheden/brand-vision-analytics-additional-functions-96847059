@@ -21,8 +21,9 @@ export const useImpactChartData = (
     if (!processedData || !selectedYear) {
       return {};
     }
-
-    // Placeholder return to satisfy type requirements
+    
+    // We're not doing any transformation here anymore
+    // since we handle data transformation in the component
     return processedData;
   }, [
     processedData, 

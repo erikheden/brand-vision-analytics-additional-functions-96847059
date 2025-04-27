@@ -8,6 +8,12 @@ export const useCategoryChartOptions = (
   selectedLevels: string[]
 ) => {
   return useMemo(() => {
+    // Make sure data is an array
+    if (!Array.isArray(data)) {
+      console.error('Chart data is not an array:', data);
+      return {}; // Return empty options to prevent errors
+    }
+    
     // Get unique categories from data
     const categories = [...new Set(data.map(item => item.name))];
     
@@ -23,7 +29,7 @@ export const useCategoryChartOptions = (
           const matchingItem = data.find(item => item.name === category && item.category === seriesName);
           return matchingItem ? matchingItem.value : 0;
         }),
-        type: 'column'
+        type: 'column' as const
       }));
 
     return {

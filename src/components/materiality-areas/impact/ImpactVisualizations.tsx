@@ -20,11 +20,23 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
   isLoading,
   error
 }) => {
+  // Filter processedData to only include selected categories
+  const filteredData = React.useMemo(() => {
+    if (!selectedCategories.length || !processedData) return processedData;
+    
+    return Object.entries(processedData)
+      .filter(([category]) => selectedCategories.includes(category))
+      .reduce((acc, [category, data]) => {
+        acc[category] = data;
+        return acc;
+      }, {} as Record<string, Record<string, Record<string, number>>>);
+  }, [processedData, selectedCategories]);
+
   return (
     <div className="space-y-8">
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <ImpactCategoryChart 
-          data={processedData}
+          data={filteredData}
           selectedYear={selectedYear}
           selectedLevels={selectedLevels}
         />
