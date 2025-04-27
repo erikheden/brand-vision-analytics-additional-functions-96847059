@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -15,24 +14,20 @@ import { useSelectionData } from "@/hooks/useSelectionData";
 import { useAllInfluencesData } from "@/hooks/useSustainabilityInfluences";
 
 const MainContent = () => {
-  // All state hooks at the top
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("yearly");
   const [selectedInfluences, setSelectedInfluences] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number>(2024);
   const [availableInfluences, setAvailableInfluences] = useState<string[]>([]);
 
-  // Get available countries
   const { countries } = useSelectionData("", []);
 
-  // Data fetching
   const {
     data: influencesData = {},
     isLoading,
     error
   } = useAllInfluencesData(selectedCountries);
 
-  // Extract all unique influence factors from the data
   useEffect(() => {
     if (Object.keys(influencesData).length > 0) {
       const allInfluences = new Set<string>();
@@ -101,25 +96,31 @@ const MainContent = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="yearly" className="w-full">
-                <InfluencesBarChart data={influencesData} selectedYear={selectedYear} countries={selectedCountries} />
-              </TabsContent>
-              
-              <TabsContent value="trends" className="w-full">
-                <InfluencesTrendChart data={influencesData} selectedInfluences={selectedInfluences} countries={selectedCountries} />
-              </TabsContent>
+              <div className="space-y-6 w-full">
+                {activeTab === "yearly" && (
+                  <InfluencesBarChart 
+                    data={influencesData} 
+                    selectedYear={selectedYear} 
+                    countries={selectedCountries} 
+                  />
+                )}
+                
+                {activeTab === "trends" && (
+                  <>
+                    <InfluenceSelector 
+                      influences={availableInfluences}
+                      selectedInfluences={selectedInfluences}
+                      onChange={handleInfluenceChange}
+                    />
+                    <InfluencesTrendChart 
+                      data={influencesData} 
+                      selectedInfluences={selectedInfluences} 
+                      countries={selectedCountries} 
+                    />
+                  </>
+                )}
+              </div>
             </Tabs>
-          </Card>
-        )}
-
-        {/* Sidebar for influence selection */}
-        {selectedCountries.length > 0 && activeTab === "trends" && (
-          <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md w-full">
-            <InfluenceSelector 
-              influences={availableInfluences}
-              selectedInfluences={selectedInfluences}
-              onChange={handleInfluenceChange}
-            />
           </Card>
         )}
       </div>
