@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getFullCountryName } from "@/components/CountrySelect";
@@ -79,7 +80,23 @@ export const useVHOData = (selectedCountry: string) => {
         }).flat();
 
         console.log(`Processed down to ${processedData.length} records after year filtering`);
-        return processedData;
+        
+        // Ensure priority_percentage is a number between 0 and 1
+        const validatedData = processedData.map(item => {
+          // If priority_percentage is greater than 1, assume it's already in percentage form (0-100)
+          // and convert it to decimal form (0-1)
+          const priority = item.priority_percentage > 1 ? 
+            item.priority_percentage / 100 : 
+            item.priority_percentage;
+            
+          return {
+            ...item,
+            priority_percentage: priority
+          };
+        });
+        
+        console.log("Sample of validated data:", validatedData.slice(0, 3));
+        return validatedData;
       }
 
       // If no data found in the database, generate sample data for demonstration

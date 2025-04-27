@@ -15,11 +15,17 @@ export const VHOAreaBarChart: React.FC<{ data: VHOData[] }> = ({ data }) => {
     // Sort data by priority_percentage in descending order
     const sortedData = [...data].sort((a, b) => b.priority_percentage - a.priority_percentage);
     
-    return sortedData.map(item => ({
+    // Log data to help debug
+    console.log('Raw VHO data for chart:', sortedData);
+    
+    const result = sortedData.map(item => ({
       name: item.vho_area,
-      value: item.priority_percentage * 100,
+      value: Math.round(item.priority_percentage * 100), // Ensure we convert from decimal to percentage
       category: item.type_of_factor
     }));
+    
+    console.log('Formatted chart data:', result);
+    return result;
   }, [data]);
 
   // Create the chart options without year information
@@ -41,7 +47,8 @@ export const VHOAreaBarChart: React.FC<{ data: VHOData[] }> = ({ data }) => {
       title: {
         text: 'Priority Level (%)'
       },
-      max: 100
+      max: 100,
+      min: 0 // Set minimum to ensure scale starts at 0
     },
     series: [{
       name: 'Priority',
@@ -53,6 +60,14 @@ export const VHOAreaBarChart: React.FC<{ data: VHOData[] }> = ({ data }) => {
     tooltip: {
       formatter: function() {
         return `<b>${this.x}</b><br/>${this.y.toFixed(1)}%`;
+      }
+    },
+    plotOptions: {
+      bar: {
+        dataLabels: {
+          enabled: true,
+          format: '{y}%' // Add percentage sign to data labels
+        }
       }
     }
   };
