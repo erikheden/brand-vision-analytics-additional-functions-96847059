@@ -33,17 +33,20 @@ const CountryButtonSelect = ({
     <div className={className}>
       <ScrollArea className="w-full">
         <div className="flex flex-wrap gap-2 p-1">
-          {countries.map((country) => (
-            <Button
-              key={country}
-              variant={isSelected(country) ? "default" : "outline"}
-              onClick={() => onCountryChange(country)}
-              className="min-w-24"
-              disabled={disabled}
-            >
-              {getFullCountryName(country)}
-            </Button>
-          ))}
+          {countries.map((country) => {
+            const fullName = getFullCountryName(country);
+            return (
+              <Button
+                key={country}
+                variant={isSelected(country) ? "default" : "outline"}
+                onClick={() => onCountryChange(country)}
+                className="min-w-24"
+                disabled={disabled}
+              >
+                {fullName}
+              </Button>
+            );
+          })}
         </div>
       </ScrollArea>
     </div>
