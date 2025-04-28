@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card } from "@/components/ui/card";
 import CountryButtonSelect from "@/components/CountryButtonSelect";
@@ -38,21 +37,12 @@ const SelectionPanel: React.FC<SelectionPanelProps> = ({
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-[#34502b]">{title}</h2>
         <p className="text-gray-600 text-sm">{description}</p>
-        <div className="flex flex-wrap gap-2">
-          {countries.map(country => (
-            <button
-              key={country}
-              onClick={() => handleCountryChange(country)}
-              className={`px-4 py-2 rounded-md ${
-                selectedCountry === country
-                  ? "bg-[#34502b] text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {country}
-            </button>
-          ))}
-        </div>
+        <CountryButtonSelect
+          countries={countries}
+          selectedCountry={selectedCountry}
+          onCountryChange={handleCountryChange}
+          className="w-full"
+        />
       </div>
     </Card>
   );
