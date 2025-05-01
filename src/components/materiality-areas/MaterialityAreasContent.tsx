@@ -31,7 +31,7 @@ const MaterialityAreasContent = () => {
         <h1 className="text-2xl font-semibold text-[#34502b] mb-6">Sustainability Areas</h1>
         
         {/* Country Selection Card */}
-        <Card className="p-6 bg-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl mb-6">
+        <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
           <h2 className="text-lg font-semibold text-[#34502b] mb-3">Select Countries</h2>
           <CountryButtonSelect countries={countries || []} selectedCountries={selectedCountries} onCountryChange={handleCountryChange} />
         </Card>
