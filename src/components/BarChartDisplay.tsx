@@ -27,7 +27,7 @@ const BarChartDisplay = ({
       processedData
         .filter(item => selectedBrands.includes(item.brand))
         .map(item => item.year)
-    )).sort((a, b) => b - a); // Sort descending
+    )).sort((a, b) => Number(b) - Number(a)); // Convert to Number before subtraction
     
     if (years.length === 0) return {};
     

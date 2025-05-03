@@ -1,8 +1,16 @@
 
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { MaterialityData } from "@/hooks/useMaterialityFilters";
 import ImpactBarChart from "./ImpactBarChart";
+
+// Define the MaterialityData interface since it's not exported from useMaterialityFilters
+interface MaterialityData {
+  category: string;
+  sustainability_area: string;
+  impact_level: string;
+  percentage: number;
+  type_of_factor: string;
+}
 
 interface MaterialityResultsDisplayProps {
   isLoading: boolean;
