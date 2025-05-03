@@ -1,7 +1,10 @@
-import React from "react";
+
+import React, { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { useBehaviourGroups } from "@/hooks/useBehaviourGroups";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
+import { FONT_FAMILY } from "@/utils/constants";
 
 interface BehaviourGroupsChartProps {
   selectedCountry: string;
@@ -19,6 +22,152 @@ const COLORS = Object.values(GROUP_COLORS);
 
 const BehaviourGroupsChart = ({ selectedCountry, viewType }: BehaviourGroupsChartProps) => {
   const { data: behaviourData = [], isLoading } = useBehaviourGroups(viewType === "trend" ? selectedCountry : undefined);
+
+  // Create chart options based on the view type
+  const chartOptions = useMemo(() => {
+    if (isLoading || !behaviourData.length) return {};
+
+    if (viewType === "trend") {
+      const years = [...new Set(behaviourData.map(item => item.year))].sort();
+      
+      const trendData = years.map(year => {
+        const yearData = behaviourData.filter(item => item.year === year);
+        const result: { [key: string]: any } = { year: year.toString() };
+        
+        yearData.forEach(item => {
+          result[item.behaviour_group] = item.percentage * 100; // Convert to percentage
+        });
+        
+        return result;
+      });
+
+      // Create series for each behavior group
+      const series = Object.entries(GROUP_COLORS).map(([group, color]) => ({
+        name: group,
+        data: trendData.map(item => item[group] || 0),
+        color: color
+      }));
+
+      return {
+        chart: {
+          type: 'column',
+          style: {
+            fontFamily: FONT_FAMILY
+          }
+        },
+        title: {
+          text: `Behaviour Groups Trend in ${selectedCountry}`,
+          style: {
+            color: '#34502b',
+            fontFamily: FONT_FAMILY
+          }
+        },
+        xAxis: {
+          categories: trendData.map(item => item.year),
+          title: {
+            text: 'Year'
+          }
+        },
+        yAxis: {
+          min: 0,
+          max: 100,
+          title: {
+            text: 'Percentage'
+          },
+          labels: {
+            format: '{value}%'
+          }
+        },
+        tooltip: {
+          formatter: function() {
+            return `<b>${this.series.name}</b><br/>${this.x}: ${Highcharts.numberFormat(this.y, 0)}%`;
+          }
+        },
+        plotOptions: {
+          column: {
+            stacking: 'normal'
+          }
+        },
+        series: series,
+        credits: {
+          enabled: false
+        }
+      };
+    } else {
+      // Comparison view
+      const countryGroups = [...new Set(behaviourData.map(item => item.country))];
+      
+      const latestYearData = countryGroups.map(country => {
+        const countryData = behaviourData.filter(item => item.country === country);
+        const latestYear = Math.max(...countryData.map(item => item.year));
+        return countryData.filter(item => item.year === latestYear);
+      }).flat();
+
+      const comparisonData = countryGroups.map(country => {
+        const countryData = latestYearData.filter(item => item.country === country);
+        const result: { [key: string]: any } = { country };
+        
+        countryData.forEach(item => {
+          result[item.behaviour_group] = item.percentage * 100; // Convert to percentage
+        });
+        
+        return result;
+      });
+
+      // Create series for each behavior group
+      const series = Object.entries(GROUP_COLORS).map(([group, color]) => ({
+        name: group,
+        data: comparisonData.map(country => country[group] || 0),
+        color: color
+      }));
+
+      return {
+        chart: {
+          type: 'bar',
+          style: {
+            fontFamily: FONT_FAMILY
+          }
+        },
+        title: {
+          text: 'Behaviour Groups Comparison Across Countries',
+          style: {
+            color: '#34502b',
+            fontFamily: FONT_FAMILY
+          }
+        },
+        xAxis: {
+          categories: comparisonData.map(item => item.country),
+          title: {
+            text: null
+          }
+        },
+        yAxis: {
+          min: 0,
+          max: 100,
+          title: {
+            text: 'Percentage'
+          },
+          labels: {
+            format: '{value}%'
+          }
+        },
+        tooltip: {
+          formatter: function() {
+            return `<b>${this.series.name}</b><br/>${this.x}: ${Highcharts.numberFormat(this.y, 0)}%`;
+          }
+        },
+        plotOptions: {
+          bar: {
+            stacking: 'percent'
+          }
+        },
+        series: series,
+        credits: {
+          enabled: false
+        }
+      };
+    }
+  }, [behaviourData, selectedCountry, viewType, isLoading]);
 
   if (isLoading) {
     return (
@@ -40,100 +189,16 @@ const BehaviourGroupsChart = ({ selectedCountry, viewType }: BehaviourGroupsChar
     );
   }
 
-  if (viewType === "trend") {
-    const years = [...new Set(behaviourData.map(item => item.year))].sort();
-    
-    const trendData = years.map(year => {
-      const yearData = behaviourData.filter(item => item.year === year);
-      const result: { [key: string]: any } = { year };
-      
-      yearData.forEach(item => {
-        result[item.behaviour_group] = item.percentage;
-      });
-      
-      return result;
-    });
-
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <h3 className="text-lg font-semibold mb-4 text-[#34502b]">
-          Behaviour Groups Trend in {selectedCountry}
-        </h3>
-        <div className="h-80 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={trendData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-              stackOffset="expand"
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" />
-              <YAxis tickFormatter={(tick) => `${(tick * 100).toFixed(0)}%`} />
-              <Tooltip 
-                formatter={(value: number) => [`${(value * 100).toFixed(0)}%`]}
-                labelFormatter={(label) => `Year: ${label}`}
-              />
-              <Legend />
-              {Object.entries(GROUP_COLORS).map(([group, color]) => (
-                <Bar key={group} dataKey={group} stackId="a" fill={color} />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-    );
-  } else {
-    const countryGroups = [...new Set(behaviourData.map(item => item.country))];
-    
-    const latestYearData = countryGroups.map(country => {
-      const countryData = behaviourData.filter(item => item.country === country);
-      const latestYear = Math.max(...countryData.map(item => item.year));
-      return countryData.filter(item => item.year === latestYear);
-    }).flat();
-
-    const comparisonData = countryGroups.map(country => {
-      const countryData = latestYearData.filter(item => item.country === country);
-      const result: { [key: string]: any } = { country };
-      
-      countryData.forEach(item => {
-        result[item.behaviour_group] = item.percentage;
-      });
-      
-      result.total = 1;
-      
-      return result;
-    });
-
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <h3 className="text-lg font-semibold mb-4 text-[#34502b]">
-          Behaviour Groups Comparison Across Countries
-        </h3>
-        <div className="h-80 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={comparisonData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-              layout="vertical"
-              stackOffset="expand"
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" tickFormatter={(tick) => `${(tick * 100).toFixed(0)}%`} />
-              <YAxis type="category" dataKey="country" />
-              <Tooltip 
-                formatter={(value: number) => [`${(value * 100).toFixed(0)}%`]}
-                labelFormatter={(label) => `Country: ${label}`}
-              />
-              <Legend />
-              {Object.entries(GROUP_COLORS).map(([group, color]) => (
-                <Bar key={group} dataKey={group} stackId="a" fill={color} />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-    );
-  }
+  return (
+    <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+      <div className="h-80 w-full">
+        <HighchartsReact 
+          highcharts={Highcharts} 
+          options={chartOptions}
+        />
+      </div>
+    </Card>
+  );
 };
 
 export default BehaviourGroupsChart;

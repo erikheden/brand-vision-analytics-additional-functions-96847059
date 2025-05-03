@@ -1,10 +1,12 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useBehaviourGroups, useYearsWithBehaviourData } from "@/hooks/useBehaviourGroups";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
+import { FONT_FAMILY } from "@/utils/constants";
 
 interface BehaviourGroupsDistributionProps {
   selectedCountry: string;
@@ -21,13 +23,68 @@ const COLORS = {
 const BehaviourGroupsDistribution = ({ selectedCountry }: BehaviourGroupsDistributionProps) => {
   const { data: behaviourData = [], isLoading } = useBehaviourGroups(selectedCountry);
   const { data: years = [] } = useYearsWithBehaviourData(selectedCountry);
-  const [selectedYear, setSelectedYear] = React.useState<number | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (years.length > 0 && !selectedYear) {
       setSelectedYear(Math.max(...years));
     }
   }, [years, selectedYear]);
+
+  // Create chart options for Highcharts
+  const chartOptions = React.useMemo(() => {
+    if (!selectedYear || !behaviourData.length) return {};
+    
+    const yearData = behaviourData.filter(item => item.year === selectedYear);
+    
+    if (!yearData.length) return {};
+    
+    const pieData = yearData.map(item => ({
+      name: item.behaviour_group,
+      y: item.percentage * 100, // Convert to percentage
+      color: COLORS[item.behaviour_group as keyof typeof COLORS]
+    }));
+
+    return {
+      chart: {
+        type: 'pie',
+        style: {
+          fontFamily: FONT_FAMILY
+        }
+      },
+      title: {
+        text: `Behaviour Groups Distribution in ${selectedCountry}`,
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY
+        }
+      },
+      tooltip: {
+        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+      },
+      plotOptions: {
+        pie: {
+          allowPointSelect: true,
+          cursor: 'pointer',
+          dataLabels: {
+            enabled: true,
+            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+            style: {
+              fontFamily: FONT_FAMILY
+            }
+          }
+        }
+      },
+      series: [{
+        name: 'Percentage',
+        colorByPoint: true,
+        data: pieData
+      }],
+      credits: {
+        enabled: false
+      }
+    };
+  }, [behaviourData, selectedYear, selectedCountry]);
 
   if (isLoading) {
     return (
@@ -61,11 +118,6 @@ const BehaviourGroupsDistribution = ({ selectedCountry }: BehaviourGroupsDistrib
     );
   }
 
-  const pieData = yearData.map(item => ({
-    name: item.behaviour_group,
-    value: item.percentage,
-  }));
-
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
@@ -92,29 +144,10 @@ const BehaviourGroupsDistribution = ({ selectedCountry }: BehaviourGroupsDistrib
         </div>
       </div>
       <div className="h-80 w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={pieData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              outerRadius={120}
-              fill="#8884d8"
-              dataKey="value"
-              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-            >
-              {pieData.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
-                  fill={COLORS[entry.name as keyof typeof COLORS]} 
-                />
-              ))}
-            </Pie>
-            <Tooltip formatter={(value: number) => [`${(value * 100).toFixed(0)}%`]} />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+        <HighchartsReact 
+          highcharts={Highcharts} 
+          options={chartOptions}
+        />
       </div>
     </Card>
   );

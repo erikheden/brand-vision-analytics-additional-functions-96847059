@@ -1444,6 +1444,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_public_bucket_policy: {
+        Args: { bucket_name: string }
+        Returns: undefined
+      }
       table_exists: {
         Args: { p_table_name: string }
         Returns: boolean

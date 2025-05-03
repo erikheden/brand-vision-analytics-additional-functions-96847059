@@ -1,8 +1,10 @@
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { useBehaviourGroups } from "@/hooks/useBehaviourGroups";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
+import { FONT_FAMILY } from "@/utils/constants";
 
 const GROUP_COLORS = {
   "Ego": "#E8A27C",
@@ -19,7 +21,7 @@ const BehaviourGroupsComparison = ({ selectedCountries }: BehaviourGroupsCompari
   const { data: behaviourData = [] } = useBehaviourGroups();
 
   // Get the latest year's data for each country
-  const comparisonData = React.useMemo(() => {
+  const comparisonData = useMemo(() => {
     const latestData = selectedCountries.map(country => {
       const countryData = behaviourData.filter(d => d.country === country);
       const maxYear = Math.max(...countryData.map(d => d.year));
@@ -38,6 +40,77 @@ const BehaviourGroupsComparison = ({ selectedCountries }: BehaviourGroupsCompari
     });
   }, [behaviourData, selectedCountries]);
 
+  // Transform data for Highcharts
+  const chartOptions = useMemo(() => {
+    if (!comparisonData.length) return {};
+    
+    // Prepare series for each behavior group
+    const series = Object.entries(GROUP_COLORS).map(([group, color]) => ({
+      name: group,
+      data: comparisonData.map(country => ({
+        name: country.country,
+        y: country[group] ? country[group] * 100 : 0, // Convert to percentage
+        color: color
+      })),
+      color: color
+    }));
+
+    return {
+      chart: {
+        type: 'bar',
+        style: {
+          fontFamily: FONT_FAMILY
+        }
+      },
+      title: {
+        text: 'Behaviour Groups Comparison',
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY
+        }
+      },
+      xAxis: {
+        categories: comparisonData.map(item => item.country),
+        title: {
+          text: null
+        }
+      },
+      yAxis: {
+        min: 0,
+        max: 100,
+        title: {
+          text: 'Percentage',
+          align: 'high'
+        },
+        labels: {
+          formatter: function() {
+            return this.value + '%';
+          }
+        }
+      },
+      tooltip: {
+        formatter: function() {
+          return `<b>${this.series.name}</b><br/>${this.point.name}: ${Highcharts.numberFormat(this.point.y, 0)}%`;
+        }
+      },
+      plotOptions: {
+        bar: {
+          stacking: 'normal',
+          dataLabels: {
+            enabled: false
+          }
+        }
+      },
+      legend: {
+        reversed: false
+      },
+      series: series,
+      credits: {
+        enabled: false
+      }
+    };
+  }, [comparisonData]);
+
   if (!comparisonData.length) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
@@ -54,24 +127,10 @@ const BehaviourGroupsComparison = ({ selectedCountries }: BehaviourGroupsCompari
         Behaviour Groups Comparison
       </h3>
       <div className="h-[500px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={comparisonData}
-            layout="vertical"
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-          >
-            <XAxis type="number" tickFormatter={(value) => `${(value * 100).toFixed(0)}%`} />
-            <YAxis type="category" dataKey="country" />
-            <Tooltip 
-              formatter={(value: number) => [`${(value * 100).toFixed(0)}%`]}
-              labelFormatter={(label) => `Country: ${label}`}
-            />
-            <Legend />
-            {Object.entries(GROUP_COLORS).map(([group, color]) => (
-              <Bar key={group} dataKey={group} fill={color} stackId="a" />
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
+        <HighchartsReact 
+          highcharts={Highcharts} 
+          options={chartOptions} 
+        />
       </div>
     </Card>
   );

@@ -1,9 +1,11 @@
 
 import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
 import { DiscussionTopicData } from '@/hooks/useDiscussionTopicsData';
 import { getFullCountryName } from '@/components/CountrySelect';
+import { FONT_FAMILY } from '@/utils/constants';
 
 interface DiscussionTrendsChartProps {
   data: DiscussionTopicData[];
@@ -16,7 +18,7 @@ const DiscussionTrendsChart: React.FC<DiscussionTrendsChartProps> = ({
   selectedCountries,
   selectedTopics
 }) => {
-  const chartData = useMemo(() => {
+  const chartOptions = useMemo(() => {
     // If no topics are selected, show data for all topics
     const topicsToUse = selectedTopics.length > 0 ? selectedTopics : [...new Set(data.map(item => item.discussion_topic))];
     
@@ -49,7 +51,7 @@ const DiscussionTrendsChart: React.FC<DiscussionTrendsChartProps> = ({
     }, {} as Record<number, Record<string, { count: number; total: number }>>);
 
     // Convert the grouped data into chart format
-    return Object.entries(yearGroups)
+    const chartData = Object.entries(yearGroups)
       .map(([year, values]) => {
         const point: Record<string, any> = {
           year: parseInt(year)
@@ -63,19 +65,6 @@ const DiscussionTrendsChart: React.FC<DiscussionTrendsChartProps> = ({
         return point;
       })
       .sort((a, b) => a.year - b.year);
-  }, [data, selectedTopics]);
-
-  // Generate lines for each country-topic combination
-  const lines = useMemo(() => {
-    const result: {
-      key: string;
-      country: string;
-      topic: string;
-      color: string;
-    }[] = [];
-    
-    // If no topics are selected, use all topics from the data
-    const topicsToUse = selectedTopics.length > 0 ? selectedTopics : [...new Set(data.map(item => item.discussion_topic))];
     
     // Color palette
     const COLORS = [
@@ -84,9 +73,10 @@ const DiscussionTrendsChart: React.FC<DiscussionTrendsChartProps> = ({
       '#7153a2', '#8c69be', '#a784d9', '#c29ff4', '#d4b8f5'
     ];
     
+    // Create series for each country-topic combination
+    const series: Highcharts.SeriesOptionsType[] = [];
     let colorIndex = 0;
     
-    // Create a line for each country-topic combination
     selectedCountries.forEach(country => {
       topicsToUse.forEach(topic => {
         // Check if there's actually data for this combination
@@ -95,21 +85,79 @@ const DiscussionTrendsChart: React.FC<DiscussionTrendsChartProps> = ({
         );
         
         if (hasData) {
-          result.push({
-            key: `${country}-${topic}`,
-            country,
-            topic,
-            color: COLORS[colorIndex % COLORS.length]
+          series.push({
+            name: `${getFullCountryName(country)} - ${topic}`,
+            type: 'line',
+            color: COLORS[colorIndex % COLORS.length],
+            data: chartData.map(point => {
+              const value = point[`${country}-${topic}`];
+              return value !== undefined ? [point.year, value] : null;
+            }).filter(Boolean)
           });
           colorIndex++;
         }
       });
     });
     
-    return result;
-  }, [chartData, selectedCountries, selectedTopics, data]);
+    // Return chart options
+    return {
+      chart: {
+        type: 'line',
+        style: {
+          fontFamily: FONT_FAMILY
+        }
+      },
+      title: {
+        text: 'Discussion Topics Trends',
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY
+        }
+      },
+      xAxis: {
+        title: {
+          text: 'Year'
+        }
+      },
+      yAxis: {
+        title: {
+          text: 'Percentage (%)'
+        },
+        min: 0,
+        max: 100,
+        labels: {
+          format: '{value}%'
+        }
+      },
+      tooltip: {
+        formatter: function() {
+          const point = this.point;
+          const series = this.series;
+          return `<b>${series.name}</b><br>Year: ${point.x}<br>Percentage: ${point.y.toFixed(1)}%`;
+        }
+      },
+      legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle',
+        maxHeight: 200,
+        scrollable: true
+      },
+      plotOptions: {
+        line: {
+          marker: {
+            enabled: true
+          }
+        }
+      },
+      series: series,
+      credits: {
+        enabled: false
+      }
+    };
+  }, [data, selectedCountries, selectedTopics]);
 
-  if (chartData.length === 0) {
+  if (!chartOptions.series || (chartOptions.series as any[]).length === 0) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="text-center py-10 text-gray-500">
@@ -119,82 +167,12 @@ const DiscussionTrendsChart: React.FC<DiscussionTrendsChartProps> = ({
     );
   }
 
-  // Custom tooltip to show both country and topic
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (!active || !payload || payload.length === 0) return null;
-    
-    return (
-      <div className="custom-tooltip bg-white p-3 border border-gray-200 shadow-md rounded-md">
-        <p className="font-medium text-gray-700">{`Year: ${label}`}</p>
-        <div className="mt-2 space-y-1">
-          {payload.map((entry: any, index: number) => {
-            const [country, topic] = entry.name.split('-');
-            return (
-              <div key={index} className="flex items-center gap-2">
-                <div 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: entry.color }}
-                />
-                <span className="text-sm font-medium">{getFullCountryName(country)}</span>
-                <span className="text-xs text-gray-500">({topic})</span>
-                <span className="ml-auto font-medium">{entry.value.toFixed(1)}%</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="w-full h-[500px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={chartData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
-            dataKey="year" 
-            label={{ 
-              value: 'Year', 
-              position: 'insideBottomRight', 
-              offset: -5 
-            }}
-          />
-          <YAxis 
-            domain={[0, 100]} 
-            label={{ 
-              value: 'Percentage (%)', 
-              angle: -90, 
-              position: 'insideLeft' 
-            }}
-            tickFormatter={(value) => `${value}%`}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend 
-            formatter={(value) => {
-              const [country, topic] = value.split('-');
-              return `${getFullCountryName(country)} - ${topic}`;
-            }}
-            wrapperStyle={{ maxHeight: '100px', overflowY: 'auto' }}
-          />
-          
-          {lines.map((line) => (
-            <Line
-              key={line.key}
-              type="monotone"
-              dataKey={line.key}
-              name={line.key}
-              stroke={line.color}
-              strokeWidth={2}
-              dot={{ r: 4 }}
-              activeDot={{ r: 6 }}
-              connectNulls
-            />
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
+      <HighchartsReact 
+        highcharts={Highcharts} 
+        options={chartOptions}
+      />
     </div>
   );
 };

@@ -1,8 +1,10 @@
 
 import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
 import { DiscussionTopicData } from '@/hooks/useDiscussionTopicsData';
+import { FONT_FAMILY } from '@/utils/constants';
 
 interface DiscussionTopicsComparisonChartProps {
   selectedCountries: string[];
@@ -18,11 +20,12 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
   // Colors for the bars
   const COLORS = ['#34502b', '#4d7342', '#668c5a', '#7fa571', '#98be89', '#257179', '#328a94'];
   
-  // Process the data for the chart
-  const chartData = useMemo(() => {
-    if (!selectedTopics.length) return [];
+  // Create chart options
+  const chartOptions = useMemo(() => {
+    if (!selectedTopics.length) return {};
     
-    return selectedTopics.map(topic => {
+    // Process the data for the chart
+    const chartData = selectedTopics.map(topic => {
       const topicData: Record<string, any> = { topic };
       
       selectedCountries.forEach((country, index) => {
@@ -40,7 +43,76 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       
       return topicData;
     });
-  }, [selectedTopics, selectedCountries, discussionData]);
+    
+    // Create series for each country
+    const series = selectedCountries.map((country, index) => ({
+      name: country,
+      data: chartData.map(item => item[country]),
+      color: COLORS[index % COLORS.length]
+    }));
+
+    return {
+      chart: {
+        type: 'column',
+        style: {
+          fontFamily: FONT_FAMILY
+        }
+      },
+      title: {
+        text: 'Discussion Topics Comparison',
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY
+        }
+      },
+      xAxis: {
+        categories: chartData.map(item => item.topic),
+        title: {
+          text: null
+        },
+        labels: {
+          rotation: -45,
+          style: {
+            fontSize: '12px',
+            fontFamily: FONT_FAMILY
+          }
+        }
+      },
+      yAxis: {
+        min: 0,
+        max: 100,
+        title: {
+          text: 'Percentage (%)',
+          style: {
+            color: '#34502b',
+            fontFamily: FONT_FAMILY
+          }
+        }
+      },
+      legend: {
+        enabled: true,
+        itemStyle: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY
+        }
+      },
+      tooltip: {
+        formatter: function() {
+          return `<b>${this.x}</b><br>${this.series.name}: ${this.y}%`;
+        }
+      },
+      plotOptions: {
+        column: {
+          pointPadding: 0.2,
+          borderWidth: 0
+        }
+      },
+      series: series,
+      credits: {
+        enabled: false
+      }
+    };
+  }, [selectedTopics, selectedCountries, discussionData, COLORS]);
 
   if (selectedTopics.length === 0) {
     return (
@@ -57,36 +129,10 @@ const DiscussionTopicsComparisonChart: React.FC<DiscussionTopicsComparisonChartP
       <h3 className="text-lg font-medium mb-4">Discussion Topics Comparison</h3>
       
       <div className="w-full h-[450px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={chartData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="topic" 
-              angle={-45} 
-              textAnchor="end"
-              height={80} 
-              interval={0}
-            />
-            <YAxis 
-              label={{ value: 'Percentage (%)', angle: -90, position: 'insideLeft' }} 
-              domain={[0, 100]}
-            />
-            <Tooltip formatter={(value) => [`${value}%`, '']} />
-            <Legend />
-            
-            {selectedCountries.map((country, index) => (
-              <Bar 
-                key={country} 
-                dataKey={country} 
-                name={country}
-                fill={COLORS[index % COLORS.length]} 
-              />
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
+        <HighchartsReact 
+          highcharts={Highcharts} 
+          options={chartOptions} 
+        />
       </div>
     </Card>
   );

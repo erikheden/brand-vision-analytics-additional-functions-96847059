@@ -1,73 +1,96 @@
 
-import React from 'react';
-import { Card } from '@/components/ui/card';
-import VHOAreaBarChart from './VHOAreaBarChart';
-import { VHOData } from '@/hooks/useVHOData';
-import { EmptyState } from './impact/components/EmptyState';
+import React from "react";
+import { Card } from "@/components/ui/card";
+import { MaterialityData } from "@/hooks/useMaterialityFilters";
+import ImpactBarChart from "./ImpactBarChart";
 
 interface MaterialityResultsDisplayProps {
   isLoading: boolean;
-  error: Error | null;
+  error: any;
   selectedCountry: string;
   selectedCategory: string;
-  filteredData: VHOData[];
+  filteredData: MaterialityData[];
 }
 
-const MaterialityResultsDisplay: React.FC<MaterialityResultsDisplayProps> = ({
+const MaterialityResultsDisplay = ({
   isLoading,
   error,
   selectedCountry,
   selectedCategory,
-  filteredData
-}) => {
+  filteredData,
+}: MaterialityResultsDisplayProps) => {
   if (isLoading) {
     return (
-      <Card className="p-6 h-[600px] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#34502b] mx-auto"></div>
-          <p className="mt-4 text-[#34502b]">Loading materiality areas...</p>
-        </div>
+      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+        <div className="text-center py-10">Loading data...</div>
       </Card>
     );
   }
-  
+
   if (error) {
     return (
-      <Card className="p-6 bg-white border-2 border-red-200 rounded-xl shadow-md">
-        <div className="text-center py-10 text-red-500">
-          Error loading data. Please try again later.
-        </div>
-      </Card>
-    );
-  }
-  
-  if (!selectedCountry) {
-    return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-10 text-gray-500">
-          Please select a country to view materiality areas.
+        <div className="text-center py-10 text-red-500">
+          Error loading data: {error.message}
         </div>
       </Card>
     );
   }
 
-  if (!selectedCategory) {
-    return (
-      <EmptyState message="Please select a category to view materiality areas." />
-    );
-  }
-  
-  if (filteredData.length === 0) {
+  if (!filteredData.length) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-10 text-gray-500">
-          No materiality areas data available for the selected criteria.
+        <div className="text-center py-10">
+          No data available for {selectedCountry} in {selectedCategory}
         </div>
       </Card>
     );
   }
-  
-  return <VHOAreaBarChart data={filteredData} />;
+
+  // Process data for charts
+  const chartData = filteredData.map((item) => ({
+    name: item.impact_level,
+    value: item.percentage * 100, // Convert to percentage
+    category: item.sustainability_area,
+  }));
+
+  // Get unique categories
+  const categories = Array.from(new Set(chartData.map((item) => item.category)));
+
+  return (
+    <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+      <div className="space-y-6">
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="lg:w-1/2">
+            <ImpactBarChart
+              data={chartData}
+              title={`Impact Levels by Sustainability Area in ${selectedCountry}`}
+              categories={categories}
+              chartType="bar"
+            />
+          </div>
+
+          <div className="lg:w-1/2">
+            <ImpactBarChart
+              data={chartData}
+              title={`Sustainability Areas by Impact Level in ${selectedCountry}`}
+              categories={categories}
+              chartType="stacked"
+            />
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <h3 className="text-lg font-semibold text-[#34502b] mb-2">Analysis</h3>
+          <p className="text-gray-600">
+            This chart shows the consumer engagement with various sustainability
+            areas in {selectedCountry}. The levels of engagement range from
+            basic awareness to willingness to pay for sustainable products.
+          </p>
+        </div>
+      </div>
+    </Card>
+  );
 };
 
 export default MaterialityResultsDisplay;

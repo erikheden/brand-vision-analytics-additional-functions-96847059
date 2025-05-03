@@ -1,19 +1,9 @@
 
 import React, { useMemo } from 'react';
-import { 
-  ResponsiveContainer, 
-  BarChart as RechartsBarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend,
-  Cell,
-  AreaChart,
-  Area
-} from 'recharts';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
 import { roundPercentage } from '@/utils/formatting';
+import { FONT_FAMILY } from '@/utils/constants';
 
 interface ImpactBarChartProps {
   data: Array<{
@@ -55,8 +45,8 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
   // Define the correct sorting order for impact levels
   const impactLevelOrder = ["Aware", "Concerned", "Acting", "Willing to pay"];
   
-  // Process data for grouped bar chart
-  const processedData = useMemo(() => {
+  // Create chart options
+  const chartOptions = useMemo(() => {
     // Get all unique impact levels present in data
     const impactLevels = [...new Set(data.map(item => item.name))];
     
@@ -78,156 +68,146 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
       return a.localeCompare(b);
     });
     
-    // Create data structure for chart
-    const chartData = sortedLevels.map(level => {
-      const result: Record<string, any> = { name: level };
-      
-      // Add value for each category
-      categories.forEach(category => {
-        const item = data.find(d => d.name === level && d.category === category);
-        result[category] = item ? item.value : 0;
-      });
-      
-      // For the stacked chart, add a total
-      if (chartType === 'stacked') {
-        result.total = Object.keys(result)
-          .filter(key => key !== 'name' && key !== 'total')
-          .reduce((sum, key) => sum + (result[key] || 0), 0);
-      }
-      
-      return result;
-    });
-    
-    return chartData;
-  }, [data, categories, impactLevelOrder, chartType]);
-  
-  // Custom tooltip
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-3 border border-gray-200 shadow-md rounded-md">
-          <p className="font-semibold">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} style={{ color: entry.color }} className="text-sm">
-              <span className="font-medium">{entry.name}: </span>
-              {`${roundPercentage(entry.value)}%`}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    
-    return null;
-  };
-  
-  // Render different chart types
-  const renderChart = () => {
     if (chartType === 'stacked') {
-      // Prepare stacked data
-      const stackedData = categories.map(category => {
-        const result: Record<string, any> = { category };
-        processedData.forEach(item => {
-          result[item.name] = item[category] || 0;
-        });
-        return result;
-      });
+      // Prepare stacked data for each category
+      const series = categories.map((category, index) => ({
+        name: category,
+        data: sortedLevels.map(level => {
+          const item = data.find(d => d.name === level && d.category === category);
+          return item ? item.value : 0;
+        }),
+        color: getColor(category, index)
+      }));
       
-      return (
-        <ResponsiveContainer width="100%" height={400}>
-          <RechartsBarChart
-            data={stackedData}
-            margin={{
-              top: 20,
-              right: 30,
-              left: 20,
-              bottom: 20,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis 
-              dataKey="category"
-              tick={{ fill: '#4b5563', fontSize: 12 }}
-              height={60}
-              interval={0}
-              tickLine={false}
-              axisLine={false}
-            />
-            <YAxis 
-              label={{ 
-                value: 'Percentage (%)', 
-                angle: -90, 
-                position: 'insideLeft',
-                style: { textAnchor: 'middle' } 
-              }}
-              tick={{ fill: '#4b5563', fontSize: 12 }}
-              tickFormatter={(value) => `${value}%`}
-              domain={[0, 100]}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            
-            {impactLevelOrder.map((level, index) => (
-              <Bar 
-                key={level}
-                dataKey={level} 
-                stackId="a"
-                fill={getColor(level, index)} 
-                name={level}
-                radius={index === impactLevelOrder.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
-              />
-            ))}
-          </RechartsBarChart>
-        </ResponsiveContainer>
-      );
+      return {
+        chart: {
+          type: 'column',
+          style: {
+            fontFamily: FONT_FAMILY
+          }
+        },
+        title: {
+          text: title,
+          style: {
+            color: '#34502b',
+            fontFamily: FONT_FAMILY
+          }
+        },
+        xAxis: {
+          categories: sortedLevels,
+          title: {
+            text: null
+          }
+        },
+        yAxis: {
+          min: 0,
+          max: 100,
+          title: {
+            text: 'Percentage (%)'
+          },
+          labels: {
+            format: '{value}%'
+          }
+        },
+        tooltip: {
+          formatter: function() {
+            return `<b>${this.x}</b><br>${this.series.name}: ${roundPercentage(this.y)}%`;
+          }
+        },
+        plotOptions: {
+          column: {
+            stacking: 'normal',
+            dataLabels: {
+              enabled: false
+            },
+            borderRadius: 3
+          }
+        },
+        legend: {
+          align: 'right',
+          verticalAlign: 'top',
+          layout: 'vertical'
+        },
+        series: series,
+        credits: {
+          enabled: false
+        }
+      };
+    } else {
+      // Prepare data for horizontal bar chart
+      const series = categories.map((category, index) => ({
+        name: category,
+        data: sortedLevels.map(level => {
+          const item = data.find(d => d.name === level && d.category === category);
+          return item ? item.value : 0;
+        }),
+        color: getColor(category, index)
+      }));
+
+      return {
+        chart: {
+          type: 'bar',
+          style: {
+            fontFamily: FONT_FAMILY
+          }
+        },
+        title: {
+          text: title,
+          style: {
+            color: '#34502b',
+            fontFamily: FONT_FAMILY
+          }
+        },
+        xAxis: {
+          categories: sortedLevels,
+          title: {
+            text: null
+          }
+        },
+        yAxis: {
+          min: 0,
+          max: 100,
+          title: {
+            text: 'Percentage (%)'
+          },
+          labels: {
+            format: '{value}%'
+          }
+        },
+        tooltip: {
+          formatter: function() {
+            return `<b>${this.x}</b><br>${this.series.name}: ${roundPercentage(this.y)}%`;
+          }
+        },
+        plotOptions: {
+          bar: {
+            dataLabels: {
+              enabled: false
+            },
+            borderRadius: 3
+          }
+        },
+        legend: {
+          align: 'right',
+          verticalAlign: 'top',
+          layout: 'vertical'
+        },
+        series: series,
+        credits: {
+          enabled: false
+        }
+      };
     }
-    
-    // Default bar chart
-    return (
-      <ResponsiveContainer width="100%" height={400}>
-        <RechartsBarChart
-          data={processedData}
-          layout="vertical"
-          margin={{
-            top: 20,
-            right: 30,
-            left: 150,
-            bottom: 20,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-          <XAxis 
-            type="number"
-            domain={[0, 100]}
-            tickFormatter={(value) => `${roundPercentage(value)}%`}
-            tick={{ fill: '#4b5563', fontSize: 12 }}
-          />
-          <YAxis 
-            dataKey="name" 
-            type="category"
-            width={140}
-            tick={{ fill: '#4b5563', fontSize: 12 }}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend />
-          
-          {categories.map((category, index) => (
-            <Bar 
-              key={category}
-              dataKey={category} 
-              fill={getColor(category, index)} 
-              name={category} 
-              radius={[0, 4, 4, 0]}
-            />
-          ))}
-        </RechartsBarChart>
-      </ResponsiveContainer>
-    );
-  };
-  
+  }, [data, title, categories, chartType, impactLevelOrder]);
+
   return (
     <div className="w-full h-full">
-      <h3 className="text-xl font-medium text-center mb-6 text-[#34502b]">{title}</h3>
-      {renderChart()}
+      <div className="h-[400px]">
+        <HighchartsReact 
+          highcharts={Highcharts} 
+          options={chartOptions} 
+        />
+      </div>
       
       {chartType === 'stacked' && (
         <div className="mt-4 text-center text-sm text-gray-500">
