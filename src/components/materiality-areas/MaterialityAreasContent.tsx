@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useMaterialityFilters } from "@/hooks/useMaterialityFilters";
@@ -6,6 +7,17 @@ import FactorToggle from "./FactorToggle";
 import MaterialityResultsDisplay from "./MaterialityResultsDisplay";
 import CountryButtonSelect from "@/components/CountryButtonSelect";
 import { useSelectionData } from "@/hooks/useSelectionData";
+import { VHOData } from "@/hooks/useVHOData";
+
+// Define the mapping interface for MaterialityData
+interface MaterialityData {
+  category: string;
+  sustainability_area: string;
+  impact_level: string;
+  percentage: number;
+  type_of_factor: string;
+}
+
 const MaterialityAreasContent = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const {
@@ -14,13 +26,22 @@ const MaterialityAreasContent = () => {
   const {
     selectedCategory,
     selectedFactors,
-    filteredData,
+    filteredData: vhoFilteredData,
     isLoading,
     error,
     categories,
     setSelectedCategory,
     toggleFactor
   } = useMaterialityFilters(selectedCountries[0]); // Pass the first selected country for now
+
+  // Map VHOData to MaterialityData
+  const mappedData: MaterialityData[] = vhoFilteredData.map((item: VHOData) => ({
+    category: item.category,
+    sustainability_area: item.vho_area,
+    impact_level: item.type_of_factor === 'hygiene_factor' ? 'Aware' : 'Willing to pay',
+    percentage: item.priority_percentage,
+    type_of_factor: item.type_of_factor
+  }));
 
   const handleCountryChange = (country: string) => {
     const newSelectedCountries = selectedCountries.includes(country) ? selectedCountries.filter(c => c !== country) : [...selectedCountries, country];
@@ -52,8 +73,14 @@ const MaterialityAreasContent = () => {
               </div>
             </Card>
             
-            {/* Results Display */}
-            <MaterialityResultsDisplay isLoading={isLoading} error={error} selectedCountry={selectedCountries[0]} selectedCategory={selectedCategory} filteredData={filteredData} />
+            {/* Results Display - now using mapped data */}
+            <MaterialityResultsDisplay 
+              isLoading={isLoading} 
+              error={error} 
+              selectedCountry={selectedCountries[0]} 
+              selectedCategory={selectedCategory} 
+              filteredData={mappedData} 
+            />
           </div>}
       </div>
     </div>;
