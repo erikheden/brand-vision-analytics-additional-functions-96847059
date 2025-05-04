@@ -1,85 +1,63 @@
 
-import React from "react";
+import React, { useState, useContext } from "react";
 import { Card } from "@/components/ui/card";
-import CountryButtonSelect from "@/components/CountryButtonSelect";
-import DashboardLayout from "../layout/DashboardLayout";
-import { useKnowledgePage } from "./KnowledgePageProvider";
-import KnowledgeTabs from "./KnowledgeTabs";
-import LoadingState from "./LoadingState";
-import ErrorState from "./ErrorState";
 import { useSelectionData } from "@/hooks/useSelectionData";
+import CountryButtonSelect from "@/components/CountryButtonSelect";
+import KnowledgeTabs from "./KnowledgeTabs";
+import { KnowledgePageContext } from "./KnowledgePageProvider";
+import EmptySelection from "./EmptySelection";
 import { useToast } from "@/components/ui/use-toast";
-import { normalizeCountryCode } from "./utils/knowledgeUtils";
 
-const MainContent = () => {
-  const { toast } = useToast();
-  const { 
-    selectedCountries, 
-    handleCountriesChange,
-    isLoading,
-    error,
-    allYears,
-    allTerms
-  } = useKnowledgePage();
-  
+const MainContent: React.FC = () => {
+  const { selectedCountries, setSelectedCountries } = useContext(KnowledgePageContext);
   const { countries } = useSelectionData("", []);
-  
-  console.log("MainContent render:", {
-    selectedCountries,
-    countriesCount: countries?.length || 0,
-    hasYears: allYears?.length || 0,
-    hasTerms: allTerms?.length || 0,
-    isLoading
-  });
+  const { toast } = useToast();
 
-  // Helper function to adapt the handleCountriesChange to work with CountryButtonSelect
-  const handleCountryToggle = (country: string) => {
-    // If country is already in the array, remove it, otherwise add it
-    const updatedCountries = selectedCountries.includes(country)
-      ? selectedCountries.filter(c => c !== country)
-      : [...selectedCountries, country];
-    
-    handleCountriesChange(updatedCountries);
-    
-    // Show toast when country is selected
-    if (!selectedCountries.includes(country)) {
-      toast({
-        title: `${country} Selected`,
-        description: "Data for this country is being loaded",
-      });
-    }
+  const handleCountryChange = (country: string) => {
+    setSelectedCountries(current => {
+      if (current.includes(country)) {
+        return current.filter(c => c !== country);
+      } else {
+        toast({
+          title: `${country} Selected`,
+          description: "Loading sustainability knowledge data for this country",
+        });
+        return [...current, country];
+      }
+    });
   };
 
-  if (isLoading && selectedCountries.length > 0) return <LoadingState />;
-  if (error) return <ErrorState />;
-
   return (
-    <DashboardLayout
-      title="Sustainability Knowledge"
-      description="Track and compare consumer understanding of sustainability terms across different markets and time periods."
-    >
-      <div className="grid grid-cols-1 gap-6 w-full">
-        <Card className="p-4 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md w-full">
-          <div className="space-y-4 w-full">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-semibold text-[#34502b] mb-2">Sustainability Knowledge</h1>
+          <p className="text-gray-600 max-w-2xl">
+            Explore consumer awareness and understanding of sustainability terms across different markets.
+            Use these insights to tailor your sustainability messaging to consumer knowledge levels.
+          </p>
+        </div>
+
+        <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+          <div className="space-y-4">
             <h2 className="text-lg font-semibold text-[#34502b]">Select Countries</h2>
-            <p className="text-gray-600 text-sm">
-              Select one or more countries to view and compare sustainability knowledge.
-            </p>
             <CountryButtonSelect
               countries={countries || []}
               selectedCountries={selectedCountries}
-              onCountryChange={handleCountryToggle}
+              onCountryChange={handleCountryChange}
             />
           </div>
         </Card>
-
-        {selectedCountries.length > 0 && (
-          <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl w-full">
+        
+        {selectedCountries.length === 0 ? (
+          <EmptySelection />
+        ) : (
+          <Card className="p-6 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border-2 border-[#34502b]/20 shadow-lg rounded-xl">
             <KnowledgeTabs />
           </Card>
         )}
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 
