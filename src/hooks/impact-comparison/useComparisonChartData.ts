@@ -13,21 +13,36 @@ export const useComparisonChartData = (
   activeCountries: string[],
   countryDataMap?: Record<string, any>
 ) => {
+  // Create category comparison chart options
   const createCategoryChart = useMemo(() => {
-    if (!selectedImpactLevel) return { chart: { type: 'bar' }, series: [] };
+    if (!selectedYear || !selectedImpactLevel || selectedCategories.length === 0 || activeCountries.length < 2) {
+      return { series: [] };
+    }
     
-    // Create series for each country using country-specific data
-    const seriesData = activeCountries.map(country => {
-      const countryProcessedData = countryDataMap?.[country]?.processedData || {};
+    // Create series for each country
+    const series = activeCountries.map(country => {
+      // Use country-specific data from the map if available
+      const countrySpecificData = countryDataMap?.[country]?.processedData || {};
+      
+      // Map each selected category to its value for this country and impact level
+      const data = selectedCategories.map(category => {
+        let value = 0;
+        
+        // Try to get value from country-specific data first
+        if (countrySpecificData[category]?.[selectedYear]?.[selectedImpactLevel] !== undefined) {
+          value = countrySpecificData[category][selectedYear][selectedImpactLevel];
+        } 
+        // Fall back to default processedData if specific data is not available
+        else if (processedData[category]?.[selectedYear]?.[selectedImpactLevel] !== undefined) {
+          value = processedData[category][selectedYear][selectedImpactLevel];
+        }
+        
+        return value * 100; // Convert to percentage for display
+      });
       
       return {
         name: getFullCountryName(country),
-        data: selectedCategories.map(category => {
-          // Use country-specific data if available, otherwise fallback to generic data
-          const value = countryProcessedData[category]?.[selectedYear]?.[selectedImpactLevel] || 
-            processedData[category]?.[selectedYear]?.[selectedImpactLevel] || 0;
-          return value * 100;
-        }),
+        data,
         type: 'column' as const
       };
     });
@@ -39,43 +54,38 @@ export const useComparisonChartData = (
         style: { fontFamily: FONT_FAMILY }
       },
       title: {
-        text: `Country Comparison - ${selectedImpactLevel} Impact Level (${selectedYear})`,
+        text: `${selectedImpactLevel} Impact Level Across Categories (${selectedYear})`,
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       },
       subtitle: {
-        text: 'Comparison across categories',
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+        text: `Comparing ${activeCountries.length} countries`,
+        style: { color: '#666', fontFamily: FONT_FAMILY }
       },
       xAxis: {
         categories: selectedCategories,
-        title: {
-          text: 'Category',
-          style: { color: '#34502b', fontFamily: FONT_FAMILY }
+        title: { text: 'Categories' },
+        labels: {
+          rotation: -45,
+          style: { fontSize: '11px', fontFamily: FONT_FAMILY }
         }
       },
       yAxis: {
         min: 0,
+        max: 100,
         title: {
-          text: 'Percentage',
+          text: 'Percentage (%)',
           style: { color: '#34502b', fontFamily: FONT_FAMILY }
         },
         labels: { format: '{value}%' }
       },
       legend: {
         enabled: true,
-        itemStyle: { color: '#34502b', fontFamily: FONT_FAMILY }
+        itemStyle: { fontFamily: FONT_FAMILY }
       },
       tooltip: {
-        shared: true,
-        useHTML: true,
-        formatter: function() {
-          let html = `<div style="font-family:${FONT_FAMILY}"><b>${this.x}</b><br/>`;
-          this.points?.forEach(point => {
-            html += `<span style="color: ${point.color}">\u25CF</span> ${point.series.name}: <b>${point.y.toFixed(1)}%</b><br/>`;
-          });
-          html += '</div>';
-          return html;
-        }
+        headerFormat: '<b>{point.x}</b><br/>',
+        pointFormat: '{series.name}: {point.y:.1f}%',
+        shared: true
       },
       plotOptions: {
         column: {
@@ -83,26 +93,48 @@ export const useComparisonChartData = (
           borderWidth: 0
         }
       },
-      series: seriesData,
+      series,
       credits: { enabled: false }
     };
-  }, [selectedImpactLevel, activeCountries, selectedCategories, countryDataMap, processedData, selectedYear]);
-
+  }, [
+    selectedYear, 
+    selectedImpactLevel,
+    selectedCategories.join(','), // Use join to create a dependency string
+    activeCountries.join(','),   // Use join to create a dependency string 
+    processedData, 
+    countryDataMap
+  ]);
+  
+  // Create impact level comparison chart options
   const createImpactLevelChart = useMemo(() => {
-    if (!selectedCategory) return { chart: { type: 'bar' }, series: [] };
+    if (!selectedYear || !selectedCategory || impactLevels.length === 0 || activeCountries.length < 2) {
+      return { series: [] };
+    }
     
-    // Create series for each country using country-specific data
-    const seriesData = activeCountries.map(country => {
-      const countryProcessedData = countryDataMap?.[country]?.processedData || {};
+    // Create series for each country
+    const series = activeCountries.map(country => {
+      // Use country-specific data from the map if available
+      const countrySpecificData = countryDataMap?.[country]?.processedData || {};
+      
+      // Map each impact level to its value for this country and selected category
+      const data = impactLevels.map(level => {
+        let value = 0;
+        
+        // Try to get value from country-specific data first
+        if (countrySpecificData[selectedCategory]?.[selectedYear]?.[level] !== undefined) {
+          value = countrySpecificData[selectedCategory][selectedYear][level];
+        }
+        // Fall back to default processedData if specific data is not available
+        else if (processedData[selectedCategory]?.[selectedYear]?.[level] !== undefined) {
+          value = processedData[selectedCategory][selectedYear][level];
+        }
+        
+        return value * 100; // Convert to percentage for display
+      });
       
       return {
         name: getFullCountryName(country),
-        data: impactLevels.map(level => {
-          // Use country-specific data if available, otherwise fallback to generic data
-          const value = countryProcessedData[selectedCategory]?.[selectedYear]?.[level] || 
-            processedData[selectedCategory]?.[selectedYear]?.[level] || 0;
-          return value * 100;
-        }),
+        data,
         type: 'column' as const
       };
     });
@@ -114,43 +146,34 @@ export const useComparisonChartData = (
         style: { fontFamily: FONT_FAMILY }
       },
       title: {
-        text: `Country Comparison - ${selectedCategory} (${selectedYear})`,
+        text: `${selectedCategory} - Impact Levels Comparison (${selectedYear})`,
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
       },
       subtitle: {
-        text: 'Comparison across impact levels',
-        style: { color: '#34502b', fontFamily: FONT_FAMILY }
+        text: `Comparing ${activeCountries.length} countries`,
+        style: { color: '#666', fontFamily: FONT_FAMILY }
       },
       xAxis: {
         categories: impactLevels,
-        title: {
-          text: 'Impact Level',
-          style: { color: '#34502b', fontFamily: FONT_FAMILY }
-        }
+        title: { text: 'Impact Levels' }
       },
       yAxis: {
         min: 0,
+        max: 100,
         title: {
-          text: 'Percentage',
+          text: 'Percentage (%)',
           style: { color: '#34502b', fontFamily: FONT_FAMILY }
         },
         labels: { format: '{value}%' }
       },
       legend: {
         enabled: true,
-        itemStyle: { color: '#34502b', fontFamily: FONT_FAMILY }
+        itemStyle: { fontFamily: FONT_FAMILY }
       },
       tooltip: {
-        shared: true,
-        useHTML: true,
-        formatter: function() {
-          let html = `<div style="font-family:${FONT_FAMILY}"><b>${this.x}</b><br/>`;
-          this.points?.forEach(point => {
-            html += `<span style="color: ${point.color}">\u25CF</span> ${point.series.name}: <b>${point.y.toFixed(1)}%</b><br/>`;
-          });
-          html += '</div>';
-          return html;
-        }
+        headerFormat: '<b>{point.x}</b><br/>',
+        pointFormat: '{series.name}: {point.y:.1f}%',
+        shared: true
       },
       plotOptions: {
         column: {
@@ -158,11 +181,18 @@ export const useComparisonChartData = (
           borderWidth: 0
         }
       },
-      series: seriesData,
+      series,
       credits: { enabled: false }
     };
-  }, [selectedCategory, activeCountries, impactLevels, countryDataMap, processedData, selectedYear]);
-
+  }, [
+    selectedYear, 
+    selectedCategory,
+    impactLevels.join(','), // Use join to create a dependency string
+    activeCountries.join(','),   // Use join to create a dependency string
+    processedData, 
+    countryDataMap
+  ]);
+  
   return {
     createCategoryChart,
     createImpactLevelChart

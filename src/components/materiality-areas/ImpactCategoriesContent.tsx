@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import ImpactContent from "./impact/ImpactContent";
 import { useImpactCategories } from "@/hooks/useImpactCategories";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface ImpactCategoriesContentProps {
   selectedCountries: string[];
@@ -19,12 +21,23 @@ const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({
 
   return (
     <div className="space-y-6">
-      {isLoading ? (
+      {selectedCountries.length === 0 ? (
+        <EmptyState />
+      ) : isLoading ? (
         <LoadingState />
       ) : error ? (
         <ErrorState error={error} />
       ) : (
         <div className="space-y-6">
+          <Alert className="bg-[#f1f0fb] border-[#34502b]/20">
+            <AlertCircle className="h-5 w-5 text-[#34502b]" />
+            <AlertTitle className="text-[#34502b]">How to use this analysis</AlertTitle>
+            <AlertDescription className="text-gray-600">
+              Select categories, impact levels, and time periods below to analyze how sustainability influences 
+              consumer decisions in your selected markets. Compare countries to identify regional differences.
+            </AlertDescription>
+          </Alert>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="p-4 bg-gradient-to-r from-gray-50 to-[#f1f0fb] border border-[#34502b]/20 rounded-lg">
               <div className="font-medium text-[#34502b] mb-1">Step 1</div>
@@ -55,6 +68,18 @@ const ImpactCategoriesContent: React.FC<ImpactCategoriesContentProps> = ({
     </div>
   );
 };
+
+// Empty state component
+const EmptyState = () => (
+  <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+    <div className="text-center py-10">
+      <h3 className="text-xl font-medium text-[#34502b] mb-2">Select a Country to Get Started</h3>
+      <p className="text-gray-600 max-w-md mx-auto">
+        Choose at least one country above to view sustainability impact data and insights.
+      </p>
+    </div>
+  </Card>
+);
 
 // Loading state component
 const LoadingState = () => (

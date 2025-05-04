@@ -42,7 +42,7 @@ const ImpactFilters: React.FC<ImpactFiltersProps> = ({
           <div className="flex flex-col md:flex-row md:items-start gap-6">
             {/* Category Filter */}
             <div className="md:w-1/3">
-              <div className="bg-white p-3 rounded-lg border border-[#34502b]/10 h-full">
+              <div className="bg-white p-3 rounded-lg border border-[#34502b]/10 h-full shadow-sm">
                 <h4 className="font-medium text-[#34502b] mb-2">Categories</h4>
                 <p className="text-xs text-gray-500 mb-3">Select the sustainability categories you want to analyze</p>
                 <ImpactCategoryFilter 
@@ -56,7 +56,7 @@ const ImpactFilters: React.FC<ImpactFiltersProps> = ({
             
             {/* Year Filter */}
             <div className="md:w-1/3">
-              <div className="bg-white p-3 rounded-lg border border-[#34502b]/10 h-full">
+              <div className="bg-white p-3 rounded-lg border border-[#34502b]/10 h-full shadow-sm">
                 <h4 className="font-medium text-[#34502b] mb-2">Time Period</h4>
                 <p className="text-xs text-gray-500 mb-3">Select the year for data analysis</p>
                 <ImpactYearFilter 
@@ -70,7 +70,7 @@ const ImpactFilters: React.FC<ImpactFiltersProps> = ({
             
             {/* Impact Level Filter */}
             <div className="md:w-1/3">
-              <div className="bg-white p-3 rounded-lg border border-[#34502b]/10 h-full">
+              <div className="bg-white p-3 rounded-lg border border-[#34502b]/10 h-full shadow-sm">
                 <h4 className="font-medium text-[#34502b] mb-2">Impact Levels</h4>
                 <p className="text-xs text-gray-500 mb-3">Filter by consumer engagement levels</p>
                 <ImpactLevelFilter 

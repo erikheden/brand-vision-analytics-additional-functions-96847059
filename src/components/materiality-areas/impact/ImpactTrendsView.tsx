@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
@@ -39,14 +39,13 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
     }
   }, [selectedCategories, impactLevels, selectedCategory, selectedLevel]);
   
-  // Create chart options based on current selections
-  const chartOptions = React.useMemo(() => {
+  // Calculate series data with memoization to improve performance
+  const seriesData = useMemo(() => {
     if (!selectedCategory || !selectedLevel || years.length === 0 || activeCountries.length === 0) {
-      return { series: [] };
+      return [];
     }
     
-    // Create series for each country
-    const series = activeCountries.map(country => {
+    return activeCountries.map(country => {
       // Use country-specific data from the map if available
       const countrySpecificData = countryDataMap?.[country]?.processedData || {};
       
@@ -62,7 +61,6 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
           value = processedData[selectedCategory][year][selectedLevel];
         }
         
-        console.log(`Data point for ${country}, ${selectedCategory}, ${year}, ${selectedLevel}: ${value}`);
         return [year, value * 100]; // Convert to percentage for display
       });
       
@@ -72,13 +70,16 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
         type: 'line' as const
       };
     });
-    
-    // Create chart options
+  }, [selectedCategory, selectedLevel, years, activeCountries, processedData, countryDataMap]);
+  
+  // Create chart options based on calculated series data
+  const chartOptions = useMemo(() => {
     return {
       chart: {
         type: 'line',
         backgroundColor: 'white',
-        style: { fontFamily: FONT_FAMILY }
+        style: { fontFamily: FONT_FAMILY },
+        height: 400
       },
       title: {
         text: `${selectedCategory} - ${selectedLevel} Impact Level Trend`,
@@ -106,9 +107,12 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
       legend: {
         enabled: true
       },
-      series
+      series: seriesData,
+      credits: {
+        enabled: false
+      }
     } as Highcharts.Options;
-  }, [selectedCategory, selectedLevel, years, activeCountries, processedData, countryDataMap]);
+  }, [selectedCategory, selectedLevel, seriesData]);
   
   // Display empty state if no data is available
   if (activeCountries.length === 0) {
@@ -153,11 +157,13 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
       
       {/* Chart display */}
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        {(chartOptions.series as any[]).length > 0 ? (
+        {seriesData.length > 0 ? (
           <div className="h-[400px]">
             <HighchartsReact 
               highcharts={Highcharts} 
-              options={chartOptions} 
+              options={chartOptions}
+              immutable={true}
+              updateArgs={[true, true, true]}
             />
           </div>
         ) : (
