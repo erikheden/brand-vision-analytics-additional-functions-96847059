@@ -13,7 +13,7 @@ import { useToast } from "@/components/ui/use-toast";
 interface MaterialityData {
   category: string;
   sustainability_area: string;
-  impact_level: string;
+  vho_type: string;
   percentage: number;
   type_of_factor: string;
 }
@@ -34,11 +34,11 @@ const MaterialityAreasContent = () => {
     toggleFactor
   } = useMaterialityFilters(selectedCountries[0]); // Pass the first selected country for now
 
-  // Map VHOData to MaterialityData
+  // Map VHOData to MaterialityData using only VHO-specific terminology
   const mappedData: MaterialityData[] = vhoFilteredData.map((item) => ({
     category: item.category,
     sustainability_area: item.vho_area,
-    impact_level: item.type_of_factor === 'hygiene_factor' ? 'Aware' : 'Willing to pay',
+    vho_type: item.type_of_factor === 'hygiene_factor' ? 'Hygiene Factor' : 'More Of Factor',
     percentage: item.priority_percentage,
     type_of_factor: item.type_of_factor
   }));

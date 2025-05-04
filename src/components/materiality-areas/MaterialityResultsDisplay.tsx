@@ -8,7 +8,7 @@ import { ChartControls } from "./impact/components/ChartControls";
 interface MaterialityData {
   category: string;
   sustainability_area: string;
-  impact_level: string;
+  vho_type: string;
   percentage: number;
   type_of_factor: string;
 }
@@ -71,7 +71,7 @@ const MaterialityResultsDisplay = ({
 
   // Process data for charts
   const chartData = filteredData.map((item) => ({
-    name: item.impact_level,
+    name: item.vho_type,
     value: item.percentage * 100, // Convert to percentage
     category: item.sustainability_area,
   }));
@@ -92,7 +92,7 @@ const MaterialityResultsDisplay = ({
         <div className="mb-4">
           <ImpactBarChart
             data={chartData}
-            title={`Sustainability Areas in ${selectedCountry}`}
+            title={`Sustainability Areas in ${selectedCategory} - ${selectedCountry}`}
             categories={categories}
             chartType={chartMode}
           />
@@ -101,9 +101,9 @@ const MaterialityResultsDisplay = ({
         <div className="mt-4">
           <h3 className="text-lg font-semibold text-[#34502b] mb-2">Analysis</h3>
           <p className="text-gray-600">
-            This chart shows the consumer engagement with various sustainability
-            areas in {selectedCountry}. The levels of engagement range from
-            basic awareness to willingness to pay for sustainable products.
+            This chart shows the priority levels of various sustainability areas 
+            in the {selectedCategory} industry for {selectedCountry}. The data represents 
+            how different sustainability factors are prioritized by consumers.
           </p>
         </div>
       </div>
