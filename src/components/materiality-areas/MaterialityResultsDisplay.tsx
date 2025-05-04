@@ -48,6 +48,17 @@ const MaterialityResultsDisplay = ({
     );
   }
 
+  // Show a prompt to select a category if none is selected
+  if (!selectedCategory) {
+    return (
+      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
+        <div className="text-center py-10">
+          Please select a category to view sustainability area data
+        </div>
+      </Card>
+    );
+  }
+
   if (!filteredData.length) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">

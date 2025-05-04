@@ -70,6 +70,19 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
       // If neither is in the ordering array, sort alphabetically
       return a.localeCompare(b);
     });
+
+    // For each category, calculate total percentage to sort by
+    const categoriesWithTotals = uniqueCategories.map(category => {
+      const totalValue = data
+        .filter(item => item.category === category)
+        .reduce((sum, item) => sum + item.value, 0);
+      return { name: category, total: totalValue };
+    });
+
+    // Sort categories by total percentage (high to low)
+    const sortedCategories = categoriesWithTotals
+      .sort((a, b) => b.total - a.total)
+      .map(item => item.name);
     
     if (chartType === 'stacked') {
       // Create stacked column chart
@@ -88,7 +101,7 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
           }
         },
         xAxis: {
-          categories: uniqueCategories,
+          categories: sortedCategories, // Use sorted categories
           title: {
             text: 'Sustainability Areas'
           }
@@ -127,7 +140,7 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
         },
         series: sortedLevels.map((level, index) => ({
           name: level,
-          data: uniqueCategories.map(category => {
+          data: sortedCategories.map(category => {
             const item = data.find(d => d.name === level && d.category === category);
             return item ? item.value : 0;
           }),
@@ -154,7 +167,7 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
           }
         },
         xAxis: {
-          categories: uniqueCategories,
+          categories: sortedCategories, // Use sorted categories
           title: {
             text: 'Sustainability Areas'
           }
@@ -192,7 +205,7 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
         },
         series: sortedLevels.map((level, index) => ({
           name: level,
-          data: uniqueCategories.map(category => {
+          data: sortedCategories.map(category => {
             const item = data.find(d => d.name === level && d.category === category);
             return item ? item.value : 0;
           }),
