@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import ImpactCategoryChart from './charts/ImpactCategoryChart';
-import ImpactCountryComparison from './ImpactCountryComparison';
+import ImpactCountryComparison from './comparison/ImpactCountryComparison';
+import ImpactTrendsView from './ImpactTrendsView';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
 
@@ -41,6 +42,38 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
         return acc;
       }, {} as Record<string, Record<string, Record<string, number>>>);
   }, [processedData, selectedCategories]);
+
+  // Extract years from the data
+  const years = React.useMemo(() => {
+    if (!processedData || Object.keys(processedData).length === 0) return [];
+    
+    const yearsSet = new Set<number>();
+    
+    Object.values(processedData).forEach(categoryData => {
+      Object.keys(categoryData).forEach(year => {
+        yearsSet.add(Number(year));
+      });
+    });
+    
+    return Array.from(yearsSet).sort((a, b) => a - b);
+  }, [processedData]);
+
+  // Extract impact levels from the data
+  const impactLevels = React.useMemo(() => {
+    if (!processedData || Object.keys(processedData).length === 0) return [];
+    
+    const levelsSet = new Set<string>();
+    
+    Object.values(processedData).forEach(categoryData => {
+      Object.values(categoryData).forEach(yearData => {
+        Object.keys(yearData).forEach(level => {
+          levelsSet.add(level);
+        });
+      });
+    });
+    
+    return Array.from(levelsSet);
+  }, [processedData]);
 
   // Generate insights based on the data
   const insightText = React.useMemo(() => {
@@ -97,38 +130,6 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
     return recs.length > 0 ? recs : ["Select more data points to generate strategic recommendations."];
   }, [processedData, selectedCategories, selectedYear, selectedLevels]);
 
-  // Extract years from the data
-  const years = React.useMemo(() => {
-    if (!processedData || Object.keys(processedData).length === 0) return [];
-    
-    const yearsSet = new Set<number>();
-    
-    Object.values(processedData).forEach(categoryData => {
-      Object.keys(categoryData).forEach(year => {
-        yearsSet.add(Number(year));
-      });
-    });
-    
-    return Array.from(yearsSet).sort((a, b) => a - b);
-  }, [processedData]);
-
-  // Extract impact levels from the data
-  const impactLevels = React.useMemo(() => {
-    if (!processedData || Object.keys(processedData).length === 0) return [];
-    
-    const levelsSet = new Set<string>();
-    
-    Object.values(processedData).forEach(categoryData => {
-      Object.values(categoryData).forEach(yearData => {
-        Object.keys(yearData).forEach(level => {
-          levelsSet.add(level);
-        });
-      });
-    });
-    
-    return Array.from(levelsSet);
-  }, [processedData]);
-
   return (
     <div className="space-y-6">
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
@@ -150,7 +151,6 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
             <TabsTrigger 
               value="trends" 
               className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
-              disabled={selectedCategories.length === 0 || !selectedYear}
             >
               Trends
             </TabsTrigger>
@@ -172,17 +172,19 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
           </TabsContent>
           
           <TabsContent value="trends" className="mt-0">
-            {selectedCategories.length > 0 && selectedYear ? (
-              <div className="text-center py-10">
-                <h3 className="text-lg font-medium text-[#34502b]">Trends View</h3>
-                <p className="text-gray-600 mt-2">
-                  Track how sustainability impact has changed over time.
-                </p>
-                <p className="text-sm text-[#34502b] mt-6">Coming soon</p>
-              </div>
+            {selectedCategories.length > 0 ? (
+              <ImpactTrendsView 
+                processedData={processedData}
+                selectedCategories={selectedCategories}
+                years={years}
+                impactLevels={impactLevels}
+                comparisonMode={false}
+                activeCountries={activeCountries}
+                countryDataMap={countryDataMap}
+              />
             ) : (
               <div className="text-center py-10 text-gray-500">
-                Please select categories and a year to view trend data.
+                Please select at least one category to view trend data.
               </div>
             )}
           </TabsContent>
@@ -196,6 +198,7 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
                 years={years}
                 impactLevels={impactLevels}
                 activeCountries={activeCountries}
+                countryDataMap={countryDataMap}
               />
             ) : (
               <div className="text-center py-10 text-gray-500">
