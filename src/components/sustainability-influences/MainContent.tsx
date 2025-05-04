@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,7 +6,7 @@ import CountryButtonSelect from "@/components/CountryButtonSelect";
 import TabView from "./TabView";
 import EmptySelection from "./EmptySelection";
 import { useToast } from "@/components/ui/use-toast";
-import { useAllInfluencesData } from "@/hooks/useSustainabilityInfluences";
+import { useAllCountriesInfluences } from "@/hooks/sustainability-influences";
 
 const MainContent = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
@@ -18,7 +17,7 @@ const MainContent = () => {
   const { toast } = useToast();
   
   // Fetch data for all selected countries
-  const { data: influencesData = {}, isLoading, error } = useAllInfluencesData(selectedCountries);
+  const { data: influencesData = {}, isLoading, error } = useAllCountriesInfluences(selectedCountries);
 
   // Define all available influences 
   const allInfluences = ["TV", "News Media", "Social Media", "Friends & Family"];

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { InfluenceData } from '@/hooks/useSustainabilityInfluences';
+import { InfluenceData } from '@/hooks/sustainability-influences';
 import SingleCountryChart from './charts/SingleCountryChart';
 import MultiCountryChart from './charts/MultiCountryChart';
 

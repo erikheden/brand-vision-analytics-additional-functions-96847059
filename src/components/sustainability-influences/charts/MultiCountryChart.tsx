@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { Card } from '@/components/ui/card';
-import { InfluenceData } from '@/hooks/useSustainabilityInfluences';
+import { InfluenceData } from '@/hooks/sustainability-influences';
 import { FONT_FAMILY } from '@/utils/constants';
 import { getFullCountryName } from '@/components/CountrySelect';
 

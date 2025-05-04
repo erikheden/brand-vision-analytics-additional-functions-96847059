@@ -1,6 +1,6 @@
 
-import { InfluenceData } from '@/hooks/useSustainabilityInfluences';
-import { getInfluencesData, InfluencesResponse } from './getInfluencesData';
+import { InfluenceData, InfluencesResponse } from '@/hooks/sustainability-influences';
+import { getInfluencesData } from './getInfluencesData';
 
 // Use 'export type' for type re-exports when isolatedModules is enabled
 export type { InfluencesResponse };

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { InfluenceData } from '@/hooks/useSustainabilityInfluences';
+import { InfluenceData } from '@/hooks/sustainability-influences';
 import { Card } from '@/components/ui/card';
 import InfluencesBarChart from './InfluencesBarChart';
 import InfluencesTrendChart from './InfluencesTrendChart';
