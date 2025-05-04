@@ -47,12 +47,10 @@ export const useProcessedChartData = (
   }, [
     selectedYear, 
     selectedImpactLevel, 
-    // Use strings instead of array references for dependency checking
-    selectedCategories.join('|'), 
-    activeCountries.join('|'),
-    // Only check for changes in object keys length as a lightweight dependency
-    Object.keys(processedData || {}).length,
-    countryDataMap ? Object.keys(countryDataMap).length : 0
+    selectedCategories.join('|'),  // Use joined string for stable comparison
+    activeCountries.join('|'),     // Use joined string for stable comparison
+    processedData,
+    countryDataMap
   ]);
 
   // Create series data for impact level comparison chart with improved memoization
@@ -90,12 +88,10 @@ export const useProcessedChartData = (
   }, [
     selectedYear,
     selectedCategory,
-    // Use strings instead of array references for dependency checking
-    impactLevels.join('|'),
-    activeCountries.join('|'),
-    // Only check for changes in object keys length as a lightweight dependency
-    Object.keys(processedData || {}).length,
-    countryDataMap ? Object.keys(countryDataMap).length : 0
+    impactLevels.join('|'),       // Use joined string for stable comparison
+    activeCountries.join('|'),    // Use joined string for stable comparison
+    processedData,
+    countryDataMap
   ]);
 
   return {

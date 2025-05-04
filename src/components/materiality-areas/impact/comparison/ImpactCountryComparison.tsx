@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import { useComparisonChartData } from '@/hooks/impact-comparison/useComparisonChartData';
+import { useProcessedChartData } from '@/hooks/impact-comparison/useProcessedChartData';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ImpactCountryComparisonProps {
@@ -40,8 +40,8 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     }
   }, [selectedCategories, impactLevels, selectedCategory, selectedImpactLevel]);
   
-  // Get chart options from the hook with memoization
-  const { createCategoryChart, createImpactLevelChart } = useComparisonChartData(
+  // Get processed chart data from the hook
+  const { seriesData, impactLevelData } = useProcessedChartData(
     processedData,
     selectedCategory,
     selectedImpactLevel,
@@ -51,6 +51,111 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     activeCountries,
     countryDataMap
   );
+  
+  // Create chart options based on the data from the hook
+  const categoryChartOptions = React.useMemo(() => {
+    if (seriesData.length === 0) return { chart: { type: 'column' }, series: [] };
+    
+    return {
+      chart: {
+        type: 'column',
+        backgroundColor: 'white',
+        style: { fontFamily: 'Inter, sans-serif' }
+      },
+      title: {
+        text: `${selectedImpactLevel} Impact Level Across Categories (${selectedYear})`,
+        style: { color: '#34502b', fontFamily: 'Inter, sans-serif' }
+      },
+      subtitle: {
+        text: `Comparing ${activeCountries.length} countries`,
+        style: { color: '#666', fontFamily: 'Inter, sans-serif' }
+      },
+      xAxis: {
+        categories: selectedCategories,
+        title: { text: 'Categories' },
+        labels: {
+          rotation: -45,
+          style: { fontSize: '11px', fontFamily: 'Inter, sans-serif' }
+        }
+      },
+      yAxis: {
+        min: 0,
+        max: 100,
+        title: {
+          text: 'Percentage (%)',
+          style: { color: '#34502b', fontFamily: 'Inter, sans-serif' }
+        },
+        labels: { format: '{value}%' }
+      },
+      legend: {
+        enabled: true,
+        itemStyle: { fontFamily: 'Inter, sans-serif' }
+      },
+      tooltip: {
+        headerFormat: '<b>{point.x}</b><br/>',
+        pointFormat: '{series.name}: {point.y:.1f}%',
+        shared: true
+      },
+      plotOptions: {
+        column: {
+          pointPadding: 0.2,
+          borderWidth: 0
+        }
+      },
+      series: seriesData,
+      credits: { enabled: false }
+    };
+  }, [seriesData, selectedImpactLevel, selectedCategories, activeCountries, selectedYear]);
+  
+  const impactLevelChartOptions = React.useMemo(() => {
+    if (impactLevelData.length === 0) return { chart: { type: 'column' }, series: [] };
+    
+    return {
+      chart: {
+        type: 'column',
+        backgroundColor: 'white',
+        style: { fontFamily: 'Inter, sans-serif' }
+      },
+      title: {
+        text: `${selectedCategory} - Impact Levels Comparison (${selectedYear})`,
+        style: { color: '#34502b', fontFamily: 'Inter, sans-serif' }
+      },
+      subtitle: {
+        text: `Comparing ${activeCountries.length} countries`,
+        style: { color: '#666', fontFamily: 'Inter, sans-serif' }
+      },
+      xAxis: {
+        categories: impactLevels,
+        title: { text: 'Impact Levels' }
+      },
+      yAxis: {
+        min: 0,
+        max: 100,
+        title: {
+          text: 'Percentage (%)',
+          style: { color: '#34502b', fontFamily: 'Inter, sans-serif' }
+        },
+        labels: { format: '{value}%' }
+      },
+      legend: {
+        enabled: true,
+        itemStyle: { fontFamily: 'Inter, sans-serif' }
+      },
+      tooltip: {
+        headerFormat: '<b>{point.x}</b><br/>',
+        pointFormat: '{series.name}: {point.y:.1f}%',
+        shared: true
+      },
+      plotOptions: {
+        column: {
+          pointPadding: 0.2,
+          borderWidth: 0
+        }
+      },
+      series: impactLevelData,
+      credits: { enabled: false }
+    };
+  }, [impactLevelData, selectedCategory, impactLevels, activeCountries, selectedYear]);
   
   // Display appropriate message if requirements aren't met
   if (activeCountries.length <= 1) {
@@ -84,7 +189,7 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
   }
   
   // Determine which chart options to use based on view mode
-  const chartOptions = viewMode === 'byCategory' ? createCategoryChart : createImpactLevelChart;
+  const chartOptions = viewMode === 'byCategory' ? categoryChartOptions : impactLevelChartOptions;
   
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">

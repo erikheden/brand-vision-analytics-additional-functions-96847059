@@ -45,6 +45,8 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
       return [];
     }
     
+    console.log(`Recalculating series data for ${selectedCategory}, ${selectedLevel}`);
+    
     return activeCountries.map(country => {
       // Use country-specific data from the map if available
       const countrySpecificData = countryDataMap?.[country]?.processedData || {};
@@ -70,7 +72,14 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
         type: 'line' as const
       };
     });
-  }, [selectedCategory, selectedLevel, years, activeCountries, processedData, countryDataMap]);
+  }, [
+    selectedCategory, 
+    selectedLevel, 
+    years,
+    activeCountries.join('|'), // Use joined string for stable comparison
+    processedData, 
+    countryDataMap
+  ]);
   
   // Create chart options based on calculated series data
   const chartOptions = useMemo(() => {
@@ -79,7 +88,8 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
         type: 'line',
         backgroundColor: 'white',
         style: { fontFamily: FONT_FAMILY },
-        height: 400
+        height: 400,
+        animation: false // Disable animations for faster rendering
       },
       title: {
         text: `${selectedCategory} - ${selectedLevel} Impact Level Trend`,
@@ -110,6 +120,12 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
       series: seriesData,
       credits: {
         enabled: false
+      },
+      plotOptions: {
+        series: {
+          animation: false, // Disable animations for faster rendering
+          turboThreshold: 0 // Disable series optimization for consistent rendering
+        }
       }
     } as Highcharts.Options;
   }, [selectedCategory, selectedLevel, seriesData]);
@@ -163,7 +179,10 @@ const ImpactTrendsView: React.FC<ImpactTrendsViewProps> = ({
               highcharts={Highcharts} 
               options={chartOptions}
               immutable={true}
-              updateArgs={[true, true, true]}
+              updateArgs={[true, false, false]} // Only redraw when necessary
+              callback={(chart) => {
+                chart.reflow(); // Force chart to properly size itself
+              }}
             />
           </div>
         ) : (
