@@ -40,6 +40,15 @@ const TabView: React.FC<TabViewProps> = ({
     );
   }
 
+  // Initialize selectedInfluences with all influences if empty and in trends tab
+  React.useEffect(() => {
+    if (activeTab === "trends" && influences && influences.length > 0 && 
+        selectedInfluences.length === 0 && setSelectedInfluences) {
+      // Select first two influences by default to avoid empty chart
+      setSelectedInfluences(influences.slice(0, 2));
+    }
+  }, [activeTab, influences, selectedInfluences, setSelectedInfluences]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div className="md:col-span-1">

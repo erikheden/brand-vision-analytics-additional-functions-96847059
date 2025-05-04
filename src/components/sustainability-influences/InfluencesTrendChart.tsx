@@ -48,9 +48,16 @@ const InfluencesTrendChart: React.FC<InfluencesTrendChartProps> = ({
 
   // Check if we have actual data to display
   const hasData = useMemo(() => {
-    return Object.keys(data).length > 0 && 
-      Object.values(data).some(countryData => countryData.length > 0);
-  }, [data]);
+    if (!data || Object.keys(data).length === 0) return false;
+    
+    // Check if any country has data for any selected influence
+    return countries.some(country => {
+      const countryData = data[country] || [];
+      return countryData.some(item => 
+        selectedInfluences.includes(item.english_label_short)
+      );
+    });
+  }, [data, countries, selectedInfluences]);
 
   if (!hasData) {
     return (

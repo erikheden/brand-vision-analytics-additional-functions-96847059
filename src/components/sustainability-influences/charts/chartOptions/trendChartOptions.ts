@@ -18,7 +18,11 @@ export const createTrendChartOptions = (
       style: {
         fontFamily: FONT_FAMILY
       },
-      height: 500
+      height: 500,
+      spacingBottom: 20,
+      spacingTop: 20,
+      spacingLeft: 20,
+      spacingRight: 20
     },
     title: {
       text: 'Sustainability Influences Trends',
@@ -37,6 +41,13 @@ export const createTrendChartOptions = (
       }
     },
     xAxis: {
+      title: {
+        text: 'Year',
+        style: {
+          color: '#34502b',
+          fontFamily: FONT_FAMILY
+        }
+      },
       type: 'category',
       labels: {
         style: {
@@ -59,7 +70,9 @@ export const createTrendChartOptions = (
           color: '#34502b',
           fontFamily: FONT_FAMILY
         }
-      }
+      },
+      min: 0, // Start at 0 to provide better context
+      max: 100 // Scale to 100% for percentages
     },
     tooltip: {
       formatter: function () {
@@ -69,7 +82,9 @@ export const createTrendChartOptions = (
     plotOptions: {
       line: {
         marker: {
-          enabled: true
+          enabled: true,
+          symbol: 'circle',
+          radius: 4
         },
         lineWidth: 2
       }
@@ -83,7 +98,10 @@ export const createTrendChartOptions = (
       itemStyle: {
         fontFamily: FONT_FAMILY,
         color: '#34502b'
-      }
+      },
+      layout: 'vertical',
+      align: 'right',
+      verticalAlign: 'middle'
     }
   };
 
@@ -102,6 +120,12 @@ export const createTrendChartSeries = (
 
   const series: Highcharts.SeriesOptionsType[] = [];
   
+  // Define colors to ensure visual distinction
+  const baseColors = [
+    '#34502b', '#4e7441', '#689857', '#81bc6d', 
+    '#257179', '#328a94', '#3fa3ae', '#4dbcc9'
+  ];
+  
   // For each country and each selected influence, create a series
   countries.forEach((country, countryIndex) => {
     const countryData = data[country] || [];
@@ -113,16 +137,19 @@ export const createTrendChartSeries = (
         .sort((a, b) => a.year - b.year);
       
       if (influenceData.length > 0) {
-        // Format data for Highcharts
+        // Format data for Highcharts - multiply by 100 to show as percentage
         const seriesData = influenceData.map(item => [
           item.year,
-          item.percentage * 100
+          Math.round(item.percentage * 100) // Convert from 0-1 to 0-100%
         ]);
         
-        // Calculate color - vary by country and influence
-        const colorIntensity = 0.9 - (countryIndex * 0.15) - (influenceIndex * 0.05);
-        const color = `rgba(52, 80, 43, ${Math.max(0.3, colorIntensity)})`;
-        const dashStyle = countryIndex % 2 === 0 ? 'Solid' : 'Dash';
+        // Calculate color - cycle through colors by influence first, then by country
+        const colorIndex = (influenceIndex * countries.length + countryIndex) % baseColors.length;
+        const color = baseColors[colorIndex];
+        
+        // Use different dash styles per country for better distinction when colors repeat
+        const dashStyles = ['Solid', 'Dash', 'DashDot', 'Dot'];
+        const dashStyle = countries.length > 1 ? dashStyles[countryIndex % dashStyles.length] : 'Solid';
         
         series.push({
           type: 'line',
@@ -131,7 +158,8 @@ export const createTrendChartSeries = (
           color: color,
           dashStyle: dashStyle as any,
           marker: {
-            enabled: true
+            enabled: true,
+            symbol: 'circle'
           },
           lineWidth: 2
         });

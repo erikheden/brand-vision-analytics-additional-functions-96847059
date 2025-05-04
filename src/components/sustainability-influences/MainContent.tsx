@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSelectionData } from "@/hooks/useSelectionData";
@@ -19,6 +19,20 @@ const MainContent = () => {
   
   // Fetch data for all selected countries
   const { data: influencesData = {}, isLoading, error } = useAllInfluencesData(selectedCountries);
+
+  // Define all available influences 
+  const allInfluences = ["TV", "News Media", "Social Media", "Friends & Family"];
+
+  // Reset selected influences when changing tabs
+  useEffect(() => {
+    if (activeTab === "current") {
+      // For current view, we don't need to pre-select influences
+      setSelectedInfluences([]);
+    } else if (activeTab === "trends" && selectedInfluences.length === 0) {
+      // For trends view, pre-select two influences as default
+      setSelectedInfluences(allInfluences.slice(0, 2));
+    }
+  }, [activeTab]);
 
   const handleCountryChange = (country: string) => {
     setSelectedCountries(current => {
@@ -80,28 +94,28 @@ const MainContent = () => {
               
               <TabsContent value="current">
                 <TabView 
-                  activeTab={activeTab} 
+                  activeTab="current" 
                   selectedCountries={selectedCountries}
                   selectedYear={selectedYear}
                   selectedInfluences={selectedInfluences}
                   influencesData={influencesData}
                   years={[2021, 2022, 2023, 2024]}
                   setSelectedYear={setSelectedYear}
-                  influences={["TV", "News Media", "Social Media", "Friends & Family"]}
+                  influences={allInfluences}
                   setSelectedInfluences={setSelectedInfluences}
                 />
               </TabsContent>
               
               <TabsContent value="trends">
                 <TabView 
-                  activeTab={activeTab} 
+                  activeTab="trends" 
                   selectedCountries={selectedCountries}
                   selectedYear={selectedYear}
                   selectedInfluences={selectedInfluences}
                   influencesData={influencesData}
                   years={[2021, 2022, 2023, 2024]}
                   setSelectedYear={setSelectedYear}
-                  influences={["TV", "News Media", "Social Media", "Friends & Family"]}
+                  influences={allInfluences}
                   setSelectedInfluences={setSelectedInfluences}
                 />
               </TabsContent>
