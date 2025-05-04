@@ -47,6 +47,9 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
   
   // Create chart options
   const chartOptions = useMemo(() => {
+    // Get all unique categories present in data
+    const uniqueCategories = [...new Set(data.map(item => item.category))];
+    
     // Get all unique impact levels present in data
     const impactLevels = [...new Set(data.map(item => item.name))];
     
@@ -69,16 +72,7 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
     });
     
     if (chartType === 'stacked') {
-      // Prepare stacked data for each category
-      const series = categories.map((category, index) => ({
-        name: category,
-        data: sortedLevels.map(level => {
-          const item = data.find(d => d.name === level && d.category === category);
-          return item ? item.value : 0;
-        }),
-        color: getColor(category, index)
-      }));
-      
+      // Create stacked column chart
       return {
         chart: {
           type: 'column',
@@ -94,9 +88,9 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
           }
         },
         xAxis: {
-          categories: sortedLevels,
+          categories: uniqueCategories,
           title: {
-            text: null
+            text: 'Sustainability Areas'
           }
         },
         yAxis: {
@@ -111,42 +105,43 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
         },
         tooltip: {
           formatter: function() {
-            return `<b>${this.x}</b><br>${this.series.name}: ${roundPercentage(this.y)}%`;
+            return `<b>${this.series.name}</b><br>${this.x}: ${roundPercentage(this.y)}%`;
           }
         },
         plotOptions: {
           column: {
             stacking: 'normal',
             dataLabels: {
-              enabled: false
+              enabled: true,
+              formatter: function() {
+                return this.y > 5 ? roundPercentage(this.y) + '%' : '';
+              }
             },
             borderRadius: 3
           }
         },
         legend: {
-          align: 'right',
-          verticalAlign: 'top',
-          layout: 'vertical'
+          align: 'center',
+          verticalAlign: 'bottom',
+          layout: 'horizontal'
         },
-        series: series,
+        series: sortedLevels.map((level, index) => ({
+          name: level,
+          data: uniqueCategories.map(category => {
+            const item = data.find(d => d.name === level && d.category === category);
+            return item ? item.value : 0;
+          }),
+          color: getColor(level, index)
+        })),
         credits: {
           enabled: false
         }
       };
     } else {
-      // Prepare data for horizontal bar chart
-      const series = categories.map((category, index) => ({
-        name: category,
-        data: sortedLevels.map(level => {
-          const item = data.find(d => d.name === level && d.category === category);
-          return item ? item.value : 0;
-        }),
-        color: getColor(category, index)
-      }));
-
+      // Create standard column chart (not stacked)
       return {
         chart: {
-          type: 'bar',
+          type: 'column',
           style: {
             fontFamily: FONT_FAMILY
           }
@@ -159,9 +154,9 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
           }
         },
         xAxis: {
-          categories: sortedLevels,
+          categories: uniqueCategories,
           title: {
-            text: null
+            text: 'Sustainability Areas'
           }
         },
         yAxis: {
@@ -176,23 +171,33 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
         },
         tooltip: {
           formatter: function() {
-            return `<b>${this.x}</b><br>${this.series.name}: ${roundPercentage(this.y)}%`;
+            return `<b>${this.series.name}</b><br>${this.x}: ${roundPercentage(this.y)}%`;
           }
         },
         plotOptions: {
-          bar: {
+          column: {
             dataLabels: {
-              enabled: false
+              enabled: true,
+              formatter: function() {
+                return this.y > 5 ? roundPercentage(this.y) + '%' : '';
+              }
             },
             borderRadius: 3
           }
         },
         legend: {
-          align: 'right',
-          verticalAlign: 'top',
-          layout: 'vertical'
+          align: 'center',
+          verticalAlign: 'bottom',
+          layout: 'horizontal'
         },
-        series: series,
+        series: sortedLevels.map((level, index) => ({
+          name: level,
+          data: uniqueCategories.map(category => {
+            const item = data.find(d => d.name === level && d.category === category);
+            return item ? item.value : 0;
+          }),
+          color: getColor(level, index)
+        })),
         credits: {
           enabled: false
         }
@@ -211,7 +216,7 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
       
       {chartType === 'stacked' && (
         <div className="mt-4 text-center text-sm text-gray-500">
-          Stacked view shows the distribution of impact levels within each category
+          Stacked view shows the distribution of impact levels across sustainability areas
         </div>
       )}
     </div>
