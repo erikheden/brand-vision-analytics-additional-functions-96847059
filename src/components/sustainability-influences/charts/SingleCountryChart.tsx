@@ -35,6 +35,8 @@ const SingleCountryChart: React.FC<SingleCountryChartProps> = ({
       percentage: item.percentage
     }));
 
+  console.log(`Rendering chart for ${country}, year ${selectedYear}, data points: ${chartData.length}`);
+
   if (chartData.length === 0) {
     return isCompact ? (
       <div className="text-center py-6 text-gray-500">

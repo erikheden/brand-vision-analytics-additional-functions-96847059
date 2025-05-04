@@ -7,8 +7,12 @@ export type { InfluencesResponse };
 
 export const fetchInfluencesData = async (country: string): Promise<InfluencesResponse> => {
   try {
+    // Ensure country code is uppercase for consistent querying
+    const normalizedCountry = country.toUpperCase();
+    console.log(`Fetching influences data for country: ${normalizedCountry}`);
+    
     // Use our utility function directly instead of an API call
-    return await getInfluencesData(country);
+    return await getInfluencesData(normalizedCountry);
   } catch (error) {
     console.error(`Failed to fetch influences data for ${country}:`, error);
     // Return empty data structure on error

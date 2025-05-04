@@ -78,17 +78,33 @@ const MainContent = () => {
                 </TabsTrigger>
               </TabsList>
               
-              <TabView 
-                activeTab={activeTab} 
-                selectedCountries={selectedCountries}
-                selectedYear={selectedYear}
-                selectedInfluences={selectedInfluences}
-                influencesData={influencesData}
-                years={[2021, 2022, 2023, 2024]}
-                setSelectedYear={setSelectedYear}
-                influences={["TV", "News Media", "Social Media", "Friends & Family"]}
-                setSelectedInfluences={setSelectedInfluences}
-              />
+              <TabsContent value="current">
+                <TabView 
+                  activeTab={activeTab} 
+                  selectedCountries={selectedCountries}
+                  selectedYear={selectedYear}
+                  selectedInfluences={selectedInfluences}
+                  influencesData={influencesData}
+                  years={[2021, 2022, 2023, 2024]}
+                  setSelectedYear={setSelectedYear}
+                  influences={["TV", "News Media", "Social Media", "Friends & Family"]}
+                  setSelectedInfluences={setSelectedInfluences}
+                />
+              </TabsContent>
+              
+              <TabsContent value="trends">
+                <TabView 
+                  activeTab={activeTab} 
+                  selectedCountries={selectedCountries}
+                  selectedYear={selectedYear}
+                  selectedInfluences={selectedInfluences}
+                  influencesData={influencesData}
+                  years={[2021, 2022, 2023, 2024]}
+                  setSelectedYear={setSelectedYear}
+                  influences={["TV", "News Media", "Social Media", "Friends & Family"]}
+                  setSelectedInfluences={setSelectedInfluences}
+                />
+              </TabsContent>
             </Tabs>
           </Card>
         )}

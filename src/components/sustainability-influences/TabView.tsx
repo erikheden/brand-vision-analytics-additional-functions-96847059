@@ -43,7 +43,7 @@ const TabView: React.FC<TabViewProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div className="md:col-span-1">
-        {activeTab === "yearly" && years && setSelectedYear ? (
+        {activeTab === "current" && years && setSelectedYear ? (
           <YearSelector
             years={years}
             selectedYear={selectedYear}
@@ -59,7 +59,7 @@ const TabView: React.FC<TabViewProps> = ({
       </div>
       
       <div className="md:col-span-3">
-        {activeTab === "yearly" ? (
+        {activeTab === "current" ? (
           <InfluencesBarChart
             data={influencesData}
             selectedYear={selectedYear}
