@@ -14,17 +14,15 @@ const MainContent: React.FC = () => {
   const { toast } = useToast();
 
   const handleCountryChange = (country: string) => {
-    setSelectedCountries((current: string[]) => {
-      if (current.includes(country)) {
-        return current.filter(c => c !== country);
-      } else {
-        toast({
-          title: `${country} Selected`,
-          description: "Loading sustainability knowledge data for this country",
-        });
-        return [...current, country];
-      }
-    });
+    if (selectedCountries.includes(country)) {
+      setSelectedCountries(selectedCountries.filter(c => c !== country));
+    } else {
+      toast({
+        title: `${country} Selected`,
+        description: "Loading sustainability knowledge data for this country",
+      });
+      setSelectedCountries([...selectedCountries, country]);
+    }
   };
 
   return (
