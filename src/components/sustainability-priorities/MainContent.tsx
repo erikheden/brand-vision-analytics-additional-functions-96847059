@@ -12,8 +12,12 @@ import { useToast } from "@/components/ui/use-toast";
 const MainContent = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("priorities");
+  const [selectedYear, setSelectedYear] = useState<number>(2023);
+  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const { countries } = useSelectionData("", []);
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   
   const handleCountryChange = (country: string) => {
     setSelectedCountries(current => {
@@ -28,6 +32,9 @@ const MainContent = () => {
       }
     });
   };
+
+  // Available years for the data
+  const years = [2021, 2022, 2023, 2024];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -76,12 +83,22 @@ const MainContent = () => {
               <TabsContent value="priorities" className="mt-0">
                 <PrioritiesView 
                   selectedCountries={selectedCountries}
+                  years={years}
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                  isLoading={isLoading}
+                  error={error}
                 />
               </TabsContent>
               
               <TabsContent value="trends" className="mt-0">
                 <TrendsView 
                   selectedCountries={selectedCountries}
+                  areas={["Climate Change", "Pollution", "Resource Use", "Biodiversity", "Social Impact"]}
+                  selectedAreas={selectedAreas}
+                  setSelectedAreas={setSelectedAreas}
+                  isLoading={isLoading}
+                  error={error}
                 />
               </TabsContent>
             </Tabs>

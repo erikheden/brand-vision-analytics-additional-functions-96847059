@@ -7,12 +7,18 @@ import CountryButtonSelect from "@/components/CountryButtonSelect";
 import TabView from "./TabView";
 import EmptySelection from "./EmptySelection";
 import { useToast } from "@/components/ui/use-toast";
+import { useAllInfluencesData } from "@/hooks/useSustainabilityInfluences";
 
 const MainContent = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("current");
+  const [selectedYear, setSelectedYear] = useState<number>(2023);
+  const [selectedInfluences, setSelectedInfluences] = useState<string[]>([]);
   const { countries } = useSelectionData("", []);
   const { toast } = useToast();
+  
+  // Fetch data for all selected countries
+  const { data: influencesData = {}, isLoading, error } = useAllInfluencesData(selectedCountries);
 
   const handleCountryChange = (country: string) => {
     setSelectedCountries(current => {
@@ -74,7 +80,14 @@ const MainContent = () => {
               
               <TabView 
                 activeTab={activeTab} 
-                selectedCountries={selectedCountries} 
+                selectedCountries={selectedCountries}
+                selectedYear={selectedYear}
+                selectedInfluences={selectedInfluences}
+                influencesData={influencesData}
+                years={[2021, 2022, 2023, 2024]}
+                setSelectedYear={setSelectedYear}
+                influences={["TV", "News Media", "Social Media", "Friends & Family"]}
+                setSelectedInfluences={setSelectedInfluences}
               />
             </Tabs>
           </Card>

@@ -30,7 +30,7 @@ const TrendsView: React.FC<TrendsViewProps> = ({
     isPlaceholderData,
     isLoading,
     error
-  } = useTrendsData(selectedCountries, selectedAreas); // Use the actual selectedAreas passed from parent
+  } = useTrendsData(selectedCountries, selectedAreas);
 
   // Combine loading and error states from both sources
   const combinedIsLoading = isLoading || externalIsLoading;
@@ -62,7 +62,7 @@ const TrendsView: React.FC<TrendsViewProps> = ({
             <AreaFocusTab 
               selectedCountries={selectedCountries} 
               allAreas={allAreas} 
-              selectedAreas={selectedAreas} // Pass the actual selectedAreas, not an empty array
+              selectedAreas={selectedAreas}
               setSelectedAreas={setSelectedAreas} 
               trendData={trendData} 
             />
