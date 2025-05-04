@@ -1,8 +1,7 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Card } from "@/components/ui/card";
 import ImpactBarChart from "./ImpactBarChart";
-import { ChartControls } from "./impact/components/ChartControls";
 
 // Define the MaterialityData interface since it's not exported from useMaterialityFilters
 interface MaterialityData {
@@ -28,8 +27,6 @@ const MaterialityResultsDisplay = ({
   selectedCategory,
   filteredData,
 }: MaterialityResultsDisplayProps) => {
-  const [chartMode, setChartMode] = useState<'bar' | 'stacked'>('bar');
-
   if (isLoading) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
@@ -82,19 +79,11 @@ const MaterialityResultsDisplay = ({
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <div className="space-y-6">
-        <div className="flex justify-end mb-2">
-          <ChartControls 
-            chartMode={chartMode} 
-            onChartModeChange={(value: string) => setChartMode(value as 'bar' | 'stacked')} 
-          />
-        </div>
-
         <div className="mb-4">
           <ImpactBarChart
             data={chartData}
             title={`Sustainability Areas in ${selectedCategory} - ${selectedCountry}`}
             categories={categories}
-            chartType={chartMode}
           />
         </div>
 
