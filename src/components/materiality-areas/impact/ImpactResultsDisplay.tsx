@@ -62,8 +62,8 @@ const ImpactResultsDisplay: React.FC<ImpactResultsDisplayProps> = ({
       selectedLevels={selectedLevels}
       isLoading={isLoading}
       error={error}
-      activeCountries={[selectedCountry]} // Add the missing activeCountries prop
-      countryDataMap={{}} // Add an empty countryDataMap as a fallback
+      activeCountries={[selectedCountry]} // Single country mode
+      countryDataMap={{}} // Empty countryDataMap as a fallback
     />
   );
 };

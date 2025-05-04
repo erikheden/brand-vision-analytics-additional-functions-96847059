@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import ComparisonChartControls from './comparison/ComparisonChartControls';
-import ComparisonAnalysisPanel from './comparison/ComparisonAnalysisPanel';
-import { useComparisonChartData } from '@/hooks/useComparisonChartData';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getFullCountryName } from '@/components/CountrySelect';
 
 interface ImpactCountryComparisonProps {
   processedData: Record<string, Record<string, Record<string, number>>>;
@@ -39,67 +39,183 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     }
   }, [selectedCategories, impactLevels, selectedCategory, selectedImpactLevel]);
   
-  const { createCategoryChart, createImpactLevelChart } = useComparisonChartData(
-    processedData,
-    selectedCategory,
-    selectedImpactLevel,
-    selectedYear,
-    selectedCategories,
-    impactLevels,
-    activeCountries
-  );
+  // Create chart options for category comparison
+  const createCategoryChart = () => {
+    if (!selectedYear || !selectedImpactLevel) return {};
+    
+    const categories = selectedCategories;
+    const series = activeCountries.map(country => {
+      // Map each category to its value
+      const data = categories.map(category => {
+        const value = processedData[category]?.[selectedYear]?.[selectedImpactLevel] || 0;
+        return value * 100; // Convert to percentage
+      });
+      
+      return {
+        name: getFullCountryName(country),
+        data,
+        type: 'column'
+      };
+    });
+    
+    return {
+      chart: {
+        type: 'column',
+        height: 400
+      },
+      title: {
+        text: `${selectedImpactLevel} Impact Level by Category (${selectedYear})`
+      },
+      subtitle: {
+        text: 'Comparison across countries'
+      },
+      xAxis: {
+        categories: categories,
+        title: {
+          text: 'Category'
+        }
+      },
+      yAxis: {
+        min: 0,
+        title: {
+          text: 'Percentage'
+        },
+        labels: {
+          format: '{value}%'
+        }
+      },
+      tooltip: {
+        formatter: function() {
+          return `<b>${this.series.name}</b><br/>${this.x}: ${this.y.toFixed(1)}%`;
+        }
+      },
+      plotOptions: {
+        column: {
+          pointPadding: 0.2,
+          borderWidth: 0
+        }
+      },
+      series: series
+    };
+  };
+  
+  // Create chart options for impact level comparison
+  const createImpactLevelChart = () => {
+    if (!selectedYear || !selectedCategory) return {};
+    
+    const series = activeCountries.map(country => {
+      // Map each impact level to its value
+      const data = impactLevels.map(level => {
+        const value = processedData[selectedCategory]?.[selectedYear]?.[level] || 0;
+        return value * 100; // Convert to percentage
+      });
+      
+      return {
+        name: getFullCountryName(country),
+        data,
+        type: 'column'
+      };
+    });
+    
+    return {
+      chart: {
+        type: 'column',
+        height: 400
+      },
+      title: {
+        text: `${selectedCategory} by Impact Level (${selectedYear})`
+      },
+      subtitle: {
+        text: 'Comparison across countries'
+      },
+      xAxis: {
+        categories: impactLevels,
+        title: {
+          text: 'Impact Level'
+        }
+      },
+      yAxis: {
+        min: 0,
+        title: {
+          text: 'Percentage'
+        },
+        labels: {
+          format: '{value}%'
+        }
+      },
+      tooltip: {
+        formatter: function() {
+          return `<b>${this.series.name}</b><br/>${this.x}: ${this.y.toFixed(1)}%`;
+        }
+      },
+      plotOptions: {
+        column: {
+          pointPadding: 0.2,
+          borderWidth: 0
+        }
+      },
+      series: series
+    };
+  };
 
-  if (activeCountries.length <= 1) {
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-10 text-gray-500">
-          Please select at least two countries to compare impact data.
-        </div>
-      </Card>
-    );
-  }
-  
-  if (selectedCategories.length === 0) {
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-10 text-gray-500">
-          Please select at least one category to view comparison data.
-        </div>
-      </Card>
-    );
-  }
-  
-  if (!selectedYear) {
-    return (
-      <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-        <div className="text-center py-10 text-gray-500">
-          Please select a year to view comparison data.
-        </div>
-      </Card>
-    );
-  }
-  
-  const chartOptions = viewMode === 'byCategory' ? createCategoryChart : createImpactLevelChart;
-  
   return (
-    <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-      <div className="space-y-6">
-        <ComparisonChartControls 
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-          selectedImpactLevel={selectedImpactLevel}
-          setSelectedImpactLevel={setSelectedImpactLevel}
-          impactLevels={impactLevels}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedCategories={selectedCategories}
-        />
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row gap-4 justify-between">
+        <Tabs value={viewMode} onValueChange={(value: string) => setViewMode(value as 'byCategory' | 'byImpactLevel')} className="w-full md:w-auto">
+          <TabsList className="grid grid-cols-2 w-full">
+            <TabsTrigger value="byCategory">By Category</TabsTrigger>
+            <TabsTrigger value="byImpactLevel">By Impact Level</TabsTrigger>
+          </TabsList>
+        </Tabs>
         
-        <HighchartsReact highcharts={Highcharts} options={chartOptions} />
-        
-        <ComparisonAnalysisPanel viewMode={viewMode} />
+        <div className="flex flex-col md:flex-row gap-4">
+          {viewMode === 'byCategory' ? (
+            <div className="w-full md:w-64">
+              <Select 
+                value={selectedImpactLevel} 
+                onValueChange={setSelectedImpactLevel}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select Impact Level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {impactLevels.map(level => (
+                    <SelectItem key={level} value={level}>
+                      {level}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : (
+            <div className="w-full md:w-64">
+              <Select 
+                value={selectedCategory} 
+                onValueChange={setSelectedCategory}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {selectedCategories.map(category => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
       </div>
-    </Card>
+      
+      <div className="w-full h-[400px]">
+        <HighchartsReact 
+          highcharts={Highcharts} 
+          options={viewMode === 'byCategory' ? createCategoryChart() : createImpactLevelChart()} 
+        />
+      </div>
+    </div>
   );
 };
 

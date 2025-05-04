@@ -1,7 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import ImpactCategoryChart from './charts/ImpactCategoryChart';
+import ImpactCountryComparison from './ImpactCountryComparison';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
 
@@ -26,6 +28,8 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
   activeCountries,
   countryDataMap
 }) => {
+  const [activeTab, setActiveTab] = useState<string>("category");
+  
   // Filter processedData to only include selected categories
   const filteredData = React.useMemo(() => {
     if (!selectedCategories.length || !processedData) return processedData;
@@ -93,21 +97,113 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
     return recs.length > 0 ? recs : ["Select more data points to generate strategic recommendations."];
   }, [processedData, selectedCategories, selectedYear, selectedLevels]);
 
+  // Extract years from the data
+  const years = React.useMemo(() => {
+    if (!processedData || Object.keys(processedData).length === 0) return [];
+    
+    const yearsSet = new Set<number>();
+    
+    Object.values(processedData).forEach(categoryData => {
+      Object.keys(categoryData).forEach(year => {
+        yearsSet.add(Number(year));
+      });
+    });
+    
+    return Array.from(yearsSet).sort((a, b) => a - b);
+  }, [processedData]);
+
+  // Extract impact levels from the data
+  const impactLevels = React.useMemo(() => {
+    if (!processedData || Object.keys(processedData).length === 0) return [];
+    
+    const levelsSet = new Set<string>();
+    
+    Object.values(processedData).forEach(categoryData => {
+      Object.values(categoryData).forEach(yearData => {
+        Object.keys(yearData).forEach(level => {
+          levelsSet.add(level);
+        });
+      });
+    });
+    
+    return Array.from(levelsSet);
+  }, [processedData]);
+
   return (
     <div className="space-y-6">
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-[#34502b] mb-2">Sustainability Impact Analysis</h3>
           <p className="text-gray-600 text-sm">
-            This chart shows how consumers engage with sustainability across different categories and impact levels.
+            Explore impact data by category or compare across countries.
           </p>
         </div>
         
-        <ImpactCategoryChart 
-          data={filteredData}
-          selectedYear={selectedYear}
-          selectedLevels={selectedLevels}
-        />
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6 bg-[#34502b]/10">
+            <TabsTrigger 
+              value="category" 
+              className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
+            >
+              Category View
+            </TabsTrigger>
+            <TabsTrigger 
+              value="trends" 
+              className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
+              disabled={selectedCategories.length === 0 || !selectedYear}
+            >
+              Trends
+            </TabsTrigger>
+            <TabsTrigger 
+              value="comparison" 
+              className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
+              disabled={activeCountries.length <= 1 || selectedCategories.length === 0 || !selectedYear}
+            >
+              Country Comparison
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="category" className="mt-0">
+            <ImpactCategoryChart 
+              data={filteredData}
+              selectedYear={selectedYear}
+              selectedLevels={selectedLevels}
+            />
+          </TabsContent>
+          
+          <TabsContent value="trends" className="mt-0">
+            {selectedCategories.length > 0 && selectedYear ? (
+              <div className="text-center py-10">
+                <h3 className="text-lg font-medium text-[#34502b]">Trends View</h3>
+                <p className="text-gray-600 mt-2">
+                  Track how sustainability impact has changed over time.
+                </p>
+                <p className="text-sm text-[#34502b] mt-6">Coming soon</p>
+              </div>
+            ) : (
+              <div className="text-center py-10 text-gray-500">
+                Please select categories and a year to view trend data.
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="comparison" className="mt-0">
+            {activeCountries.length > 1 && selectedCategories.length > 0 && selectedYear ? (
+              <ImpactCountryComparison 
+                processedData={processedData}
+                selectedCategories={selectedCategories}
+                selectedYear={selectedYear}
+                years={years}
+                impactLevels={impactLevels}
+                activeCountries={activeCountries}
+              />
+            ) : (
+              <div className="text-center py-10 text-gray-500">
+                Please select at least two countries and one category to compare data.
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
