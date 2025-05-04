@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useMaterialityFilters } from "@/hooks/useMaterialityFilters";
@@ -19,7 +18,7 @@ interface MaterialityData {
 }
 
 const MaterialityAreasContent = () => {
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
   const { toast } = useToast();
   const { countries } = useSelectionData("", []);
   
@@ -32,7 +31,7 @@ const MaterialityAreasContent = () => {
     categories,
     setSelectedCategory,
     toggleFactor
-  } = useMaterialityFilters(selectedCountries[0]); // Pass the first selected country for now
+  } = useMaterialityFilters(selectedCountry); // Pass the selected country
 
   // Map VHOData to MaterialityData using only VHO-specific terminology
   const mappedData: MaterialityData[] = vhoFilteredData.map((item) => ({
@@ -44,14 +43,16 @@ const MaterialityAreasContent = () => {
   }));
 
   const handleCountryChange = (country: string) => {
-    if (selectedCountries.includes(country)) {
-      setSelectedCountries(selectedCountries.filter(c => c !== country));
+    // If clicking the currently selected country, deselect it
+    if (selectedCountry === country) {
+      setSelectedCountry("");
     } else {
+      // Otherwise select the new country
       toast({
         title: `${country} Selected`,
         description: "Loading materiality data for this country",
       });
-      setSelectedCountries([...selectedCountries, country]);
+      setSelectedCountry(country);
     }
   };
 
@@ -62,15 +63,15 @@ const MaterialityAreasContent = () => {
         
         {/* Country Selection Card */}
         <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
-          <h2 className="text-lg font-semibold text-[#34502b] mb-3">Select Countries</h2>
+          <h2 className="text-lg font-semibold text-[#34502b] mb-3">Select a Country</h2>
           <CountryButtonSelect 
             countries={countries || []} 
-            selectedCountries={selectedCountries} 
+            selectedCountry={selectedCountry} 
             onCountryChange={handleCountryChange} 
           />
         </Card>
         
-        {selectedCountries.length > 0 ? (
+        {selectedCountry ? (
           <div className="space-y-6">
             {/* Filters Section */}
             <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
@@ -104,7 +105,7 @@ const MaterialityAreasContent = () => {
             <MaterialityResultsDisplay 
               isLoading={isLoading} 
               error={error} 
-              selectedCountry={selectedCountries[0]} 
+              selectedCountry={selectedCountry} 
               selectedCategory={selectedCategory} 
               filteredData={mappedData} 
             />
@@ -124,7 +125,7 @@ const EmptySelection = () => {
       <div className="text-center py-10">
         <h3 className="text-xl font-medium text-[#34502b] mb-2">Select a Country to Get Started</h3>
         <p className="text-gray-600 max-w-md mx-auto">
-          Choose at least one country above to view sustainability materiality data and insights.
+          Choose a country above to view sustainability materiality data and insights.
         </p>
       </div>
     </Card>

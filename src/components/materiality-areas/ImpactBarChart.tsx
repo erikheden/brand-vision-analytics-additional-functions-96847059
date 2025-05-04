@@ -32,7 +32,7 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
 
   return (
     <div className="w-full h-full">
-      <div className="h-[400px]">
+      <div className="h-[500px]">
         <HighchartsReact 
           highcharts={Highcharts} 
           options={chartOptions} 
