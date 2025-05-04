@@ -49,7 +49,7 @@ const MaterialityResultsDisplay = ({
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="text-center py-10">
-          No data available for {selectedCountry} in {selectedCategory}
+          No data available for {selectedCountry} in {selectedCategory || "any category"}
         </div>
       </Card>
     );

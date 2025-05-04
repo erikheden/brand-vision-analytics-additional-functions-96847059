@@ -13,7 +13,7 @@ export function useMaterialityFilters(country: string = "") {
   const { toast } = useToast();
   const [selectedCountry, setSelectedCountry] = useState<string>(country);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedFactors, setSelectedFactors] = useState<string[]>(["hygiene_factor"]);
+  const [selectedFactors, setSelectedFactors] = useState<string[]>(["hygiene_factor", "more_of"]);
   
   // Update selectedCountry when country prop changes
   useEffect(() => {
