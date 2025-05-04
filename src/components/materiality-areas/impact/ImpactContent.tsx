@@ -125,8 +125,6 @@ const ImpactContent: React.FC<ImpactContentProps> = ({ selectedCountries }) => {
         selectedCategories={selectedCategories}
         selectedYear={selectedYear}
         selectedLevels={selectedLevels}
-        years={years}
-        impactLevels={impactLevels}
         isLoading={isLoading}
         error={error}
         activeCountries={activeCountries}

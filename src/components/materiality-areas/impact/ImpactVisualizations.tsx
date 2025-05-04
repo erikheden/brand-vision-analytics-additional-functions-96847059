@@ -12,6 +12,8 @@ interface ImpactVisualizationsProps {
   selectedLevels: string[];
   isLoading: boolean;
   error: Error | null;
+  activeCountries: string[];
+  countryDataMap?: Record<string, any>;
 }
 
 const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
@@ -20,7 +22,9 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
   selectedYear,
   selectedLevels,
   isLoading,
-  error
+  error,
+  activeCountries,
+  countryDataMap
 }) => {
   // Filter processedData to only include selected categories
   const filteredData = React.useMemo(() => {
