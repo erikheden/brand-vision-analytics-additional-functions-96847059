@@ -54,6 +54,7 @@ export const createBarChartOptions = (
       }
     },
     series: sortedTypes.map((type, index) => ({
+      type: 'column', // Specify that this is a column type series
       name: type,
       data: sortedCategories.map(category => {
         const item = data.find(d => d.name === type && d.category === category);
@@ -104,6 +105,7 @@ export const createStackedChartOptions = (
       }
     },
     series: sortedTypes.map((type, index) => ({
+      type: 'column', // Specify that this is a column type series
       name: type,
       data: sortedCategories.map(category => {
         const item = data.find(d => d.name === type && d.category === category);
