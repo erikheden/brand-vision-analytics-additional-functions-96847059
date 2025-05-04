@@ -14,7 +14,7 @@ import TopicsView from "./topics/TopicsView";
 import TopicTrendsView from "./topics/TopicTrendsView";
 
 const DiscussionsContent: React.FC = () => {
-  const [selectedCountries, setSelectedCountries] = useState<string[]>(["FI"]); // Default to Finland
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]); // Changed from ["FI"] to empty array
   const [activeView, setActiveView] = useState<string>("topics");
   const [selectedYear, setSelectedYear] = useState<number>(2024);
   const { countries } = useSelectionData("", []);
