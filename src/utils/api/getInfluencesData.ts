@@ -1,12 +1,10 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { InfluenceData, InfluencesResponse } from '@/hooks/sustainability-influences';
 import { sampleInfluencesData } from '@/hooks/sustainability-influences/sampleData';
 
-export interface InfluencesResponse {
-  data: InfluenceData[];
-  years: number[];
-  influences: string[];
-}
+// Remove the duplicate interface definition that's causing the conflict
+// and use the imported type instead
 
 export const getInfluencesData = async (country: string): Promise<InfluencesResponse> => {  
   try {

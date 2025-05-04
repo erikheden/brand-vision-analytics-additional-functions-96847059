@@ -1,8 +1,8 @@
 
-import { InfluenceData, InfluencesResponse } from '@/hooks/sustainability-influences';
+import { InfluencesResponse } from '@/hooks/sustainability-influences';
 import { getInfluencesData } from './getInfluencesData';
 
-// Use 'export type' for type re-exports when isolatedModules is enabled
+// Use type re-export without the duplicated definition
 export type { InfluencesResponse };
 
 export const fetchInfluencesData = async (country: string): Promise<InfluencesResponse> => {
