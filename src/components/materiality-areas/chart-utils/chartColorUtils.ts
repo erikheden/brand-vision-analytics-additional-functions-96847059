@@ -104,9 +104,9 @@ export const getCommonChartOptions = (title: string) => {
       enabled: false
     },
     legend: {
-      align: 'center',
-      verticalAlign: 'bottom',
-      layout: 'horizontal'
+      align: 'center' as const,
+      verticalAlign: 'bottom' as const,
+      layout: 'horizontal' as const
     }
   };
 };
