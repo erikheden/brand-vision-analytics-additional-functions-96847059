@@ -1,3 +1,4 @@
+
 import { Options } from 'highcharts';
 import { 
   getCommonChartOptions, 
@@ -40,7 +41,7 @@ export const createBarChartOptions = (
       spacingTop: 30,
       spacingLeft: 30,
       spacingRight: 30,
-      height: 550
+      height: 650
     },
     xAxis: {
       categories: sortedCategories,
@@ -90,11 +91,13 @@ export const createBarChartOptions = (
   };
 };
 
-// Keep the function for reference but it won't be used directly
+// Fixing the function to return a value since it's defined with a return type
 export const createStackedChartOptions = (
   data: ChartDataItem[], 
   title: string, 
   categories: string[]
 ): Options => {
-  // ... keep existing code
+  // We're not using this function currently, but to fix the TypeScript error,
+  // we need to return a valid Options object
+  return createBarChartOptions(data, title, categories);
 };
