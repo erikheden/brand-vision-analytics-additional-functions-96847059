@@ -5,6 +5,7 @@ export interface InfluenceData {
   percentage: number;
   country: string;
   english_label_short: string; // This represents the 'medium' field from the database
+  medium: string; // Adding this field to avoid TypeScript errors
 }
 
 export interface InfluencesResponse {

@@ -59,7 +59,7 @@ const InfluencesTrendChart: React.FC<InfluencesTrendChartProps> = ({
       console.log(`Country ${country} has ${countryData.length} data points`);
       
       const hasInfluenceData = countryData.some(item => 
-        selectedInfluences.includes(item.english_label_short)
+        selectedInfluences.includes(item.english_label_short) || selectedInfluences.includes(item.medium)
       );
       
       console.log(`Country ${country} has selected influence data: ${hasInfluenceData}`);
