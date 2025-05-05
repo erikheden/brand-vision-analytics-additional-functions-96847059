@@ -31,8 +31,9 @@ const MainContent = () => {
     } else if (activeTab === "trends" && selectedInfluences.length === 0) {
       // For trends view, pre-select two influences as default
       setSelectedInfluences(allInfluences.slice(0, 2));
+      console.log("Setting default influences for trends tab:", allInfluences.slice(0, 2));
     }
-  }, [activeTab]);
+  }, [activeTab, allInfluences]);
 
   const handleCountryChange = (country: string) => {
     setSelectedCountries(current => {

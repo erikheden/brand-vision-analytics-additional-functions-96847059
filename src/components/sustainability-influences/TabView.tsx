@@ -40,11 +40,12 @@ const TabView: React.FC<TabViewProps> = ({
     );
   }
 
-  // Initialize selectedInfluences with all influences if empty and in trends tab
+  // For trends view, always ensure at least two influences are selected
   React.useEffect(() => {
     if (activeTab === "trends" && influences && influences.length > 0 && 
-        selectedInfluences.length === 0 && setSelectedInfluences) {
-      // Select first two influences by default to avoid empty chart
+        (selectedInfluences.length === 0) && setSelectedInfluences) {
+      console.log("Pre-selecting influences for trend view:", influences.slice(0, 2));
+      // Select first two influences by default for trends view
       setSelectedInfluences(influences.slice(0, 2));
     }
   }, [activeTab, influences, selectedInfluences, setSelectedInfluences]);
