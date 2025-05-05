@@ -118,9 +118,29 @@ export const calculateAreaAverages = (
  * Sorts areas by their average values in descending order
  */
 export const sortAreasByAverage = (allAreas: string[], areaAverages: Record<string, number>) => {
-  return [...allAreas].sort((a, b) => {
-    return (areaAverages[b] || 0) - (areaAverages[a] || 0);
+  // Log initial data for debugging
+  console.log('Before sorting - allAreas:', allAreas);
+  console.log('Before sorting - areaAverages:', areaAverages);
+  
+  // Create a new array to avoid modifying the original
+  const sortedAreas = [...allAreas].sort((a, b) => {
+    // Get values for both areas, defaulting to 0 if undefined
+    const valueA = areaAverages[a] || 0;
+    const valueB = areaAverages[b] || 0;
+    
+    // Sort in descending order (highest first)
+    const result = valueB - valueA;
+    
+    // Log comparison for debugging
+    console.log(`Comparing ${a}(${valueA}) vs ${b}(${valueB}): result=${result}`);
+    
+    return result;
   });
+  
+  // Log the final sorted result for verification
+  console.log('After sorting - sortedAreas:', sortedAreas);
+  
+  return sortedAreas;
 };
 
 /**

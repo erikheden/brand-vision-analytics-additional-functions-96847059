@@ -44,10 +44,10 @@ const ComparisonBarChart: React.FC<ComparisonBarChartProps> = ({
   );
   
   // Sort areas by average value (highest first)
-  const sortedAreas = useMemo(() => 
-    sortAreasByAverage(allAreas, areaAverages),
-    [allAreas, areaAverages]
-  );
+  const sortedAreas = useMemo(() => {
+    console.log('Calling sortAreasByAverage with:', allAreas, areaAverages);
+    return sortAreasByAverage(allAreas, areaAverages);
+  }, [allAreas, areaAverages]);
 
   // Prepare series for Highcharts
   const series = useMemo(() => 
