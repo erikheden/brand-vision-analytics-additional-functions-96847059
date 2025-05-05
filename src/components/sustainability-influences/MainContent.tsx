@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +12,7 @@ import { useAllCountriesInfluences } from "@/hooks/sustainability-influences";
 const MainContent = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("current");
-  const [selectedYear, setSelectedYear] = useState<number>(2023);
+  const [selectedYear, setSelectedYear] = useState<number>(2024); // Set default to 2024
   const [selectedInfluences, setSelectedInfluences] = useState<string[]>([]);
   const { countries } = useSelectionData("", []);
   const { toast } = useToast();
@@ -98,7 +99,7 @@ const MainContent = () => {
                   selectedYear={selectedYear}
                   selectedInfluences={selectedInfluences}
                   influencesData={influencesData}
-                  years={[2021, 2022, 2023, 2024]}
+                  years={[2024, 2023, 2022, 2021]} // Update years array with 2024 first
                   setSelectedYear={setSelectedYear}
                   influences={allInfluences}
                   setSelectedInfluences={setSelectedInfluences}
@@ -112,7 +113,7 @@ const MainContent = () => {
                   selectedYear={selectedYear}
                   selectedInfluences={selectedInfluences}
                   influencesData={influencesData}
-                  years={[2021, 2022, 2023, 2024]}
+                  years={[2024, 2023, 2022, 2021]} // Update years array with 2024 first
                   setSelectedYear={setSelectedYear}
                   influences={allInfluences}
                   setSelectedInfluences={setSelectedInfluences}
