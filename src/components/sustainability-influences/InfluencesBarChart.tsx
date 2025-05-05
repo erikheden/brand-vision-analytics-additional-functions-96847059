@@ -23,7 +23,7 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
       return { hasData: false, countryData: {} };
     }
     
-    // Debug data availability
+    // Log available data for debugging
     console.log(`InfluencesBarChart: Rendering for year ${selectedYear}, countries:`, countries);
     console.log(`Available data keys:`, Object.keys(data));
     
@@ -32,45 +32,63 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
       const countryData = data[country] || [];
       const yearData = countryData.filter(item => item.year === selectedYear);
       console.log(`Country ${country} has ${yearData.length} data points for year ${selectedYear}`);
+      
+      // Log first few data points to verify structure
+      if (yearData.length > 0) {
+        console.log(`Sample data for ${country}:`, yearData.slice(0, 2));
+      }
+      
       return yearData.length > 0;
     });
 
     return { hasData, countryData: data };
   }, [data, countries, selectedYear]);
   
-  if (!hasData) {
+  // Early return for empty state
+  if (!hasData || countries.length === 0) {
     return (
       <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
         <div className="text-center py-10 text-gray-500">
-          No data available for {selectedYear}. Please select a different year or country.
+          {countries.length === 0 ? 
+            "Please select at least one country to view data." : 
+            `No data available for ${selectedYear}. Please select a different year or country.`
+          }
         </div>
       </Card>
     );
   }
 
+  // Key for stable rendering
+  const chartKey = `${countries.join('-')}-${selectedYear}`;
+
   // For single country, use the SingleCountryChart component
   if (countries.length === 1) {
+    const country = countries[0];
+    const countryDataArray = countryData[country] || [];
+    
+    console.log(`Rendering SingleCountryChart for ${country} with ${countryDataArray.length} total data points`);
+    
     return (
       <SingleCountryChart 
-        data={countryData[countries[0]] || []} 
+        data={countryDataArray} 
         selectedYear={selectedYear} 
-        country={countries[0]} 
-        key={`single-country-${countries[0]}-${selectedYear}`}
+        country={country} 
+        key={`single-country-${country}-${selectedYear}`}
       />
     );
   } 
   
-  // For multiple countries, use MultiCountryChart instead of individual charts
+  // For multiple countries, use MultiCountryChart
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <MultiCountryChart
         data={countryData}
         selectedYear={selectedYear}
         countries={countries}
-        key={`multi-country-${countries.join('-')}-${selectedYear}`}
+        key={`multi-country-${chartKey}`}
       />
     </Card>
   );
 };
 
-export default InfluencesBarChart;
+export default React.memo(InfluencesBarChart);

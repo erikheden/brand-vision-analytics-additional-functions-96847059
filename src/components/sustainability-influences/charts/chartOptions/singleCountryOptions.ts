@@ -5,7 +5,7 @@ import { getFullCountryName } from '@/components/CountrySelect';
 import { ChartDataItem } from '../SingleCountryChart';
 import { getDynamicPercentageAxisDomain, getDynamicTickInterval } from '@/utils/charts/axisUtils';
 
-// Memoize chart options creation to avoid unnecessary recalculations
+// Create chart options for single country
 export const createSingleCountryChartOptions = (
   chartData: ChartDataItem[],
   selectedYear: number,
@@ -14,15 +14,28 @@ export const createSingleCountryChartOptions = (
 ) => {
   const countryName = getFullCountryName(country);
   
+  // Special case - if no data, return minimal options
+  if (!chartData || chartData.length === 0) {
+    console.error(`No chart data available for ${country} in year ${selectedYear}`);
+    return {
+      chart: { type: 'bar', height: isCompact ? 300 : 500 },
+      title: { text: `No Data Available` },
+      series: [{ data: [] }]
+    };
+  }
+  
   // Extract percentage values for calculating axis domain
-  const percentageValues = chartData.map(item => item.percentage * 100); // Convert decimals to percentages
+  // Ensure the data is multiplied by 100 for proper percentage display
+  const percentageValues = chartData.map(item => item.percentage * 100);
   
   // Calculate dynamic y-axis domain
   const [yMin, yMax] = getDynamicPercentageAxisDomain(percentageValues);
   const tickInterval = getDynamicTickInterval(yMax);
   
-  console.log(`Chart options for ${country}: percentages range from ${Math.min(...percentageValues)} to ${Math.max(...percentageValues)}`);
+  console.log(`Chart options for ${country}: percentages range from ${Math.min(...percentageValues).toFixed(2)}% to ${Math.max(...percentageValues).toFixed(2)}%`);
   console.log(`Axis domain: [${yMin}, ${yMax}] with tick interval ${tickInterval}`);
+  
+  const chartId = `influence-${country}-${selectedYear}`;
   
   return {
     chart: {
@@ -34,12 +47,8 @@ export const createSingleCountryChartOptions = (
       height: isCompact ? 300 : 500,
       spacingTop: isCompact ? 30 : 40,
       spacingBottom: isCompact ? 15 : 20,
-      // Add a key to help Highcharts know when to properly rerender
-      events: {
-        render: function() {
-          console.log(`Chart for ${country} rendered with ${chartData.length} data points`);
-        }
-      }
+      // Add a unique ID to help Highcharts know when to properly rerender
+      renderTo: chartId
     },
     title: {
       text: `${isCompact ? '' : 'Sustainability Influences in '}${countryName} (${selectedYear})`,
@@ -110,7 +119,7 @@ export const createSingleCountryChartOptions = (
       type: 'bar',
       data: chartData.map(item => item.percentage * 100), // Convert decimal to percentage for display
       // Add a unique ID to prevent rendering issues
-      id: `influence-${country}-${selectedYear}`
+      id: chartId
     }],
     credits: {
       enabled: false

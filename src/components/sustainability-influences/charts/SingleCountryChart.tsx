@@ -28,23 +28,36 @@ const SingleCountryChart: React.FC<SingleCountryChartProps> = ({
   const chartData = useMemo(() => {
     const yearData = data.filter(item => item.year === selectedYear);
     
-    console.log(`SingleCountryChart: Found ${yearData.length} data points for ${country}, year ${selectedYear}`);
-    console.log(`Data sample:`, yearData.slice(0, 2));
+    console.log(`SingleCountryChart: Processing ${yearData.length} data points for ${country}, year ${selectedYear}`);
+    
+    if (yearData.length === 0) {
+      console.log(`No data found for ${country} in year ${selectedYear}`);
+      return [];
+    }
+    
+    // Log sample data to verify structure
+    if (yearData.length > 0) {
+      console.log(`Sample data point:`, yearData[0]);
+      console.log(`Percentage value type:`, typeof yearData[0].percentage);
+    }
     
     // Create data sorted by percentage in descending order
     return yearData
       .sort((a, b) => b.percentage - a.percentage)
       .map(item => ({
         name: item.medium || item.english_label_short,
-        percentage: item.percentage // No conversion needed - data is already in decimal form
+        percentage: item.percentage // Keep as decimal - will be converted to percentage in chart options
       }));
   }, [data, selectedYear, country]);
 
   console.log(`Processed chart data for ${country}:`, chartData);
 
-  // Empty state handling with useMemo to prevent re-rendering
+  // Determine whether we need to show the empty state
+  const showEmptyState = useMemo(() => chartData.length === 0, [chartData]);
+  
+  // Create empty state component
   const emptyStateContent = useMemo(() => {
-    if (chartData.length === 0) {
+    if (showEmptyState) {
       return isCompact ? (
         <div className="text-center py-6 text-gray-500">
           No data available for {country} in {selectedYear}.
@@ -58,26 +71,38 @@ const SingleCountryChart: React.FC<SingleCountryChartProps> = ({
       );
     }
     return null;
-  }, [chartData.length, country, selectedYear, isCompact]);
+  }, [showEmptyState, country, selectedYear, isCompact]);
 
   // If no data, return the empty state component
-  if (chartData.length === 0) {
+  if (showEmptyState) {
     return emptyStateContent;
   }
 
-  // Generate chart options
-  const options = createSingleCountryChartOptions(chartData, selectedYear, country, isCompact);
+  // Generate chart options with stable identity
+  const chartKey = `${country}-${selectedYear}-${chartData.length}`;
+  const options = useMemo(() => {
+    console.log(`Creating chart options for ${country}, ${selectedYear} with ${chartData.length} items`);
+    return createSingleCountryChartOptions(chartData, selectedYear, country, isCompact);
+  }, [chartData, selectedYear, country, isCompact]);
 
   // For compact mode, return just the chart
   if (isCompact) {
-    return <HighchartsReact highcharts={Highcharts} options={options} />;
+    return <HighchartsReact 
+      highcharts={Highcharts} 
+      options={options} 
+      key={chartKey}
+    />;
   }
 
   // For regular mode, include the card wrapper
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <div className="h-[500px]">
-        <HighchartsReact highcharts={Highcharts} options={options} />
+        <HighchartsReact 
+          highcharts={Highcharts} 
+          options={options} 
+          key={chartKey}
+        />
       </div>
     </Card>
   );
