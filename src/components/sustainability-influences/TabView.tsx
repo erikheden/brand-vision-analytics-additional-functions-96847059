@@ -44,9 +44,9 @@ const TabView: React.FC<TabViewProps> = ({
   React.useEffect(() => {
     if (activeTab === "trends" && influences && influences.length > 0 && 
         (selectedInfluences.length === 0) && setSelectedInfluences) {
-      console.log("Pre-selecting influences for trend view:", influences.slice(0, 2));
       // Select first two influences by default for trends view
       setSelectedInfluences(influences.slice(0, 2));
+      console.log("Pre-selecting influences for trend view:", influences.slice(0, 2));
     }
   }, [activeTab, influences, selectedInfluences, setSelectedInfluences]);
 

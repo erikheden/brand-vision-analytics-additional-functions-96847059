@@ -12,7 +12,7 @@ import { useAllCountriesInfluences } from "@/hooks/sustainability-influences";
 const MainContent = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("current");
-  const [selectedYear, setSelectedYear] = useState<number>(2024); // Set default to 2024
+  const [selectedYear, setSelectedYear] = useState<number>(2024); // Default to 2024
   const [selectedInfluences, setSelectedInfluences] = useState<string[]>([]);
   const { countries } = useSelectionData("", []);
   const { toast } = useToast();
@@ -20,8 +20,9 @@ const MainContent = () => {
   // Fetch data for all selected countries
   const { data: influencesData = {}, isLoading, error } = useAllCountriesInfluences(selectedCountries);
 
-  // Define all available influences 
-  const allInfluences = ["TV", "News Media", "Social Media", "Friends & Family"];
+  // Define all available influences using actual database values
+  // These match the values in the 'medium' field from the database
+  const allInfluences = ["News", "Social media", "Documentaries", "Family & friends"];
 
   // Reset selected influences when changing tabs
   useEffect(() => {
@@ -33,7 +34,7 @@ const MainContent = () => {
       setSelectedInfluences(allInfluences.slice(0, 2));
       console.log("Setting default influences for trends tab:", allInfluences.slice(0, 2));
     }
-  }, [activeTab, allInfluences]);
+  }, [activeTab, allInfluences, selectedInfluences]);
 
   const handleCountryChange = (country: string) => {
     setSelectedCountries(current => {

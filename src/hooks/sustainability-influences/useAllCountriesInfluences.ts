@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { InfluenceData } from "./types";
@@ -33,7 +32,9 @@ export async function fetchAllInfluencesData(countries: string[]): Promise<Recor
           year: item.year,
           percentage: item.percentage,
           country: item.country,
-          english_label_short: item.medium
+          // Keep both fields for backward compatibility - some components use medium, others use english_label_short
+          english_label_short: item.medium,
+          medium: item.medium
         })) as InfluenceData[];
         
         // If no data returned from database, use sample data

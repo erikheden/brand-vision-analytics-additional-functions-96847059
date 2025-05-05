@@ -153,7 +153,7 @@ export const createTrendChartSeries = (
     selectedInfluences.forEach((influence, influenceIndex) => {
       // Get data for this influence across all years
       const influenceData = countryData
-        .filter(item => item.english_label_short === influence)
+        .filter(item => item.english_label_short === influence || item.medium === influence)
         .sort((a, b) => a.year - b.year);
       
       if (influenceData.length > 0) {
