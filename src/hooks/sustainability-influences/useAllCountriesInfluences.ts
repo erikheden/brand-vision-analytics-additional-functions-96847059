@@ -37,7 +37,7 @@ export async function fetchAllInfluencesData(countries: string[]): Promise<Recor
         // Map the database fields to our interface
         const mappedData = data.map(item => ({
           year: item.year,
-          percentage: item.percentage,
+          percentage: item.percentage, // Keep as decimal - will be converted to percentage when needed for display
           country: item.country,
           // Keep both fields for backward compatibility - some components use medium, others use english_label_short
           english_label_short: item.medium,
@@ -77,6 +77,7 @@ export async function fetchAllInfluencesData(countries: string[]): Promise<Recor
         const media = [...new Set(result[country].map(item => item.medium || item.english_label_short))];
         console.log(`  Years: ${years.join(', ')}`);
         console.log(`  Media types: ${media.join(', ')}`);
+        console.log(`  Sample percentage range: ${Math.min(...result[country].map(i => i.percentage))} - ${Math.max(...result[country].map(i => i.percentage))}`);
       }
     }
     

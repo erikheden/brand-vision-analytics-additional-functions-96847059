@@ -14,11 +14,14 @@ export const createSingleCountryChartOptions = (
   const countryName = getFullCountryName(country);
   
   // Extract percentage values for calculating axis domain
-  const percentageValues = chartData.map(item => Math.round(item.percentage * 100));
+  const percentageValues = chartData.map(item => item.percentage * 100); // Convert decimals to percentages
   
   // Calculate dynamic y-axis domain
   const [yMin, yMax] = getDynamicPercentageAxisDomain(percentageValues);
   const tickInterval = getDynamicTickInterval(yMax);
+  
+  console.log(`Chart options for ${country}: percentages range from ${Math.min(...percentageValues)} to ${Math.max(...percentageValues)}`);
+  console.log(`Axis domain: [${yMin}, ${yMax}] with tick interval ${tickInterval}`);
   
   return {
     chart: {
@@ -98,7 +101,7 @@ export const createSingleCountryChartOptions = (
     series: [{
       name: 'Influence',
       type: 'bar',
-      data: chartData.map(item => Math.round(item.percentage * 100))
+      data: chartData.map(item => item.percentage * 100) // Convert decimal to percentage for display
     }],
     credits: {
       enabled: false

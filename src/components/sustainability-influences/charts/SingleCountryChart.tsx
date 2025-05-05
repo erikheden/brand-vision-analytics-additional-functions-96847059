@@ -35,7 +35,7 @@ const SingleCountryChart: React.FC<SingleCountryChartProps> = ({
     .sort((a, b) => b.percentage - a.percentage)
     .map(item => ({
       name: item.medium || item.english_label_short,
-      percentage: item.percentage * 100 // Convert from decimal to percentage
+      percentage: item.percentage // No conversion needed - data is already in decimal form
     }));
 
   console.log(`Processed chart data:`, chartData);
