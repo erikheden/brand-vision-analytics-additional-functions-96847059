@@ -8,6 +8,7 @@ import {
   sortVhoTypes,
   getColor
 } from './chartColorUtils';
+import { getDynamicPercentageAxisDomain, getDynamicTickInterval } from '@/utils/charts/axisUtils';
 
 export interface ChartDataItem {
   name: string;
@@ -30,6 +31,13 @@ export const createBarChartOptions = (
   // Sort VHO types and categories
   const sortedTypes = sortVhoTypes(vhoTypes);
   const sortedCategories = sortCategoriesByTotal(uniqueCategories, data);
+  
+  // Extract all values for y-axis calculation
+  const allValues = data.map(item => item.value);
+  
+  // Calculate dynamic y-axis domain
+  const [yMin, yMax] = getDynamicPercentageAxisDomain(allValues);
+  const tickInterval = getDynamicTickInterval(yMax);
 
   const commonOptions = getCommonChartOptions(title);
   
@@ -59,6 +67,22 @@ export const createBarChartOptions = (
         },
         rotation: -45,
         y: 30
+      }
+    },
+    yAxis: {
+      // Dynamic axis settings
+      min: yMin,
+      max: yMax,
+      tickInterval: tickInterval,
+      title: {
+        text: 'Percentage',
+        style: {
+          fontSize: '14px',
+          fontWeight: 'bold'
+        }
+      },
+      labels: {
+        format: '{value}%'
       }
     },
     tooltip: {

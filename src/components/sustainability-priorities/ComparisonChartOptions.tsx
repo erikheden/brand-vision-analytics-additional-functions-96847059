@@ -3,6 +3,7 @@ import React from 'react';
 import Highcharts from 'highcharts';
 import { FONT_FAMILY } from '@/utils/constants';
 import { roundPercentage } from '@/utils/formatting';
+import { getDynamicPercentageAxisDomain, getDynamicTickInterval } from '@/utils/charts/axisUtils';
 
 interface ComparisonChartOptionsProps {
   sortedAreas: string[];
@@ -18,9 +19,20 @@ const ComparisonChartOptions = ({
   // Generate a color array
   const colors = ['#34502b', '#5c8f4a', '#84c066', '#aad68b', '#d1ebc1'];
 
+  // Find max value across all series data for dynamic axis scaling
+  const maxValue = series.reduce((max, s) => {
+    const seriesMax = Math.max(...(s.data as number[] || []).filter(v => !isNaN(v) && v !== null));
+    return Math.max(max, seriesMax);
+  }, 0);
+  
+  // Calculate dynamic y-axis domain with max cap at 100%
+  const [yMin, yMax] = getDynamicPercentageAxisDomain(maxValue);
+  const tickInterval = getDynamicTickInterval(yMax);
+
   // Log sorted areas to help with debugging
   console.log('ComparisonChartOptions - sortedAreas:', sortedAreas);
   console.log('ComparisonChartOptions - series data:', series);
+  console.log('ComparisonChartOptions - y-axis range:', [yMin, yMax]);
 
   // Return the options object directly, not wrapped in a React fragment
   return {
@@ -46,7 +58,10 @@ const ComparisonChartOptions = ({
       }
     },
     yAxis: {
-      // This should be for the percentage values
+      // Dynamic axis configuration
+      min: yMin,
+      max: yMax,
+      tickInterval: tickInterval,
       title: {
         text: 'Percentage',
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
@@ -76,7 +91,6 @@ const ComparisonChartOptions = ({
         pointPadding: 0.1,
         borderWidth: 0
       }
-      // Removed invalid series properties
     },
     legend: {
       backgroundColor: 'rgba(255, 255, 255, 0.85)',

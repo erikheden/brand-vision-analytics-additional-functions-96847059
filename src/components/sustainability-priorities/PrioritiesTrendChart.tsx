@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { MaterialityData } from '@/hooks/useGeneralMaterialityData';
 import { FONT_FAMILY } from '@/utils/constants';
 import { roundPercentage } from '@/utils/formatting';
+import { getDynamicPercentageAxisDomain, getDynamicTickInterval } from '@/utils/charts/axisUtils';
 
 interface PrioritiesTrendChartProps {
   data: MaterialityData[];
@@ -35,6 +36,20 @@ const PrioritiesTrendChart: React.FC<PrioritiesTrendChartProps> = ({ data, selec
       };
     });
   }, [data, selectedAreas]);
+  
+  // Extract all percentage values for y-axis calculation
+  const allPercentages: number[] = [];
+  chartSeries.forEach(series => {
+    series.data.forEach(dataPoint => {
+      if (Array.isArray(dataPoint) && dataPoint.length > 1) {
+        allPercentages.push(dataPoint[1] as number);
+      }
+    });
+  });
+  
+  // Calculate dynamic y-axis domain
+  const [yMin, yMax] = getDynamicPercentageAxisDomain(allPercentages);
+  const tickInterval = getDynamicTickInterval(yMax);
 
   const yearRange = useMemo(() => {
     if (data.length === 0) return { min: 2020, max: 2025 };
@@ -81,6 +96,10 @@ const PrioritiesTrendChart: React.FC<PrioritiesTrendChartProps> = ({ data, selec
       }
     },
     yAxis: {
+      // Dynamic axis range
+      min: yMin,
+      max: yMax,
+      tickInterval: tickInterval,
       title: {
         text: 'Percentage',
         style: {

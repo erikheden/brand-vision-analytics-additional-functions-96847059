@@ -7,6 +7,7 @@ import { MaterialityData } from '@/hooks/useGeneralMaterialityData';
 import { FONT_FAMILY } from '@/utils/constants';
 import { roundPercentage } from '@/utils/formatting';
 import { toast } from 'sonner';
+import { getDynamicPercentageAxisDomain, getDynamicTickInterval } from '@/utils/charts/axisUtils';
 
 interface PrioritiesBarChartProps {
   data: MaterialityData[];
@@ -37,6 +38,13 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
     // Sort data by percentage in descending order
     return [...yearData].sort((a, b) => b.percentage - a.percentage);
   }, [data, selectedYear]);
+
+  // Extract percentage values for y-axis calculation
+  const percentageValues = chartData.map(item => Math.round(item.percentage * 100));
+  
+  // Calculate dynamic y-axis domain
+  const [yMin, yMax] = getDynamicPercentageAxisDomain(percentageValues);
+  const tickInterval = getDynamicTickInterval(yMax);
 
   const isPlaceholderData = useMemo(() => {
     // Check if we're using placeholder data by looking at the data structure
@@ -77,6 +85,10 @@ const PrioritiesBarChart: React.FC<PrioritiesBarChartProps> = ({
       }
     },
     yAxis: {
+      // Dynamic axis range
+      min: yMin,
+      max: yMax,
+      tickInterval: tickInterval,
       title: {
         text: 'Percentage',
         style: {

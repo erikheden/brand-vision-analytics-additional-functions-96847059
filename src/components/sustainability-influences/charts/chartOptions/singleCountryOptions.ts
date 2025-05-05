@@ -3,6 +3,7 @@ import { FONT_FAMILY } from '@/utils/constants';
 import { roundPercentage } from '@/utils/formatting';
 import { getFullCountryName } from '@/components/CountrySelect';
 import { ChartDataItem } from '../SingleCountryChart';
+import { getDynamicPercentageAxisDomain, getDynamicTickInterval } from '@/utils/charts/axisUtils';
 
 export const createSingleCountryChartOptions = (
   chartData: ChartDataItem[],
@@ -11,6 +12,13 @@ export const createSingleCountryChartOptions = (
   isCompact: boolean = false
 ) => {
   const countryName = getFullCountryName(country);
+  
+  // Extract percentage values for calculating axis domain
+  const percentageValues = chartData.map(item => Math.round(item.percentage * 100));
+  
+  // Calculate dynamic y-axis domain
+  const [yMin, yMax] = getDynamicPercentageAxisDomain(percentageValues);
+  const tickInterval = getDynamicTickInterval(yMax);
   
   return {
     chart: {
@@ -42,6 +50,10 @@ export const createSingleCountryChartOptions = (
       }
     },
     yAxis: {
+      // Dynamic axis range
+      min: yMin,
+      max: yMax,
+      tickInterval: tickInterval,
       title: {
         text: isCompact ? '' : 'Percentage',
         style: {

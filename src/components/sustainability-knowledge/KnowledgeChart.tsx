@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import Highcharts from 'highcharts';
@@ -6,6 +5,7 @@ import HighchartsReact from 'highcharts-react-official';
 import { KnowledgeData } from '@/hooks/useSustainabilityKnowledge';
 import { getFullCountryName } from '@/components/CountrySelect';
 import { FONT_FAMILY } from '@/utils/constants';
+import { getDynamicPercentageAxisDomain, getDynamicTickInterval } from '@/utils/charts/axisUtils';
 
 interface KnowledgeChartProps {
   data: KnowledgeData[];
@@ -83,6 +83,10 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
     return 0;
   });
 
+  // Calculate dynamic y-axis domain
+  const [yMin, yMax] = getDynamicPercentageAxisDomain(percentages);
+  const tickInterval = getDynamicTickInterval(yMax);
+
   // Chart colors
   const colors = percentages.map((_, index) => {
     // Create a gradient from dark green to light green
@@ -116,7 +120,10 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
       }
     },
     yAxis: {
-      // This represents the value axis (percentage) - displayed vertically
+      // Dynamic axis range based on actual data
+      min: yMin,
+      max: yMax,
+      tickInterval: tickInterval,
       title: {
         text: 'Percentage',
         style: { color: '#34502b', fontFamily: FONT_FAMILY }
@@ -177,7 +184,7 @@ const KnowledgeChart: React.FC<KnowledgeChartProps> = ({
   }
 
   return (
-    <Card className="p-6 bg-white border border-[#34502b]/20 rounded-xl shadow-md">
+    <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <HighchartsReact highcharts={Highcharts} options={options} />
     </Card>
   );

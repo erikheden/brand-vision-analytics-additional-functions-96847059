@@ -5,6 +5,7 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { getFullCountryName } from '@/components/CountrySelect';
 import { FONT_FAMILY } from '@/utils/constants';
+import { getDynamicPercentageAxisDomain, getDynamicTickInterval } from '@/utils/charts/axisUtils';
 
 interface KnowledgeComparisonChartProps {
   countriesData: Record<string, KnowledgeData[]>;
@@ -28,29 +29,43 @@ const KnowledgeComparisonChart: React.FC<KnowledgeComparisonChartProps> = ({
   const chartOptions = useMemo(() => {
     if (!selectedTerms.length || !selectedCountries.length) return {};
     
+    // Collect all percentage values to calculate axis domain
+    const allPercentages: number[] = [];
+    
     // Create series for each country
     const series = selectedCountries.map((country, index) => {
       const countryData = countriesData[country] || [];
       
+      const data = selectedTerms.map(term => {
+        const termData = countryData.find(
+          item => item.term === term && item.year === selectedYear
+        );
+        
+        const percentage = termData 
+          ? (typeof termData.percentage === 'number' 
+              ? Math.round(termData.percentage * 100) 
+              : 0)
+          : 0;
+          
+        // Collect all percentages for y-axis calculation
+        allPercentages.push(percentage);
+        
+        return {
+          name: term,
+          y: percentage
+        };
+      });
+      
       return {
         name: getFullCountryName(country),
-        data: selectedTerms.map(term => {
-          const termData = countryData.find(
-            item => item.term === term && item.year === selectedYear
-          );
-          
-          return {
-            name: term,
-            y: termData 
-                ? (typeof termData.percentage === 'number' 
-                    ? Math.round(termData.percentage * 100) 
-                    : 0)
-                : 0
-          };
-        }),
+        data: data,
         color: COLORS[index % COLORS.length]
       };
     });
+    
+    // Calculate dynamic y-axis domain
+    const [yMin, yMax] = getDynamicPercentageAxisDomain(allPercentages);
+    const tickInterval = getDynamicTickInterval(yMax);
 
     return {
       chart: {
@@ -83,8 +98,10 @@ const KnowledgeComparisonChart: React.FC<KnowledgeComparisonChartProps> = ({
         }
       },
       yAxis: {
-        min: 0,
-        max: 100,
+        // Dynamic axis configuration
+        min: yMin,
+        max: yMax,
+        tickInterval: tickInterval,
         title: {
           text: 'Knowledge Level (%)',
           align: 'high'

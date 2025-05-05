@@ -1,33 +1,31 @@
 
 import { useMemo } from "react";
+import { getDynamicPercentageAxisDomain } from "@/utils/charts/axisUtils";
 
 export const useChartYAxisDomain = (
   chartData: any[],
   selectedBrands: string[],
   standardized: boolean
 ) => {
-  // Calculate the y-axis domain similar to dashboard implementation
+  // Calculate the y-axis domain 
   return useMemo(() => {
     if (standardized) {
       return [-3, 3] as [number, number]; // Fixed domain for standardized scores
     }
     
-    // Find max value across all brands and countries
-    let maxValue = 0;
+    // Find all values across all brands and countries
+    const allValues: number[] = [];
     
     chartData.forEach(dataPoint => {
       selectedBrands.forEach(brand => {
         const value = dataPoint[brand];
         if (value !== undefined && value !== null && !isNaN(value)) {
-          maxValue = Math.max(maxValue, value);
+          allValues.push(value);
         }
       });
     });
     
-    // Add some padding (like in the image) and round up to nearest multiple of 25
-    const paddedMax = Math.ceil((maxValue * 1.1) / 25) * 25;
-    
-    // Always start from 0 for bar charts (as seen in the reference image)
-    return [0, paddedMax] as [number, number];
+    // Use the utility function for consistent axis domains across the application
+    return getDynamicPercentageAxisDomain(allValues, 100);
   }, [chartData, selectedBrands, standardized]);
 };

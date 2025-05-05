@@ -1,8 +1,9 @@
 
 import Highcharts from 'highcharts';
-import { InfluenceData } from '@/hooks/useSustainabilityInfluences';
+import { InfluenceData } from '@/hooks/sustainability-influences';
 import { FONT_FAMILY } from '@/utils/constants';
 import { getFullCountryName } from '@/components/CountrySelect';
+import { getDynamicPercentageAxisDomain, getDynamicTickInterval } from '@/utils/charts/axisUtils';
 
 export const createTrendChartOptions = (
   data: Record<string, InfluenceData[]>,
@@ -10,6 +11,20 @@ export const createTrendChartOptions = (
   countries: string[]
 ): Highcharts.Options => {
   const chartSeries = createTrendChartSeries(data, selectedInfluences, countries);
+  
+  // Extract all percentage values to calculate the y-axis domain
+  const allPercentages: number[] = [];
+  chartSeries.forEach(series => {
+    (series.data as any[]).forEach(point => {
+      if (Array.isArray(point) && point.length > 1 && typeof point[1] === 'number') {
+        allPercentages.push(point[1]);
+      }
+    });
+  });
+  
+  // Calculate dynamic y-axis domain
+  const [yMin, yMax] = getDynamicPercentageAxisDomain(allPercentages);
+  const tickInterval = getDynamicTickInterval(yMax);
   
   const options: Highcharts.Options = {
     chart: {
@@ -57,6 +72,10 @@ export const createTrendChartOptions = (
       }
     },
     yAxis: {
+      // Dynamic axis configuration
+      min: yMin,
+      max: yMax,
+      tickInterval: tickInterval,
       title: {
         text: 'Percentage',
         style: {
@@ -70,9 +89,7 @@ export const createTrendChartOptions = (
           color: '#34502b',
           fontFamily: FONT_FAMILY
         }
-      },
-      min: 0, // Start at 0 to provide better context
-      max: 100 // Scale to 100% for percentages
+      }
     },
     tooltip: {
       formatter: function () {
