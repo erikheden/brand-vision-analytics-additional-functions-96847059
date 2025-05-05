@@ -20,9 +20,28 @@ const MainContent = () => {
   // Fetch data for all selected countries
   const { data: influencesData = {}, isLoading, error } = useAllCountriesInfluences(selectedCountries);
 
-  // Define all available influences using actual database values
-  // These match the values in the 'medium' field from the database
-  const allInfluences = ["News", "Social media", "Documentaries", "Family & friends"];
+  // Extract all available influences from the data
+  const allInfluences = React.useMemo(() => {
+    const influencesSet = new Set<string>();
+    Object.values(influencesData).forEach(countryData => {
+      countryData.forEach(item => {
+        if (item.medium) {
+          influencesSet.add(item.medium);
+        } else if (item.english_label_short) {
+          influencesSet.add(item.english_label_short);
+        }
+      });
+    });
+    
+    // If no influences found in data, use fallback list
+    if (influencesSet.size === 0) {
+      return ["News", "Social media", "Documentaries", "Family & friends"];
+    }
+    
+    return Array.from(influencesSet).sort();
+  }, [influencesData]);
+  
+  console.log("Available influences:", allInfluences);
 
   // Reset selected influences when changing tabs
   useEffect(() => {

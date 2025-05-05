@@ -138,6 +138,9 @@ export const createTrendChartSeries = (
     return [];
   }
 
+  console.log("Creating trend chart series with influences:", selectedInfluences);
+  console.log("Available data keys:", Object.keys(data));
+  
   const series: Highcharts.SeriesLineOptions[] = []; // Use the specific series type
   
   // Define colors to ensure visual distinction
@@ -149,12 +152,15 @@ export const createTrendChartSeries = (
   // For each country and each selected influence, create a series
   countries.forEach((country, countryIndex) => {
     const countryData = data[country] || [];
+    console.log(`Processing country ${country} with ${countryData.length} data points`);
     
     selectedInfluences.forEach((influence, influenceIndex) => {
       // Get data for this influence across all years
       const influenceData = countryData
-        .filter(item => item.english_label_short === influence || item.medium === influence)
+        .filter(item => item.medium === influence || item.english_label_short === influence)
         .sort((a, b) => a.year - b.year);
+      
+      console.log(`Found ${influenceData.length} data points for influence "${influence}" in ${country}`);
       
       if (influenceData.length > 0) {
         // Format data for Highcharts - multiply by 100 to show as percentage
@@ -162,6 +168,8 @@ export const createTrendChartSeries = (
           item.year,
           Math.round(item.percentage * 100) // Convert from 0-1 to 0-100%
         ]);
+        
+        console.log(`Series data for ${country} - ${influence}:`, seriesData);
         
         // Calculate color - cycle through colors by influence first, then by country
         const colorIndex = (influenceIndex * countries.length + countryIndex) % baseColors.length;
@@ -187,5 +195,6 @@ export const createTrendChartSeries = (
     });
   });
   
+  console.log(`Created ${series.length} chart series`);
   return series;
 };

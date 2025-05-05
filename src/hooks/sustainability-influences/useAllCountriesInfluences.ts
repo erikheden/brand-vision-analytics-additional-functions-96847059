@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { InfluenceData } from "./types";
@@ -15,10 +16,14 @@ export async function fetchAllInfluencesData(countries: string[]): Promise<Recor
     // Fetch data for each country in parallel
     await Promise.all(countries.map(async (country) => {
       try {
+        // Ensure country code is uppercase for consistent querying
+        const countryCode = country.toUpperCase();
+        console.log(`Fetching data for country code: ${countryCode}`);
+        
         const { data, error } = await supabase
           .from('SBI_influences')
           .select('*')
-          .eq('country', country.toUpperCase())
+          .eq('country', countryCode)
           .order('year', { ascending: true });
         
         if (error) {
@@ -26,6 +31,8 @@ export async function fetchAllInfluencesData(countries: string[]): Promise<Recor
           result[country] = sampleInfluencesData[country] || generateSampleDataForCountry(country);
           return;
         }
+        
+        console.log(`Got ${data?.length || 0} raw records for ${country}`);
         
         // Map the database fields to our interface
         const mappedData = data.map(item => ({
@@ -36,6 +43,8 @@ export async function fetchAllInfluencesData(countries: string[]): Promise<Recor
           english_label_short: item.medium,
           medium: item.medium
         })) as InfluenceData[];
+        
+        console.log(`Mapped ${mappedData.length} data points for ${country}`);
         
         // If no data returned from database, use sample data
         if (mappedData.length === 0) {
@@ -57,6 +66,18 @@ export async function fetchAllInfluencesData(countries: string[]): Promise<Recor
         acc[country] = sampleInfluencesData[country] || generateSampleDataForCountry(country);
         return acc;
       }, {} as Record<string, InfluenceData[]>);
+    }
+    
+    // Log the data we're returning
+    console.log(`Returning data for ${Object.keys(result).length} countries:`, Object.keys(result));
+    for (const country of Object.keys(result)) {
+      console.log(`Country ${country}: ${result[country].length} data points`);
+      if (result[country].length > 0) {
+        const years = [...new Set(result[country].map(item => item.year))].sort();
+        const media = [...new Set(result[country].map(item => item.medium || item.english_label_short))];
+        console.log(`  Years: ${years.join(', ')}`);
+        console.log(`  Media types: ${media.join(', ')}`);
+      }
     }
     
     return result;

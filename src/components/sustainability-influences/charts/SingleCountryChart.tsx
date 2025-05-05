@@ -27,15 +27,18 @@ const SingleCountryChart: React.FC<SingleCountryChartProps> = ({
   // Filter data by selected year
   const yearData = data.filter(item => item.year === selectedYear);
   
+  console.log(`SingleCountryChart: Found ${yearData.length} data points for ${country}, year ${selectedYear}`);
+  console.log(`Data sample:`, yearData.slice(0, 2));
+  
   // Create data sorted by percentage in descending order
   const chartData = yearData
     .sort((a, b) => b.percentage - a.percentage)
     .map(item => ({
-      name: item.english_label_short,
-      percentage: item.percentage
+      name: item.medium || item.english_label_short,
+      percentage: item.percentage * 100 // Convert from decimal to percentage
     }));
 
-  console.log(`Rendering chart for ${country}, year ${selectedYear}, data points: ${chartData.length}`);
+  console.log(`Processed chart data:`, chartData);
 
   if (chartData.length === 0) {
     return isCompact ? (
