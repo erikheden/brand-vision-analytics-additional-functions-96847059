@@ -5,6 +5,7 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useProcessedChartData } from '@/hooks/impact-comparison/useProcessedChartData';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ComparisonAnalysisPanel from './ComparisonAnalysisPanel';
 
 interface ImpactCountryComparisonProps {
   processedData: Record<string, Record<string, Record<string, number>>>;
@@ -250,14 +251,7 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
           />
         </div>
         
-        <div className="bg-[#f1f0fb] p-4 rounded-lg">
-          <h3 className="font-medium text-[#34502b] mb-2">Insights</h3>
-          <p className="text-sm text-gray-600">
-            {viewMode === 'byCategory' 
-              ? `Compare how consumers in different markets perceive ${selectedImpactLevel} impact for various sustainability categories.`
-              : `Compare different levels of impact for ${selectedCategory} across your selected markets.`}
-          </p>
-        </div>
+        <ComparisonAnalysisPanel viewMode={viewMode} />
       </div>
     </Card>
   );
