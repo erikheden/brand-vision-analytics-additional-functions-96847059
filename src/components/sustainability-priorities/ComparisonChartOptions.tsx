@@ -21,8 +21,12 @@ const ComparisonChartOptions = ({
 
   // Find max value across all series data for dynamic axis scaling
   const maxValue = series.reduce((max, s) => {
-    const seriesMax = Math.max(...(s.data as number[] || []).filter(v => !isNaN(v) && v !== null));
-    return Math.max(max, seriesMax);
+    // Check if it's a column/bar series with a data array
+    if ((s.type === 'column' || s.type === 'bar') && Array.isArray(s.data)) {
+      const seriesMax = Math.max(...(s.data as number[] || []).filter(v => !isNaN(v) && v !== null));
+      return Math.max(max, seriesMax);
+    }
+    return max;
   }, 0);
   
   // Calculate dynamic y-axis domain with max cap at 100%

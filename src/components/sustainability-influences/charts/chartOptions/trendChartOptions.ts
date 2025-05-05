@@ -15,11 +15,14 @@ export const createTrendChartOptions = (
   // Extract all percentage values to calculate the y-axis domain
   const allPercentages: number[] = [];
   chartSeries.forEach(series => {
-    (series.data as any[]).forEach(point => {
-      if (Array.isArray(point) && point.length > 1 && typeof point[1] === 'number') {
-        allPercentages.push(point[1]);
-      }
-    });
+    // Check if it's a line series with data array
+    if (series.type === 'line' && Array.isArray(series.data)) {
+      (series.data as any[]).forEach(point => {
+        if (Array.isArray(point) && point.length > 1 && typeof point[1] === 'number') {
+          allPercentages.push(point[1]);
+        }
+      });
+    }
   });
   
   // Calculate dynamic y-axis domain
@@ -129,13 +132,13 @@ export const createTrendChartSeries = (
   data: Record<string, InfluenceData[]>,
   selectedInfluences: string[],
   countries: string[]
-): Highcharts.SeriesOptionsType[] => {
+): Highcharts.SeriesLineOptions[] => { // Specify the exact series type here
   if (!data || Object.keys(data).length === 0 || 
       countries.length === 0 || selectedInfluences.length === 0) {
     return [];
   }
 
-  const series: Highcharts.SeriesOptionsType[] = [];
+  const series: Highcharts.SeriesLineOptions[] = []; // Use the specific series type
   
   // Define colors to ensure visual distinction
   const baseColors = [
@@ -173,7 +176,7 @@ export const createTrendChartSeries = (
           name: `${getFullCountryName(country)} - ${influence}`,
           data: seriesData,
           color: color,
-          dashStyle: dashStyle as any,
+          dashStyle: dashStyle as Highcharts.DashStyleValue,
           marker: {
             enabled: true,
             symbol: 'circle'
