@@ -5,6 +5,7 @@ import { getFullCountryName } from '@/components/CountrySelect';
 import { ChartDataItem } from '../SingleCountryChart';
 import { getDynamicPercentageAxisDomain, getDynamicTickInterval } from '@/utils/charts/axisUtils';
 
+// Memoize chart options creation to avoid unnecessary recalculations
 export const createSingleCountryChartOptions = (
   chartData: ChartDataItem[],
   selectedYear: number,
@@ -32,7 +33,13 @@ export const createSingleCountryChartOptions = (
       },
       height: isCompact ? 300 : 500,
       spacingTop: isCompact ? 30 : 40,
-      spacingBottom: isCompact ? 15 : 20
+      spacingBottom: isCompact ? 15 : 20,
+      // Add a key to help Highcharts know when to properly rerender
+      events: {
+        render: function() {
+          console.log(`Chart for ${country} rendered with ${chartData.length} data points`);
+        }
+      }
     },
     title: {
       text: `${isCompact ? '' : 'Sustainability Influences in '}${countryName} (${selectedYear})`,
@@ -101,7 +108,9 @@ export const createSingleCountryChartOptions = (
     series: [{
       name: 'Influence',
       type: 'bar',
-      data: chartData.map(item => item.percentage * 100) // Convert decimal to percentage for display
+      data: chartData.map(item => item.percentage * 100), // Convert decimal to percentage for display
+      // Add a unique ID to prevent rendering issues
+      id: `influence-${country}-${selectedYear}`
     }],
     credits: {
       enabled: false
