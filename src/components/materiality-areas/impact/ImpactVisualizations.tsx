@@ -1,12 +1,11 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import ImpactCategoryChart from './charts/ImpactCategoryChart';
-import ImpactCountryComparison from './comparison/ImpactCountryComparison';
-import ImpactTrendsView from './ImpactTrendsView';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Info } from 'lucide-react';
+import useInsightsGenerator from './hooks/useInsightsGenerator';
+import InsightsCard from './components/InsightsCard';
+import RecommendationsCard from './components/RecommendationsCard';
+import ImpactInfoAlert from './components/ImpactInfoAlert';
+import ImpactVisualizationTabs from './components/ImpactVisualizationTabs';
 
 interface ImpactVisualizationsProps {
   processedData: Record<string, Record<string, Record<string, number>>>;
@@ -29,8 +28,6 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
   activeCountries,
   countryDataMap
 }) => {
-  const [activeTab, setActiveTab] = useState<string>("category");
-  
   // Filter processedData to only include selected categories
   const filteredData = React.useMemo(() => {
     if (!selectedCategories.length || !processedData) return processedData;
@@ -75,60 +72,13 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
     return Array.from(levelsSet);
   }, [processedData]);
 
-  // Generate insights based on the data
-  const insightText = React.useMemo(() => {
-    if (!selectedCategories.length || !selectedYear || !processedData) {
-      return "Select categories and filters to see insights";
-    }
-
-    if (selectedCategories.length === 1) {
-      const category = selectedCategories[0];
-      const yearData = processedData[category]?.[selectedYear];
-      if (!yearData) return "No data available for the selected year";
-      
-      // Find the highest impact level
-      let highestLevel = '';
-      let highestValue = 0;
-      
-      Object.entries(yearData).forEach(([level, value]) => {
-        if (selectedLevels.includes(level) && value > highestValue) {
-          highestValue = value;
-          highestLevel = level;
-        }
-      });
-      
-      if (highestLevel) {
-        return `${Math.round(highestValue * 100)}% of consumers show "${highestLevel}" level of engagement with ${category} sustainability. Focus your communication strategy on highlighting your brand's ${category} sustainability credentials.`;
-      }
-    } else if (selectedCategories.length > 1) {
-      return `Comparing ${selectedCategories.length} categories helps identify which sustainability aspects are most important to consumers. Focus your strategy on categories with higher "Willing to pay" levels.`;
-    }
-    
-    return "Select categories and filters to see insights";
-  }, [processedData, selectedCategories, selectedYear, selectedLevels]);
-  
-  // Generate recommendations based on the selected data
-  const recommendations = React.useMemo(() => {
-    if (!selectedCategories.length || !selectedYear || !processedData) {
-      return [];
-    }
-    
-    const recs = [];
-    
-    if (selectedLevels.includes("Willing to pay") && selectedCategories.length > 0) {
-      recs.push("Focus product development on sustainability aspects that consumers are willing to pay for.");
-    }
-    
-    if (selectedLevels.includes("Aware") && selectedLevels.includes("Concerned")) {
-      recs.push("There's an opportunity to convert consumer awareness into action through education and engagement.");
-    }
-    
-    if (selectedCategories.length > 1) {
-      recs.push("Develop an integrated sustainability strategy across categories to maximize impact.");
-    }
-    
-    return recs.length > 0 ? recs : ["Select more data points to generate strategic recommendations."];
-  }, [processedData, selectedCategories, selectedYear, selectedLevels]);
+  // Generate insights and recommendations
+  const { insightText, recommendations } = useInsightsGenerator(
+    processedData, 
+    selectedCategories, 
+    selectedYear, 
+    selectedLevels
+  );
 
   return (
     <div className="space-y-6">
@@ -140,102 +90,25 @@ const ImpactVisualizations: React.FC<ImpactVisualizationsProps> = ({
           </p>
         </div>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6 bg-[#34502b]/10">
-            <TabsTrigger 
-              value="category" 
-              className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
-            >
-              Category View
-            </TabsTrigger>
-            <TabsTrigger 
-              value="trends" 
-              className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
-            >
-              Trends
-            </TabsTrigger>
-            <TabsTrigger 
-              value="comparison" 
-              className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white"
-              disabled={activeCountries.length <= 1 || selectedCategories.length === 0 || !selectedYear}
-            >
-              Country Comparison
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="category" className="mt-0">
-            <ImpactCategoryChart 
-              data={filteredData}
-              selectedYear={selectedYear}
-              selectedLevels={selectedLevels}
-            />
-          </TabsContent>
-          
-          <TabsContent value="trends" className="mt-0">
-            {selectedCategories.length > 0 ? (
-              <ImpactTrendsView 
-                processedData={processedData}
-                selectedCategories={selectedCategories}
-                years={years}
-                impactLevels={impactLevels}
-                comparisonMode={false}
-                activeCountries={activeCountries}
-                countryDataMap={countryDataMap}
-              />
-            ) : (
-              <div className="text-center py-10 text-gray-500">
-                Please select at least one category to view trend data.
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="comparison" className="mt-0">
-            {activeCountries.length > 1 && selectedCategories.length > 0 && selectedYear ? (
-              <ImpactCountryComparison 
-                processedData={processedData}
-                selectedCategories={selectedCategories}
-                selectedYear={selectedYear}
-                years={years}
-                impactLevels={impactLevels}
-                activeCountries={activeCountries}
-                countryDataMap={countryDataMap}
-              />
-            ) : (
-              <div className="text-center py-10 text-gray-500">
-                Please select at least two countries and one category to compare data.
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+        <ImpactVisualizationTabs 
+          filteredData={filteredData}
+          processedData={processedData}
+          selectedCategories={selectedCategories}
+          selectedYear={selectedYear}
+          selectedLevels={selectedLevels}
+          years={years}
+          impactLevels={impactLevels}
+          activeCountries={activeCountries}
+          countryDataMap={countryDataMap}
+        />
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-4 bg-[#f1f0fb] border-2 border-[#34502b]/20 rounded-xl shadow-md">
-          <h3 className="text-lg font-medium text-[#34502b] mb-2">Key Insights</h3>
-          <p className="text-gray-600 text-sm">
-            {insightText}
-          </p>
-        </Card>
-        
-        <Card className="p-4 bg-[#f1f0fb] border-2 border-[#34502b]/20 rounded-xl shadow-md">
-          <h3 className="text-lg font-medium text-[#34502b] mb-2">Recommendations</h3>
-          <ul className="text-gray-600 text-sm space-y-2">
-            {recommendations.map((rec, index) => (
-              <li key={index} className="flex gap-2">
-                <span>•</span>
-                <span>{rec}</span>
-              </li>
-            ))}
-          </ul>
-        </Card>
+        <InsightsCard insightText={insightText} />
+        <RecommendationsCard recommendations={recommendations} />
       </div>
       
-      <Alert className="bg-white border border-[#34502b]/20">
-        <Info className="h-4 w-4" />
-        <AlertDescription className="text-gray-600 text-sm">
-          <strong>Understanding impact levels:</strong> "Aware" indicates basic recognition, "Concerned" shows engagement, and "Willing to pay" represents the strongest commitment to sustainability.
-        </AlertDescription>
-      </Alert>
+      <ImpactInfoAlert />
     </div>
   );
 };
