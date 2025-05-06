@@ -18,10 +18,14 @@ const MultiCountryChart: React.FC<MultiCountryChartProps> = ({
   selectedYear,
   countries
 }) => {
+  // Generate a stable chart ID for Highcharts
+  const chartId = useMemo(() => 
+    `multi-country-chart-${selectedYear}-${countries.sort().join('-')}`,
+    [selectedYear, countries]
+  );
+  
   // Process data for chart with memoization to prevent unnecessary recalculations
-  const { influenceTypes, series, chartId } = useMemo(() => {
-    // Generate a stable chart ID based on the input data
-    const chartId = `multi-country-chart-${selectedYear}-${countries.join('-')}`;
+  const { influenceTypes, series } = useMemo(() => {
     console.log(`Creating chart with ID: ${chartId}, countries: ${countries.length}`);
     
     // Filter data for the selected year
@@ -88,8 +92,8 @@ const MultiCountryChart: React.FC<MultiCountryChartProps> = ({
       };
     });
     
-    return { influenceTypes: sortedTypes, series: chartSeries, chartId };
-  }, [data, countries, selectedYear]);
+    return { influenceTypes: sortedTypes, series: chartSeries };
+  }, [data, countries, selectedYear, chartId]);
   
   // Get color based on country code
   function getCountryColor(country: string): string {
@@ -209,8 +213,9 @@ const MultiCountryChart: React.FC<MultiCountryChartProps> = ({
         highcharts={Highcharts} 
         options={options} 
         key={chartId}
-        immutable={true} 
-        updateArgs={[true, false, false]}
+        immutable={true}
+        containerProps={{ className: 'chart-container' }}
+        updateArgs={[true, true, true]}
       />
     </div>
   );

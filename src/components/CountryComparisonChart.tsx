@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Toggle } from "@/components/ui/toggle";
 import { Check, Info, Sparkles } from "lucide-react";
@@ -17,15 +17,19 @@ interface CountryComparisonChartProps {
   selectedBrands: string[];
 }
 
-const CountryComparisonChart = ({
+const CountryComparisonChart: React.FC<CountryComparisonChartProps> = ({
   selectedCountries,
   selectedBrands
-}: CountryComparisonChartProps) => {
+}) => {
   const [standardized, setStandardized] = useState(false);
   const [chartType, setChartType] = useState("bar");
   
-  // Add a key to force re-render only when important props change
-  const chartKey = `${selectedCountries.join('-')}-${selectedBrands.join('-')}-${chartType}-${standardized ? 'std' : 'raw'}`;
+  // Generate a stable, memoized key for chart rendering
+  const chartKey = useMemo(() => {
+    const countryKey = selectedCountries.slice().sort().join('-');
+    const brandKey = selectedBrands.slice().sort().join('-');
+    return `${countryKey}-${brandKey}-${chartType}-${standardized ? 'std' : 'raw'}`;
+  }, [selectedCountries, selectedBrands, chartType, standardized]);
   
   const { data: allCountriesData, isLoading } = useMultiCountryChartData(selectedCountries, selectedBrands);
   
@@ -54,10 +58,12 @@ const CountryComparisonChart = ({
     );
   }
   
-  const totalDataPoints = Object.values(allCountriesData).reduce(
-    (total, countryData) => total + (countryData?.length || 0), 
-    0
-  );
+  const totalDataPoints = useMemo(() => {
+    return Object.values(allCountriesData).reduce(
+      (total, countryData) => total + (countryData?.length || 0), 
+      0
+    );
+  }, [allCountriesData]);
   
   if (totalDataPoints === 0) {
     return (

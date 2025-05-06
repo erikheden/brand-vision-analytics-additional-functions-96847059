@@ -16,6 +16,12 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
   selectedYear,
   countries
 }) => {
+  // Generate a stable key for the component
+  const chartKey = useMemo(() => 
+    `influences-chart-${countries.sort().join('-')}-${selectedYear}`,
+    [countries, selectedYear]
+  );
+  
   // Use useMemo to prevent unnecessary checks during re-renders
   const { hasData, countryData } = useMemo(() => {
     // Display empty state if no countries selected
@@ -32,11 +38,6 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
       const countryData = data[country] || [];
       const yearData = countryData.filter(item => item.year === selectedYear);
       console.log(`Country ${country} has ${yearData.length} data points for year ${selectedYear}`);
-      
-      // Log first few data points to verify structure
-      if (yearData.length > 0) {
-        console.log(`Sample data for ${country}:`, yearData.slice(0, 2));
-      }
       
       return yearData.length > 0;
     });
@@ -57,9 +58,6 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
       </Card>
     );
   }
-
-  // Key for stable rendering
-  const chartKey = `${countries.join('-')}-${selectedYear}`;
 
   // For single country, use the SingleCountryChart component
   if (countries.length === 1) {
@@ -85,7 +83,7 @@ const InfluencesBarChart: React.FC<InfluencesBarChartProps> = ({
         data={countryData}
         selectedYear={selectedYear}
         countries={countries}
-        key={`multi-country-${chartKey}`}
+        key={chartKey}
       />
     </Card>
   );
