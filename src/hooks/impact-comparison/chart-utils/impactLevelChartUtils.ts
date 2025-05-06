@@ -66,4 +66,3 @@ export const getImpactLevelValues = (
     return value * 100; // Convert to percentage for display
   });
 };
-

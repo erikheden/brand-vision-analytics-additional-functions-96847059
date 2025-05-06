@@ -4,8 +4,10 @@ import { Card } from '@/components/ui/card';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useProcessedChartData } from '@/hooks/impact-comparison/useProcessedChartData';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ComparisonChartControls from './ComparisonChartControls';
 import ComparisonAnalysisPanel from './ComparisonAnalysisPanel';
+import { createCategoryChartOptions } from '@/hooks/impact-comparison/chart-utils/categoryChartUtils';
+import { createImpactLevelChartOptions } from '@/hooks/impact-comparison/chart-utils/impactLevelChartUtils';
 
 interface ImpactCountryComparisonProps {
   processedData: Record<string, Record<string, Record<string, number>>>;
@@ -53,110 +55,26 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
     countryDataMap
   );
   
-  // Create chart options based on the data from the hook
+  // Create chart options
   const categoryChartOptions = React.useMemo(() => {
-    if (seriesData.length === 0) return { chart: { type: 'column' }, series: [] };
-    
-    return {
-      chart: {
-        type: 'column',
-        backgroundColor: 'white',
-        style: { fontFamily: 'Inter, sans-serif' }
-      },
-      title: {
-        text: `${selectedImpactLevel} Impact Level Across Categories (${selectedYear})`,
-        style: { color: '#34502b', fontFamily: 'Inter, sans-serif' }
-      },
-      subtitle: {
-        text: `Comparing ${activeCountries.length} countries`,
-        style: { color: '#666', fontFamily: 'Inter, sans-serif' }
-      },
-      xAxis: {
-        categories: selectedCategories,
-        title: { text: 'Categories' },
-        labels: {
-          rotation: -45,
-          style: { fontSize: '11px', fontFamily: 'Inter, sans-serif' }
-        }
-      },
-      yAxis: {
-        min: 0,
-        max: 100,
-        title: {
-          text: 'Percentage (%)',
-          style: { color: '#34502b', fontFamily: 'Inter, sans-serif' }
-        },
-        labels: { format: '{value}%' }
-      },
-      legend: {
-        enabled: true,
-        itemStyle: { fontFamily: 'Inter, sans-serif' }
-      },
-      tooltip: {
-        headerFormat: '<b>{point.x}</b><br/>',
-        pointFormat: '{series.name}: {point.y:.1f}%',
-        shared: true
-      },
-      plotOptions: {
-        column: {
-          pointPadding: 0.2,
-          borderWidth: 0
-        }
-      },
-      series: seriesData,
-      credits: { enabled: false }
-    };
-  }, [seriesData, selectedImpactLevel, selectedCategories, activeCountries, selectedYear]);
+    return createCategoryChartOptions(
+      selectedYear,
+      selectedImpactLevel,
+      selectedCategories,
+      activeCountries,
+      seriesData
+    );
+  }, [selectedYear, selectedImpactLevel, selectedCategories, activeCountries, seriesData]);
   
   const impactLevelChartOptions = React.useMemo(() => {
-    if (impactLevelData.length === 0) return { chart: { type: 'column' }, series: [] };
-    
-    return {
-      chart: {
-        type: 'column',
-        backgroundColor: 'white',
-        style: { fontFamily: 'Inter, sans-serif' }
-      },
-      title: {
-        text: `${selectedCategory} - Impact Levels Comparison (${selectedYear})`,
-        style: { color: '#34502b', fontFamily: 'Inter, sans-serif' }
-      },
-      subtitle: {
-        text: `Comparing ${activeCountries.length} countries`,
-        style: { color: '#666', fontFamily: 'Inter, sans-serif' }
-      },
-      xAxis: {
-        categories: impactLevels,
-        title: { text: 'Impact Levels' }
-      },
-      yAxis: {
-        min: 0,
-        max: 100,
-        title: {
-          text: 'Percentage (%)',
-          style: { color: '#34502b', fontFamily: 'Inter, sans-serif' }
-        },
-        labels: { format: '{value}%' }
-      },
-      legend: {
-        enabled: true,
-        itemStyle: { fontFamily: 'Inter, sans-serif' }
-      },
-      tooltip: {
-        headerFormat: '<b>{point.x}</b><br/>',
-        pointFormat: '{series.name}: {point.y:.1f}%',
-        shared: true
-      },
-      plotOptions: {
-        column: {
-          pointPadding: 0.2,
-          borderWidth: 0
-        }
-      },
-      series: impactLevelData,
-      credits: { enabled: false }
-    };
-  }, [impactLevelData, selectedCategory, impactLevels, activeCountries, selectedYear]);
+    return createImpactLevelChartOptions(
+      selectedYear,
+      selectedCategory,
+      impactLevels,
+      activeCountries,
+      impactLevelData
+    );
+  }, [selectedYear, selectedCategory, impactLevels, activeCountries, impactLevelData]);
   
   // Display appropriate message if requirements aren't met
   if (activeCountries.length <= 1) {
@@ -195,52 +113,16 @@ const ImpactCountryComparison: React.FC<ImpactCountryComparisonProps> = ({
   return (
     <Card className="p-6 bg-white border-2 border-[#34502b]/20 rounded-xl shadow-md">
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h2 className="text-lg font-medium text-[#34502b]">
-            Country Comparison Analysis
-          </h2>
-          
-          <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'byCategory' | 'byImpactLevel')} className="w-auto">
-            <TabsList className="bg-[#34502b]/10">
-              <TabsTrigger value="byCategory" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-                By Category
-              </TabsTrigger>
-              <TabsTrigger value="byImpactLevel" className="data-[state=active]:bg-[#34502b] data-[state=active]:text-white">
-                By Impact Level
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-        
-        <div className="flex flex-col md:flex-row items-start gap-6">
-          {viewMode === 'byCategory' ? (
-            <div className="w-full md:w-1/3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Select Impact Level</label>
-              <select
-                value={selectedImpactLevel}
-                onChange={(e) => setSelectedImpactLevel(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-              >
-                {impactLevels.map(level => (
-                  <option key={level} value={level}>{level}</option>
-                ))}
-              </select>
-            </div>
-          ) : (
-            <div className="w-full md:w-1/3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Select Category</label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-              >
-                {selectedCategories.map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </select>
-            </div>
-          )}
-        </div>
+        <ComparisonChartControls
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          selectedImpactLevel={selectedImpactLevel}
+          setSelectedImpactLevel={setSelectedImpactLevel}
+          impactLevels={impactLevels}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          selectedCategories={selectedCategories}
+        />
         
         <div className="h-[500px]">
           <HighchartsReact 

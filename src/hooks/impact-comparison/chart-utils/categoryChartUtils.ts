@@ -70,4 +70,3 @@ export const getCategoryValues = (
     return value * 100; // Convert to percentage for display
   });
 };
-

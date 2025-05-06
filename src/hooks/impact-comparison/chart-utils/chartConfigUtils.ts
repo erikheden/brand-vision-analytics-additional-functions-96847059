@@ -56,4 +56,3 @@ export const prepareCountrySeries = (
     data: [] as number[] // Will be populated by the caller
   }));
 };
-

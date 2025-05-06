@@ -1,6 +1,8 @@
 
 import { useMemo } from 'react';
 import { getFullCountryName } from '@/components/CountrySelect';
+import { getCategoryValues } from './chart-utils/categoryChartUtils';
+import { getImpactLevelValues } from './chart-utils/impactLevelChartUtils';
 
 export const useProcessedChartData = (
   processedData: Record<string, Record<string, Record<string, number>>>,
@@ -12,90 +14,80 @@ export const useProcessedChartData = (
   activeCountries: string[],
   countryDataMap?: Record<string, any>
 ) => {
-  // Create series data for category comparison chart with improved memoization
+  // Process data for the category-based chart (showing different categories for a specific impact level)
   const seriesData = useMemo(() => {
-    if (!selectedYear || !selectedImpactLevel || selectedCategories.length === 0 || activeCountries.length === 0) {
+    if (!selectedImpactLevel || activeCountries.length === 0 || selectedCategories.length === 0) {
       return [];
     }
-    
-    return activeCountries.map(country => {
-      // Use country-specific data from the map if available
-      const countrySpecificData = countryDataMap?.[country]?.processedData || {};
-      
-      // Map each selected category to its value for this country and impact level
-      const data = selectedCategories.map(category => {
-        let value = 0;
-        
-        // First try to get value from country-specific data
-        if (countrySpecificData[category]?.[selectedYear]?.[selectedImpactLevel] !== undefined) {
-          value = countrySpecificData[category][selectedYear][selectedImpactLevel];
-        } 
-        // Fall back to default processedData if specific data is not available
-        else if (processedData[category]?.[selectedYear]?.[selectedImpactLevel] !== undefined) {
-          value = processedData[category][selectedYear][selectedImpactLevel];
-        }
-        
-        return value * 100; // Convert to percentage for display
-      });
 
+    return activeCountries.map(country => {
+      // Get country-specific data if available
+      const countrySpecificData = countryDataMap?.[country]?.processedData;
+      
+      // Get values for each category
+      const values = getCategoryValues(
+        processedData,
+        countrySpecificData,
+        selectedCategories, 
+        selectedYear, 
+        selectedImpactLevel,
+        country
+      );
+      
       return {
         name: getFullCountryName(country),
-        data,
+        data: values,
         type: 'column' as const
       };
     });
   }, [
-    selectedYear, 
     selectedImpactLevel, 
-    selectedCategories.join('|'),  // Use joined string for stable comparison
-    activeCountries.join('|'),     // Use joined string for stable comparison
-    processedData,
-    countryDataMap
+    activeCountries, 
+    selectedCategories, 
+    processedData, 
+    countryDataMap, 
+    selectedYear
   ]);
-
-  // Create series data for impact level comparison chart with improved memoization
+  
+  // Process data for the impact level-based chart (showing different impact levels for a specific category)
   const impactLevelData = useMemo(() => {
-    if (!selectedYear || !selectedCategory || impactLevels.length === 0 || activeCountries.length === 0) {
+    if (!selectedCategory || activeCountries.length === 0 || impactLevels.length === 0) {
       return [];
     }
-    
-    return activeCountries.map(country => {
-      // Use country-specific data from the map if available
-      const countrySpecificData = countryDataMap?.[country]?.processedData || {};
-      
-      // Map each impact level to its value for this country and selected category
-      const data = impactLevels.map(level => {
-        let value = 0;
-        
-        // First try to get value from country-specific data
-        if (countrySpecificData[selectedCategory]?.[selectedYear]?.[level] !== undefined) {
-          value = countrySpecificData[selectedCategory][selectedYear][level];
-        } 
-        // Fall back to default processedData if specific data is not available
-        else if (processedData[selectedCategory]?.[selectedYear]?.[level] !== undefined) {
-          value = processedData[selectedCategory][selectedYear][level];
-        }
-        
-        return value * 100; // Convert to percentage for display
-      });
 
+    return activeCountries.map(country => {
+      // Get country-specific data if available
+      const countrySpecificData = countryDataMap?.[country]?.processedData;
+      
+      // Get values for each impact level
+      const values = getImpactLevelValues(
+        processedData,
+        countrySpecificData,
+        selectedCategory, 
+        selectedYear, 
+        impactLevels,
+        country
+      );
+      
       return {
         name: getFullCountryName(country),
-        data,
+        data: values,
         type: 'column' as const
       };
     });
   }, [
-    selectedYear,
-    selectedCategory,
-    impactLevels.join('|'),       // Use joined string for stable comparison
-    activeCountries.join('|'),    // Use joined string for stable comparison
-    processedData,
-    countryDataMap
+    selectedCategory, 
+    activeCountries, 
+    impactLevels, 
+    processedData, 
+    countryDataMap, 
+    selectedYear
   ]);
-
+  
   return {
     seriesData,
     impactLevelData
   };
 };
+
+export default useProcessedChartData;
