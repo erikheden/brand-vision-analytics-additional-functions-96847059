@@ -24,9 +24,12 @@ const CountryComparisonChart = ({
   const [standardized, setStandardized] = useState(false);
   const [chartType, setChartType] = useState("bar");
   
+  // Add a key to force re-render only when important props change
+  const chartKey = `${selectedCountries.join('-')}-${selectedBrands.join('-')}-${chartType}-${standardized ? 'std' : 'raw'}`;
+  
   const { data: allCountriesData, isLoading } = useMultiCountryChartData(selectedCountries, selectedBrands);
   
-  // Show toast notification when standardization changes
+  // Show toast notification when standardization changes, but only after initial render
   useEffect(() => {
     if (standardized) {
       toast.info("Showing standardized scores (relative to market average)");
@@ -128,12 +131,14 @@ const CountryComparisonChart = ({
             allCountriesData={allCountriesData}
             selectedBrands={selectedBrands}
             standardized={standardized}
+            key={`bar-${chartKey}`}
           />
         ) : (
           <CountryLineChart 
             allCountriesData={allCountriesData} 
             selectedBrands={selectedBrands}
             standardized={standardized}
+            key={`line-${chartKey}`}
           />
         )}
       </Card>
@@ -141,4 +146,4 @@ const CountryComparisonChart = ({
   );
 };
 
-export default CountryComparisonChart;
+export default React.memo(CountryComparisonChart);
