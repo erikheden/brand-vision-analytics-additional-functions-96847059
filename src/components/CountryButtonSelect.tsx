@@ -32,7 +32,7 @@ const CountryButtonSelect = ({
   return (
     <div className={className}>
       <ScrollArea className="w-full">
-        <div className="flex flex-wrap gap-2 p-1">
+        <div className="flex flex-wrap gap-3 p-1">
           {countries.map((country) => {
             const fullName = getFullCountryName(country);
             return (
@@ -40,7 +40,11 @@ const CountryButtonSelect = ({
                 key={country}
                 variant={isSelected(country) ? "default" : "outline"}
                 onClick={() => onCountryChange(country)}
-                className="min-w-24"
+                className={`px-8 py-6 rounded-full h-auto min-w-32 text-base font-medium transition-all ${
+                  isSelected(country) 
+                    ? "bg-[#34502b] hover:bg-[#2a4023] text-white" 
+                    : "bg-[#f8f9fa] hover:bg-[#e9ecef] text-gray-800 border-transparent"
+                }`}
                 disabled={disabled}
               >
                 {fullName}
