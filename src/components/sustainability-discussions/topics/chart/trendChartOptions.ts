@@ -66,10 +66,12 @@ export const createTopicTrendChartOptions = (
     tooltip: {
       shared: true,
       formatter: function() {
-        if (!this.points) return '';
+        // Using type assertion to handle the tooltip context properly
+        const tooltipContext = this as unknown as Highcharts.TooltipFormatterContextObject;
+        if (!tooltipContext.points) return '';
         
-        let html = `<b>Year: ${this.x}</b><br/>`;
-        this.points.forEach(point => {
+        let html = `<b>Year: ${tooltipContext.x}</b><br/>`;
+        tooltipContext.points.forEach(point => {
           const [country, topic] = (point.series.name as string).split(' - ');
           html += `<span style="color: ${point.color}">\u25CF</span> ${getFullCountryName(country)} - ${topic}: <b>${point.y?.toFixed(1)}%</b><br/>`;
         });
