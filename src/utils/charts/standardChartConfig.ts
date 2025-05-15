@@ -1,3 +1,4 @@
+
 import { FONT_FAMILY } from "@/utils/constants";
 import Highcharts from "highcharts";
 import { getDynamicPercentageAxisDomain, getDynamicTickInterval } from "./axisUtils";
@@ -247,21 +248,24 @@ export function createPercentageChartOptions(
   // Update tooltip to show percentages
   options.tooltip = {
     ...options.tooltip,
-    formatter: function(this: Highcharts.PointLabelObject): string {
-      const point = this.point;
-      const series = this.series;
+    formatter: function(): string {
+      // Use type casting to handle both single point and multiple points
+      const tooltipContext = this as any;
       
-      if (this.points) { // Shared tooltip (multiple points)
-        return `<b>${this.x}</b><br>` + 
-          this.points.map(point => 
-            `<span style="color:${point.color}">●</span> ${point.series.name}: ${Math.round(point.y as number)}%`
+      if (tooltipContext.points) { // Shared tooltip (multiple points)
+        return `<b>${tooltipContext.x}</b><br>` + 
+          tooltipContext.points.map((point: any) => 
+            `<span style="color:${point.color}">●</span> ${point.series.name}: ${Math.round(point.y)}%`
           ).join('<br>');
-      } else if (point && series) { // Single point tooltip
-        return `<b>${point.name || this.x}</b><br><span style="color:${point.color || series.color}">●</span> ${series.name}: ${Math.round(point.y as number)}%`;
+      } else if (tooltipContext.point) { // Single point tooltip
+        const point = tooltipContext.point;
+        const series = tooltipContext.series;
+        
+        return `<b>${point.name || tooltipContext.x}</b><br><span style="color:${point.color || series.color}">●</span> ${series.name}: ${Math.round(point.y)}%`;
       }
       
       // Fallback for any other case
-      return `${this.x}: ${this.y}%`;
+      return `${tooltipContext.x}: ${tooltipContext.y}%`;
     }
   };
   
