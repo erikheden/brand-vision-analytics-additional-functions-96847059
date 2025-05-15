@@ -43,13 +43,13 @@ const CountryButtonSelect = ({
                 onClick={() => onCountryChange(country)}
                 className={`px-6 py-2 rounded-xl h-auto min-w-28 text-sm font-medium relative overflow-hidden transition-all duration-300 ${
                   isSelected(country) 
-                    ? "bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] hover:from-[#8a76e4] hover:to-[#6E59A5] text-white shadow-lg border-transparent" 
-                    : "bg-gradient-to-r from-white to-[#f8f8fa] hover:from-[#f0f0f5] hover:to-[#e8e8f0] text-gray-700 border border-[#e2e2f2] shadow-sm"
+                    ? "bg-gradient-to-r from-[#34502b] to-[#4a7a3d] hover:from-[#2e4a24] hover:to-[#3e6631] text-white shadow-lg border-transparent" 
+                    : "bg-gradient-to-r from-white to-[#f8f8fa] hover:from-[#f0f5f0] hover:to-[#e8f0e8] text-gray-700 border border-[#d2e2d2] shadow-sm"
                 } hover:scale-105 hover:shadow-xl`}
                 disabled={disabled}
               >
                 <span className="relative z-10 flex items-center gap-2">
-                  <Globe className={`h-4 w-4 ${isSelected(country) ? "text-white" : "text-[#9b87f5]/70"}`} />
+                  <Globe className={`h-4 w-4 ${isSelected(country) ? "text-white" : "text-[#34502b]/70"}`} />
                   <span>{fullName}</span>
                 </span>
                 {isSelected(country) && (
