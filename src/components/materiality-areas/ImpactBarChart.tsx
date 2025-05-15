@@ -1,11 +1,6 @@
 
 import React, { useMemo } from 'react';
-import Highcharts from 'highcharts';
-import HighchartsReact from 'highcharts-react-official';
-import { 
-  createBarChartOptions,
-  ChartDataItem 
-} from './chart-utils/chartConfigGenerators';
+import StandardSingleEntityChart, { ChartDataItem } from '@/components/charts/StandardSingleEntityChart';
 
 interface ImpactBarChartProps {
   data: ChartDataItem[];
@@ -18,19 +13,22 @@ const ImpactBarChart: React.FC<ImpactBarChartProps> = ({
   title, 
   categories
 }) => {
-  // Create chart options
-  const chartOptions = useMemo(() => {
-    return createBarChartOptions(data, title, categories);
-  }, [data, title, categories]);
+  // Sort data by values for consistent display
+  const sortedData = useMemo(() => {
+    return [...data].sort((a, b) => b.value - a.value);
+  }, [data]);
 
   return (
     <div className="w-full h-full">
-      <div className="h-[600px]">
-        <HighchartsReact 
-          highcharts={Highcharts} 
-          options={chartOptions} 
-        />
-      </div>
+      <StandardSingleEntityChart
+        title={title}
+        data={sortedData}
+        horizontal={true}
+        isPercentage={true}
+        height={600}
+        sortByValue={true}
+        sortDirection="desc"
+      />
     </div>
   );
 };

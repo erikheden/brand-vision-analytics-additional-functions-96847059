@@ -1,77 +1,62 @@
-
 /**
- * Utility functions for dynamic chart axis configuration
+ * Calculates appropriate min and max values for percentage Y-axis
+ * to ensure proper display of data with some padding
+ * @param values Array of percentage values
+ * @returns Tuple of [min, max] for the axis
  */
-
-/**
- * Calculates a dynamic y-axis domain for percentage-based charts
- * @param data Array of data points or max percentage value
- * @param maxPercentage Optional maximum percentage to cap the axis (defaults to 100)
- * @returns [min, max] tuple for the axis domain
- */
-export const getDynamicPercentageAxisDomain = (
-  data: number[] | number,
-  maxPercentage: number = 100
-): [number, number] => {
-  // If data is a single number, use it directly
-  const maxValue = Array.isArray(data) 
-    ? Math.max(...data.filter(val => !isNaN(val) && val !== null))
-    : typeof data === 'number' ? data : 0;
-    
-  // Add 10% padding to the max value for better visualization
-  let paddedMax = maxValue * 1.1;
-  
-  // Cap at maxPercentage (default 100) for percentage-based charts
-  paddedMax = Math.min(paddedMax, maxPercentage);
-  
-  // Ensure minimum value is at least slightly above zero for better visualization
-  // Round up to nearest 5 or 10 depending on scale
-  if (paddedMax <= 10) {
-    paddedMax = Math.ceil(paddedMax / 2) * 2; // Round to nearest 2
-  } else if (paddedMax <= 50) {
-    paddedMax = Math.ceil(paddedMax / 5) * 5; // Round to nearest 5
-  } else {
-    paddedMax = Math.ceil(paddedMax / 10) * 10; // Round to nearest 10
+export function getDynamicPercentageAxisDomain(values: number[]): [number, number] {
+  if (!values || values.length === 0) {
+    return [0, 100]; // Default range for percentages
   }
+
+  // For percentage data, if all values are under 50%, cap at 60%
+  // Otherwise, round to nearest 10% above max value
+  const maxValue = Math.max(...values.filter(v => !isNaN(v)));
   
-  // Ensure we have a valid maximum (at least 10)
-  paddedMax = Math.max(paddedMax, 10);
+  // Always start at 0 for bar charts
+  const minValue = 0;
   
-  return [0, paddedMax];
-};
+  let maxYAxis;
+  
+  if (maxValue <= 50) {
+    maxYAxis = Math.min(100, Math.max(60, Math.ceil(maxValue / 10) * 10 + 10));
+  } else {
+    maxYAxis = Math.min(100, Math.ceil(maxValue / 10) * 10 + 10);
+  }
+
+  return [minValue, maxYAxis];
+}
 
 /**
- * Calculate dynamic tick intervals based on the max value
- * @param maxValue The maximum value in the data
- * @returns Appropriate tick interval
+ * Gets appropriate tick interval based on axis range
+ * @param maxValue Maximum value on the axis
+ * @returns Appropriate tick interval for nice-looking axis
  */
-export const getDynamicTickInterval = (maxValue: number): number => {
-  if (maxValue <= 10) return 2;
+export function getDynamicTickInterval(maxValue: number): number {
   if (maxValue <= 20) return 5;
   if (maxValue <= 50) return 10;
   if (maxValue <= 100) return 20;
-  return Math.ceil(maxValue / 5);
-};
+  return Math.ceil(maxValue / 5 / 10) * 10; // Round to nice intervals
+}
 
 /**
- * Configure yAxis options with dynamic domain based on data
- * @param data Data used to calculate axis domain
- * @param isPercentage Whether the data represents percentages
- * @returns Highcharts yAxis configuration object
+ * Creates a nicely scaled axis for non-percentage values
+ * @param values Array of numeric values
+ * @returns Tuple of [min, max] for the axis
  */
-export const getDynamicYAxisConfig = (
-  data: number[] | number,
-  isPercentage: boolean = true
-) => {
-  const [min, max] = getDynamicPercentageAxisDomain(data, isPercentage ? 100 : undefined);
-  const tickInterval = getDynamicTickInterval(max);
+export function getDynamicValueAxisDomain(values: number[]): [number, number] {
+  if (!values || values.length === 0) {
+    return [0, 100]; // Default range
+  }
+
+  const minValue = Math.min(...values.filter(v => !isNaN(v)));
+  const maxValue = Math.max(...values.filter(v => !isNaN(v)));
   
-  return {
-    min,
-    max,
-    tickInterval,
-    labels: {
-      format: isPercentage ? '{value}%' : '{value}'
-    }
-  };
-};
+  // Start at 0 or slightly below min value if negative
+  const axisMin = minValue < 0 ? Math.floor(minValue / 10) * 10 : 0;
+  
+  // Round max to nice interval above max value
+  const axisMax = Math.ceil(maxValue / 10) * 10 + 10;
+
+  return [axisMin, axisMax];
+}
