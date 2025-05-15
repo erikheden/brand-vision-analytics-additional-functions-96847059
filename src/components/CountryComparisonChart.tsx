@@ -26,10 +26,17 @@ const CountryComparisonChart: React.FC<CountryComparisonChartProps> = ({
   
   // Generate a stable, memoized key for chart rendering
   const chartKey = useMemo(() => {
+    // Create a stable string key to avoid object reference issues
     const countryKey = selectedCountries.slice().sort().join('-');
     const brandKey = selectedBrands.slice().sort().join('-');
     return `${countryKey}-${brandKey}-${chartType}-${standardized ? 'std' : 'raw'}`;
-  }, [selectedCountries, selectedBrands, chartType, standardized]);
+  }, [
+    // Use stable primitive dependencies
+    selectedCountries.join(','), 
+    selectedBrands.join(','), 
+    chartType, 
+    standardized
+  ]);
   
   const { data: allCountriesData, isLoading } = useMultiCountryChartData(selectedCountries, selectedBrands);
   

@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { getFullCountryName } from '@/components/CountrySelect';
 import { createCategoryChartOptions, getCategoryValues } from './chart-utils/categoryChartUtils';
 import { createImpactLevelChartOptions, getImpactLevelValues } from './chart-utils/impactLevelChartUtils';
+import { ProcessedChartData } from '@/types/impact';
 
 export const useComparisonChartData = (
   processedData: Record<string, Record<string, Record<string, number>>>,
@@ -52,8 +53,9 @@ export const useComparisonChartData = (
   }, [
     selectedYear, 
     selectedImpactLevel,
-    selectedCategories.join(','), // Use join to create a dependency string
-    activeCountries.join(','),    // Use join to create a dependency string 
+    // Use stable string representation of arrays instead of the arrays themselves
+    selectedCategories.join(','), 
+    activeCountries.join(','),
     processedData, 
     countryDataMap
   ]);
@@ -96,8 +98,9 @@ export const useComparisonChartData = (
   }, [
     selectedYear, 
     selectedCategory,
-    impactLevels.join(','), // Use join to create a dependency string
-    activeCountries.join(','),   // Use join to create a dependency string
+    // Use stable string representation of arrays
+    impactLevels.join(','),
+    activeCountries.join(','),
     processedData, 
     countryDataMap
   ]);

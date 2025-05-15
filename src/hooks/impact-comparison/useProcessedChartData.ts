@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { getFullCountryName } from '@/components/CountrySelect';
 import { getCategoryValues } from './chart-utils/categoryChartUtils';
 import { getImpactLevelValues } from './chart-utils/impactLevelChartUtils';
+import { ProcessedChartData } from '@/types/impact';
 
 export const useProcessedChartData = (
   processedData: Record<string, Record<string, Record<string, number>>>,
@@ -42,8 +43,9 @@ export const useProcessedChartData = (
     });
   }, [
     selectedImpactLevel, 
-    activeCountries, 
-    selectedCategories, 
+    // Using join to create stable string dependencies instead of array references
+    activeCountries.join(','), 
+    selectedCategories.join(','), 
     processedData, 
     countryDataMap, 
     selectedYear
@@ -77,8 +79,9 @@ export const useProcessedChartData = (
     });
   }, [
     selectedCategory, 
-    activeCountries, 
-    impactLevels, 
+    // Using join to create stable string dependencies instead of array references
+    activeCountries.join(','), 
+    impactLevels.join(','), 
     processedData, 
     countryDataMap, 
     selectedYear

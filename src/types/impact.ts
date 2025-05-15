@@ -4,3 +4,5 @@ export interface ProcessedChartData {
   data: number[];
   type: 'column';
 }
+
+// Add any other necessary types here
