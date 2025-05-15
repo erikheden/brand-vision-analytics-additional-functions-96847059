@@ -65,13 +65,14 @@ export const createTopicTrendChartOptions = (
     },
     tooltip: {
       shared: true,
-      formatter: function() {
-        // Use native 'this' typing provided by Highcharts
-        if (!this.points || this.points.length === 0) return '';
+      formatter: function(this: Highcharts.TooltipPositionerPointObject) {
+        const self = this as any; // Type assertion to access points
         
-        let html = `<b>Year: ${this.x}</b><br/>`;
+        if (!self.points || self.points.length === 0) return '';
         
-        this.points.forEach(point => {
+        let html = `<b>Year: ${self.x}</b><br/>`;
+        
+        self.points.forEach((point: any) => {
           const [country, topic] = (point.series.name as string).split(' - ');
           html += `<span style="color: ${point.color}">\u25CF</span> ${getFullCountryName(country)} - ${topic}: <b>${point.y?.toFixed(1)}%</b><br/>`;
         });
