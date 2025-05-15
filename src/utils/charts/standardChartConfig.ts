@@ -1,4 +1,3 @@
-
 import { FONT_FAMILY } from "@/utils/constants";
 import Highcharts from "highcharts";
 import { getDynamicPercentageAxisDomain, getDynamicTickInterval } from "./axisUtils";
@@ -248,7 +247,7 @@ export function createPercentageChartOptions(
   // Update tooltip to show percentages
   options.tooltip = {
     ...options.tooltip,
-    formatter: function(this: Highcharts.TooltipFormatterContextObject): string {
+    formatter: function(this: Highcharts.PointLabelObject): string {
       const point = this.point;
       const series = this.series;
       
