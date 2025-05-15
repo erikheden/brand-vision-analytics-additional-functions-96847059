@@ -188,7 +188,22 @@ export function createPercentageChartOptions(
   
   // Set the appropriate axis based on chart orientation
   if (horizontal) {
-    options.xAxis = percentAxis;
+    options.xAxis = horizontal ? {
+      ...options.xAxis,
+      opposite: false,
+      min: yMin,
+      max: yMax,
+      tickInterval: tickInterval,
+      labels: {
+        ...(options.xAxis as Highcharts.XAxisOptions).labels,
+        format: '{value}%'
+      }
+    } : options.xAxis;
+    
+    options.yAxis = horizontal ? {
+      ...options.yAxis,
+      type: 'category',
+    } : percentAxis;
   } else {
     options.yAxis = percentAxis;
   }
@@ -234,8 +249,13 @@ export function createPercentageChartOptions(
   options.tooltip = {
     ...options.tooltip,
     formatter: function() {
+      // Safely handle the case when points might be undefined
+      if (!this.points) {
+        return `<b>${this.x}</b><br><span style="color:${this.color}">●</span> ${this.series.name}: ${Math.round(this.y as number)}%`;
+      }
+      
       return `<b>${this.x}</b><br>` + 
-        this.points!.map(point => 
+        this.points.map(point => 
           `<span style="color:${point.color}">●</span> ${point.series.name}: ${Math.round(point.y as number)}%`
         ).join('<br>');
     }

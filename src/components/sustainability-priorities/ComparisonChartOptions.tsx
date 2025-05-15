@@ -20,17 +20,25 @@ const ComparisonChartOptions = ({
   const colors = ['#34502b', '#5c8f4a', '#84c066', '#aad68b', '#d1ebc1'];
 
   // Find max value across all series data for dynamic axis scaling
-  const maxValue = series.reduce((max, s) => {
+  const allValues: number[] = [];
+  series.forEach(s => {
     // Check if it's a column/bar series with a data array
     if ((s.type === 'column' || s.type === 'bar') && Array.isArray(s.data)) {
-      const seriesMax = Math.max(...(s.data as number[] || []).filter(v => !isNaN(v) && v !== null));
-      return Math.max(max, seriesMax);
+      s.data.forEach(point => {
+        if (typeof point === 'number' && !isNaN(point)) {
+          allValues.push(point);
+        } else if (typeof point === 'object' && point !== null && 'y' in point) {
+          const value = point.y as number;
+          if (!isNaN(value)) {
+            allValues.push(value);
+          }
+        }
+      });
     }
-    return max;
-  }, 0);
+  });
   
   // Calculate dynamic y-axis domain with max cap at 100%
-  const [yMin, yMax] = getDynamicPercentageAxisDomain(maxValue);
+  const [yMin, yMax] = getDynamicPercentageAxisDomain(allValues);
   const tickInterval = getDynamicTickInterval(yMax);
 
   // Log sorted areas to help with debugging

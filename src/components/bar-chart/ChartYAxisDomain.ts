@@ -26,6 +26,6 @@ export const useChartYAxisDomain = (
     });
     
     // Use the utility function for consistent axis domains across the application
-    return getDynamicPercentageAxisDomain(allValues, 100);
+    return getDynamicPercentageAxisDomain(allValues);
   }, [chartData, selectedBrands, standardized]);
 };
