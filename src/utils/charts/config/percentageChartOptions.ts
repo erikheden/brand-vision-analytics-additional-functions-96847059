@@ -21,7 +21,7 @@ export function createPercentageChartOptions(
   // Get standard options first
   const options = createStandardChartOptions(title, subtitle, horizontal);
   
-  // Calculate dynamic y-axis domain
+  // Calculate dynamic y-axis domain - Make sure getDynamicPercentageAxisDomain accepts an array
   const [yMin, yMax] = getDynamicPercentageAxisDomain(values);
   const tickInterval = getDynamicTickInterval(yMax);
   
@@ -43,7 +43,7 @@ export function createPercentageChartOptions(
   
   // Set the appropriate axis based on chart orientation
   if (horizontal) {
-    options.xAxis = horizontal ? {
+    options.xAxis = {
       ...options.xAxis,
       opposite: false,
       min: yMin,
@@ -53,12 +53,12 @@ export function createPercentageChartOptions(
         ...(options.xAxis as Highcharts.XAxisOptions).labels,
         format: '{value}%'
       }
-    } : options.xAxis;
+    };
     
-    options.yAxis = horizontal ? {
+    options.yAxis = {
       ...options.yAxis,
       type: 'category',
-    } : percentAxis;
+    };
   } else {
     options.yAxis = percentAxis;
   }
