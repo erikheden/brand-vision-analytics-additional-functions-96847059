@@ -65,7 +65,8 @@ export const createTopicTrendChartOptions = (
     },
     tooltip: {
       shared: true,
-      formatter: function(this: Highcharts.TooltipFormatterContextObject) {
+      formatter: function() {
+        // Use native 'this' typing provided by Highcharts
         if (!this.points || this.points.length === 0) return '';
         
         let html = `<b>Year: ${this.x}</b><br/>`;
