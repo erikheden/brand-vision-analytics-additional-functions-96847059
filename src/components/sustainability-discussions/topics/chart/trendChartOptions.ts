@@ -1,105 +1,33 @@
 
 import Highcharts from 'highcharts';
-import { FONT_FAMILY } from '@/utils/constants';
-import { getFullCountryName } from '@/components/CountrySelect';
+import { createChartStyles } from './utils/chartStyles';
+import { createPlotOptions } from './utils/plotOptions';
+import { createTopicTooltipFormatter } from './utils/tooltipFormatter';
+import { createTitleSubtitle } from './utils/createTitleSubtitle';
 
 export const createTopicTrendChartOptions = (
   data: any[],
   selectedCountries: string[],
   selectedTopics: string[]
 ): Highcharts.Options => {
+  // Get chart styles
+  const styles = createChartStyles();
+  
+  // Get plot options
+  const plotOptionsConfig = createPlotOptions();
+  
+  // Get title and subtitle
+  const titleConfig = createTitleSubtitle(selectedCountries);
+  
+  // Combine all configurations into the final options object
   const options: Highcharts.Options = {
-    chart: {
-      type: 'line',
-      backgroundColor: 'white',
-      style: {
-        fontFamily: FONT_FAMILY
-      },
-      height: 500
-    },
-    title: {
-      text: 'Sustainability Discussion Topic Trends',
-      style: {
-        color: '#34502b',
-        fontFamily: FONT_FAMILY
-      }
-    },
-    subtitle: {
-      text: selectedCountries.length === 1 
-        ? getFullCountryName(selectedCountries[0]) 
-        : `Comparing ${selectedCountries.length} countries`,
-      style: {
-        color: '#34502b',
-        fontFamily: FONT_FAMILY
-      }
-    },
-    xAxis: {
-      type: 'linear',
-      tickInterval: 1,
-      gridLineWidth: 1,
-      gridLineColor: '#E5E7EB',
-      lineColor: '#E5E7EB',
-      labels: {
-        style: {
-          color: '#34502b',
-          fontFamily: FONT_FAMILY
-        }
-      }
-    },
-    yAxis: {
-      title: {
-        text: 'Percentage',
-        style: {
-          color: '#34502b',
-          fontFamily: FONT_FAMILY
-        }
-      },
-      gridLineColor: '#E5E7EB',
-      labels: {
-        format: '{value}%',
-        style: {
-          color: '#34502b',
-          fontFamily: FONT_FAMILY
-        }
-      }
-    },
+    ...styles,
+    ...titleConfig,
     tooltip: {
       shared: true,
-      formatter: function(this: Highcharts.TooltipPositionerPointObject) {
-        const self = this as any; // Type assertion to access points
-        
-        if (!self.points || self.points.length === 0) return '';
-        
-        let html = `<b>Year: ${self.x}</b><br/>`;
-        
-        self.points.forEach((point: any) => {
-          const [country, topic] = (point.series.name as string).split(' - ');
-          html += `<span style="color: ${point.color}">\u25CF</span> ${getFullCountryName(country)} - ${topic}: <b>${point.y?.toFixed(1)}%</b><br/>`;
-        });
-        
-        return html;
-      }
+      formatter: createTopicTooltipFormatter()
     },
-    plotOptions: {
-      line: {
-        marker: {
-          enabled: true,
-          symbol: 'circle',
-          radius: 4
-        },
-        lineWidth: 2
-      }
-    },
-    legend: {
-      enabled: true,
-      itemStyle: {
-        fontFamily: FONT_FAMILY,
-        color: '#34502b'
-      }
-    },
-    credits: {
-      enabled: false
-    }
+    ...plotOptionsConfig
   };
 
   return options;
