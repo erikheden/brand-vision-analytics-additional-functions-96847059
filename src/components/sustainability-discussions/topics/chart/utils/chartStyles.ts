@@ -28,7 +28,7 @@ export const createChartStyles = () => {
       }
     },
     xAxis: {
-      type: 'linear',
+      type: 'linear' as const, // Explicitly type as 'linear' which is a valid AxisTypeValue
       tickInterval: 1,
       gridLineWidth: 1,
       gridLineColor: '#E5E7EB',
