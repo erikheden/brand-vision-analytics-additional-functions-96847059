@@ -21,7 +21,7 @@ export function createPercentageChartOptions(
   // Get standard options first
   const options = createStandardChartOptions(title, subtitle, horizontal);
   
-  // Calculate dynamic y-axis domain - Make sure getDynamicPercentageAxisDomain accepts an array
+  // Calculate dynamic y-axis domain
   const [yMin, yMax] = getDynamicPercentageAxisDomain(values);
   const tickInterval = getDynamicTickInterval(yMax);
   
