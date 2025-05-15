@@ -25,8 +25,8 @@ const CountrySelectionSection = ({
   };
 
   return (
-    <div className="space-y-2">
-      <h3 className="text-lg font-medium flex items-center gap-2 text-[#34502b]">
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium flex items-center gap-2 text-[#7E69AB]">
         <Globe className="h-5 w-5" />
         Select Countries to Compare
       </h3>
@@ -38,15 +38,15 @@ const CountrySelectionSection = ({
       />
       
       {selectedCountries.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
+        <div className="flex flex-wrap gap-2 mt-3 animate-fade-in">
           {selectedCountries.map((country) => (
             <Badge 
               key={country} 
-              className="bg-[#34502b]/10 text-[#34502b] hover:bg-[#34502b]/20 px-3 py-1"
+              className="bg-[#9b87f5]/10 text-[#7E69AB] hover:bg-[#9b87f5]/20 px-3 py-1"
             >
               {getFullCountryName(country)}
               <button 
-                className="ml-2 hover:text-[#34502b]"
+                className="ml-2 hover:text-[#6E59A5] transition-colors"
                 onClick={() => setSelectedCountries(selectedCountries.filter(c => c !== country))}
               >
                 <X className="h-3 w-3" />
@@ -57,7 +57,7 @@ const CountrySelectionSection = ({
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-xs text-[#34502b]/70 hover:text-[#34502b]"
+              className="text-xs text-[#9b87f5]/70 hover:text-[#7E69AB] transition-colors"
               onClick={() => setSelectedCountries([])}
             >
               Clear all
