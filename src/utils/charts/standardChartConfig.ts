@@ -248,16 +248,21 @@ export function createPercentageChartOptions(
   // Update tooltip to show percentages
   options.tooltip = {
     ...options.tooltip,
-    formatter: function() {
-      // Safely handle the case when points might be undefined
-      if (!this.points) {
-        return `<b>${this.x}</b><br><span style="color:${this.color}">●</span> ${this.series.name}: ${Math.round(this.y as number)}%`;
+    formatter: function(this: Highcharts.TooltipFormatterContextObject): string {
+      const point = this.point;
+      const series = this.series;
+      
+      if (this.points) { // Shared tooltip (multiple points)
+        return `<b>${this.x}</b><br>` + 
+          this.points.map(point => 
+            `<span style="color:${point.color}">●</span> ${point.series.name}: ${Math.round(point.y as number)}%`
+          ).join('<br>');
+      } else if (point && series) { // Single point tooltip
+        return `<b>${point.name || this.x}</b><br><span style="color:${point.color || series.color}">●</span> ${series.name}: ${Math.round(point.y as number)}%`;
       }
       
-      return `<b>${this.x}</b><br>` + 
-        this.points.map(point => 
-          `<span style="color:${point.color}">●</span> ${point.series.name}: ${Math.round(point.y as number)}%`
-        ).join('<br>');
+      // Fallback for any other case
+      return `${this.x}: ${this.y}%`;
     }
   };
   

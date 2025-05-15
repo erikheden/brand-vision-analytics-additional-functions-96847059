@@ -86,7 +86,7 @@ const StandardBarChart: React.FC<StandardBarChartProps> = ({
   }
   
   // Extract all values to calculate Y-axis for percentage charts
-  const allValues = series.flatMap(s => 
+  const allValues: number[] = series.flatMap(s => 
     s.data.map(d => typeof d === 'number' ? d : d.value)
   );
   
