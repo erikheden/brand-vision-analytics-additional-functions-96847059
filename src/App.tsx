@@ -16,6 +16,7 @@ import BehaviourGroups from "./pages/BehaviourGroups";
 import Auth from "./pages/Auth";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { AdminPanel } from "./components/admin/AdminPanel";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +52,7 @@ function App() {
               <Route path="sustainability-impact" element={<SustainabilityImpact />} />
               <Route path="sustainability-perception" element={<SustainabilityPerception />} />
               <Route path="behaviour-groups" element={<BehaviourGroups />} />
+              <Route path="admin" element={<AdminPanel />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Route>
           </Routes>

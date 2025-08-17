@@ -10,11 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Shield } from "lucide-react";
 import { toast } from "sonner";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useUserRoles();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -52,6 +54,15 @@ const UserMenu = () => {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {isAdmin() && (
+          <>
+            <DropdownMenuItem onClick={() => navigate("/admin")}>
+              <Shield className="mr-2 h-4 w-4" />
+              Admin Panel
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" />
           Log out
