@@ -116,7 +116,7 @@ const StandardBarChart: React.FC<StandardBarChartProps> = ({
       });
     } else {
       // For multi-series or without colorByPoint
-      seriesColor = s.color || getSeriesColors([index])[0];
+      seriesColor = s.color || getSeriesColors(index + 1)[index];
       processedData = s.data.map(d => {
         if (typeof d === 'number') {
           return d;
