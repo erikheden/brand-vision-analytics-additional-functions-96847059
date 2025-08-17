@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
       age_groups: {
@@ -59,6 +64,160 @@ export type Database = {
           year?: number | null
         }
         Relationships: []
+      }
+      custom_dashboards: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_default: boolean | null
+          layout_config: Json | null
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          layout_config?: Json | null
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          layout_config?: Json | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      dashboard_configs: {
+        Row: {
+          brands: string[]
+          chart_type: string | null
+          countries: string[]
+          created_at: string | null
+          dashboard_id: string
+          id: string
+          selected_years: number[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          brands?: string[]
+          chart_type?: string | null
+          countries?: string[]
+          created_at?: string | null
+          dashboard_id: string
+          id?: string
+          selected_years?: number[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          brands?: string[]
+          chart_type?: string | null
+          countries?: string[]
+          created_at?: string | null
+          dashboard_id?: string
+          id?: string
+          selected_years?: number[] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_configs_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "custom_dashboards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dashboard_templates: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          template_config: Json
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          template_config: Json
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          template_config?: Json
+        }
+        Relationships: []
+      }
+      dashboard_widgets: {
+        Row: {
+          configuration: Json
+          created_at: string
+          dashboard_id: string
+          height: number
+          id: string
+          position_x: number
+          position_y: number
+          title: string | null
+          updated_at: string
+          widget_type: Database["public"]["Enums"]["chart_type_enum"]
+          width: number
+        }
+        Insert: {
+          configuration?: Json
+          created_at?: string
+          dashboard_id: string
+          height?: number
+          id?: string
+          position_x?: number
+          position_y?: number
+          title?: string | null
+          updated_at?: string
+          widget_type: Database["public"]["Enums"]["chart_type_enum"]
+          width?: number
+        }
+        Update: {
+          configuration?: Json
+          created_at?: string
+          dashboard_id?: string
+          height?: number
+          id?: string
+          position_x?: number
+          position_y?: number
+          title?: string | null
+          updated_at?: string
+          widget_type?: Database["public"]["Enums"]["chart_type_enum"]
+          width?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_widgets_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "custom_dashboards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dk_brand_areas_rated: {
         Row: {
@@ -1136,6 +1295,36 @@ export type Database = {
         }
         Relationships: []
       }
+      SBI_Priorities_Age_Groups: {
+        Row: {
+          age: string | null
+          country: string | null
+          english_label_short: string | null
+          percentage: number | null
+          row_id: number
+          swedish_label_short: string | null
+          year: number | null
+        }
+        Insert: {
+          age?: string | null
+          country?: string | null
+          english_label_short?: string | null
+          percentage?: number | null
+          row_id?: number
+          swedish_label_short?: string | null
+          year?: number | null
+        }
+        Update: {
+          age?: string | null
+          country?: string | null
+          english_label_short?: string | null
+          percentage?: number | null
+          row_id?: number
+          swedish_label_short?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
       SBI_purchasing_decision_industries: {
         Row: {
           category: string | null
@@ -1439,6 +1628,39 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist_signups: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string
+          id: string
+          interest_area: string | null
+          name: string | null
+          referral_source: string | null
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          interest_area?: string | null
+          name?: string | null
+          referral_source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          interest_area?: string | null
+          name?: string | null
+          referral_source?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1448,13 +1670,40 @@ export type Database = {
         Args: { bucket_name: string }
         Returns: undefined
       }
+      get_demographic_statistics: {
+        Args: { p_country?: string }
+        Returns: {
+          avg_age: number
+          country: string
+          female_percentage: number
+          high_sustainability_impact_percentage: number
+          male_percentage: number
+          total_respondents: number
+        }[]
+      }
+      get_waitlist_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       table_exists: {
         Args: { p_table_name: string }
         Returns: boolean
       }
     }
     Enums: {
-      [_ in never]: never
+      chart_type_enum:
+        | "brand_insights_line"
+        | "brand_insights_bar"
+        | "country_comparison_line"
+        | "country_comparison_bar"
+        | "consumer_insights_behavior_groups"
+        | "consumer_insights_behavior_time_series"
+        | "consumer_insights_discussion_topics"
+        | "consumer_insights_industry_impact"
+        | "consumer_insights_influences"
+        | "consumer_insights_knowledge"
+        | "consumer_insights_sustainability_priorities"
+        | "consumer_insights_vho_priorities"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1462,21 +1711,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -1494,14 +1747,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -1517,14 +1772,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -1540,14 +1797,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -1555,20 +1814,37 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      chart_type_enum: [
+        "brand_insights_line",
+        "brand_insights_bar",
+        "country_comparison_line",
+        "country_comparison_bar",
+        "consumer_insights_behavior_groups",
+        "consumer_insights_behavior_time_series",
+        "consumer_insights_discussion_topics",
+        "consumer_insights_industry_impact",
+        "consumer_insights_influences",
+        "consumer_insights_knowledge",
+        "consumer_insights_sustainability_priorities",
+        "consumer_insights_vho_priorities",
+      ],
+    },
   },
 } as const
