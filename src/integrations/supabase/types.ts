@@ -1628,6 +1628,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       waitlist_signups: {
         Row: {
           company: string | null
@@ -1685,12 +1706,28 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: number
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_researcher: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       table_exists: {
         Args: { p_table_name: string }
         Returns: boolean
       }
     }
     Enums: {
+      app_role: "admin" | "researcher" | "user"
       chart_type_enum:
         | "brand_insights_line"
         | "brand_insights_bar"
@@ -1831,6 +1868,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "researcher", "user"],
       chart_type_enum: [
         "brand_insights_line",
         "brand_insights_bar",
